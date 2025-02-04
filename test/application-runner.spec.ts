@@ -13,18 +13,10 @@ describe('ApplicationRunner', () => {
     let dummyApplication: unknown;
 
     beforeEach(() => {
+        mockNestTestingTools();
+
         dummyModuleType = DummyModule;
         sut = new ApplicationRunner(dummyModuleType);
-
-        init = jest.fn();
-        dummyApplication = { init };
-
-        createNestApplication = jest.fn().mockReturnValue(dummyApplication);
-        compile = jest.fn().mockResolvedValue({ createNestApplication });
-
-        jest.spyOn(Test, 'createTestingModule').mockReturnValue({
-            compile,
-        } as unknown as TestingModuleBuilder);
     });
 
     describe('bootstrap', () => {
@@ -47,6 +39,18 @@ describe('ApplicationRunner', () => {
             expect(application).toStrictEqual(dummyApplication);
         });
     });
+
+    const mockNestTestingTools = (): void => {
+        init = jest.fn();
+        dummyApplication = { init };
+
+        createNestApplication = jest.fn().mockReturnValue(dummyApplication);
+        compile = jest.fn().mockResolvedValue({ createNestApplication });
+
+        jest.spyOn(Test, 'createTestingModule').mockReturnValue({
+            compile,
+        } as unknown as TestingModuleBuilder);
+    };
 });
 
 class DummyModule {}
