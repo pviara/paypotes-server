@@ -20,9 +20,14 @@ export class ApplicationRunner {
         return this.application;
     }
 
-    shutdown(): Promise<void> {
-        if (this.application) return this.application.close();
+    getApplication(): INestApplication {
+        if (this.application) return this.application;
         throw new ApplicationNotBootstrappedError();
+    }
+
+    async shutdown(): Promise<void> {
+        if (this.application) await this.application.close();
+        else throw new ApplicationNotBootstrappedError();
     }
 
     private async createApplicationFrom(

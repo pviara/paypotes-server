@@ -44,6 +44,14 @@ describe('ApplicationRunner', () => {
         });
     });
 
+    describe('getApplication', () => {
+        it('should throw an error when no application has been bootstrapped', () => {
+            expect(() => sut.getApplication()).toThrow(
+                ApplicationNotBootstrappedError,
+            );
+        });
+    });
+
     describe('shutdown', () => {
         it('should throw an error when no application has been bootstrapped', async () => {
             await expect(sut.shutdown()).rejects.toThrow(
