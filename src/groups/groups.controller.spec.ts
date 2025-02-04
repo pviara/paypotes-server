@@ -1,6 +1,6 @@
 import { App } from 'supertest/types';
-import { ApplicationRunner } from '../../test/application-runner';
-import { bootstrap, shutdown } from '../../test/utils';
+import { ApplicationRunner } from '@test/application-runner';
+import { bootstrap, shutdown } from '@test/utils';
 import { GroupsModule } from './groups.module';
 import * as request from 'supertest';
 

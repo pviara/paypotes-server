@@ -1,7 +1,7 @@
 import {
     ApplicationNotBootstrappedError,
     ApplicationRunner,
-} from './application-runner';
+} from '@test/application-runner';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Type } from '@nestjs/common';
 
