@@ -1,4 +1,7 @@
-import { ApplicationRunner } from './application-runner';
+import {
+    ApplicationNotBootstrappedError,
+    ApplicationRunner,
+} from './application-runner';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Type } from '@nestjs/common';
 
@@ -6,6 +9,7 @@ describe('ApplicationRunner', () => {
     let sut: ApplicationRunner;
     let dummyModuleType: Type<DummyModule>;
 
+    let close: jest.Mock;
     let compile: jest.Mock;
     let createNestApplication: jest.Mock;
     let init: jest.Mock;
@@ -40,9 +44,24 @@ describe('ApplicationRunner', () => {
         });
     });
 
+    describe('shutdown', () => {
+        it('should throw an error when no application has been bootstrapped', async () => {
+            await expect(sut.shutdown()).rejects.toThrow(
+                ApplicationNotBootstrappedError,
+            );
+        });
+
+        it('should directly call close method from the app that was initialized', async () => {
+            await sut.bootstrap();
+            await sut.shutdown();
+            expect(close).toHaveBeenCalledTimes(1);
+        });
+    });
+
     const mockNestTestingTools = (): void => {
+        close = jest.fn();
         init = jest.fn();
-        dummyApplication = { init };
+        dummyApplication = { close, init };
 
         createNestApplication = jest.fn().mockReturnValue(dummyApplication);
         compile = jest.fn().mockResolvedValue({ createNestApplication });
