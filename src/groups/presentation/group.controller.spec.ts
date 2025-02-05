@@ -1,13 +1,13 @@
 import { App } from 'supertest/types';
 import { ApplicationRunner } from '@test/application-runner';
 import { bootstrap, shutdown } from '@test/utils';
-import { GroupsModule } from '@groups/groups.module';
-import { GROUPS_API_ROUTE } from '@groups/presentation/groups.controller';
+import { GroupModule } from '@groups/group.module';
+import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import * as request from 'supertest';
 
-describe('GroupsController', () => {
-    const runner = new ApplicationRunner(GroupsModule);
+describe('GroupController', () => {
+    const runner = new ApplicationRunner(GroupModule);
 
     beforeAll(bootstrap(runner));
     afterAll(shutdown(runner));

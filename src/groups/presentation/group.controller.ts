@@ -4,7 +4,7 @@ import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 export const GROUPS_API_ROUTE = 'groups';
 
 @Controller(GROUPS_API_ROUTE)
-export class GroupsController {
+export class GroupController {
     @Post()
     create(@Body() group: CreateGroupDTO): void {}
 }
