@@ -68,13 +68,14 @@ export class ApplicationRunner {
 
     private overrideTypeIn(
         moduleBuilder: TestingModuleBuilder,
-    ): (options: OverridingOptions) => TestingModuleBuilder {
-        return (options: OverridingOptions): TestingModuleBuilder => {
+    ): (options: OverridingOptions) => void {
+        return (options: OverridingOptions): void => {
             switch (options.overriddenType) {
                 case OverriddenType.Provider: {
-                    return moduleBuilder
+                    moduleBuilder
                         .overrideProvider(options.overriddenToken)
                         .useClass(options.overridingClass);
+                    break;
                 }
             }
         };
