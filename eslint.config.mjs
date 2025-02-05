@@ -30,6 +30,7 @@ export default tseslint.config(
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-floating-promises': 'off',
             '@typescript-eslint/unbound-method': 'off',
+            '@typescript-eslint/no-unsafe-call': 'off',
             '@typescript-eslint/no-unsafe-argument': 'warn',
             '@typescript-eslint/explicit-function-return-type': 'error',
         },

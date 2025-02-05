@@ -13,6 +13,7 @@ describe('ApplicationRunner', () => {
     let compile: jest.Mock;
     let createNestApplication: jest.Mock;
     let init: jest.Mock;
+    let useGlobalPipes: jest.Mock;
 
     let dummyApplication: unknown;
 
@@ -35,6 +36,11 @@ describe('ApplicationRunner', () => {
         it('should compile the testing module that was created', async () => {
             await sut.bootstrap();
             expect(compile).toHaveBeenCalledTimes(1);
+        });
+
+        it('should use global application pipes', async () => {
+            await sut.bootstrap();
+            expect(useGlobalPipes).toHaveBeenCalledTimes(1);
         });
 
         it('should initialize the application then return it', async () => {
@@ -69,7 +75,8 @@ describe('ApplicationRunner', () => {
     const mockNestTestingTools = (): void => {
         close = jest.fn();
         init = jest.fn();
-        dummyApplication = { close, init };
+        useGlobalPipes = jest.fn();
+        dummyApplication = { close, init, useGlobalPipes };
 
         createNestApplication = jest.fn().mockReturnValue(dummyApplication);
         compile = jest.fn().mockResolvedValue({ createNestApplication });

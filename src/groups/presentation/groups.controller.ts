@@ -1,12 +1,10 @@
-import { Controller, Post } from '@nestjs/common';
-import { GroupDTO } from '@groups/presentation/model/group-dto.decorator';
+import { Body, Controller, Post } from '@nestjs/common';
+import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 
 export const GROUPS_API_ROUTE = 'groups';
 
 @Controller(GROUPS_API_ROUTE)
 export class GroupsController {
     @Post()
-    create(@GroupDTO() group: unknown): void {
-        console.log(group);
-    }
+    create(@Body() group: CreateGroupDTO): void {}
 }

@@ -13,7 +13,27 @@ describe('GroupsController', () => {
     afterAll(shutdown(runner));
 
     describe('POST /groups', () => {
-        const invalidPayloads = [{}, { a: 'A' }, ''];
+        const invalidPayloads = [
+            {},
+            { a: 'A' },
+            '',
+            {},
+            {
+                name: 'name',
+                emoji: '',
+                memberIds: [],
+            },
+            {
+                name: 'name',
+                emoji: '📦',
+                memberIds: [],
+            },
+            {
+                name: 'name',
+                emoji: '📦',
+                memberIds: ['invalid_uuid'],
+            },
+        ];
 
         it.each(invalidPayloads)(
             'should return 400 BAD_REQUEST when given payload "%s" is invalid',

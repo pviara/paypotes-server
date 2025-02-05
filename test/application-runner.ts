@@ -1,4 +1,4 @@
-import { INestApplication, Type } from '@nestjs/common';
+import { INestApplication, Type, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 
 type Nullable<T> = T | null;
@@ -14,6 +14,7 @@ export class ApplicationRunner {
         });
 
         const application = await this.createApplicationFrom(moduleBuilder);
+        application.useGlobalPipes(new ValidationPipe());
         await application.init();
 
         this.application = application;
