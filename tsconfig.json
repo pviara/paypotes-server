@@ -16,6 +16,7 @@
     "paths": {
       "@groups/*": ["src/groups/*"],
       "@test/*": ["test/*"],
+      "@users/*": ["src/users/*"]
     }
   }
 }

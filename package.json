@@ -64,7 +64,8 @@
     "rootDir": ".",
     "moduleNameMapper": {
       "@groups/(.*)": "<rootDir>/src/groups/$1",
-      "@test/(.*)": "<rootDir>/test/$1"
+      "@test/(.*)": "<rootDir>/test/$1",
+      "@users/(.*)": "<rootDir>/src/users/$1"
     },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
