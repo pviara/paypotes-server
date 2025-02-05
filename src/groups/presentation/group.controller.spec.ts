@@ -9,14 +9,14 @@ import {
     UserInMemoryTestingRepository,
     UserTestingRepository,
 } from '@test/persistence/user.testing-repository';
-import { UserRepositoryToken } from '@users/persistence/user.repository-provider';
+import { userRepositoryToken } from '@users/persistence/user-repository.provider';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
     const runner = new ApplicationRunner(GroupModule, [
         {
             overridingClass: UserInMemoryTestingRepository,
-            overriddenToken: UserRepositoryToken,
+            overriddenToken: userRepositoryToken,
             overriddenType: OverriddenType.Provider,
         },
     ]);
@@ -81,7 +81,7 @@ describe('GroupController', () => {
             beforeEach(async () => {
                 const userRepo = runner
                     .getApplication()
-                    .get<UserTestingRepository>(UserRepositoryToken);
+                    .get<UserTestingRepository>(userRepositoryToken);
 
                 await userRepo.empty();
                 await userRepo.insert(...dummyGroupUsers);
@@ -121,7 +121,7 @@ describe('GroupController', () => {
             beforeEach(async () => {
                 const userRepo = runner
                     .getApplication()
-                    .get<UserTestingRepository>(UserRepositoryToken);
+                    .get<UserTestingRepository>(userRepositoryToken);
 
                 await userRepo.empty();
                 await userRepo.insert(...dummyGroupUsers);
@@ -136,7 +136,11 @@ describe('GroupController', () => {
 
                 const response = await request(httpServer)
                     .post(`/${GROUPS_API_ROUTE}`)
-                    .send({ memberIds });
+                    .send({
+                        name: 'name',
+                        emoji: '✈️',
+                        memberIds,
+                    });
 
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
             });

@@ -1,6 +1,6 @@
 import { Spy } from '@test/doubles/spy';
-import { UserRepository } from '@users/persistence/user.repository';
 import { User } from '@users/domain/user';
+import { UserRepository } from '@users/persistence/user.repository';
 
 export class UserRepositorySpy
     extends Spy<UserRepository>

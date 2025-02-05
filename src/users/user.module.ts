@@ -1,7 +1,11 @@
 import { Module } from '@nestjs/common';
-import { UserRepositoryProvider } from '@users/persistence/user.repository-provider';
+import {
+    userRepositoryProvider,
+    userRepositoryToken,
+} from '@users/persistence/user-repository.provider';
 
 @Module({
-    providers: [UserRepositoryProvider],
+    exports: [userRepositoryToken],
+    providers: [userRepositoryProvider],
 })
 export class UserModule {}

@@ -1,0 +1,54 @@
+import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
+import {
+    CreateGroup,
+    GroupRepository,
+} from '@groups/persistence/group.repository';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { Inject } from '@nestjs/common';
+import { UserRepository } from '@users/persistence/user.repository';
+import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+
+export class CreateGroupCommand implements ICommand {
+    constructor(
+        readonly name: string,
+        readonly emoji: string,
+        readonly memberIds: Array<string>,
+    ) {}
+
+    raw(): CreateGroup {
+        return {
+            name: this.name,
+            emoji: this.emoji,
+            memberIds: this.memberIds,
+        };
+    }
+}
+
+@CommandHandler(CreateGroupCommand)
+export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
+    constructor(
+        @Inject(groupRepositoryToken)
+        private groupRepository: GroupRepository,
+
+        @Inject(userRepositoryToken)
+        private userRepository: UserRepository,
+    ) {}
+
+    async execute(command: CreateGroupCommand): Promise<void> {
+        const users = await this.userRepository.get(...command.memberIds);
+        if (users.length < command.memberIds.length) {
+            throw new MemberNotFoundError();
+        }
+
+        const group = command.raw();
+        return this.groupRepository.save(group);
+    }
+}
+
+export class MemberNotFoundError extends Error {
+    constructor() {
+        super(
+            `Group cannot be created: at least one member could not be found`,
+        );
+    }
+}

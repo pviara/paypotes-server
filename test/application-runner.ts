@@ -5,6 +5,7 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
+import { ErrorFilter } from '../src/error-filter';
 
 type Nullable<T> = T | null;
 
@@ -36,6 +37,7 @@ export class ApplicationRunner {
 
         const application = await this.createApplicationFrom(moduleBuilder);
         application.useGlobalPipes(new ValidationPipe());
+        application.useGlobalFilters(new ErrorFilter());
 
         await application.init();
 

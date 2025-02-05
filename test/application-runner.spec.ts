@@ -17,6 +17,7 @@ describe('ApplicationRunner', () => {
     let init: jest.Mock;
     let overrideProvider: jest.Mock;
     let useClass: jest.Mock;
+    let useGlobalFilters: jest.Mock;
     let useGlobalPipes: jest.Mock;
 
     let dummyApplication: unknown;
@@ -45,6 +46,11 @@ describe('ApplicationRunner', () => {
         it('should use global application pipes', async () => {
             await sut.bootstrap();
             expect(useGlobalPipes).toHaveBeenCalledTimes(1);
+        });
+
+        it('should use global application filters', async () => {
+            await sut.bootstrap();
+            expect(useGlobalFilters).toHaveBeenCalledTimes(1);
         });
 
         it('should initialize the application then return it', async () => {
@@ -146,9 +152,10 @@ describe('ApplicationRunner', () => {
     const mockNestTestingTools = (): void => {
         close = jest.fn();
         init = jest.fn();
+        useGlobalFilters = jest.fn();
         useGlobalPipes = jest.fn();
 
-        dummyApplication = { close, init, useGlobalPipes };
+        dummyApplication = { close, init, useGlobalFilters, useGlobalPipes };
 
         createNestApplication = jest.fn().mockReturnValue(dummyApplication);
         compile = jest.fn().mockResolvedValue({ createNestApplication });
