@@ -1,20 +1,42 @@
-import { INestApplication, Type, ValidationPipe } from '@nestjs/common';
+import {
+    INestApplication,
+    InjectionToken,
+    Type,
+    ValidationPipe,
+} from '@nestjs/common';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 
 type Nullable<T> = T | null;
 
+export enum OverriddenType {
+    Provider,
+}
+
+type ProviderOverrideOptions = {
+    overridingClass: Type;
+    overriddenToken: InjectionToken;
+    overriddenType: OverriddenType.Provider;
+};
+
+export type OverridingOptions = ProviderOverrideOptions;
+
 export class ApplicationRunner {
     private application: Nullable<INestApplication> = null;
 
-    constructor(private moduleType: Type) {}
+    constructor(
+        private moduleType: Type,
+        private overridingOptions: Array<OverridingOptions> = [],
+    ) {}
 
     async bootstrap(): Promise<INestApplication> {
         const moduleBuilder = Test.createTestingModule({
             imports: [this.moduleType],
         });
+        this.overrideTypesIn(moduleBuilder);
 
         const application = await this.createApplicationFrom(moduleBuilder);
         application.useGlobalPipes(new ValidationPipe());
+
         await application.init();
 
         this.application = application;
@@ -36,6 +58,30 @@ export class ApplicationRunner {
     ): Promise<INestApplication> {
         const module = await moduleBuilder.compile();
         return module.createNestApplication();
+    }
+
+    private overrideTypesIn(moduleBuilder: TestingModuleBuilder): void {
+        if (this.hasOverridingBeenPlanned()) {
+            this.overridingOptions.forEach(this.overrideTypeIn(moduleBuilder));
+        }
+    }
+
+    private overrideTypeIn(
+        moduleBuilder: TestingModuleBuilder,
+    ): (options: OverridingOptions) => TestingModuleBuilder {
+        return (options: OverridingOptions): TestingModuleBuilder => {
+            switch (options.overriddenType) {
+                case OverriddenType.Provider: {
+                    return moduleBuilder
+                        .overrideProvider(options.overriddenToken)
+                        .useClass(options.overridingClass);
+                }
+            }
+        };
+    }
+
+    private hasOverridingBeenPlanned(): boolean {
+        return this.overridingOptions.length > 0;
     }
 }
 

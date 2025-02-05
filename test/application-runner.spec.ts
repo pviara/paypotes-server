@@ -1,6 +1,8 @@
 import {
     ApplicationNotBootstrappedError,
     ApplicationRunner,
+    OverriddenType,
+    OverridingOptions,
 } from '@test/application-runner';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Type } from '@nestjs/common';
@@ -13,6 +15,8 @@ describe('ApplicationRunner', () => {
     let compile: jest.Mock;
     let createNestApplication: jest.Mock;
     let init: jest.Mock;
+    let overrideProvider: jest.Mock;
+    let useClass: jest.Mock;
     let useGlobalPipes: jest.Mock;
 
     let dummyApplication: unknown;
@@ -48,6 +52,73 @@ describe('ApplicationRunner', () => {
             expect(init).toHaveBeenCalledTimes(1);
             expect(application).toStrictEqual(dummyApplication);
         });
+
+        describe('overriding options have been given', () => {
+            it('should override given providers', async () => {
+                const dummyOverridingOptions: Array<OverridingOptions> = [
+                    {
+                        overridingClass: DummyProviderClass,
+                        overriddenToken: 'Token',
+                        overriddenType: OverriddenType.Provider,
+                    },
+                    {
+                        overridingClass: DummyProviderClass,
+                        overriddenToken: 'AnotherToken',
+                        overriddenType: OverriddenType.Provider,
+                    },
+                ];
+
+                sut = new ApplicationRunner(
+                    dummyModuleType,
+                    dummyOverridingOptions,
+                );
+                await sut.bootstrap();
+
+                expectProvidersToHaveBeenOverriddenUsing(
+                    dummyOverridingOptions,
+                );
+            });
+
+            class DummyProviderClass {}
+
+            function expectProvidersToHaveBeenOverriddenUsing(
+                dummyOverridingOptions: Array<OverridingOptions>,
+            ): void {
+                expectOverrideProviderMethodToHaveBeenCalledUsing(
+                    dummyOverridingOptions,
+                );
+
+                expectUseClassMethodToHaveBeenCalledUsing(
+                    dummyOverridingOptions,
+                );
+            }
+
+            function expectOverrideProviderMethodToHaveBeenCalledUsing(
+                dummyOverridingOptions: Array<OverridingOptions>,
+            ): void {
+                expect(overrideProvider).toHaveBeenCalledTimes(
+                    dummyOverridingOptions.length,
+                );
+                dummyOverridingOptions.forEach((options: OverridingOptions) =>
+                    expect(overrideProvider).toHaveBeenCalledWith(
+                        options.overriddenToken,
+                    ),
+                );
+            }
+
+            function expectUseClassMethodToHaveBeenCalledUsing(
+                dummyOverridingOptions: Array<OverridingOptions>,
+            ): void {
+                expect(useClass).toHaveBeenCalledTimes(
+                    dummyOverridingOptions.length,
+                );
+                dummyOverridingOptions.forEach((options: OverridingOptions) =>
+                    expect(useClass).toHaveBeenCalledWith(
+                        options.overridingClass,
+                    ),
+                );
+            }
+        });
     });
 
     describe('getApplication', () => {
@@ -76,13 +147,17 @@ describe('ApplicationRunner', () => {
         close = jest.fn();
         init = jest.fn();
         useGlobalPipes = jest.fn();
+
         dummyApplication = { close, init, useGlobalPipes };
 
         createNestApplication = jest.fn().mockReturnValue(dummyApplication);
         compile = jest.fn().mockResolvedValue({ createNestApplication });
 
+        useClass = jest.fn();
+        overrideProvider = jest.fn().mockReturnValue({ useClass });
         jest.spyOn(Test, 'createTestingModule').mockReturnValue({
             compile,
+            overrideProvider,
         } as unknown as TestingModuleBuilder);
     };
 });
