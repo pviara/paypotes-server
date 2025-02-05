@@ -8,6 +8,9 @@ import {
 } from 'class-validator';
 
 export class CreateGroupDTO {
+    @IsUUID('4')
+    id!: string;
+
     @IsString()
     @MinLength(2)
     name!: string;

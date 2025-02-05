@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { ErrorFilter } from '@app/error-filter';
+import { UserTestingRepository } from '../user.testing-repository';
+import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { GroupTestingRepository } from '../group.testing-repository';
 
 type Nullable<T> = T | null;
 
@@ -47,6 +51,20 @@ export class ApplicationRunner {
 
     getApplication(): INestApplication {
         if (this.application) return this.application;
+        throw new ApplicationNotBootstrappedError();
+    }
+
+    getGroupRepository(): GroupTestingRepository {
+        if (this.application) {
+            return this.getApplication().get(groupRepositoryToken);
+        }
+        throw new ApplicationNotBootstrappedError();
+    }
+
+    getUserRepository(): UserTestingRepository {
+        if (this.application) {
+            return this.getApplication().get(userRepositoryToken);
+        }
         throw new ApplicationNotBootstrappedError();
     }
 

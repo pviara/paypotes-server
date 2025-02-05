@@ -7,9 +7,12 @@ import { groupRepositoryToken } from '@groups/persistence/group.repository-provi
 import { Inject } from '@nestjs/common';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { Group } from '@groups/domain/group';
+import { User } from '@users/domain/user';
 
 export class CreateGroupCommand implements ICommand {
     constructor(
+        readonly id: string,
         readonly name: string,
         readonly emoji: string,
         readonly memberIds: Array<string>,
@@ -17,6 +20,7 @@ export class CreateGroupCommand implements ICommand {
 
     raw(): CreateGroup {
         return {
+            id: this.id,
             name: this.name,
             emoji: this.emoji,
             memberIds: this.memberIds,
@@ -40,8 +44,15 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
             throw new MemberNotFoundError();
         }
 
-        const group = command.raw();
+        const group = this.buildGroupFrom(command, users);
         return this.groupRepository.save(group);
+    }
+
+    private buildGroupFrom(
+        { id, name, emoji }: CreateGroupCommand,
+        members: Array<User>,
+    ): Group {
+        return new Group({ id, name, emoji, members });
     }
 }
 

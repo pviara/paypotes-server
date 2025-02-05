@@ -6,13 +6,14 @@ import {
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { User } from '@users/domain/user';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
+import { Group } from '@groups/domain/group';
 
 describe('CreateGroupHandler', () => {
     let sut: CreateGroupHandler;
     let groupRepo: GroupRepositorySpy;
     let userRepo: UserRepositorySpy;
 
-    const dummyCommand = new CreateGroupCommand('name', 'emoji', [
+    const dummyCommand = new CreateGroupCommand('id', 'name', 'emoji', [
         'id1',
         'id2',
         'id3',
@@ -54,11 +55,14 @@ describe('CreateGroupHandler', () => {
         it('should save group', async () => {
             await sut.execute(dummyCommand);
             expect(groupRepo.calls.save.count).toBe(1);
-            expect(groupRepo.calls.save.history).toContainEqual({
+
+            const group = new Group({
+                id: dummyCommand.id,
                 name: dummyCommand.name,
                 emoji: dummyCommand.emoji,
-                memberIds: dummyCommand.memberIds,
+                members: dummyUsers,
             });
+            expect(groupRepo.calls.save.history).toContainEqual(group);
         });
     });
 

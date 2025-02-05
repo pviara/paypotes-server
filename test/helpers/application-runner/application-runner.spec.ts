@@ -6,6 +6,8 @@ import {
 } from '@test/helpers/application-runner/application-runner';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Type } from '@nestjs/common';
+import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 
 describe('ApplicationRunner', () => {
     let sut: ApplicationRunner;
@@ -15,12 +17,13 @@ describe('ApplicationRunner', () => {
     let compile: jest.Mock;
     let createNestApplication: jest.Mock;
     let init: jest.Mock;
+    let get: jest.Mock;
     let overrideProvider: jest.Mock;
     let useClass: jest.Mock;
     let useGlobalFilters: jest.Mock;
     let useGlobalPipes: jest.Mock;
 
-    let dummyApplication: unknown;
+    let dummyApplication: Record<string, jest.Mock>;
 
     beforeEach(() => {
         mockNestTestingTools();
@@ -133,6 +136,45 @@ describe('ApplicationRunner', () => {
                 ApplicationNotBootstrappedError,
             );
         });
+
+        it('should retrieve runner application', async () => {
+            await sut.bootstrap();
+
+            const application = sut.getApplication();
+            expect(application).toStrictEqual(dummyApplication);
+        });
+    });
+
+    describe('getGroupRepository', () => {
+        it('should throw an error when no application has been bootstrapped', () => {
+            expect(() => sut.getGroupRepository()).toThrow(
+                ApplicationNotBootstrappedError,
+            );
+        });
+
+        it('should call get method from application to retrieve group repository', async () => {
+            await sut.bootstrap();
+            sut.getGroupRepository();
+
+            expect(get).toHaveBeenCalledTimes(1);
+            expect(get).toHaveBeenCalledWith(groupRepositoryToken);
+        });
+    });
+
+    describe('getUserRepository', () => {
+        it('should throw an error when no application has been bootstrapped', () => {
+            expect(() => sut.getUserRepository()).toThrow(
+                ApplicationNotBootstrappedError,
+            );
+        });
+
+        it('should call get method from application to retrieve user repository', async () => {
+            await sut.bootstrap();
+            sut.getUserRepository();
+
+            expect(get).toHaveBeenCalledTimes(1);
+            expect(get).toHaveBeenCalledWith(userRepositoryToken);
+        });
     });
 
     describe('shutdown', () => {
@@ -152,10 +194,17 @@ describe('ApplicationRunner', () => {
     const mockNestTestingTools = (): void => {
         close = jest.fn();
         init = jest.fn();
+        get = jest.fn();
         useGlobalFilters = jest.fn();
         useGlobalPipes = jest.fn();
 
-        dummyApplication = { close, init, useGlobalFilters, useGlobalPipes };
+        dummyApplication = {
+            close,
+            get,
+            init,
+            useGlobalFilters,
+            useGlobalPipes,
+        };
 
         createNestApplication = jest.fn().mockReturnValue(dummyApplication);
         compile = jest.fn().mockResolvedValue({ createNestApplication });
