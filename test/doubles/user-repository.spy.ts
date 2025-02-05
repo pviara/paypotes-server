@@ -1,4 +1,4 @@
-import { Spy } from '@test/doubles/spy';
+import { Spy } from '@test/helpers/spy';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 

@@ -5,7 +5,7 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { ErrorFilter } from '../src/error-filter';
+import { ErrorFilter } from '@app/error-filter';
 
 type Nullable<T> = T | null;
 

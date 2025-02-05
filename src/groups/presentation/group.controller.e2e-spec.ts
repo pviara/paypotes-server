@@ -1,6 +1,14 @@
 import { App } from 'supertest/types';
-import { ApplicationRunner, OverriddenType } from '@test/application-runner';
-import { bootstrap, shutdown } from '@test/utils';
+import {
+    ApplicationRunner,
+    OverriddenType,
+    OverridingOptions,
+} from '@test/helpers/application-runner/application-runner';
+import {
+    bootstrap,
+    createOverridingProviderFrom,
+    shutdown,
+} from '@test/helpers/utils';
 import { GroupModule } from '@groups/group.module';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
@@ -8,17 +16,16 @@ import { User } from '@users/domain/user';
 import {
     UserInMemoryTestingRepository,
     UserTestingRepository,
-} from '@test/persistence/user.testing-repository';
+} from '@test/helpers/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
     const runner = new ApplicationRunner(GroupModule, [
-        {
-            overridingClass: UserInMemoryTestingRepository,
-            overriddenToken: userRepositoryToken,
-            overriddenType: OverriddenType.Provider,
-        },
+        createOverridingProviderFrom(
+            userRepositoryToken,
+            UserInMemoryTestingRepository,
+        ),
     ]);
 
     beforeAll(bootstrap(runner));

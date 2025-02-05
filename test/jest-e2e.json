@@ -1,14 +1,15 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
-  "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
-  "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
-  },
-  "moduleNameMapper": {
-    "@groups/(.*)": "<rootDir>/../src/groups/$1",
-    "@test/(.*)": "<rootDir>/$1",
-    "@users/(.*)": "<rootDir>/../src/users/$1"
-  }
+    "moduleFileExtensions": ["js", "json", "ts"],
+    "rootDir": "../src",
+    "testEnvironment": "node",
+    "testRegex": ".e2e-spec.ts$",
+    "transform": {
+        "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "moduleNameMapper": {
+        "@groups/(.*)": "<rootDir>/../src/groups/$1",
+        "@test/(.*)": "<rootDir>/../test/$1",
+        "@users/(.*)": "<rootDir>/../src/users/$1",
+        "@app/(.*)": "<rootDir>/../src/$1"
+    }
 }

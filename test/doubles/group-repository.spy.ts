@@ -2,7 +2,7 @@ import {
     CreateGroup,
     GroupRepository,
 } from '@groups/persistence/group.repository';
-import { Spy } from '@test/doubles/spy';
+import { Spy } from '@test/helpers/spy';
 
 export class GroupRepositorySpy
     extends Spy<GroupRepository>

@@ -3,7 +3,7 @@ import {
     ApplicationRunner,
     OverriddenType,
     OverridingOptions,
-} from '@test/application-runner';
+} from '@test/helpers/application-runner/application-runner';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Type } from '@nestjs/common';
 

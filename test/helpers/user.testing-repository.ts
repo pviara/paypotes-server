@@ -1,13 +1,11 @@
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { Injectable } from '@nestjs/common';
 
 export interface UserTestingRepository extends UserRepository {
     empty(): Promise<void>;
     insert(...users: Array<User>): Promise<void>;
 }
 
-@Injectable()
 export class UserInMemoryTestingRepository implements UserTestingRepository {
     private users: Array<User> = [];
 
