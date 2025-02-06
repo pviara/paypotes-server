@@ -11,6 +11,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateGroupCommand } from '@groups/application/create-group.handler';
 import { GetGroupByIdQuery } from '@groups/application/get-group-by-id.handler';
 import { Group } from '@groups/domain/group';
+import { User } from '@users/domain/user';
 
 export const GROUPS_API_ROUTE = 'groups';
 
@@ -32,8 +33,31 @@ export class GroupController {
     }
 
     @Get(':id')
-    getById(@GroupId() id: string): Promise<Group[]> {
+    async getById(@GroupId() id: string): Promise<GroupDTO> {
         const query = new GetGroupByIdQuery(id);
-        return this.queryBus.execute(query);
+        const group = await this.queryBus.execute<typeof query, Group>(query);
+        return {
+            id: group.getId(),
+            name: group.getName(),
+            emoji: group.getEmoji(),
+            members: group.getMembers().map((member: User) => ({
+                id: member.getId(),
+                firstname: member.getFirstname(),
+                lastname: member.getLastname(),
+            })),
+        };
     }
 }
+
+type GroupDTO = {
+    id: string;
+    name: string;
+    emoji: string;
+    members: Array<UserDTO>;
+};
+
+type UserDTO = {
+    id: string;
+    firstname: string;
+    lastname: string;
+};

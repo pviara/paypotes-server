@@ -16,6 +16,6 @@ export class User {
     }
 
     getLastname(): string {
-        return this.data.firstname;
+        return this.data.lastname;
     }
 }

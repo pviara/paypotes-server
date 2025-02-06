@@ -177,7 +177,6 @@ describe('GroupController', () => {
                         memberIds,
                     });
 
-                console.log(response.text);
                 expect(response.status).toBe(HttpStatus.CREATED);
             });
         });
