@@ -1,17 +1,20 @@
 import {
     ApplicationNotBootstrappedError,
     ApplicationRunner,
-    OverriddenType,
-    OverridingOptions,
 } from '@test/helpers/application-runner/application-runner';
+import {
+    OverridingClassProvider,
+    OverridingProvider,
+    OverridingProviders,
+    OverridingValueProvider,
+} from '@test/helpers/application-runner/model/overriding-provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Type } from '@nestjs/common';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 
 describe('ApplicationRunner', () => {
     let sut: ApplicationRunner;
-    let dummyModuleType: Type<DummyModule>;
+
+    let modules: Type<DummyModule>[];
 
     let close: jest.Mock;
     let compile: jest.Mock;
@@ -22,14 +25,15 @@ describe('ApplicationRunner', () => {
     let useClass: jest.Mock;
     let useGlobalFilters: jest.Mock;
     let useGlobalPipes: jest.Mock;
+    let useValue: jest.Mock;
 
     let dummyApplication: Record<string, jest.Mock>;
 
     beforeEach(() => {
         mockNestTestingTools();
 
-        dummyModuleType = DummyModule;
-        sut = new ApplicationRunner(dummyModuleType);
+        modules = [DummyModule];
+        sut = new ApplicationRunner({ modules });
     });
 
     describe('bootstrap', () => {
@@ -37,7 +41,7 @@ describe('ApplicationRunner', () => {
             await sut.bootstrap();
             expect(Test.createTestingModule).toHaveBeenCalledTimes(1);
             expect(Test.createTestingModule).toHaveBeenCalledWith({
-                imports: [dummyModuleType],
+                imports: modules,
             });
         });
 
@@ -46,14 +50,14 @@ describe('ApplicationRunner', () => {
             expect(compile).toHaveBeenCalledTimes(1);
         });
 
-        it('should use global application pipes', async () => {
-            await sut.bootstrap();
-            expect(useGlobalPipes).toHaveBeenCalledTimes(1);
-        });
-
-        it('should use global application filters', async () => {
+        it('should use global filters', async () => {
             await sut.bootstrap();
             expect(useGlobalFilters).toHaveBeenCalledTimes(1);
+        });
+
+        it('should use global pipes', async () => {
+            await sut.bootstrap();
+            expect(useGlobalPipes).toHaveBeenCalledTimes(1);
         });
 
         it('should initialize the application then return it', async () => {
@@ -62,70 +66,51 @@ describe('ApplicationRunner', () => {
             expect(application).toStrictEqual(dummyApplication);
         });
 
-        describe('overriding options have been given', () => {
-            it('should override given providers', async () => {
-                const dummyOverridingOptions: Array<OverridingOptions> = [
-                    {
-                        overridingClass: DummyProviderClass,
-                        overriddenToken: 'Token',
-                        overriddenType: OverriddenType.Provider,
-                    },
-                    {
-                        overridingClass: DummyProviderClass,
-                        overriddenToken: 'AnotherToken',
-                        overriddenType: OverriddenType.Provider,
-                    },
-                ];
+        describe('overriding providers have been given', () => {
+            it('should override given provider using a class', async () => {
+                const overridingProvider: OverridingProvider = {
+                    provide: 'dummy_token',
+                    useClass: DummyProviderClass,
+                };
+                const providers: OverridingProviders = [overridingProvider];
 
-                sut = new ApplicationRunner(
-                    dummyModuleType,
-                    dummyOverridingOptions,
-                );
+                sut = new ApplicationRunner({ modules, providers });
                 await sut.bootstrap();
 
-                expectProvidersToHaveBeenOverriddenUsing(
-                    dummyOverridingOptions,
+                expectClassProviderToHaveBeenOverriddenUsing(
+                    overridingProvider,
+                );
+            });
+
+            it('should override given provider using a value', async () => {
+                const overridingProvider: OverridingProvider = {
+                    provide: 'dummy_token',
+                    useValue: { prop: 'value' },
+                };
+                const providers: OverridingProviders = [overridingProvider];
+
+                sut = new ApplicationRunner({ modules, providers });
+                await sut.bootstrap();
+
+                expectValueProviderToHaveBeenOverriddenUsing(
+                    overridingProvider,
                 );
             });
 
             class DummyProviderClass {}
 
-            function expectProvidersToHaveBeenOverriddenUsing(
-                dummyOverridingOptions: Array<OverridingOptions>,
+            function expectClassProviderToHaveBeenOverriddenUsing(
+                provider: OverridingClassProvider,
             ): void {
-                expectOverrideProviderMethodToHaveBeenCalledUsing(
-                    dummyOverridingOptions,
-                );
-
-                expectUseClassMethodToHaveBeenCalledUsing(
-                    dummyOverridingOptions,
-                );
+                expect(overrideProvider).toHaveBeenCalledWith(provider.provide);
+                expect(useClass).toHaveBeenCalledWith(provider.useClass);
             }
 
-            function expectOverrideProviderMethodToHaveBeenCalledUsing(
-                dummyOverridingOptions: Array<OverridingOptions>,
+            function expectValueProviderToHaveBeenOverriddenUsing(
+                provider: OverridingValueProvider,
             ): void {
-                expect(overrideProvider).toHaveBeenCalledTimes(
-                    dummyOverridingOptions.length,
-                );
-                dummyOverridingOptions.forEach((options: OverridingOptions) =>
-                    expect(overrideProvider).toHaveBeenCalledWith(
-                        options.overriddenToken,
-                    ),
-                );
-            }
-
-            function expectUseClassMethodToHaveBeenCalledUsing(
-                dummyOverridingOptions: Array<OverridingOptions>,
-            ): void {
-                expect(useClass).toHaveBeenCalledTimes(
-                    dummyOverridingOptions.length,
-                );
-                dummyOverridingOptions.forEach((options: OverridingOptions) =>
-                    expect(useClass).toHaveBeenCalledWith(
-                        options.overridingClass,
-                    ),
-                );
+                expect(overrideProvider).toHaveBeenCalledWith(provider.provide);
+                expect(useValue).toHaveBeenCalledWith(provider.useValue);
             }
         });
     });
@@ -142,38 +127,6 @@ describe('ApplicationRunner', () => {
 
             const application = sut.getApplication();
             expect(application).toStrictEqual(dummyApplication);
-        });
-    });
-
-    describe('getGroupRepository', () => {
-        it('should throw an error when no application has been bootstrapped', () => {
-            expect(() => sut.getGroupRepository()).toThrow(
-                ApplicationNotBootstrappedError,
-            );
-        });
-
-        it('should call get method from application to retrieve group repository', async () => {
-            await sut.bootstrap();
-            sut.getGroupRepository();
-
-            expect(get).toHaveBeenCalledTimes(1);
-            expect(get).toHaveBeenCalledWith(groupRepositoryToken);
-        });
-    });
-
-    describe('getUserRepository', () => {
-        it('should throw an error when no application has been bootstrapped', () => {
-            expect(() => sut.getUserRepository()).toThrow(
-                ApplicationNotBootstrappedError,
-            );
-        });
-
-        it('should call get method from application to retrieve user repository', async () => {
-            await sut.bootstrap();
-            sut.getUserRepository();
-
-            expect(get).toHaveBeenCalledTimes(1);
-            expect(get).toHaveBeenCalledWith(userRepositoryToken);
         });
     });
 
@@ -210,7 +163,9 @@ describe('ApplicationRunner', () => {
         compile = jest.fn().mockResolvedValue({ createNestApplication });
 
         useClass = jest.fn();
-        overrideProvider = jest.fn().mockReturnValue({ useClass });
+        useValue = jest.fn();
+
+        overrideProvider = jest.fn().mockReturnValue({ useClass, useValue });
         jest.spyOn(Test, 'createTestingModule').mockReturnValue({
             compile,
             overrideProvider,

@@ -1,13 +1,15 @@
 import { App } from 'supertest/types';
 import { ApplicationRunner } from '@test/helpers/application-runner/application-runner';
-import {
-    bootstrap,
-    createOverridingProviderFrom,
-    shutdown,
-} from '@test/helpers/utils';
 import { GroupModule } from '@groups/group.module';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
+import { Group } from '@groups/domain/group';
+import {
+    GroupInMemoryTestingRepository,
+    GroupTestingRepository,
+} from '@test/helpers/group.testing-repository';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { HttpStatus } from '@nestjs/common';
+import { shutdown } from '@test/helpers/utils';
 import { User } from '@users/domain/user';
 import {
     UserInMemoryTestingRepository,
@@ -15,24 +17,21 @@ import {
 } from '@test/helpers/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
 import * as request from 'supertest';
-import { Group } from '@groups/domain/group';
-import {
-    GroupInMemoryTestingRepository,
-    GroupTestingRepository,
-} from '@test/helpers/group.testing-repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 
 describe('GroupController', () => {
-    const runner = new ApplicationRunner(GroupModule, [
-        createOverridingProviderFrom(
-            groupRepositoryToken,
-            GroupInMemoryTestingRepository,
-        ),
-        createOverridingProviderFrom(
-            userRepositoryToken,
-            UserInMemoryTestingRepository,
-        ),
-    ]);
+    const runner = new ApplicationRunner({
+        modules: [GroupModule],
+        providers: [
+            {
+                provide: userRepositoryToken,
+                useClass: UserInMemoryTestingRepository,
+            },
+            {
+                provide: groupRepositoryToken,
+                useClass: GroupInMemoryTestingRepository,
+            },
+        ],
+    });
 
     let groupRepo: GroupTestingRepository;
     let userRepo: UserTestingRepository;
@@ -60,8 +59,13 @@ describe('GroupController', () => {
     beforeAll(async () => {
         await runner.bootstrap();
 
-        groupRepo = runner.getGroupRepository();
-        userRepo = runner.getUserRepository();
+        groupRepo = runner
+            .getApplication()
+            .get<GroupTestingRepository>(groupRepositoryToken);
+
+        userRepo = runner
+            .getApplication()
+            .get<UserTestingRepository>(userRepositoryToken);
     });
 
     afterAll(shutdown(runner));
@@ -196,7 +200,6 @@ describe('GroupController', () => {
             ];
 
             beforeEach(async () => {
-                const userRepo = runner.getUserRepository();
                 await userRepo.empty();
                 await userRepo.insert(...dummyGroupUsers);
             });
