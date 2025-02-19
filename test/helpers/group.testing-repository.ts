@@ -3,6 +3,7 @@ import { Group } from '@groups/domain/group';
 
 export interface GroupTestingRepository extends GroupRepository {
     empty(): Promise<void>;
+    groupSaved(id: string): boolean;
     insert(...groups: Array<Group>): Promise<void>;
 }
 
@@ -17,6 +18,10 @@ export class GroupInMemoryTestingRepository implements GroupTestingRepository {
     getById(id: string): Promise<Group | null> {
         const group = this.groups.find((group: Group) => group.getId() === id);
         return Promise.resolve(group ?? null);
+    }
+
+    groupSaved(id: string): boolean {
+        return this.groups.some((group) => group.getId() === id);
     }
 
     insert(...groups: Array<Group>): Promise<void> {

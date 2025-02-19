@@ -170,18 +170,21 @@ describe('GroupController', () => {
 
             it('should insert a group in database', async () => {
                 const httpServer = getHttpServerFromApp();
+
+                const groupId = crypto.randomUUID();
                 const memberIds = mapIdsFrom(dummyGroupUsers);
 
                 const response = await request(httpServer)
                     .post(`/${GROUPS_API_ROUTE}`)
                     .send({
-                        id: crypto.randomUUID(),
+                        id: groupId,
                         name: 'name',
                         emoji: '🏕️',
                         memberIds,
                     });
 
                 expect(response.status).toBe(HttpStatus.CREATED);
+                expect(groupRepo.groupSaved(groupId)).toBe(true);
             });
         });
 
