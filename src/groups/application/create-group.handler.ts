@@ -3,11 +3,11 @@ import {
     CreateGroup,
     GroupRepository,
 } from '@groups/persistence/group.repository';
+import { Group } from '@groups/domain/group';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
-import { Group } from '@groups/domain/group';
 import { User } from '@users/domain/user';
 
 export class CreateGroupCommand implements ICommand {
@@ -17,15 +17,6 @@ export class CreateGroupCommand implements ICommand {
         readonly emoji: string,
         readonly memberIds: Array<string>,
     ) {}
-
-    raw(): CreateGroup {
-        return {
-            id: this.id,
-            name: this.name,
-            emoji: this.emoji,
-            memberIds: this.memberIds,
-        };
-    }
 }
 
 @CommandHandler(CreateGroupCommand)

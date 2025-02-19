@@ -3,10 +3,10 @@ import {
     CreateGroupHandler,
     MemberNotFoundError,
 } from '@groups/application/create-group.handler';
+import { Group } from '@groups/domain/group';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { User } from '@users/domain/user';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
-import { Group } from '@groups/domain/group';
 
 describe('CreateGroupHandler', () => {
     let sut: CreateGroupHandler;

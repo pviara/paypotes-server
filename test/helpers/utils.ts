@@ -1,5 +1,5 @@
 import { ApplicationRunner } from '@test/helpers/application-runner/application-runner';
-import { INestApplication, Type } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 
 type Callback<T> = () => T;
 type AsyncCallback<T> = Callback<Promise<T>>;
