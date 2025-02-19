@@ -20,6 +20,10 @@ export class GroupInMemoryTestingRepository implements GroupTestingRepository {
         return Promise.resolve(group ?? null);
     }
 
+    getMany(): Promise<Group[]> {
+        return Promise.resolve(this.groups.slice(0, 20));
+    }
+
     groupSaved(id: string): boolean {
         return this.groups.some((group) => group.getId() === id);
     }

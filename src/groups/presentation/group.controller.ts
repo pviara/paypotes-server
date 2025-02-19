@@ -12,6 +12,7 @@ import { CreateGroupCommand } from '@groups/application/create-group.handler';
 import { GetGroupByIdQuery } from '@groups/application/get-group-by-id.handler';
 import { Group } from '@groups/domain/group';
 import { User } from '@users/domain/user';
+import { GetManyGroupsQuery } from '@groups/application/get-many-groups.handler';
 
 export const GROUPS_API_ROUTE = 'groups';
 
@@ -39,6 +40,15 @@ export class GroupController {
         return this.mapDTOFrom(group);
     }
 
+    @Get()
+    async getMany(): Promise<GroupDTO[]> {
+        const query = new GetManyGroupsQuery();
+        const groups = await this.queryBus.execute<typeof query, Group[]>(
+            query,
+        );
+        return this.mapDTOsFrom(groups);
+    }
+
     private mapDTOFrom(group: Group): GroupDTO {
         return {
             id: group.getId(),
@@ -58,6 +68,10 @@ export class GroupController {
             firstname: member.getFirstname(),
             lastname: member.getLastname(),
         });
+    }
+
+    private mapDTOsFrom(groups: Group[]): GroupDTO[] {
+        return groups.map((group) => this.mapDTOFrom(group));
     }
 }
 

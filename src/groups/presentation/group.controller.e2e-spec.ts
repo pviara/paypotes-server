@@ -71,6 +71,48 @@ describe('GroupController', () => {
     afterAll(shutdown(runner));
 
     describe('GET /groups', () => {
+        describe('no group exists', () => {
+            it('should return an empty array', async () => {
+                const httpServer = getHttpServerFromApp();
+                const response = await request(httpServer).get(
+                    `/${GROUPS_API_ROUTE}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.OK);
+                expect(response.body.length).toBe(0);
+            });
+        });
+
+        describe('some groups exist', () => {
+            beforeEach(() => {
+                insertDummyGroups();
+            });
+
+            it('should return the first 20 groups by default', async () => {
+                const httpServer = getHttpServerFromApp();
+                const response = await request(httpServer).get(
+                    `/${GROUPS_API_ROUTE}`,
+                );
+
+                expect(response.body.length).toBe(20);
+            });
+
+            function insertDummyGroups(): void {
+                const groups = Array.from({ length: 50 }).map(
+                    (_, index) =>
+                        new Group({
+                            id: crypto.randomUUID(),
+                            name: `name_${index}`,
+                            emoji: '🚀',
+                            members: [],
+                        }),
+                );
+                groupRepo.insert(...groups);
+            }
+        });
+    });
+
+    describe('GET /groups/:id', () => {
         it.each(['id', null, 59391, NaN, undefined])(
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
             async (param: any) => {

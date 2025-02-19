@@ -7,6 +7,9 @@ export class GroupRepositorySpy
     implements GroupRepository
 {
     readonly calls = {
+        getMany: {
+            count: 0,
+        },
         getById: {
             count: 0,
             history: [] as Array<string>,
@@ -21,6 +24,11 @@ export class GroupRepositorySpy
         this.calls.getById.count++;
         this.calls.getById.history.push(id);
         return this.getStubOrDefault('getById', null);
+    }
+
+    async getMany(): Promise<Group[]> {
+        this.calls.getMany.count++;
+        return this.getStubOrDefault('getMany', []);
     }
 
     async save(group: Group): Promise<void> {
