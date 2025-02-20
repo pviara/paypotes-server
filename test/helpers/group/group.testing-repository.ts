@@ -1,5 +1,5 @@
-import { GroupRepository } from '@groups/persistence/group.repository';
 import { Group } from '@groups/domain/group';
+import { GroupRepository } from '@groups/persistence/group.repository';
 
 export interface GroupTestingRepository extends GroupRepository {
     empty(): Promise<void>;

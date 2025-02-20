@@ -7,8 +7,13 @@ import {
 } from '@test/helpers/application-runner/model/overriding-provider';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { Nullable } from '@test/helpers/application-runner/model/nullable';
-import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { ErrorFilter } from '@app/error-filter';
+import { GroupTestingRepository } from '../group/group.testing-repository';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { Test, TestingModuleBuilder } from '@nestjs/testing';
+import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { UserTestingRepository } from '../user/user.testing-repository';
+import { App } from 'supertest/types';
 
 type ApplicationRunnerResources = {
     modules: Modules;
@@ -34,6 +39,18 @@ export class ApplicationRunner {
     getApplication(): INestApplication {
         if (this.application) return this.application;
         throw new ApplicationNotBootstrappedError();
+    }
+
+    getGroupRepository(): GroupTestingRepository {
+        return this.getApplication().get(groupRepositoryToken);
+    }
+
+    getHttpServer(): App {
+        return this.getApplication().getHttpServer();
+    }
+
+    getUserRepository(): UserTestingRepository {
+        return this.getApplication().get(userRepositoryToken);
     }
 
     async shutdown(): Promise<void> {

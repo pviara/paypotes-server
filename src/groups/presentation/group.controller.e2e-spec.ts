@@ -1,71 +1,39 @@
 import { App } from 'supertest/types';
 import { ApplicationRunner } from '@test/helpers/application-runner/application-runner';
-import { GroupModule } from '@groups/group.module';
+import {
+    generateRandomGroup,
+    generateRandomGroups,
+    generateRandomUsers,
+    mapIdsFrom,
+    shutdown,
+} from '@test/helpers/utils';
+import {
+    groupSpecModules as modules,
+    groupSpecProviders as providers,
+} from '@test/helpers/group/utils';
+import { GroupTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
-import { Group } from '@groups/domain/group';
-import {
-    GroupInMemoryTestingRepository,
-    GroupTestingRepository,
-} from '@test/helpers/group.testing-repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { HttpStatus } from '@nestjs/common';
-import { shutdown } from '@test/helpers/utils';
 import { User } from '@users/domain/user';
-import {
-    UserInMemoryTestingRepository,
-    UserTestingRepository,
-} from '@test/helpers/user.testing-repository';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { UserTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
-    const runner = new ApplicationRunner({
-        modules: [GroupModule],
-        providers: [
-            {
-                provide: userRepositoryToken,
-                useClass: UserInMemoryTestingRepository,
-            },
-            {
-                provide: groupRepositoryToken,
-                useClass: GroupInMemoryTestingRepository,
-            },
-        ],
-    });
+    const runner = new ApplicationRunner({ modules, providers });
 
     let groupRepo: GroupTestingRepository;
     let userRepo: UserTestingRepository;
+    let httpServer: App;
 
-    const dummyUsers = [
-        new User({
-            id: crypto.randomUUID(),
-            firstname: 'A',
-            lastname: 'a',
-        }),
-        new User({
-            id: crypto.randomUUID(),
-            firstname: 'B',
-            lastname: 'b',
-        }),
-    ];
-
-    const dummyGroup = new Group({
-        id: crypto.randomUUID(),
-        name: 'name',
-        emoji: '📅',
-        members: dummyUsers,
-    });
+    const dummyUsers = generateRandomUsers();
+    const dummyGroup = generateRandomGroup({ members: dummyUsers });
 
     beforeAll(async () => {
         await runner.bootstrap();
 
-        groupRepo = runner
-            .getApplication()
-            .get<GroupTestingRepository>(groupRepositoryToken);
-
-        userRepo = runner
-            .getApplication()
-            .get<UserTestingRepository>(userRepositoryToken);
+        groupRepo = runner.getGroupRepository();
+        userRepo = runner.getUserRepository();
+        httpServer = runner.getHttpServer();
     });
 
     afterAll(shutdown(runner));
@@ -73,7 +41,6 @@ describe('GroupController', () => {
     describe('GET /groups', () => {
         describe('no group exists', () => {
             it('should return an empty array', async () => {
-                const httpServer = getHttpServerFromApp();
                 const response = await request(httpServer).get(
                     `/${GROUPS_API_ROUTE}`,
                 );
@@ -85,30 +52,17 @@ describe('GroupController', () => {
 
         describe('some groups exist', () => {
             beforeEach(() => {
-                insertDummyGroups();
+                const dummyGroups = generateRandomGroups({ length: 50 });
+                groupRepo.insert(...dummyGroups);
             });
 
             it('should return the first 20 groups by default', async () => {
-                const httpServer = getHttpServerFromApp();
                 const response = await request(httpServer).get(
                     `/${GROUPS_API_ROUTE}`,
                 );
 
                 expect(response.body.length).toBe(20);
             });
-
-            function insertDummyGroups(): void {
-                const groups = Array.from({ length: 50 }).map(
-                    (_, index) =>
-                        new Group({
-                            id: crypto.randomUUID(),
-                            name: `name_${index}`,
-                            emoji: '🚀',
-                            members: [],
-                        }),
-                );
-                groupRepo.insert(...groups);
-            }
         });
     });
 
@@ -116,7 +70,6 @@ describe('GroupController', () => {
         it.each(['id', null, 59391, NaN, undefined])(
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
             async (param: any) => {
-                const httpServer = getHttpServerFromApp();
                 const response = await request(httpServer).get(
                     `/${GROUPS_API_ROUTE}/${param}`,
                 );
@@ -125,11 +78,10 @@ describe('GroupController', () => {
             },
         );
 
-        it('should return the right group', async () => {
-            await userRepo.insert(...dummyUsers);
+        it('should return the right group for given id', async () => {
+            await userRepo.insert(...dummyGroup.getMembers());
             await groupRepo.insert(dummyGroup);
 
-            const httpServer = getHttpServerFromApp();
             const response = await request(httpServer).get(
                 `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
             );
@@ -148,32 +100,19 @@ describe('GroupController', () => {
     });
 
     describe('POST /groups', () => {
-        const invalidPayloads = [
-            {},
-            { a: 'A' },
+        const dummyGroupMembers = generateRandomUsers();
+        const invalidPayloads: NonNullable<unknown>[] = [
             '',
             {},
-            {
-                name: 'name',
-                emoji: '',
-                memberIds: [],
-            },
-            {
-                name: 'name',
-                emoji: '📦',
-                memberIds: [],
-            },
-            {
-                name: 'name',
-                emoji: '📦',
-                memberIds: ['invalid_uuid'],
-            },
+            { a: 'A' },
+            { name: 'name', emoji: '', memberIds: [] },
+            { name: 'name', emoji: '📦', memberIds: [] },
+            { name: 'name', emoji: '📦', memberIds: ['invalid_uuid'] },
         ];
 
         it.each(invalidPayloads)(
             'should return 400 BAD_REQUEST when given payload "%s" is invalid',
             async (payload: NonNullable<unknown>) => {
-                const httpServer = getHttpServerFromApp();
                 const response = await request(httpServer)
                     .post(`/${GROUPS_API_ROUTE}`)
                     .send(payload);
@@ -182,39 +121,15 @@ describe('GroupController', () => {
             },
         );
 
-        describe('all group users exist', () => {
-            const dummyGroupUsers: Array<User> = [
-                new User({
-                    id: crypto.randomUUID(),
-                    firstname: 'A',
-                    lastname: 'a',
-                }),
-                new User({
-                    id: crypto.randomUUID(),
-                    firstname: 'B',
-                    lastname: 'b',
-                }),
-                new User({
-                    id: crypto.randomUUID(),
-                    firstname: 'C',
-                    lastname: 'c',
-                }),
-            ];
-
+        describe("all of group's users exist", () => {
             beforeEach(async () => {
-                const userRepo = runner
-                    .getApplication()
-                    .get<UserTestingRepository>(userRepositoryToken);
-
                 await userRepo.empty();
-                await userRepo.insert(...dummyGroupUsers);
+                await userRepo.insert(...dummyGroupMembers);
             });
 
             it('should insert a group in database', async () => {
-                const httpServer = getHttpServerFromApp();
-
                 const groupId = crypto.randomUUID();
-                const memberIds = mapIdsFrom(dummyGroupUsers);
+                const memberIds = mapIdsFrom(dummyGroupMembers);
 
                 const response = await request(httpServer)
                     .post(`/${GROUPS_API_ROUTE}`)
@@ -230,31 +145,18 @@ describe('GroupController', () => {
             });
         });
 
-        describe("some group users don't exist", () => {
-            const dummyGroupUsers: Array<User> = [
-                new User({
-                    id: crypto.randomUUID(),
-                    firstname: 'A',
-                    lastname: 'a',
-                }),
-                new User({
-                    id: crypto.randomUUID(),
-                    firstname: 'B',
-                    lastname: 'b',
-                }),
-            ];
-
+        describe("some of group's users don't exist", () => {
             beforeEach(async () => {
                 await userRepo.empty();
-                await userRepo.insert(...dummyGroupUsers);
+                await userRepo.insert(...dummyGroupMembers);
             });
 
             it('should return 404 NOT_FOUND', async () => {
-                const httpServer = getHttpServerFromApp();
-
                 const NOT_EXISTING_ID = crypto.randomUUID();
-                const memberIds =
-                    mapIdsFrom(dummyGroupUsers).concat(NOT_EXISTING_ID);
+                const memberIds = [
+                    ...mapIdsFrom(dummyGroupMembers),
+                    NOT_EXISTING_ID,
+                ];
 
                 const response = await request(httpServer)
                     .post(`/${GROUPS_API_ROUTE}`)
@@ -268,13 +170,5 @@ describe('GroupController', () => {
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
             });
         });
-
-        function mapIdsFrom(dummyGroupUsers: Array<User>): Array<string> {
-            return dummyGroupUsers.map((user: User) => user.getId());
-        }
     });
-
-    function getHttpServerFromApp(): App {
-        return runner.getApplication().getHttpServer() as App;
-    }
 });
