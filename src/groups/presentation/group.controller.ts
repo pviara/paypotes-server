@@ -46,7 +46,7 @@ export class GroupController {
         @Actor() actor: User,
         @GroupId() id: string,
     ): Promise<GroupDTO> {
-        const query = new GetGroupByIdQuery(id);
+        const query = new GetGroupByIdQuery({ actor, id });
         const group = await this.queryBus.execute<typeof query, Group>(query);
         return this.mapDTOFrom(group);
     }

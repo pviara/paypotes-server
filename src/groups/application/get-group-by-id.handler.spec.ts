@@ -1,3 +1,4 @@
+import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
 import {
     GetGroupByIdHandler,
     GetGroupByIdQuery,
@@ -11,7 +12,10 @@ describe('GetGroupByIdHandler', () => {
     let groupRepo: GroupRepositorySpy;
 
     const dummyId = crypto.randomUUID();
-    const dummyQuery = new GetGroupByIdQuery(dummyId);
+    const dummyQuery = new GetGroupByIdQuery({
+        actor: AUTHENTICATED_USER,
+        id: dummyId,
+    });
 
     const dummyGroup = new Group({
         id: dummyId,
