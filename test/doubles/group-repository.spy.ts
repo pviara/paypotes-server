@@ -10,9 +10,9 @@ export class GroupRepositorySpy
         getMany: {
             count: 0,
         },
-        getById: {
+        getActorGroupById: {
             count: 0,
-            history: [] as Array<string>,
+            history: [] as Array<string[]>,
         },
         save: {
             count: 0,
@@ -20,10 +20,13 @@ export class GroupRepositorySpy
         },
     };
 
-    async getById(id: string): Promise<Group | null> {
-        this.calls.getById.count++;
-        this.calls.getById.history.push(id);
-        return this.getStubOrDefault('getById', null);
+    async getActorGroupById(
+        actorId: string,
+        groupId: string,
+    ): Promise<Group | null> {
+        this.calls.getActorGroupById.count++;
+        this.calls.getActorGroupById.history.push([actorId, groupId]);
+        return this.getStubOrDefault('getActorGroupById', null);
     }
 
     async getMany(): Promise<Group[]> {

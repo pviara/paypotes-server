@@ -3,28 +3,34 @@ import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
-import { User } from '@app/users/domain/user';
 
-export class GetGroupByIdQuery implements IQuery {
+export class GetActorGroupByIdQuery implements IQuery {
     constructor(
         readonly payload: {
-            actor: User;
-            id: string;
+            actorId: string;
+            groupId: string;
         },
     ) {}
 }
 
-@QueryHandler(GetGroupByIdQuery)
-export class GetGroupByIdHandler implements IQueryHandler<GetGroupByIdQuery> {
+@QueryHandler(GetActorGroupByIdQuery)
+export class GetActorGroupByIdHandler
+    implements IQueryHandler<GetActorGroupByIdQuery>
+{
     constructor(
         @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
     ) {}
 
-    async execute({ payload }: GetGroupByIdQuery): Promise<Group> {
-        const group = await this.groupRepository.getById(payload.id);
-        if (!group) throw new GroupNotFoundError(payload.id);
-        return group;
+    async execute(query: GetActorGroupByIdQuery): Promise<Group> {
+        const { actorId, groupId } = query.payload;
+        const group = await this.groupRepository.getActorGroupById(
+            actorId,
+            groupId,
+        );
+
+        if (group) return group;
+        throw new GroupNotFoundError(groupId);
     }
 }
 

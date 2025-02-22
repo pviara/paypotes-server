@@ -1,24 +1,25 @@
 import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
 import {
-    GetGroupByIdHandler,
-    GetGroupByIdQuery,
+    GetActorGroupByIdHandler,
+    GetActorGroupByIdQuery,
     GroupNotFoundError,
-} from '@groups/application/get-group-by-id.handler';
+} from '@app/groups/application/get-actor-group-by-id.handler';
 import { Group } from '@groups/domain/group';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 
 describe('GetGroupByIdHandler', () => {
-    let sut: GetGroupByIdHandler;
+    let sut: GetActorGroupByIdHandler;
     let groupRepo: GroupRepositorySpy;
 
-    const dummyId = crypto.randomUUID();
-    const dummyQuery = new GetGroupByIdQuery({
-        actor: AUTHENTICATED_USER,
-        id: dummyId,
+    const dummyActorId = AUTHENTICATED_USER.getId();
+    const dummyGroupId = crypto.randomUUID();
+    const dummyQuery = new GetActorGroupByIdQuery({
+        actorId: dummyActorId,
+        groupId: dummyGroupId,
     });
 
     const dummyGroup = new Group({
-        id: dummyId,
+        id: dummyGroupId,
         name: 'name',
         emoji: '🚧',
         members: [],
@@ -26,16 +27,19 @@ describe('GetGroupByIdHandler', () => {
 
     beforeEach(() => {
         groupRepo = new GroupRepositorySpy();
-        sut = new GetGroupByIdHandler(groupRepo);
+        sut = new GetActorGroupByIdHandler(groupRepo);
 
-        groupRepo.stub('getById', dummyGroup);
+        groupRepo.stub('getActorGroupById', dummyGroup);
     });
 
     it('should retrieve the group by its id', async () => {
         await sut.execute(dummyQuery);
 
-        expect(groupRepo.calls.getById.count).toBe(1);
-        expect(groupRepo.calls.getById.history).toContain(dummyId);
+        expect(groupRepo.calls.getActorGroupById.count).toBe(1);
+        expect(groupRepo.calls.getActorGroupById.history).toContainEqual([
+            dummyActorId,
+            dummyGroupId,
+        ]);
     });
 
     it('should return the group that was retrieved', async () => {
@@ -45,7 +49,7 @@ describe('GetGroupByIdHandler', () => {
 
     describe("group doesn't exist", () => {
         it('should throw an error', async () => {
-            groupRepo.stub('getById', null);
+            groupRepo.stub('getActorGroupById', null);
             await expect(sut.execute(dummyQuery)).rejects.toThrow(
                 GroupNotFoundError,
             );

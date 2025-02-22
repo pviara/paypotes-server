@@ -15,8 +15,10 @@ export class GroupInMemoryTestingRepository implements GroupTestingRepository {
         return Promise.resolve();
     }
 
-    getById(id: string): Promise<Group | null> {
-        const group = this.groups.find((group: Group) => group.getId() === id);
+    getActorGroupById(actorId: string, groupId: string): Promise<Group | null> {
+        const group = this.groups.find(
+            (group: Group) => group.getId() === groupId,
+        );
         return Promise.resolve(group ?? null);
     }
 
