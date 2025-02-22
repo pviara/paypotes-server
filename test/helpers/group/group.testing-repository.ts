@@ -22,7 +22,7 @@ export class GroupInMemoryTestingRepository implements GroupTestingRepository {
         return Promise.resolve(group ?? null);
     }
 
-    getMany(): Promise<Group[]> {
+    getActorGroups(): Promise<Group[]> {
         return Promise.resolve(this.groups.slice(0, 20));
     }
 

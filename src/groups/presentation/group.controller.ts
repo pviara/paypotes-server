@@ -12,7 +12,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { CreateGroupCommand } from '@groups/application/create-group.handler';
 import { GetActorGroupByIdQuery } from '@app/groups/application/get-actor-group-by-id.handler';
-import { GetManyGroupsQuery } from '@groups/application/get-many-groups.handler';
+import { GetActorGroupsQuery } from '@app/groups/application/get-actor-groups.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import { User } from '@users/domain/user';
@@ -42,21 +42,23 @@ export class GroupController {
     }
 
     @Get(':id')
-    async getById(
+    async getActorGroupById(
         @ActorId() actorId: string,
         @GroupId() groupId: string,
     ): Promise<GroupDTO> {
         const query = new GetActorGroupByIdQuery({ actorId, groupId });
-        const group = await this.queryBus.execute<typeof query, Group>(query);
+        const group = await this.queryBus.execute(query);
         return this.mapDTOFrom(group);
     }
 
     @Get()
-    async getMany(): Promise<GroupDTO[]> {
-        const query = new GetManyGroupsQuery();
-        const groups = await this.queryBus.execute<typeof query, Group[]>(
-            query,
-        );
+    async getActorGroups(@ActorId() actorId: string): Promise<GroupDTO[]> {
+        const query = new GetActorGroupsQuery({
+            actorId,
+            pageIndex: 0,
+            search: '',
+        });
+        const groups = await this.queryBus.execute(query);
         return this.mapDTOsFrom(groups);
     }
 

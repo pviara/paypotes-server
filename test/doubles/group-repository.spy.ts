@@ -7,12 +7,13 @@ export class GroupRepositorySpy
     implements GroupRepository
 {
     readonly calls = {
-        getMany: {
-            count: 0,
-        },
         getActorGroupById: {
             count: 0,
-            history: [] as Array<string[]>,
+            history: [] as Array<[string, string]>,
+        },
+        getActorGroups: {
+            count: 0,
+            history: [] as Array<[string, number, string]>,
         },
         save: {
             count: 0,
@@ -29,9 +30,14 @@ export class GroupRepositorySpy
         return this.getStubOrDefault('getActorGroupById', null);
     }
 
-    async getMany(): Promise<Group[]> {
-        this.calls.getMany.count++;
-        return this.getStubOrDefault('getMany', []);
+    async getActorGroups(
+        actorId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<Group[]> {
+        this.calls.getActorGroups.count++;
+        this.calls.getActorGroups.history.push([actorId, pageIndex, search]);
+        return this.getStubOrDefault('getActorGroups', []);
     }
 
     async save(group: Group): Promise<void> {

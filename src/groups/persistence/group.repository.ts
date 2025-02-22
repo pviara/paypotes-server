@@ -9,15 +9,23 @@ export type CreateGroup = {
 
 export interface GroupRepository {
     getActorGroupById(actorId: string, groupId: string): Promise<Group | null>;
-    getMany(): Promise<Group[]>;
+    getActorGroups(
+        actorId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<Group[]>;
     save(group: Group): Promise<void>;
 }
 
 export class GroupInMemoryRepository implements GroupRepository {
-    getMany(): Promise<Group[]> {
+    getActorGroupById(groupId: string): Promise<Group | null> {
         throw new Error('Method not implemented.');
     }
-    getActorGroupById(groupId: string): Promise<Group | null> {
+    getActorGroups(
+        actorId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<Group[]> {
         throw new Error('Method not implemented.');
     }
     save(group: Group): Promise<void> {

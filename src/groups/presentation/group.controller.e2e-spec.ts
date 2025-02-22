@@ -67,11 +67,13 @@ describe('GroupController', () => {
     });
 
     describe('GET /groups/:id', () => {
-        it.each(['id', null, 59391, NaN, undefined])(
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
-            async (param: any) => {
+            async (id: unknown) => {
                 const response = await request(httpServer).get(
-                    `/${GROUPS_API_ROUTE}/${param}`,
+                    `/${GROUPS_API_ROUTE}/${id}`,
                 );
 
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);

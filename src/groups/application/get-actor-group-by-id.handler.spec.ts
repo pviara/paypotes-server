@@ -32,7 +32,7 @@ describe('GetGroupByIdHandler', () => {
         groupRepo.stub('getActorGroupById', dummyGroup);
     });
 
-    it('should retrieve the group by its id', async () => {
+    it("should retrieve the actor's group by its id", async () => {
         await sut.execute(dummyQuery);
 
         expect(groupRepo.calls.getActorGroupById.count).toBe(1);
@@ -47,7 +47,7 @@ describe('GetGroupByIdHandler', () => {
         expect(result).toStrictEqual(dummyGroup);
     });
 
-    describe("group doesn't exist", () => {
+    describe("actor's group doesn't exist", () => {
         it('should throw an error', async () => {
             groupRepo.stub('getActorGroupById', null);
             await expect(sut.execute(dummyQuery)).rejects.toThrow(
