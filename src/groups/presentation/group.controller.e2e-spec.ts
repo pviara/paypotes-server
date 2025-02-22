@@ -6,6 +6,8 @@ import {
     mapIdsFrom,
     shutdown,
 } from '@test/helpers/utils';
+import { Group } from '@groups/domain/group';
+import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import {
     groupSpecModules as modules,
     groupSpecProviders as providers,
@@ -17,8 +19,6 @@ import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { User } from '@users/domain/user';
 import { UserTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
-import { GroupDTO } from './dto/group.dto';
-import { Group } from '../domain/group';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
