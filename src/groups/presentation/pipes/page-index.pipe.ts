@@ -1,6 +1,6 @@
 import { PipeTransform } from '@nestjs/common';
 
-export class CustomParseIntPipe implements PipeTransform {
+export class PageIndexPipe implements PipeTransform {
     transform(value: any) {
         return +value || 0;
     }

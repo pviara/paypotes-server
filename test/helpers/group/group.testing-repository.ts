@@ -28,7 +28,14 @@ export class GroupInMemoryTestingRepository implements GroupTestingRepository {
         search: string,
     ): Promise<Group[]> {
         const start = pageIndex * 20;
-        return Promise.resolve(this.groups.slice(start, start + 20));
+        const paginatedGroups = this.groups.slice(start, start + 20);
+        if (search) {
+            const filteredGroups = paginatedGroups.filter((group) =>
+                group.getName().includes(search),
+            );
+            return Promise.resolve(filteredGroups);
+        }
+        return Promise.resolve(paginatedGroups);
     }
 
     groupSaved(id: string): boolean {

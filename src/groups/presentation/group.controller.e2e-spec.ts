@@ -95,8 +95,18 @@ describe('GroupController', () => {
                 }
             });
 
-            // todo: implement search feature
-            describe('search has been given', () => {});
+            describe('search has been given', () => {
+                it('should return the groups that match the search', async () => {
+                    const targetGroup = dummyGroups[0];
+                    const search = targetGroup.getName();
+
+                    const response = await request(httpServer).get(
+                        `/${GROUPS_API_ROUTE}?search=${search}`,
+                    );
+
+                    expect(response.body[0].id).toBe(targetGroup.getId());
+                });
+            });
 
             function expectReturnedDtosToBeTheFirstTwentyGroups(
                 dtos: Array<GroupDTO>,

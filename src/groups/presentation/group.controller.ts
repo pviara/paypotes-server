@@ -16,14 +16,16 @@ import { GetActorGroupByIdQuery } from '@app/groups/application/get-actor-group-
 import { GetActorGroupsQuery } from '@app/groups/application/get-actor-groups.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
+import { PageIndexPipe } from '@groups/presentation/pipes/page-index.pipe';
+import { SearchPipe } from '@groups/presentation/pipes/search.pipe.ts';
 import { User } from '@users/domain/user';
 import { UserDTO } from '@users/presentation/user.dto';
-import { CustomParseIntPipe } from './pipes/custom-parse-int.pipe';
 
 export const GROUPS_API_ROUTE = 'groups';
 
 const GroupId = (): ParameterDecorator => Param('id', ParseUUIDPipe);
-const PageIndex = () => Query('pageIndex', CustomParseIntPipe);
+const PageIndex = () => Query('pageIndex', PageIndexPipe);
+const Search = () => Query('search', SearchPipe);
 
 @AuthGuard()
 @Controller(GROUPS_API_ROUTE)
@@ -58,11 +60,12 @@ export class GroupController {
     async getActorGroups(
         @ActorId() actorId: string,
         @PageIndex() pageIndex: number,
+        @Search() search: string,
     ): Promise<GroupDTO[]> {
         const query = new GetActorGroupsQuery({
             actorId,
             pageIndex,
-            search: '',
+            search,
         });
         const groups = await this.queryBus.execute(query);
         return this.mapDTOsFrom(groups);

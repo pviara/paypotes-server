@@ -9,7 +9,7 @@ export class GetActorGroupsQuery implements IQuery {
         readonly payload: {
             actorId: string;
             pageIndex: number;
-            search?: string;
+            search: string;
         },
     ) {}
 }
@@ -25,10 +25,6 @@ export class GetActorGroupsHandler
 
     async execute(query: GetActorGroupsQuery): Promise<Group[]> {
         const { actorId, pageIndex, search } = query.payload;
-        return this.groupRepository.getActorGroups(
-            actorId,
-            pageIndex,
-            search || '',
-        );
+        return this.groupRepository.getActorGroups(actorId, pageIndex, search);
     }
 }
