@@ -1,3 +1,4 @@
+import { App } from 'supertest/types';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import {
     isClassProvider,
@@ -13,7 +14,6 @@ import { groupRepositoryToken } from '@groups/persistence/group.repository-provi
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
 import { UserTestingRepository } from '../user/user.testing-repository';
-import { App } from 'supertest/types';
 
 type ApplicationRunnerResources = {
     modules: Modules;

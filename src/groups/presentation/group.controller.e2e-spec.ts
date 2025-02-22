@@ -1,5 +1,4 @@
 import { App } from 'supertest/types';
-import { ApplicationRunner } from '@test/helpers/application-runner/application-runner';
 import {
     generateRandomGroup,
     generateRandomGroups,
@@ -14,12 +13,13 @@ import {
 import { GroupTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
+import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { User } from '@users/domain/user';
 import { UserTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
-    const runner = new ApplicationRunner({ modules, providers });
+    const runner = initRunnerWith(modules, providers);
 
     let groupRepo: GroupTestingRepository;
     let userRepo: UserTestingRepository;
