@@ -1,3 +1,4 @@
+import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
 import {
     CreateGroupCommand,
     CreateGroupHandler,
@@ -13,11 +14,21 @@ describe('CreateGroupHandler', () => {
     let groupRepo: GroupRepositorySpy;
     let userRepo: UserRepositorySpy;
 
-    const dummyCommand = new CreateGroupCommand('id', 'name', 'emoji', [
-        'id1',
-        'id2',
-        'id3',
-    ]);
+    const dummyGroupId = crypto.randomUUID();
+    const dummyGroupName = 'Holidays';
+    const dummyGroupEmoji = '🏖️';
+    const dummyMemberIds = [
+        crypto.randomUUID(),
+        crypto.randomUUID(),
+        crypto.randomUUID(),
+    ];
+
+    const dummyCommand = new CreateGroupCommand({
+        id: dummyGroupId,
+        name: dummyGroupName,
+        emoji: dummyGroupEmoji,
+        memberIds: dummyMemberIds,
+    });
 
     let dummyUsers: Array<User>;
 
@@ -26,16 +37,14 @@ describe('CreateGroupHandler', () => {
         userRepo = new UserRepositorySpy();
         sut = new CreateGroupHandler(groupRepo, userRepo);
 
-        dummyUsers = mapToUsers(dummyCommand.memberIds);
+        dummyUsers = mapToUsers(dummyMemberIds);
         userRepo.stub('get', dummyUsers);
     });
 
     it('should check that all group users exist', async () => {
         await sut.execute(dummyCommand);
         expect(userRepo.calls.get.count).toBe(1);
-        expect(userRepo.calls.get.history).toContainEqual(
-            dummyCommand.memberIds,
-        );
+        expect(userRepo.calls.get.history).toContainEqual(dummyMemberIds);
     });
 
     describe("some group users don't exist", () => {
@@ -57,9 +66,9 @@ describe('CreateGroupHandler', () => {
             expect(groupRepo.calls.save.count).toBe(1);
 
             const group = new Group({
-                id: dummyCommand.id,
-                name: dummyCommand.name,
-                emoji: dummyCommand.emoji,
+                id: dummyGroupId,
+                name: dummyGroupName,
+                emoji: dummyGroupEmoji,
                 members: dummyUsers,
             });
             expect(groupRepo.calls.save.history).toContainEqual(group);

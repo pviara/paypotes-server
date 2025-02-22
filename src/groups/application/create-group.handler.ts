@@ -1,21 +1,19 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
-import {
-    CreateGroup,
-    GroupRepository,
-} from '@groups/persistence/group.repository';
 import { Group } from '@groups/domain/group';
+import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
-import { User } from '@users/domain/user';
 
 export class CreateGroupCommand implements ICommand {
     constructor(
-        readonly id: string,
-        readonly name: string,
-        readonly emoji: string,
-        readonly memberIds: Array<string>,
+        readonly payload: {
+            id: string;
+            name: string;
+            emoji: string;
+            memberIds: Array<string>;
+        },
     ) {}
 }
 
@@ -30,20 +28,21 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
     ) {}
 
     async execute(command: CreateGroupCommand): Promise<void> {
-        const users = await this.userRepository.get(...command.memberIds);
-        if (users.length < command.memberIds.length) {
+        const { payload } = command;
+
+        const users = await this.userRepository.get(...payload.memberIds);
+        if (users.length < payload.memberIds.length) {
             throw new MemberNotFoundError();
         }
 
-        const group = this.buildGroupFrom(command, users);
-        return this.groupRepository.save(group);
-    }
-
-    private buildGroupFrom(
-        { id, name, emoji }: CreateGroupCommand,
-        members: Array<User>,
-    ): Group {
-        return new Group({ id, name, emoji, members });
+        return this.groupRepository.save(
+            new Group({
+                id: payload.id,
+                name: payload.name,
+                emoji: payload.emoji,
+                members: users,
+            }),
+        );
     }
 }
 

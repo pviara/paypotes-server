@@ -22,8 +22,8 @@ export const GROUPS_API_ROUTE = 'groups';
 
 const GroupId = (): ParameterDecorator => Param('id', ParseUUIDPipe);
 
-@Controller(GROUPS_API_ROUTE)
 @AuthGuard()
+@Controller(GROUPS_API_ROUTE)
 export class GroupController {
     constructor(
         private commandBus: CommandBus,
@@ -31,13 +31,13 @@ export class GroupController {
     ) {}
 
     @Post()
-    create(@Body() dto: CreateGroupDTO): Promise<void> {
-        const command = new CreateGroupCommand(
-            dto.id,
-            dto.name,
-            dto.emoji,
-            dto.memberIds,
-        );
+    create(@Body() group: CreateGroupDTO): Promise<void> {
+        const command = new CreateGroupCommand({
+            id: group.id,
+            name: group.name,
+            emoji: group.emoji,
+            memberIds: group.memberIds,
+        });
         return this.commandBus.execute(command);
     }
 
