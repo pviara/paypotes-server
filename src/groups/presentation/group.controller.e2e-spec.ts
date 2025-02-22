@@ -17,6 +17,8 @@ import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { User } from '@users/domain/user';
 import { UserTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { GroupDTO } from './dto/group.dto';
+import { Group } from '../domain/group';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -51,8 +53,12 @@ describe('GroupController', () => {
         });
 
         describe('some groups exist', () => {
+            let dummyGroups: Array<Group>;
+
             beforeEach(() => {
-                const dummyGroups = generateRandomGroups({ length: 50 });
+                dummyGroups = generateRandomGroups({ length: 40 });
+
+                groupRepo.empty();
                 groupRepo.insert(...dummyGroups);
             });
 
@@ -61,8 +67,52 @@ describe('GroupController', () => {
                     `/${GROUPS_API_ROUTE}`,
                 );
 
-                expect(response.body.length).toBe(20);
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheFirstTwentyGroups(dtos);
             });
+
+            describe('page index has been given', () => {
+                it('should return the second 20 groups when given index is 1', async () => {
+                    const response = await request(httpServer).get(
+                        `/${GROUPS_API_ROUTE}?pageIndex=1`,
+                    );
+
+                    const dtos = response.body;
+                    expect(dtos.length).toBe(20);
+                    expectReturnedDtosToBeTheSecondTwentyGroups(dtos);
+                });
+
+                function expectReturnedDtosToBeTheSecondTwentyGroups(
+                    dtos: Array<GroupDTO>,
+                ): void {
+                    const secondTwentyGroups = dummyGroups.slice(20, 40);
+                    const returnedDtosAreTheSecondTwentyGroups = dtos.every(
+                        dtoIsIn(secondTwentyGroups),
+                    );
+
+                    expect(returnedDtosAreTheSecondTwentyGroups).toBe(true);
+                }
+            });
+
+            // todo: implement search feature
+            describe('search has been given', () => {});
+
+            function expectReturnedDtosToBeTheFirstTwentyGroups(
+                dtos: Array<GroupDTO>,
+            ): void {
+                const firstTwentyGroups = dummyGroups.slice(0, 20);
+                const returnedDtosAreTheFirstTwentyGroups = dtos.every(
+                    dtoIsIn(firstTwentyGroups),
+                );
+
+                expect(returnedDtosAreTheFirstTwentyGroups).toBe(true);
+            }
+
+            function dtoIsIn(groups: Array<Group>): (dto: GroupDTO) => boolean {
+                return (dto: GroupDTO) =>
+                    groups.some((group) => group.getId() === dto.id);
+            }
         });
     });
 
@@ -123,7 +173,7 @@ describe('GroupController', () => {
             },
         );
 
-        describe("all of group's users exist", () => {
+        describe('all group members exist', () => {
             beforeEach(async () => {
                 await userRepo.empty();
                 await userRepo.insert(...dummyGroupMembers);
@@ -147,7 +197,7 @@ describe('GroupController', () => {
             });
         });
 
-        describe("some of group's users don't exist", () => {
+        describe("some group members don't exist", () => {
             beforeEach(async () => {
                 await userRepo.empty();
                 await userRepo.insert(...dummyGroupMembers);

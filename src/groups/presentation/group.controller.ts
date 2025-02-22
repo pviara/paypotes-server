@@ -7,6 +7,7 @@ import {
     Param,
     ParseUUIDPipe,
     Post,
+    Query,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
@@ -17,10 +18,12 @@ import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import { User } from '@users/domain/user';
 import { UserDTO } from '@users/presentation/user.dto';
+import { CustomParseIntPipe } from './pipes/custom-parse-int.pipe';
 
 export const GROUPS_API_ROUTE = 'groups';
 
 const GroupId = (): ParameterDecorator => Param('id', ParseUUIDPipe);
+const PageIndex = () => Query('pageIndex', CustomParseIntPipe);
 
 @AuthGuard()
 @Controller(GROUPS_API_ROUTE)
@@ -52,10 +55,13 @@ export class GroupController {
     }
 
     @Get()
-    async getActorGroups(@ActorId() actorId: string): Promise<GroupDTO[]> {
+    async getActorGroups(
+        @ActorId() actorId: string,
+        @PageIndex() pageIndex: number,
+    ): Promise<GroupDTO[]> {
         const query = new GetActorGroupsQuery({
             actorId,
-            pageIndex: 0,
+            pageIndex,
             search: '',
         });
         const groups = await this.queryBus.execute(query);

@@ -22,8 +22,13 @@ export class GroupInMemoryTestingRepository implements GroupTestingRepository {
         return Promise.resolve(group ?? null);
     }
 
-    getActorGroups(): Promise<Group[]> {
-        return Promise.resolve(this.groups.slice(0, 20));
+    getActorGroups(
+        actorId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<Group[]> {
+        const start = pageIndex * 20;
+        return Promise.resolve(this.groups.slice(start, start + 20));
     }
 
     groupSaved(id: string): boolean {
