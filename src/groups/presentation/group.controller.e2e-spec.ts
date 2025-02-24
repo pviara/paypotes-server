@@ -17,14 +17,14 @@ import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { User } from '@users/domain/user';
-import { UserTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
 
     let groupRepo: GroupInMemoryTestingRepository;
-    let userRepo: UserTestingRepository;
+    let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
 
     const dummyUsers = generateRandomUsers();

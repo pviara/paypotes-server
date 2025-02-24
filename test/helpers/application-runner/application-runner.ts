@@ -12,8 +12,8 @@ import { ErrorFilter } from '@app/error-filter';
 import { GroupInMemoryTestingRepository } from '../group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
+import { UserInMemoryTestingRepository } from '../user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
-import { UserTestingRepository } from '../user/user.testing-repository';
 
 type ApplicationRunnerResources = {
     modules: Modules;
@@ -49,7 +49,7 @@ export class ApplicationRunner {
         return this.getApplication().getHttpServer();
     }
 
-    getUserRepository(): UserTestingRepository {
+    getUserRepository(): UserInMemoryTestingRepository {
         return this.getApplication().get(userRepositoryToken);
     }
 
