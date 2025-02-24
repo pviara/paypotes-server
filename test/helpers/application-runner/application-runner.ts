@@ -9,7 +9,7 @@ import {
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { Nullable } from '@test/helpers/application-runner/model/nullable';
 import { ErrorFilter } from '@app/error-filter';
-import { GroupTestingRepository } from '../group/group.testing-repository';
+import { GroupInMemoryTestingRepository } from '../group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
@@ -41,7 +41,7 @@ export class ApplicationRunner {
         throw new ApplicationNotBootstrappedError();
     }
 
-    getGroupRepository(): GroupTestingRepository {
+    getGroupRepository(): GroupInMemoryTestingRepository {
         return this.getApplication().get(groupRepositoryToken);
     }
 

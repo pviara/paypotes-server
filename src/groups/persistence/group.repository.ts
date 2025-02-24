@@ -18,17 +18,35 @@ export interface GroupRepository {
 }
 
 export class GroupInMemoryRepository implements GroupRepository {
-    getActorGroupById(groupId: string): Promise<Group | null> {
-        throw new Error('Method not implemented.');
+    protected groups: Array<Group> = [];
+
+    async getActorGroupById(
+        actorId: string,
+        groupId: string,
+    ): Promise<Group | null> {
+        const group = this.groups.find(
+            (group: Group) => group.getId() === groupId,
+        );
+        return group ?? null;
     }
-    getActorGroups(
+
+    async getActorGroups(
         actorId: string,
         pageIndex: number,
         search: string,
     ): Promise<Group[]> {
-        throw new Error('Method not implemented.');
+        const start = pageIndex * 20;
+        const paginatedGroups = this.groups.slice(start, start + 20);
+        if (search) {
+            const filteredGroups = paginatedGroups.filter((group) =>
+                group.getName().includes(search),
+            );
+            return filteredGroups;
+        }
+        return paginatedGroups;
     }
-    save(group: Group): Promise<void> {
-        throw new Error('Method not implemented.');
+
+    async save(group: Group): Promise<void> {
+        this.groups.push(group);
     }
 }

@@ -12,7 +12,7 @@ import {
     groupSpecModules as modules,
     groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
-import { GroupTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
@@ -23,7 +23,7 @@ import * as request from 'supertest';
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
 
-    let groupRepo: GroupTestingRepository;
+    let groupRepo: GroupInMemoryTestingRepository;
     let userRepo: UserTestingRepository;
     let httpServer: App;
 
