@@ -2,7 +2,7 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import {
     GetActorGroupsHandler,
     GetActorGroupsQuery,
-} from '@app/groups/application/get-actor-groups.handler';
+} from '@groups/application/get-actor-groups.handler';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 
 describe('GetAllGroupsHandler', () => {

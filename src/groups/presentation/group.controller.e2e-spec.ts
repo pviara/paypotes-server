@@ -13,10 +13,8 @@ import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testin
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { MemberDTO } from '@groups/presentation/dto/member.dto';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
-import { Member } from '../domain/member';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);

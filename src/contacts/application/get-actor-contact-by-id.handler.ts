@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { contactRepositoryToken } from '../persistence/contact.repository-provider';
-import { ContactRepository } from '../persistence/contact.repository';
-import { Contact } from '../domain/contact';
+import { Contact } from '@contacts/domain/contact';
+import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
+import { ContactRepository } from '@contacts/persistence/contact.repository';
 
 export class GetActorContactByIdQuery implements IQuery {
     constructor(

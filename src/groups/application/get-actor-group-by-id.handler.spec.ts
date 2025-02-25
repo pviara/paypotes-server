@@ -3,7 +3,7 @@ import {
     GetActorGroupByIdHandler,
     GetActorGroupByIdQuery,
     GroupNotFoundError,
-} from '@app/groups/application/get-actor-group-by-id.handler';
+} from '@groups/application/get-actor-group-by-id.handler';
 import { Group } from '@groups/domain/group';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 

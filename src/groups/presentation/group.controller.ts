@@ -12,8 +12,8 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { CreateGroupCommand } from '@groups/application/create-group.handler';
-import { GetActorGroupByIdQuery } from '@app/groups/application/get-actor-group-by-id.handler';
-import { GetActorGroupsQuery } from '@app/groups/application/get-actor-groups.handler';
+import { GetActorGroupByIdQuery } from '@groups/application/get-actor-group-by-id.handler';
+import { GetActorGroupsQuery } from '@groups/application/get-actor-groups.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import { Member } from '@groups/domain/member';

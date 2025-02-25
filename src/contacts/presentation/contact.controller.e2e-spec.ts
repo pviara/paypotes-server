@@ -12,8 +12,8 @@ import {
 import { CONTACTS_API_ROUTE } from './contact.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { Relationship } from '../persistence/relationship';
 import { raw, shutdown } from '@test/helpers/utils';
+import { Relationship } from '@contacts/persistence/relationship';
 import * as request from 'supertest';
 
 describe('ContactController', () => {

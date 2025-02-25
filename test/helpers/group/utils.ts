@@ -1,9 +1,9 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { Group } from '@app/groups/domain/group';
+import { Group } from '@groups/domain/group';
 import { GroupModule } from '@groups/group.module';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { GroupInMemoryTestingRepository } from './group.testing-repository';
-import { Member } from '@app/groups/domain/member';
+import { Member } from '@groups/domain/member';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';

@@ -3,7 +3,7 @@ import {
     ExecutionContext,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { User } from '@app/users/domain/user';
+import { User } from '@users/domain/user';
 
 export const ActorId = createParamDecorator(
     (data: unknown, ctx: ExecutionContext) => {

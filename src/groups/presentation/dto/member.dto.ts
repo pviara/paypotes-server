@@ -1,4 +1,4 @@
-import { Member } from '@app/groups/domain/member';
+import { Member } from '@groups/domain/member';
 
 export class MemberDTO {
     constructor(

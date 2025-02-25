@@ -1,4 +1,4 @@
-import { User } from '@app/users/domain/user';
+import { User } from '@users/domain/user';
 
 export const generateRandomUser = (): User => {
     return new User({

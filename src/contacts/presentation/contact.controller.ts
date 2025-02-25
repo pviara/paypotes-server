@@ -1,5 +1,5 @@
 import { ActorId } from '@test/doubles/auth/actor.decorator';
-import { AuthGuard } from '@app/auth/auth-guard.decorator';
+import { AuthGuard } from '@auth/auth-guard.decorator';
 import { Contact } from '@contacts/domain/contact';
 import { ContactDTO } from '@contacts/presentation/dto/contact.dto';
 import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
