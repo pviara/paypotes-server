@@ -1,18 +1,22 @@
 import { App } from 'supertest/types';
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
 import { Contact } from '@contacts/domain/contact';
 import { ContactDTO } from '@contacts/presentation/dto/contact.dto';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import {
     contactSpecModules as modules,
     contactSpecProviders as providers,
-    generateRandomContacts,
+    generateAuthenticatedUserRelationship,
+    generateAuthenticatedUserRelationships,
     generateRandomContact,
+    generateRandomContacts,
 } from '@test/helpers/contact/utils';
 import { CONTACTS_API_ROUTE } from './contact.controller';
+import { generateRandomUsers } from '@test/helpers/user/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { Relationship } from '../persistence/relationship';
 import { shutdown } from '@test/helpers/utils';
+import { User } from '@users/domain/user';
 import * as request from 'supertest';
 
 describe('ContactController', () => {
@@ -20,8 +24,6 @@ describe('ContactController', () => {
 
     let contactRepo: ContactInMemoryTestingRepository;
     let httpServer: App;
-
-    const dummyActorId = AUTHENTICATED_USER.getId();
 
     beforeAll(async () => {
         await runner.bootstrap();
@@ -33,7 +35,7 @@ describe('ContactController', () => {
     afterAll(shutdown(runner));
 
     describe('GET /contacts', () => {
-        describe('no contact exists', () => {
+        describe('actor has no contact', () => {
             it('should return an empty array', async () => {
                 const response = await request(httpServer).get(
                     `/${CONTACTS_API_ROUTE}`,
@@ -44,14 +46,18 @@ describe('ContactController', () => {
             });
         });
 
-        describe('some contacts exist', () => {
+        describe('actor has contacts', () => {
             let dummyContacts: Array<Contact>;
+            let dummyRelationships: Array<Relationship>;
 
             beforeEach(async () => {
                 dummyContacts = generateRandomContacts({ length: 40 });
+                dummyRelationships = generateAuthenticatedUserRelationships({
+                    contacts: dummyContacts,
+                });
 
                 await contactRepo.empty();
-                await contactRepo.insert(dummyActorId, ...dummyContacts);
+                await contactRepo.insert(...dummyRelationships);
             });
 
             it('should return the first 20 contacts by default', async () => {
@@ -94,6 +100,7 @@ describe('ContactController', () => {
                         `/${CONTACTS_API_ROUTE}?search=${targetContact.getFirstname()}`,
                     );
 
+                    expect(response.body.length).toBe(1);
                     expect(response.body[0].id).toBe(targetContact.getId());
                 });
             });
@@ -133,17 +140,17 @@ describe('ContactController', () => {
         );
 
         it('should return the right contact for given id', async () => {
-            const dummyContact = generateRandomContact();
-            await contactRepo.insert(dummyActorId, dummyContact);
+            const dummyRelationship = generateAuthenticatedUserRelationship();
+            await contactRepo.insert(dummyRelationship);
 
             const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}`,
+                `/${CONTACTS_API_ROUTE}/${dummyRelationship.userB.getId()}`,
             );
 
             expect(response.body).toStrictEqual({
-                id: dummyContact.getId(),
-                firstname: dummyContact.getFirstname(),
-                lastname: dummyContact.getLastname(),
+                id: dummyRelationship.userB.getId(),
+                firstname: dummyRelationship.userB.getFirstname(),
+                lastname: dummyRelationship.userB.getLastname(),
             });
         });
     });

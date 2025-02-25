@@ -98,6 +98,7 @@ describe('GroupController', () => {
                         `/${GROUPS_API_ROUTE}?search=${search}`,
                     );
 
+                    expect(response.body.length).toBe(1);
                     expect(response.body[0].id).toBe(targetGroup.getId());
                 });
             });

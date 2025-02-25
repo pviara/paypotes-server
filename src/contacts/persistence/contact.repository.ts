@@ -1,4 +1,5 @@
 import { Contact } from '@contacts/domain/contact';
+import { Relationship } from './relationship';
 
 export interface ContactRepository {
     getActorContactById(
@@ -14,15 +15,16 @@ export interface ContactRepository {
 }
 
 export class ContactInMemoryRepository implements ContactRepository {
-    protected contacts = new Map<string, Contact[]>();
+    protected relationships: Array<Relationship> = [];
 
     async getActorContactById(
         actorId: string,
         contactId: string,
     ): Promise<Contact | null> {
-        const contact = this.contacts
-            .get(actorId)
-            ?.find((contact) => contact.getId() === contactId);
+        const contact = this.relationships
+            .filter(this.isRelationshipOf(actorId))
+            .map(this.extractContactFromRelationshipOf(actorId))
+            .find(this.contactMatches(contactId));
 
         return contact ?? null;
     }
@@ -32,7 +34,10 @@ export class ContactInMemoryRepository implements ContactRepository {
         pageIndex: number,
         search: string,
     ): Promise<Contact[]> {
-        const contacts = this.contacts.get(actorId) ?? [];
+        const contacts = this.relationships
+            .filter(this.isRelationshipOf(actorId))
+            .map(this.extractContactFromRelationshipOf(actorId));
+
         const start = pageIndex * 20;
         const paginatedContacts = contacts.slice(start, start + 20);
         if (search) {
@@ -47,10 +52,37 @@ export class ContactInMemoryRepository implements ContactRepository {
     }
 
     async saveActorContact(actorId: string, contact: Contact): Promise<void> {
-        if (this.contacts.has(actorId)) {
-            this.contacts.get(actorId)?.push(contact);
+        /*if (this.relationships.has(actorId)) {
+            this.relationships.get(actorId)?.push(contact);
         } else {
-            this.contacts.set(actorId, [contact]);
-        }
+            this.relationships.set(actorId, [contact]);
+        }*/
+    }
+
+    private isRelationshipOf(
+        actorId: string,
+    ): (value: Relationship) => boolean {
+        return (relationship) => {
+            // retrieve only actor's relationships
+            const isActorRelationship =
+                relationship.userA.getId() === actorId ||
+                relationship.userB.getId() === actorId;
+            return isActorRelationship;
+        };
+    }
+
+    private extractContactFromRelationshipOf(
+        actorId: string,
+    ): (value: Relationship) => Contact {
+        return (relationship) => {
+            // retrieve only relationship contact
+            return relationship.userA.getId() === actorId
+                ? relationship.userB
+                : relationship.userA;
+        };
+    }
+
+    private contactMatches(contactId: string): (value: Contact) => boolean {
+        return (contact) => contact.getId() === contactId;
     }
 }

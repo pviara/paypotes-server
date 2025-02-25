@@ -1,5 +1,13 @@
 import { User } from '@app/users/domain/user';
 
+export const generateRandomUser = (): User => {
+    return new User({
+        id: crypto.randomUUID(),
+        firstname: 'Firstname',
+        lastname: 'Lastname',
+    });
+};
+
 export const generateRandomUsers = (): Array<User> => {
     return Array.from({ length: 4 }).map(
         (_, index) =>
