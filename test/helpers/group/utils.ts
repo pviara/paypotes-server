@@ -9,6 +9,7 @@ import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { User } from '@app/users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 export const groupSpecModules: Modules = [GroupModule];
 export const groupSpecProviders: OverridingProviders = [
@@ -22,15 +23,15 @@ export const groupSpecProviders: OverridingProviders = [
     },
 ];
 
-export const generateRandomGroup = (options: { members: Array<User> }): Group =>
+export const generateDefaultUserRandomGroup = (): Group =>
     new Group({
         id: crypto.randomUUID(),
         name: 'Group',
         emoji: '📅',
-        members: options.members,
+        members: [DEFAULT_USER, ...generateRandomUsers()],
     });
 
-export const generateRandomGroups = (
+export const generateDefaultUserRandomGroups = (
     options: RandomArrayGenerationOptions,
 ): Array<Group> => {
     return Array.from({ length: options.length ?? 4 }).map(
@@ -39,7 +40,7 @@ export const generateRandomGroups = (
                 id: crypto.randomUUID(),
                 name: `name_${index}`,
                 emoji: '⛺️',
-                members: generateRandomUsers(),
+                members: [DEFAULT_USER, ...generateRandomUsers()],
             }),
     );
 };

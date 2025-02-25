@@ -1,10 +1,10 @@
-import { AUTHENTICATED_USER } from './authenticated-user';
+import { DEFAULT_USER } from './default-user';
 
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { User } from '@users/domain/user';
 
 export class AuthFakeGuard implements CanActivate {
-    private authenticatedUser = AUTHENTICATED_USER;
+    private authenticatedUser = DEFAULT_USER;
 
     canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest();

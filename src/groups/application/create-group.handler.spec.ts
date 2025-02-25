@@ -1,4 +1,4 @@
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import {
     CreateGroupCommand,
     CreateGroupHandler,

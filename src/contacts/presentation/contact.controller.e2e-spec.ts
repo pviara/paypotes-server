@@ -5,18 +5,15 @@ import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.
 import {
     contactSpecModules as modules,
     contactSpecProviders as providers,
-    generateAuthenticatedUserRelationship,
-    generateAuthenticatedUserRelationships,
-    generateRandomContact,
+    generateDefaultUserRelationship,
+    generateDefaultUserRelationships,
     generateRandomContacts,
 } from '@test/helpers/contact/utils';
 import { CONTACTS_API_ROUTE } from './contact.controller';
-import { generateRandomUsers } from '@test/helpers/user/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { Relationship } from '../persistence/relationship';
 import { shutdown } from '@test/helpers/utils';
-import { User } from '@users/domain/user';
 import * as request from 'supertest';
 
 describe('ContactController', () => {
@@ -52,7 +49,7 @@ describe('ContactController', () => {
 
             beforeEach(async () => {
                 dummyContacts = generateRandomContacts({ length: 40 });
-                dummyRelationships = generateAuthenticatedUserRelationships({
+                dummyRelationships = generateDefaultUserRelationships({
                     contacts: dummyContacts,
                 });
 
@@ -140,7 +137,7 @@ describe('ContactController', () => {
         );
 
         it('should return the right contact for given id', async () => {
-            const dummyRelationship = generateAuthenticatedUserRelationship();
+            const dummyRelationship = generateDefaultUserRelationship();
             await contactRepo.insert(dummyRelationship);
 
             const response = await request(httpServer).get(

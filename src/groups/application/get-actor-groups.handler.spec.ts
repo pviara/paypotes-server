@@ -1,4 +1,4 @@
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import {
     GetActorGroupsHandler,
     GetActorGroupsQuery,
@@ -9,7 +9,7 @@ describe('GetAllGroupsHandler', () => {
     let sut: GetActorGroupsHandler;
     let groupRepo: GroupRepositorySpy;
 
-    const dummyActorId = AUTHENTICATED_USER.getId();
+    const dummyActorId = DEFAULT_USER.getId();
     const dummyPageIndex = 0;
     const dummySearch = 'a group name';
 

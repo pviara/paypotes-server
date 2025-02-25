@@ -1,4 +1,4 @@
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Contact } from '@contacts/domain/contact';
 import { ContactRepositorySpy } from '@test/doubles/contact-repository.spy';
 import {
@@ -11,7 +11,7 @@ describe('GetActorContactByIdHandler', () => {
     let sut: GetActorContactByIdHandler;
     let contactRepo: ContactRepositorySpy;
 
-    const dummyActorId = AUTHENTICATED_USER.getId();
+    const dummyActorId = DEFAULT_USER.getId();
     const dummyContactId = crypto.randomUUID();
     const dummyQuery = new GetActorContactByIdQuery({
         actorId: dummyActorId,

@@ -1,14 +1,12 @@
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
+import { Contact } from '@contacts/domain/contact';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import { ContactModule } from '@contacts/contact.module';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
-import { Contact } from '@contacts/domain/contact';
-import { generateRandomUser } from '@test/helpers/user/utils';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Relationship } from '@contacts/persistence/relationship';
-import { User } from '@app/users/domain/user';
 
 export const contactSpecModules: Modules = [ContactModule];
 export const contactSpecProviders: OverridingProviders = [
@@ -18,26 +16,26 @@ export const contactSpecProviders: OverridingProviders = [
     },
 ];
 
-const getAuthenticatedUserAsContact = (): Contact => {
+const getDefaultUserAsContact = (): Contact => {
     return new Contact({
-        id: AUTHENTICATED_USER.getId(),
-        firstname: AUTHENTICATED_USER.getFirstname(),
-        lastname: AUTHENTICATED_USER.getLastname(),
+        id: DEFAULT_USER.getId(),
+        firstname: DEFAULT_USER.getFirstname(),
+        lastname: DEFAULT_USER.getLastname(),
     });
 };
 
-export const generateAuthenticatedUserRelationship = (): Relationship => {
+export const generateDefaultUserRelationship = (): Relationship => {
     return {
-        userA: getAuthenticatedUserAsContact(),
+        userA: getDefaultUserAsContact(),
         userB: generateRandomContact(),
     };
 };
 
-export const generateAuthenticatedUserRelationships = (options: {
+export const generateDefaultUserRelationships = (options: {
     contacts: Array<Contact>;
 }): Array<Relationship> => {
     return options.contacts.map((contact) => ({
-        userA: getAuthenticatedUserAsContact(),
+        userA: getDefaultUserAsContact(),
         userB: contact,
     }));
 };

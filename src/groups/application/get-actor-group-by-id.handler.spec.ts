@@ -1,4 +1,4 @@
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import {
     GetActorGroupByIdHandler,
     GetActorGroupByIdQuery,
@@ -11,7 +11,7 @@ describe('GetGroupByIdHandler', () => {
     let sut: GetActorGroupByIdHandler;
     let groupRepo: GroupRepositorySpy;
 
-    const dummyActorId = AUTHENTICATED_USER.getId();
+    const dummyActorId = DEFAULT_USER.getId();
     const dummyGroupId = crypto.randomUUID();
     const dummyQuery = new GetActorGroupByIdQuery({
         actorId: dummyActorId,

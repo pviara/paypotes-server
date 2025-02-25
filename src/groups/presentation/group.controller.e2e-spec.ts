@@ -3,8 +3,8 @@ import { mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import {
-    generateRandomGroup,
-    generateRandomGroups,
+    generateDefaultUserRandomGroup,
+    generateDefaultUserRandomGroups,
     groupSpecModules as modules,
     groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
@@ -50,7 +50,9 @@ describe('GroupController', () => {
             let dummyGroups: Array<Group>;
 
             beforeEach(() => {
-                dummyGroups = generateRandomGroups({ length: 40 });
+                dummyGroups = generateDefaultUserRandomGroups({
+                    length: 40,
+                });
 
                 groupRepo.empty();
                 groupRepo.insert(...dummyGroups);
@@ -136,10 +138,7 @@ describe('GroupController', () => {
         );
 
         it('should return the right group for given id', async () => {
-            const dummyUsers = generateRandomUsers();
-            const dummyGroup = generateRandomGroup({ members: dummyUsers });
-
-            await userRepo.insert(...dummyGroup.getMembers());
+            const dummyGroup = generateDefaultUserRandomGroup();
             await groupRepo.insert(dummyGroup);
 
             const response = await request(httpServer).get(
