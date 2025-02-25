@@ -1,4 +1,6 @@
 import { App } from 'supertest/types';
+import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
+import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import {
     isClassProvider,
@@ -9,10 +11,10 @@ import {
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { Nullable } from '@test/helpers/application-runner/model/nullable';
 import { ErrorFilter } from '@app/error-filter';
-import { GroupInMemoryTestingRepository } from '../group/group.testing-repository';
+import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { UserInMemoryTestingRepository } from '../user/user.testing-repository';
+import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
 
 type ApplicationRunnerResources = {
@@ -39,6 +41,10 @@ export class ApplicationRunner {
     getApplication(): INestApplication {
         if (this.application) return this.application;
         throw new ApplicationNotBootstrappedError();
+    }
+
+    getContactRepository(): ContactInMemoryTestingRepository {
+        return this.getApplication().get(contactRepositoryToken);
     }
 
     getGroupRepository(): GroupInMemoryTestingRepository {

@@ -23,7 +23,7 @@ import { UserDTO } from '@users/presentation/user.dto';
 
 export const GROUPS_API_ROUTE = 'groups';
 
-const GroupId = (): ParameterDecorator => Param('id', ParseUUIDPipe);
+const GroupId = () => Param('id', ParseUUIDPipe);
 const PageIndex = () => Query('pageIndex', PageIndexPipe);
 const Search = () => Query('search', SearchPipe);
 

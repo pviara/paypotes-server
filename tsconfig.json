@@ -16,6 +16,7 @@
         "paths": {
             "@app/*": ["src/*"],
             "@auth/*": ["src/auth/*"],
+            "@contacts/*": ["src/contacts/*"],
             "@groups/*": ["src/groups/*"],
             "@test/*": ["test/*"],
             "@users/*": ["src/users/*"]

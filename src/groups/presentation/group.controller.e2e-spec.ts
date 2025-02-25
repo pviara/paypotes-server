@@ -1,17 +1,14 @@
 import { App } from 'supertest/types';
-import {
-    generateRandomGroup,
-    generateRandomGroups,
-    generateRandomUsers,
-    mapIdsFrom,
-    shutdown,
-} from '@test/helpers/utils';
+import { mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import {
+    generateRandomGroup,
+    generateRandomGroups,
     groupSpecModules as modules,
     groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
+import { generateRandomUsers } from '@test/helpers/user/utils';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
@@ -26,9 +23,6 @@ describe('GroupController', () => {
     let groupRepo: GroupInMemoryTestingRepository;
     let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
-
-    const dummyUsers = generateRandomUsers();
-    const dummyGroup = generateRandomGroup({ members: dummyUsers });
 
     beforeAll(async () => {
         await runner.bootstrap();
@@ -141,6 +135,9 @@ describe('GroupController', () => {
         );
 
         it('should return the right group for given id', async () => {
+            const dummyUsers = generateRandomUsers();
+            const dummyGroup = generateRandomGroup({ members: dummyUsers });
+
             await userRepo.insert(...dummyGroup.getMembers());
             await groupRepo.insert(dummyGroup);
 
