@@ -1,10 +1,13 @@
-import { AuthGuard } from '@app/auth/auth-guard.decorator';
-import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
-import { QueryBus } from '@nestjs/cqrs';
 import { ActorId } from '@test/doubles/auth/actor.decorator';
-import { GetActorContactByIdQuery } from '../application/get-actor-contact-by-id.handler';
-import { ContactDTO } from './dto/contact.dto';
-import { Contact } from '../domain/contact';
+import { AuthGuard } from '@app/auth/auth-guard.decorator';
+import { Contact } from '@contacts/domain/contact';
+import { ContactDTO } from '@contacts/presentation/dto/contact.dto';
+import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import { GetActorContactByIdQuery } from '@contacts/application/get-actor-contact-by-id.handler';
+import { GetActorContactsQuery } from '@contacts/application/get-actor-contacts.handler';
+import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
+import { QueryBus } from '@nestjs/cqrs';
+import { Search } from '@app/shared/decorators/search.query-decorator';
 
 export const CONTACTS_API_ROUTE = 'contacts';
 
@@ -26,8 +29,18 @@ export class ContactController {
     }
 
     @Get()
-    async getActorContacts(): Promise<unknown> {
-        return [];
+    async getActorContacts(
+        @ActorId() actorId: string,
+        @PageIndex() pageIndex: number,
+        @Search() search: string,
+    ): Promise<ContactDTO[]> {
+        const query = new GetActorContactsQuery({
+            actorId,
+            pageIndex,
+            search,
+        });
+        const groups = await this.queryBus.execute(query);
+        return this.mapDTOsFrom(groups);
     }
 
     private mapDTOFrom(contact: Contact): ContactDTO {
@@ -36,5 +49,9 @@ export class ContactController {
             firstname: contact.getFirstname(),
             lastname: contact.getLastname(),
         };
+    }
+
+    private mapDTOsFrom(contacts: Array<Contact>): Array<ContactDTO> {
+        return contacts.map((contact) => this.mapDTOFrom(contact));
     }
 }

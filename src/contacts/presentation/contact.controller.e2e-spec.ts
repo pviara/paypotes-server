@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
 import { Contact } from '@contacts/domain/contact';
 import { ContactDTO } from '@contacts/presentation/dto/contact.dto';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
@@ -13,7 +14,6 @@ import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
 
 describe('ContactController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -64,6 +64,40 @@ describe('ContactController', () => {
                 expectReturnedDtosToBeTheFirstTwentyContacts(dtos);
             });
 
+            describe('page index has been given', () => {
+                it('should return the second 20 contacts when given index is 1', async () => {
+                    const response = await request(httpServer).get(
+                        `/${CONTACTS_API_ROUTE}?pageIndex=1`,
+                    );
+
+                    const dtos = response.body;
+                    expect(dtos.length).toBe(20);
+                    expectReturnedDtosToBeTheSecondTwentyContacts(dtos);
+                });
+
+                function expectReturnedDtosToBeTheSecondTwentyContacts(
+                    dtos: Array<ContactDTO>,
+                ): void {
+                    const secondTwentyContacts = dummyContacts.slice(20, 40);
+                    const returnedDtosAreTheSecondTwentyContacts = dtos.every(
+                        dtoIsIn(secondTwentyContacts),
+                    );
+
+                    expect(returnedDtosAreTheSecondTwentyContacts).toBe(true);
+                }
+            });
+
+            describe('search has been given', () => {
+                it('should return the contacts that match the search', async () => {
+                    const targetContact = dummyContacts[0];
+                    const response = await request(httpServer).get(
+                        `/${CONTACTS_API_ROUTE}?search=${targetContact.getFirstname()}`,
+                    );
+
+                    expect(response.body[0].id).toBe(targetContact.getId());
+                });
+            });
+
             function expectReturnedDtosToBeTheFirstTwentyContacts(
                 dtos: Array<ContactDTO>,
             ): void {
@@ -98,7 +132,7 @@ describe('ContactController', () => {
             },
         );
 
-        it('should return the right group for given id', async () => {
+        it('should return the right contact for given id', async () => {
             const dummyContact = generateRandomContact();
             await contactRepo.insert(dummyActorId, dummyContact);
 

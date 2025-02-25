@@ -9,15 +9,15 @@ export class ContactRepositorySpy
     readonly calls = {
         getActorContactById: {
             count: 0,
-            history: [] as [string, string][],
+            history: [] as Array<[string, string]>,
         },
         getActorContacts: {
             count: 0,
-            history: [] as string[],
+            history: [] as Array<[string, number, string]>,
         },
         saveActorContact: {
             count: 0,
-            history: [] as [string, Contact][],
+            history: [] as Array<[string, Contact]>,
         },
     };
 
@@ -30,9 +30,13 @@ export class ContactRepositorySpy
         return this.getStubOrDefault('getActorContactById', null);
     }
 
-    async getActorContacts(actorId: string): Promise<Contact[]> {
+    async getActorContacts(
+        actorId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<Contact[]> {
         this.calls.getActorContacts.count++;
-        this.calls.getActorContacts.history.push(actorId);
+        this.calls.getActorContacts.history.push([actorId, pageIndex, search]);
         return this.getStubOrDefault('getActorContacts', []);
     }
 

@@ -18,6 +18,9 @@ export interface GroupRepository {
 }
 
 export class GroupInMemoryRepository implements GroupRepository {
+    //? Why using an array instead of a map like in the ContactRepository?
+    //? Because we don't want to create multiple data for the same group.
+    //? The information of who is inside this group is already withing the group object.
     protected groups: Array<Group> = [];
 
     async getActorGroupById(

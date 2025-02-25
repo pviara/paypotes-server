@@ -5,7 +5,11 @@ export interface ContactRepository {
         actorId: string,
         contactId: string,
     ): Promise<Contact | null>;
-    getActorContacts(actorId: string): Promise<Contact[]>;
+    getActorContacts(
+        actorId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<Contact[]>;
     saveActorContact(actorId: string, contact: Contact): Promise<void>;
 }
 
@@ -23,8 +27,23 @@ export class ContactInMemoryRepository implements ContactRepository {
         return contact ?? null;
     }
 
-    async getActorContacts(actorId: string): Promise<Contact[]> {
-        return this.contacts.get(actorId) ?? [];
+    async getActorContacts(
+        actorId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<Contact[]> {
+        const contacts = this.contacts.get(actorId) ?? [];
+        const start = pageIndex * 20;
+        const paginatedContacts = contacts.slice(start, start + 20);
+        if (search) {
+            const filteredContacts = paginatedContacts.filter(
+                (contact) =>
+                    contact.getFirstname().includes(search) ||
+                    contact.getLastname().includes(search),
+            );
+            return filteredContacts;
+        }
+        return paginatedContacts;
     }
 
     async saveActorContact(actorId: string, contact: Contact): Promise<void> {

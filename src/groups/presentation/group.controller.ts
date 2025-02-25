@@ -16,16 +16,14 @@ import { GetActorGroupByIdQuery } from '@app/groups/application/get-actor-group-
 import { GetActorGroupsQuery } from '@app/groups/application/get-actor-groups.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
-import { PageIndexPipe } from '@groups/presentation/pipes/page-index.pipe';
-import { SearchPipe } from '@groups/presentation/pipes/search.pipe.ts';
+import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
+import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
 import { UserDTO } from '@users/presentation/user.dto';
 
 export const GROUPS_API_ROUTE = 'groups';
 
 const GroupId = () => Param('id', ParseUUIDPipe);
-const PageIndex = () => Query('pageIndex', PageIndexPipe);
-const Search = () => Query('search', SearchPipe);
 
 @AuthGuard()
 @Controller(GROUPS_API_ROUTE)
@@ -92,7 +90,7 @@ export class GroupController {
         });
     }
 
-    private mapDTOsFrom(groups: Group[]): GroupDTO[] {
+    private mapDTOsFrom(groups: Array<Group>): Array<GroupDTO> {
         return groups.map((group) => this.mapDTOFrom(group));
     }
 }
