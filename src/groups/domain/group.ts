@@ -1,4 +1,4 @@
-import { User } from '@users/domain/user';
+import { Member } from '@groups/domain/member';
 
 export class Group {
     constructor(
@@ -6,7 +6,7 @@ export class Group {
             id: string;
             name: string;
             emoji: string;
-            members: Array<User>;
+            members: Array<Member>;
         },
     ) {}
 
@@ -18,7 +18,7 @@ export class Group {
         return this.data.id;
     }
 
-    getMembers(): Array<User> {
+    getMembers(): Array<Member> {
         return this.data.members;
     }
 
