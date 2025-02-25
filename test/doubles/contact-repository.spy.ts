@@ -15,10 +15,6 @@ export class ContactRepositorySpy
             count: 0,
             history: [] as Array<[string, number, string]>,
         },
-        saveActorContact: {
-            count: 0,
-            history: [] as Array<[string, Contact]>,
-        },
     };
 
     async getActorContactById(
@@ -38,11 +34,5 @@ export class ContactRepositorySpy
         this.calls.getActorContacts.count++;
         this.calls.getActorContacts.history.push([actorId, pageIndex, search]);
         return this.getStubOrDefault('getActorContacts', []);
-    }
-
-    async saveActorContact(actorId: string, contact: Contact): Promise<void> {
-        this.calls.saveActorContact.count++;
-        this.calls.saveActorContact.history.push([actorId, contact]);
-        return this.getStubOrDefault('saveActorContact', undefined);
     }
 }

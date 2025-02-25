@@ -11,8 +11,9 @@ export interface ContactRepository {
         pageIndex: number,
         search: string,
     ): Promise<Contact[]>;
-    saveActorContact(actorId: string, contact: Contact): Promise<void>;
 }
+
+const MAX_CONTACTS_PER_PAGE = 20;
 
 export class ContactInMemoryRepository implements ContactRepository {
     protected relationships: Array<Relationship> = [];
@@ -34,36 +35,18 @@ export class ContactInMemoryRepository implements ContactRepository {
         pageIndex: number,
         search: string,
     ): Promise<Contact[]> {
-        const contacts = this.relationships
+        const start = pageIndex * MAX_CONTACTS_PER_PAGE;
+        return this.relationships
             .filter(this.isRelationshipOf(actorId))
-            .map(this.extractContactFromRelationshipOf(actorId));
-
-        const start = pageIndex * 20;
-        const paginatedContacts = contacts.slice(start, start + 20);
-        if (search) {
-            const filteredContacts = paginatedContacts.filter(
-                (contact) =>
-                    contact.getFirstname().includes(search) ||
-                    contact.getLastname().includes(search),
-            );
-            return filteredContacts;
-        }
-        return paginatedContacts;
-    }
-
-    async saveActorContact(actorId: string, contact: Contact): Promise<void> {
-        /*if (this.relationships.has(actorId)) {
-            this.relationships.get(actorId)?.push(contact);
-        } else {
-            this.relationships.set(actorId, [contact]);
-        }*/
+            .map(this.extractContactFromRelationshipOf(actorId))
+            .filter(this.contactNamesMatch(search))
+            .slice(start, start + MAX_CONTACTS_PER_PAGE);
     }
 
     private isRelationshipOf(
         actorId: string,
     ): (value: Relationship) => boolean {
         return (relationship) => {
-            // retrieve only actor's relationships
             const isActorRelationship =
                 relationship.userA.getId() === actorId ||
                 relationship.userB.getId() === actorId;
@@ -73,16 +56,22 @@ export class ContactInMemoryRepository implements ContactRepository {
 
     private extractContactFromRelationshipOf(
         actorId: string,
-    ): (value: Relationship) => Contact {
+    ): (relationship: Relationship) => Contact {
         return (relationship) => {
-            // retrieve only relationship contact
             return relationship.userA.getId() === actorId
                 ? relationship.userB
                 : relationship.userA;
         };
     }
 
-    private contactMatches(contactId: string): (value: Contact) => boolean {
+    private contactMatches(contactId: string): (contact: Contact) => boolean {
         return (contact) => contact.getId() === contactId;
+    }
+
+    private contactNamesMatch(search: string): (contact: Contact) => boolean {
+        const lowercasedSearch = search.toLowerCase();
+        return (contact) =>
+            contact.getFirstname().toLowerCase().includes(lowercasedSearch) ||
+            contact.getLastname().toLowerCase().includes(lowercasedSearch);
     }
 }
