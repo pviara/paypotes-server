@@ -146,17 +146,8 @@ describe('GroupController', () => {
                 `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
             );
 
-            expect(response.body).toStrictEqual({
-                id: dummyGroup.getId(),
-                name: dummyGroup.getName(),
-                emoji: dummyGroup.getEmoji(),
-                members: mapToMemberDTOs(dummyGroup.getMembers()),
-            });
+            expect(response.body).toStrictEqual(raw(GroupDTO.from(dummyGroup)));
         });
-
-        function mapToMemberDTOs(members: Array<Member>): Array<unknown> {
-            return members.map((member) => raw(MemberDTO.from(member)));
-        }
     });
 
     describe('POST /groups', () => {

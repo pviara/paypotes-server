@@ -51,7 +51,7 @@ export class GroupController {
     ): Promise<GroupDTO> {
         const query = new GetActorGroupByIdQuery({ actorId, groupId });
         const group = await this.queryBus.execute(query);
-        return this.mapDTOFrom(group);
+        return GroupDTO.from(group);
     }
 
     @Get()
@@ -69,20 +69,7 @@ export class GroupController {
         return this.mapDTOsFrom(groups);
     }
 
-    private mapDTOFrom(group: Group): GroupDTO {
-        return {
-            id: group.getId(),
-            name: group.getName(),
-            emoji: group.getEmoji(),
-            members: this.mapMembersDTOFrom(group),
-        };
-    }
-
-    private mapMembersDTOFrom(group: Group): Array<MemberDTO> {
-        return group.getMembers().map((member) => MemberDTO.from(member));
-    }
-
     private mapDTOsFrom(groups: Array<Group>): Array<GroupDTO> {
-        return groups.map((group) => this.mapDTOFrom(group));
+        return groups.map((group) => GroupDTO.from(group));
     }
 }

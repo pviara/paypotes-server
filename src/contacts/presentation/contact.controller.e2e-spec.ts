@@ -13,7 +13,7 @@ import { CONTACTS_API_ROUTE } from './contact.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { Relationship } from '../persistence/relationship';
-import { shutdown } from '@test/helpers/utils';
+import { raw, shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
 
 describe('ContactController', () => {
@@ -140,15 +140,12 @@ describe('ContactController', () => {
             const dummyRelationship = generateDefaultUserRelationship();
             await contactRepo.insert(dummyRelationship);
 
+            const { userB: contact } = dummyRelationship;
             const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}/${dummyRelationship.userB.getId()}`,
+                `/${CONTACTS_API_ROUTE}/${contact.getId()}`,
             );
 
-            expect(response.body).toStrictEqual({
-                id: dummyRelationship.userB.getId(),
-                firstname: dummyRelationship.userB.getFirstname(),
-                lastname: dummyRelationship.userB.getLastname(),
-            });
+            expect(response.body).toStrictEqual(raw(ContactDTO.from(contact)));
         });
     });
 });

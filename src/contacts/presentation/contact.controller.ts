@@ -25,7 +25,7 @@ export class ContactController {
     ): Promise<ContactDTO> {
         const query = new GetActorContactByIdQuery({ actorId, contactId });
         const contact = await this.queryBus.execute(query);
-        return this.mapDTOFrom(contact);
+        return ContactDTO.from(contact);
     }
 
     @Get()
@@ -43,15 +43,7 @@ export class ContactController {
         return this.mapDTOsFrom(groups);
     }
 
-    private mapDTOFrom(contact: Contact): ContactDTO {
-        return {
-            id: contact.getId(),
-            firstname: contact.getFirstname(),
-            lastname: contact.getLastname(),
-        };
-    }
-
     private mapDTOsFrom(contacts: Array<Contact>): Array<ContactDTO> {
-        return contacts.map((contact) => this.mapDTOFrom(contact));
+        return contacts.map((contact) => ContactDTO.from(contact));
     }
 }
