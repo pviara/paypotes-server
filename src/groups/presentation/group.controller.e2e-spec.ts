@@ -1,5 +1,5 @@
 import { App } from 'supertest/types';
-import { mapIdsFrom, shutdown } from '@test/helpers/utils';
+import { mapIdsFrom, raw, shutdown } from '@test/helpers/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import {
@@ -13,9 +13,10 @@ import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testin
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { User } from '@users/domain/user';
+import { MemberDTO } from '@groups/presentation/dto/member.dto';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { Member } from '../domain/member';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -149,13 +150,13 @@ describe('GroupController', () => {
                 id: dummyGroup.getId(),
                 name: dummyGroup.getName(),
                 emoji: dummyGroup.getEmoji(),
-                members: dummyGroup.getMembers().map((user: User) => ({
-                    id: user.getId(),
-                    firstname: user.getFirstname(),
-                    lastname: user.getLastname(),
-                })),
+                members: mapToMemberDTOs(dummyGroup.getMembers()),
             });
         });
+
+        function mapToMemberDTOs(members: Array<Member>): Array<unknown> {
+            return members.map((member) => raw(MemberDTO.from(member)));
+        }
     });
 
     describe('POST /groups', () => {
@@ -164,9 +165,9 @@ describe('GroupController', () => {
             '',
             {},
             { a: 'A' },
-            { name: 'name', emoji: '', memberIds: [] },
-            { name: 'name', emoji: '📦', memberIds: [] },
-            { name: 'name', emoji: '📦', memberIds: ['invalid_uuid'] },
+            { name: 'name', emoji: '', userIds: [] },
+            { name: 'name', emoji: '📦', userIds: [] },
+            { name: 'name', emoji: '📦', userIds: ['invalid_uuid'] },
         ];
 
         it.each(invalidPayloads)(
@@ -188,7 +189,7 @@ describe('GroupController', () => {
 
             it('should insert a group in database', async () => {
                 const groupId = crypto.randomUUID();
-                const memberIds = mapIdsFrom(dummyGroupMembers);
+                const userIds = mapIdsFrom(dummyGroupMembers);
 
                 const response = await request(httpServer)
                     .post(`/${GROUPS_API_ROUTE}`)
@@ -196,7 +197,7 @@ describe('GroupController', () => {
                         id: groupId,
                         name: 'name',
                         emoji: '🏕️',
-                        memberIds,
+                        userIds,
                     });
 
                 expect(response.status).toBe(HttpStatus.CREATED);
@@ -212,7 +213,7 @@ describe('GroupController', () => {
 
             it('should return 404 NOT_FOUND', async () => {
                 const NOT_EXISTING_ID = crypto.randomUUID();
-                const memberIds = [
+                const userIds = [
                     ...mapIdsFrom(dummyGroupMembers),
                     NOT_EXISTING_ID,
                 ];
@@ -223,7 +224,7 @@ describe('GroupController', () => {
                         id: crypto.randomUUID(),
                         name: 'name',
                         emoji: '✈️',
-                        memberIds,
+                        userIds,
                     });
 
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);

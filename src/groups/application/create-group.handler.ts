@@ -14,7 +14,7 @@ export class CreateGroupCommand implements ICommand {
             id: string;
             name: string;
             emoji: string;
-            memberIds: Array<string>;
+            userIds: Array<string>;
         },
     ) {}
 }
@@ -32,8 +32,8 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
     async execute(command: CreateGroupCommand): Promise<void> {
         const { payload } = command;
 
-        const users = await this.userRepository.get(...payload.memberIds);
-        if (users.length < payload.memberIds.length) {
+        const users = await this.userRepository.get(...payload.userIds);
+        if (users.length < payload.userIds.length) {
             throw new MemberNotFoundError();
         }
 

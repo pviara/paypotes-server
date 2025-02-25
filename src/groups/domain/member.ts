@@ -20,4 +20,12 @@ export class Member {
     getId(): string {
         return this.data.id;
     }
+
+    getFirstname(): string {
+        return this.data.firstname;
+    }
+
+    getLastname(): string {
+        return this.data.lastname;
+    }
 }

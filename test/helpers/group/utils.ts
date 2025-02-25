@@ -1,15 +1,14 @@
-import { generateRandomUsers } from '@test/helpers/user/utils';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Group } from '@app/groups/domain/group';
 import { GroupModule } from '@groups/group.module';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { GroupInMemoryTestingRepository } from './group.testing-repository';
-import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { Member } from '@app/groups/domain/member';
 import { Modules } from '@test/helpers/application-runner/model/module';
+import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
-import { User } from '@app/users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 export const groupSpecModules: Modules = [GroupModule];
 export const groupSpecProviders: OverridingProviders = [
@@ -23,12 +22,27 @@ export const groupSpecProviders: OverridingProviders = [
     },
 ];
 
+const getDefaultUserAsMember = (): Member => {
+    return Member.fromUser(DEFAULT_USER);
+};
+
+const generateRandomMembers = (): Array<Member> => {
+    return Array.from({ length: 4 }).map(
+        (_, index) =>
+            new Member({
+                id: crypto.randomUUID(),
+                firstname: `firstname_${index}`,
+                lastname: `lastname_${index}`,
+            }),
+    );
+};
+
 export const generateDefaultUserRandomGroup = (): Group =>
     new Group({
         id: crypto.randomUUID(),
         name: 'Group',
         emoji: '📅',
-        members: [DEFAULT_USER, ...generateRandomUsers()],
+        members: [getDefaultUserAsMember(), ...generateRandomMembers()],
     });
 
 export const generateDefaultUserRandomGroups = (
@@ -40,7 +54,7 @@ export const generateDefaultUserRandomGroups = (
                 id: crypto.randomUUID(),
                 name: `name_${index}`,
                 emoji: '⛺️',
-                members: [DEFAULT_USER, ...generateRandomUsers()],
+                members: [getDefaultUserAsMember(), ...generateRandomMembers()],
             }),
     );
 };

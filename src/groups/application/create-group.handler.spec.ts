@@ -17,7 +17,7 @@ describe('CreateGroupHandler', () => {
     const dummyGroupId = crypto.randomUUID();
     const dummyGroupName = 'Holidays';
     const dummyGroupEmoji = '🏖️';
-    const dummyMemberIds = [
+    const dummyUserIds = [
         crypto.randomUUID(),
         crypto.randomUUID(),
         crypto.randomUUID(),
@@ -27,7 +27,7 @@ describe('CreateGroupHandler', () => {
         id: dummyGroupId,
         name: dummyGroupName,
         emoji: dummyGroupEmoji,
-        memberIds: dummyMemberIds,
+        userIds: dummyUserIds,
     });
 
     let dummyUsers: Array<User>;
@@ -37,14 +37,14 @@ describe('CreateGroupHandler', () => {
         userRepo = new UserRepositorySpy();
         sut = new CreateGroupHandler(groupRepo, userRepo);
 
-        dummyUsers = mapToUsers(dummyMemberIds);
+        dummyUsers = mapToUsers(dummyUserIds);
         userRepo.stub('get', dummyUsers);
     });
 
     it('should check that all group users exist', async () => {
         await sut.execute(dummyCommand);
         expect(userRepo.calls.get.count).toBe(1);
-        expect(userRepo.calls.get.history).toContainEqual(dummyMemberIds);
+        expect(userRepo.calls.get.history).toContainEqual(dummyUserIds);
     });
 
     describe("some group users don't exist", () => {

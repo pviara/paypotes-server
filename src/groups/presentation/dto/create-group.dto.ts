@@ -22,5 +22,5 @@ export class CreateGroupDTO {
     @IsArray()
     @ArrayMinSize(2)
     @IsUUID('4', { each: true })
-    memberIds!: Array<string>;
+    userIds!: Array<string>;
 }

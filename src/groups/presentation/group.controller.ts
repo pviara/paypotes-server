@@ -16,10 +16,10 @@ import { GetActorGroupByIdQuery } from '@app/groups/application/get-actor-group-
 import { GetActorGroupsQuery } from '@app/groups/application/get-actor-groups.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
+import { Member } from '@groups/domain/member';
+import { MemberDTO } from '@groups/presentation/dto/member.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { Search } from '@app/shared/decorators/search.query-decorator';
-import { User } from '@users/domain/user';
-import { UserDTO } from '@users/presentation/user.dto';
 
 export const GROUPS_API_ROUTE = 'groups';
 
@@ -39,7 +39,7 @@ export class GroupController {
             id: group.id,
             name: group.name,
             emoji: group.emoji,
-            memberIds: group.memberIds,
+            userIds: group.userIds,
         });
         return this.commandBus.execute(command);
     }
@@ -74,20 +74,12 @@ export class GroupController {
             id: group.getId(),
             name: group.getName(),
             emoji: group.getEmoji(),
-            members: this.mapUsersDTOFrom(group),
+            members: this.mapMembersDTOFrom(group),
         };
     }
 
-    private mapUsersDTOFrom(group: Group): Array<UserDTO> {
-        return group.getMembers().map(this.mapUserDTO());
-    }
-
-    private mapUserDTO(): (value: User) => UserDTO {
-        return (member: User) => ({
-            id: member.getId(),
-            firstname: member.getFirstname(),
-            lastname: member.getLastname(),
-        });
+    private mapMembersDTOFrom(group: Group): Array<MemberDTO> {
+        return group.getMembers().map((member) => MemberDTO.from(member));
     }
 
     private mapDTOsFrom(groups: Array<Group>): Array<GroupDTO> {

@@ -16,3 +16,7 @@ export const shutdown = (runner: ApplicationRunner): AsyncCallback<void> => {
 export const mapIdsFrom = (users: Array<User>): Array<string> => {
     return users.map((user: User) => user.getId());
 };
+
+export const raw = (obj: unknown): unknown => {
+    return JSON.parse(JSON.stringify(obj));
+};

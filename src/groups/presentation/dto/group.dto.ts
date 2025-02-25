@@ -1,8 +1,8 @@
-import { UserDTO } from '@users/presentation/user.dto';
+import { MemberDTO } from '@groups/presentation/dto/member.dto';
 
 export type GroupDTO = {
     id: string;
     name: string;
     emoji: string;
-    members: Array<UserDTO>;
+    members: Array<MemberDTO>;
 };
