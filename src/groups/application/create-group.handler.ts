@@ -43,6 +43,8 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
                 members: users,
             }),
         );
+
+        // todo: publish event to create a relationship between each group member
     }
 }
 
