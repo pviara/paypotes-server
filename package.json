@@ -67,6 +67,7 @@
             "@app/(.*)": "<rootDir>/src/$1",
             "@auth/(.*)": "<rootDir>/src/auth/$1",
             "@contacts/(.*)": "<rootDir>/src/contacts/$1",
+            "@expenses/(.*)": "<rootDir>/src/expenses/$1",
             "@groups/(.*)": "<rootDir>/src/groups/$1",
             "@test/(.*)": "<rootDir>/test/$1",
             "@users/(.*)": "<rootDir>/src/users/$1"

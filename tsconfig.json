@@ -17,6 +17,7 @@
             "@app/*": ["src/*"],
             "@auth/*": ["src/auth/*"],
             "@contacts/*": ["src/contacts/*"],
+            "@expenses/*": ["src/expenses/*"],
             "@groups/*": ["src/groups/*"],
             "@test/*": ["test/*"],
             "@users/*": ["src/users/*"]
