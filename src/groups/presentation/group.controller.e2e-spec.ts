@@ -1,34 +1,27 @@
 import { App } from 'supertest/types';
-import {
-    generateRandomGroup,
-    generateRandomGroups,
-    generateRandomUsers,
-    mapIdsFrom,
-    shutdown,
-} from '@test/helpers/utils';
+import { mapIdsFrom, raw, shutdown } from '@test/helpers/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import {
+    generateDefaultUserRandomGroup,
+    generateDefaultUserRandomGroups,
     groupSpecModules as modules,
     groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
-import { GroupTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { generateRandomUsers } from '@test/helpers/user/utils';
+import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { User } from '@users/domain/user';
-import { UserTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
 
-    let groupRepo: GroupTestingRepository;
-    let userRepo: UserTestingRepository;
+    let groupRepo: GroupInMemoryTestingRepository;
+    let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
-
-    const dummyUsers = generateRandomUsers();
-    const dummyGroup = generateRandomGroup({ members: dummyUsers });
 
     beforeAll(async () => {
         await runner.bootstrap();
@@ -56,7 +49,9 @@ describe('GroupController', () => {
             let dummyGroups: Array<Group>;
 
             beforeEach(() => {
-                dummyGroups = generateRandomGroups({ length: 40 });
+                dummyGroups = generateDefaultUserRandomGroups({
+                    length: 40,
+                });
 
                 groupRepo.empty();
                 groupRepo.insert(...dummyGroups);
@@ -104,6 +99,7 @@ describe('GroupController', () => {
                         `/${GROUPS_API_ROUTE}?search=${search}`,
                     );
 
+                    expect(response.body.length).toBe(1);
                     expect(response.body[0].id).toBe(targetGroup.getId());
                 });
             });
@@ -141,23 +137,14 @@ describe('GroupController', () => {
         );
 
         it('should return the right group for given id', async () => {
-            await userRepo.insert(...dummyGroup.getMembers());
+            const dummyGroup = generateDefaultUserRandomGroup();
             await groupRepo.insert(dummyGroup);
 
             const response = await request(httpServer).get(
                 `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
             );
 
-            expect(response.body).toStrictEqual({
-                id: dummyGroup.getId(),
-                name: dummyGroup.getName(),
-                emoji: dummyGroup.getEmoji(),
-                members: dummyGroup.getMembers().map((user: User) => ({
-                    id: user.getId(),
-                    firstname: user.getFirstname(),
-                    lastname: user.getLastname(),
-                })),
-            });
+            expect(response.body).toStrictEqual(raw(GroupDTO.from(dummyGroup)));
         });
     });
 
@@ -167,9 +154,9 @@ describe('GroupController', () => {
             '',
             {},
             { a: 'A' },
-            { name: 'name', emoji: '', memberIds: [] },
-            { name: 'name', emoji: '📦', memberIds: [] },
-            { name: 'name', emoji: '📦', memberIds: ['invalid_uuid'] },
+            { name: 'name', emoji: '', userIds: [] },
+            { name: 'name', emoji: '📦', userIds: [] },
+            { name: 'name', emoji: '📦', userIds: ['invalid_uuid'] },
         ];
 
         it.each(invalidPayloads)(
@@ -191,7 +178,7 @@ describe('GroupController', () => {
 
             it('should insert a group in database', async () => {
                 const groupId = crypto.randomUUID();
-                const memberIds = mapIdsFrom(dummyGroupMembers);
+                const userIds = mapIdsFrom(dummyGroupMembers);
 
                 const response = await request(httpServer)
                     .post(`/${GROUPS_API_ROUTE}`)
@@ -199,7 +186,7 @@ describe('GroupController', () => {
                         id: groupId,
                         name: 'name',
                         emoji: '🏕️',
-                        memberIds,
+                        userIds,
                     });
 
                 expect(response.status).toBe(HttpStatus.CREATED);
@@ -215,7 +202,7 @@ describe('GroupController', () => {
 
             it('should return 404 NOT_FOUND', async () => {
                 const NOT_EXISTING_ID = crypto.randomUUID();
-                const memberIds = [
+                const userIds = [
                     ...mapIdsFrom(dummyGroupMembers),
                     NOT_EXISTING_ID,
                 ];
@@ -226,7 +213,7 @@ describe('GroupController', () => {
                         id: crypto.randomUUID(),
                         name: 'name',
                         emoji: '✈️',
-                        memberIds,
+                        userIds,
                     });
 
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);

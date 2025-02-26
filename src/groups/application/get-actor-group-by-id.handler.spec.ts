@@ -1,9 +1,9 @@
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import {
     GetActorGroupByIdHandler,
     GetActorGroupByIdQuery,
     GroupNotFoundError,
-} from '@app/groups/application/get-actor-group-by-id.handler';
+} from '@groups/application/get-actor-group-by-id.handler';
 import { Group } from '@groups/domain/group';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 
@@ -11,7 +11,7 @@ describe('GetGroupByIdHandler', () => {
     let sut: GetActorGroupByIdHandler;
     let groupRepo: GroupRepositorySpy;
 
-    const dummyActorId = AUTHENTICATED_USER.getId();
+    const dummyActorId = DEFAULT_USER.getId();
     const dummyGroupId = crypto.randomUUID();
     const dummyQuery = new GetActorGroupByIdQuery({
         actorId: dummyActorId,

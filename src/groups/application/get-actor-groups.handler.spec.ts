@@ -1,15 +1,15 @@
-import { AUTHENTICATED_USER } from '@test/doubles/auth/authenticated-user';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import {
     GetActorGroupsHandler,
     GetActorGroupsQuery,
-} from '@app/groups/application/get-actor-groups.handler';
+} from '@groups/application/get-actor-groups.handler';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 
 describe('GetAllGroupsHandler', () => {
     let sut: GetActorGroupsHandler;
     let groupRepo: GroupRepositorySpy;
 
-    const dummyActorId = AUTHENTICATED_USER.getId();
+    const dummyActorId = DEFAULT_USER.getId();
     const dummyPageIndex = 0;
     const dummySearch = 'a group name';
 

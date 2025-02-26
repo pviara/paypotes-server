@@ -12,20 +12,18 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { CreateGroupCommand } from '@groups/application/create-group.handler';
-import { GetActorGroupByIdQuery } from '@app/groups/application/get-actor-group-by-id.handler';
-import { GetActorGroupsQuery } from '@app/groups/application/get-actor-groups.handler';
+import { GetActorGroupByIdQuery } from '@groups/application/get-actor-group-by-id.handler';
+import { GetActorGroupsQuery } from '@groups/application/get-actor-groups.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
-import { PageIndexPipe } from '@groups/presentation/pipes/page-index.pipe';
-import { SearchPipe } from '@groups/presentation/pipes/search.pipe.ts';
-import { User } from '@users/domain/user';
-import { UserDTO } from '@users/presentation/user.dto';
+import { Member } from '@groups/domain/member';
+import { MemberDTO } from '@groups/presentation/dto/member.dto';
+import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
+import { Search } from '@app/shared/decorators/search.query-decorator';
 
 export const GROUPS_API_ROUTE = 'groups';
 
-const GroupId = (): ParameterDecorator => Param('id', ParseUUIDPipe);
-const PageIndex = () => Query('pageIndex', PageIndexPipe);
-const Search = () => Query('search', SearchPipe);
+const GroupId = () => Param('id', ParseUUIDPipe);
 
 @AuthGuard()
 @Controller(GROUPS_API_ROUTE)
@@ -41,7 +39,7 @@ export class GroupController {
             id: group.id,
             name: group.name,
             emoji: group.emoji,
-            memberIds: group.memberIds,
+            userIds: group.userIds,
         });
         return this.commandBus.execute(command);
     }
@@ -53,7 +51,7 @@ export class GroupController {
     ): Promise<GroupDTO> {
         const query = new GetActorGroupByIdQuery({ actorId, groupId });
         const group = await this.queryBus.execute(query);
-        return this.mapDTOFrom(group);
+        return GroupDTO.from(group);
     }
 
     @Get()
@@ -71,28 +69,7 @@ export class GroupController {
         return this.mapDTOsFrom(groups);
     }
 
-    private mapDTOFrom(group: Group): GroupDTO {
-        return {
-            id: group.getId(),
-            name: group.getName(),
-            emoji: group.getEmoji(),
-            members: this.mapUsersDTOFrom(group),
-        };
-    }
-
-    private mapUsersDTOFrom(group: Group): Array<UserDTO> {
-        return group.getMembers().map(this.mapUserDTO());
-    }
-
-    private mapUserDTO(): (value: User) => UserDTO {
-        return (member: User) => ({
-            id: member.getId(),
-            firstname: member.getFirstname(),
-            lastname: member.getLastname(),
-        });
-    }
-
-    private mapDTOsFrom(groups: Group[]): GroupDTO[] {
-        return groups.map((group) => this.mapDTOFrom(group));
+    private mapDTOsFrom(groups: Array<Group>): Array<GroupDTO> {
+        return groups.map((group) => GroupDTO.from(group));
     }
 }
