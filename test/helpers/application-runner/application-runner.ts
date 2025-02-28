@@ -11,6 +11,8 @@ import {
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { Nullable } from '@test/helpers/application-runner/model/nullable';
 import { ErrorFilter } from '@app/error-filter';
+import { ExpenseInMemoryRepository } from '@expenses/persistence/expense.repository';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
@@ -20,6 +22,19 @@ import { userRepositoryToken } from '@users/persistence/user-repository.provider
 type ApplicationRunnerResources = {
     modules: Modules;
     providers?: OverridingProviders;
+};
+
+type RepositoryType = 'contact' | 'expense' | 'group' | 'user';
+type Repository = {
+    [key in RepositoryType]: key extends 'contact'
+        ? ContactInMemoryTestingRepository
+        : key extends 'expense'
+          ? ExpenseInMemoryRepository
+          : key extends 'group'
+            ? GroupInMemoryTestingRepository
+            : key extends 'user'
+              ? UserInMemoryTestingRepository
+              : never;
 };
 
 export class ApplicationRunner {
@@ -43,20 +58,23 @@ export class ApplicationRunner {
         throw new ApplicationNotBootstrappedError();
     }
 
-    getContactRepository(): ContactInMemoryTestingRepository {
-        return this.getApplication().get(contactRepositoryToken);
-    }
-
-    getGroupRepository(): GroupInMemoryTestingRepository {
-        return this.getApplication().get(groupRepositoryToken);
-    }
-
     getHttpServer(): App {
         return this.getApplication().getHttpServer();
     }
 
-    getUserRepository(): UserInMemoryTestingRepository {
-        return this.getApplication().get(userRepositoryToken);
+    getRepository<T extends RepositoryType>(type: T): Repository[T] {
+        switch (type) {
+            case 'contact':
+                return this.getApplication().get(contactRepositoryToken);
+            case 'expense':
+                return this.getApplication().get(expenseRepositoryToken);
+            case 'group':
+                return this.getApplication().get(groupRepositoryToken);
+            case 'user':
+                return this.getApplication().get(userRepositoryToken);
+            default:
+                throw new Error(`Unknown repository type "${type}"`);
+        }
     }
 
     async shutdown(): Promise<void> {

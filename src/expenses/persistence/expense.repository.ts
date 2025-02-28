@@ -7,3 +7,15 @@ export interface ExpenseRepository {
         expenseId: string,
     ): Promise<Expense | null>;
 }
+
+export class ExpenseInMemoryRepository implements ExpenseRepository {
+    getActorExpenses(actorId: string, search: string): Promise<Expense[]> {
+        throw new Error('Method not implemented.');
+    }
+    getActorExpenseById(
+        actorId: string,
+        expenseId: string,
+    ): Promise<Expense | null> {
+        throw new Error('Method not implemented.');
+    }
+}

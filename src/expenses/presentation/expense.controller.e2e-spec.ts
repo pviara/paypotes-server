@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { Expense } from '@expenses/domain/expense';
 import {
     expenseSpecModules as modules,
     expenseSpecProviders as providers,
@@ -6,6 +7,7 @@ import {
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { Relationship } from '@expenses/persistence/relationship';
 import { shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
 
@@ -33,6 +35,16 @@ describe('ExpenseController', () => {
             });
         });
 
-        describe('actor has expenses', () => {});
+        describe('actor has expenses', () => {
+            let dummyExpenses: Array<Expense>;
+            let dummyRelationships: Array<Relationship>;
+
+            beforeEach(() => {
+                dummyExpenses = generateDummyExpenses({ length: 40 });
+                dummyRelationships = generateDefaultUserRelationships({
+                    expenses: dummyExpenses,
+                });
+            });
+        });
     });
 });
