@@ -25,7 +25,7 @@ describe('ContactController', () => {
     beforeAll(async () => {
         await runner.bootstrap();
 
-        contactRepo = runner.getContactRepository();
+        contactRepo = runner.getRepository('contact');
         httpServer = runner.getHttpServer();
     });
 

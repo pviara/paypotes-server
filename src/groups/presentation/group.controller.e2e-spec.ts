@@ -26,8 +26,8 @@ describe('GroupController', () => {
     beforeAll(async () => {
         await runner.bootstrap();
 
-        groupRepo = runner.getGroupRepository();
-        userRepo = runner.getUserRepository();
+        groupRepo = runner.getRepository('group');
+        userRepo = runner.getRepository('user');
         httpServer = runner.getHttpServer();
     });
 
