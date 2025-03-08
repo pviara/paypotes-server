@@ -24,12 +24,12 @@ export class GetActorContactByIdHandler
 
     async execute(query: GetActorContactByIdQuery): Promise<Contact> {
         const { actorId, contactId } = query.payload;
-        const group = await this.contactRepository.getActorContactById(
+        const contact = await this.contactRepository.getActorContactById(
             actorId,
             contactId,
         );
 
-        if (group) return group;
+        if (contact) return contact;
         throw new ContactNotFoundError(contactId);
     }
 }
