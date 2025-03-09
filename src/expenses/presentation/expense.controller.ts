@@ -12,6 +12,7 @@ import {
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { GetActorContactExpenseByIdQuery } from '@expenses/application/get-actor-contact-expense-by-id.handler';
+import { GetActorContactExpensesQuery } from '@expenses/application/get-actor-contact-expenses.handler';
 import { GetActorExpenseByIdQuery } from '@expenses/application/get-actor-expense-by-id.handler';
 import { GetActorExpensesQuery } from '@expenses/application/get-actor-expenses.handler';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
@@ -47,6 +48,23 @@ export class ExpenseController {
         });
         const expense = await this.queryBus.execute(query);
         return ExpenseDTO.from(expense);
+    }
+
+    @Get('contact/:contactId')
+    async getActorContactExpenses(
+        @ActorId() actorId: string,
+        @ContactId() contactId: string,
+        @PageIndex() pageIndex: number,
+        @Search() search: string,
+    ): Promise<ExpenseDTO[]> {
+        const query = new GetActorContactExpensesQuery({
+            actorId,
+            contactId,
+            pageIndex,
+            search,
+        });
+        const expenses = await this.queryBus.execute(query);
+        return this.mapDTOsFrom(expenses);
     }
 
     @Get(':expenseId')

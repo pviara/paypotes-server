@@ -20,21 +20,23 @@ const getDefaultUserAsStakeholder = (): Stakeholder => {
     return Stakeholder.fromUser(DEFAULT_USER);
 };
 
-const getRandomPaymentWithDefaultUser = (): Payment => {
+const getRandomPaymentWithDefaultUser = (
+    counterparty?: Stakeholder,
+): Payment => {
     const isDebtor = Math.random() < 0.5;
     const isCreditor = !isDebtor;
     return {
         balance: Math.floor(Math.random() * 350),
         debtor: isDebtor
             ? getDefaultUserAsStakeholder()
-            : generateRandomStakeholder(),
+            : counterparty || generateRandomStakeholder(),
         creditor: isCreditor
             ? getDefaultUserAsStakeholder()
-            : generateRandomStakeholder(),
+            : counterparty || generateRandomStakeholder(),
     };
 };
 
-const generateRandomStakeholder = (): Stakeholder => {
+export const generateRandomStakeholder = (): Stakeholder => {
     return new Stakeholder({
         id: crypto.randomUUID(),
         firstname: 'Firstname',
@@ -51,16 +53,21 @@ export const generateDefaultUserExpense = (): Expense => {
     });
 };
 
+type RandomExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
+    counterparty?: Stakeholder;
+};
+
 export const generateDefaultUserExpenses = ({
     length,
-}: RandomArrayGenerationOptions): Array<Expense> => {
+    counterparty,
+}: RandomExpenseArrayGenerationOptions): Array<Expense> => {
     return Array.from({ length }).map(
         (_, index) =>
             new Expense({
                 id: crypto.randomUUID(),
                 emoji: '📦',
                 label: `label_${index}`,
-                payment: getRandomPaymentWithDefaultUser(),
+                payment: getRandomPaymentWithDefaultUser(counterparty),
             }),
     );
 };
