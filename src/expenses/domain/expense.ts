@@ -1,6 +1,6 @@
 import { Stakeholder } from '@expenses/domain/stakeholder';
 
-type Payment = {
+export type Payment = {
     balance: number;
     creditor: Stakeholder;
     debtor: Stakeholder;
@@ -15,4 +15,28 @@ export class Expense {
             payment: Payment;
         },
     ) {}
+
+    getId(): string {
+        return this.data.id;
+    }
+
+    getLabel(): string {
+        return this.data.label;
+    }
+
+    getEmoji(): string {
+        return this.data.emoji;
+    }
+
+    getBalance(): string {
+        return `${this.data.payment.balance}`;
+    }
+
+    involves(stakeholderId: string): boolean {
+        const { creditor, debtor } = this.data.payment;
+        return (
+            creditor.getId() === stakeholderId ||
+            debtor.getId() === stakeholderId
+        );
+    }
 }

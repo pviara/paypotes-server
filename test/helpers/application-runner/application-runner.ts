@@ -11,7 +11,7 @@ import {
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { Nullable } from '@test/helpers/application-runner/model/nullable';
 import { ErrorFilter } from '@app/error-filter';
-import { ExpenseInMemoryRepository } from '@expenses/persistence/expense.repository';
+import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
@@ -29,7 +29,7 @@ type Repository = {
     [key in RepositoryType]: key extends 'contact'
         ? ContactInMemoryTestingRepository
         : key extends 'expense'
-          ? ExpenseInMemoryRepository
+          ? ExpenseInMemoryTestingRepository
           : key extends 'group'
             ? GroupInMemoryTestingRepository
             : key extends 'user'
