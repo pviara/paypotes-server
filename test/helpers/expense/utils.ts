@@ -7,6 +7,7 @@ import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Group } from '@app/groups/domain/group';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: OverridingProviders = [
@@ -55,11 +56,13 @@ export const generateDefaultUserExpense = (): Expense => {
 
 type RandomExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
     counterparty?: Stakeholder;
+    group?: Group;
 };
 
 export const generateDefaultUserExpenses = ({
     length,
     counterparty,
+    group,
 }: RandomExpenseArrayGenerationOptions): Array<Expense> => {
     return Array.from({ length }).map(
         (_, index) =>
@@ -67,6 +70,7 @@ export const generateDefaultUserExpenses = ({
                 id: crypto.randomUUID(),
                 emoji: '📦',
                 label: `label_${index}`,
+                group,
                 payment: getRandomPaymentWithDefaultUser(counterparty),
             }),
     );

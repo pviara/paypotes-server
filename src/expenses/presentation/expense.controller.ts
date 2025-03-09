@@ -15,6 +15,7 @@ import { GetActorContactExpenseByIdQuery } from '@expenses/application/get-actor
 import { GetActorContactExpensesQuery } from '@expenses/application/get-actor-contact-expenses.handler';
 import { GetActorExpenseByIdQuery } from '@expenses/application/get-actor-expense-by-id.handler';
 import { GetActorExpensesQuery } from '@expenses/application/get-actor-expenses.handler';
+import { GetActorGroupExpenseByIdQuery } from '@expenses/application/get-actor-group-expense-by-id.handler';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { QueryBus } from '@nestjs/cqrs';
 import { Search } from '@app/shared/decorators/search.query-decorator';
@@ -23,6 +24,7 @@ export const EXPENSES_API_ROUTE = 'expenses';
 
 const ContactId = () => Param('contactId', ParseUUIDPipe);
 const ExpenseId = () => Param('expenseId', ParseUUIDPipe);
+const GroupId = () => Param('groupId', ParseUUIDPipe);
 
 @AuthGuard()
 @Controller(EXPENSES_API_ROUTE)
@@ -93,6 +95,21 @@ export class ExpenseController {
         });
         const expenses = await this.queryBus.execute(query);
         return this.mapDTOsFrom(expenses);
+    }
+
+    @Get('group/:groupId/expense/:expenseId')
+    async getActorGroupExpenseById(
+        @ActorId() actorId: string,
+        @GroupId() groupId: string,
+        @ExpenseId() expenseId: string,
+    ): Promise<ExpenseDTO> {
+        const query = new GetActorGroupExpenseByIdQuery({
+            actorId,
+            groupId,
+            expenseId,
+        });
+        const expense = await this.queryBus.execute(query);
+        return ExpenseDTO.from(expense);
     }
 
     private mapDTOsFrom(expenses: any): Array<ExpenseDTO> {

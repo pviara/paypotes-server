@@ -87,21 +87,31 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
 
-    getActorGroupExpenseById(
+    async getActorGroupExpenseById(
         actorId: string,
         groupId: string,
         expenseId: string,
     ): Promise<Expense | null> {
-        throw new Error('Method not implemented.');
+        const expense = this.expenses
+            .filter(this.isExpenseFrom(groupId))
+            .filter(this.isExpenseOf(actorId))
+            .find(this.expenseMatches(expenseId));
+
+        return expense ?? null;
     }
 
-    getActorGroupExpenses(
+    async getActorGroupExpenses(
         actorId: string,
         groupId: string,
         pageIndex: number,
         search: string,
     ): Promise<Expense[]> {
-        throw new Error('Method not implemented.');
+        const start = pageIndex * MAX_EXPENSES_PER_PAGE;
+        return this.expenses
+            .filter(this.isExpenseFrom(groupId))
+            .filter(this.isExpenseOf(actorId))
+            .filter(this.expenseLabelMatches(search))
+            .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
 
     private expenseMatches(expenseId: string): (expense: Expense) => boolean {
@@ -114,9 +124,14 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): (expense: Expense) => boolean {
         return (expense) => {
             return contactId
-                ? expense.involves(actorId) && expense.involves(contactId)
-                : expense.involves(actorId);
+                ? expense.involvesStakeholder(actorId) &&
+                      expense.involvesStakeholder(contactId)
+                : expense.involvesStakeholder(actorId);
         };
+    }
+
+    private isExpenseFrom(groupId: string): (expense: Expense) => boolean {
+        return (expense: Expense) => expense.involvesGroup(groupId);
     }
 
     private expenseLabelMatches(search: string): (expense: Expense) => boolean {

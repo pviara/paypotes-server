@@ -1,3 +1,4 @@
+import { Group } from '@app/groups/domain/group';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 
 export type Payment = {
@@ -13,6 +14,7 @@ export class Expense {
             label: string;
             emoji: string;
             payment: Payment;
+            group?: Group;
         },
     ) {}
 
@@ -32,12 +34,20 @@ export class Expense {
         return `${this.data.payment.balance}`;
     }
 
+    getGroup(): Group | undefined {
+        return this.data.group;
+    }
+
     getCounterpartyOf(stakeholderId: string): Stakeholder {
         const { creditor, debtor } = this.data.payment;
         return creditor.getId() === stakeholderId ? debtor : creditor;
     }
 
-    involves(stakeholderId: string): boolean {
+    involvesGroup(groupId: string): boolean {
+        return this.data.group?.getId() === groupId;
+    }
+
+    involvesStakeholder(stakeholderId: string): boolean {
         const { creditor, debtor } = this.data.payment;
         return (
             creditor.getId() === stakeholderId ||

@@ -16,6 +16,7 @@ import { raw, shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Stakeholder } from '../domain/stakeholder';
+import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -279,6 +280,145 @@ describe('ExpenseController', () => {
                 expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
             }
         });
+    });
+
+    describe('GET /expenses/group/:groupId/expense/:expenseId', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given groupId "%s" is not a valid uuid',
+            async (groupId: unknown) => {
+                const validId = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${groupId}/expense/${validId}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given expenseId "%s" is not a valid uuid',
+            async (expenseId: unknown) => {
+                const validId = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${validId}/expense/${expenseId}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        it('should return the right expense for given groupId and expenseId', async () => {
+            const dummyGroup = generateDefaultUserRandomGroup();
+            const dummyExpense = generateDefaultUserExpense(dummyGroup);
+            await expenseRepo.insert(dummyExpense);
+
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+            );
+
+            expect(response.body).toStrictEqual(
+                raw(ExpenseDTO.from(dummyExpense)),
+            );
+        });
+    });
+
+    describe('GET /expenses/group/:groupId', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given groupId "%s" is not a valid uuid',
+            async (groupId: unknown) => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${groupId}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor has no expense with group', () => {
+            it('should return an empty array', async () => {
+                const validGroupId = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${validGroupId}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.OK);
+                expect(response.body.length).toBe(0);
+            });
+        });
+
+        // describe('actor has expenses with group', () => {
+        //     let dummyGroupExpenses: Array<Expense>;
+        //     let dummyGroup = generateDefaultUserRandomGroup();
+
+        //     beforeEach(async () => {
+        //         dummyGroupExpenses = generateDefaultUserExpenses({
+        //             length: 40,
+        //             group: dummyGroup,
+        //         });
+        //         await expenseRepo.empty();
+        //         await expenseRepo.insert(...dummyGroupExpenses);
+        //     });
+
+        //     it('should return the first 20 group expenses by default', async () => {
+        //         const response = await request(httpServer).get(
+        //             `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
+        //         );
+
+        //         const dtos = response.body;
+        //         expect(dtos.length).toBe(20);
+        //         expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
+        //     });
+
+        //     describe('page index has been given', () => {
+        //         it('should return the second 20 expenses when given index is 1', async () => {
+        //             const response = await request(httpServer).get(
+        //                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?pageIndex=1`,
+        //             );
+
+        //             const dtos = response.body;
+        //             expect(dtos.length).toBe(20);
+        //             expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
+        //         });
+        //     });
+
+        //     describe('search has been given', () => {
+        //         it('should return the group expenses that match the search', async () => {
+        //             const targetExpense = dummyGroupExpenses[0];
+        //             const response = await request(httpServer).get(
+        //                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?search=${targetExpense.getLabel()}`,
+        //             );
+
+        //             expect(response.body.length).toBe(1);
+        //             expect(response.body[0].id).toBe(targetExpense.getId());
+        //         });
+        //     });
+
+        //     function expectReturnedDtosToBeTheFirstTwentyExpenses(
+        //         dtos: Array<ExpenseDTO>,
+        //     ): void {
+        //         const firstTwentyExpenses = dummyGroupExpenses.slice(0, 20);
+        //         const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
+        //             dtoIsIn(firstTwentyExpenses),
+        //         );
+
+        //         expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
+        //     }
+
+        //     function expectReturnedDtosToBeTheSecondTwentyExpenses(
+        //         dtos: Array<ExpenseDTO>,
+        //     ): void {
+        //         const secondTwentyExpenses = dummyGroupExpenses.slice(20, 40);
+        //         const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
+        //             dtoIsIn(secondTwentyExpenses),
+        //         );
+
+        //         expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
+        //     }
+        // });
     });
 
     function dtoIsIn(expenses: Array<Expense>): (dto: ExpenseDTO) => boolean {
