@@ -9,12 +9,13 @@ import {
     ParseUUIDPipe,
     Post,
 } from '@nestjs/common';
+import { Expense } from '@expenses/domain/expense';
+import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
+import { GetActorExpenseByIdQuery } from '@expenses/application/get-actor-expense-by-id.handler';
 import { GetActorExpensesQuery } from '@expenses/application/get-actor-expenses.handler';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { QueryBus } from '@nestjs/cqrs';
 import { Search } from '@app/shared/decorators/search.query-decorator';
-import { ExpenseDTO } from './dto/expense.dto';
-import { Expense } from '../domain/expense';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
@@ -35,8 +36,13 @@ export class ExpenseController {
     async getActorExpenseById(
         @ActorId() actorId: string,
         @ExpenseId() expenseId: string,
-    ): Promise<unknown> {
-        return;
+    ): Promise<ExpenseDTO> {
+        const query = new GetActorExpenseByIdQuery({
+            actorId,
+            expenseId,
+        });
+        const expense = await this.queryBus.execute(query);
+        return ExpenseDTO.from(expense);
     }
 
     @Get()

@@ -42,6 +42,15 @@ const generateRandomStakeholder = (): Stakeholder => {
     });
 };
 
+export const generateDefaultUserExpense = (): Expense => {
+    return new Expense({
+        id: crypto.randomUUID(),
+        emoji: '📦',
+        label: 'Label',
+        payment: getRandomPaymentWithDefaultUser(),
+    });
+};
+
 export const generateDefaultUserExpenses = ({
     length,
 }: RandomArrayGenerationOptions): Array<Expense> => {

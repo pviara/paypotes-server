@@ -56,11 +56,15 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         throw new Error('Method not implemented.');
     }
 
-    getActorExpenseById(
+    async getActorExpenseById(
         actorId: string,
         expenseId: string,
     ): Promise<Expense | null> {
-        throw new Error('Method not implemented.');
+        const expense = this.expenses
+            .filter(this.isExpenseOf(actorId))
+            .find(this.expenseMatches(expenseId));
+
+        return expense ?? null;
     }
 
     async getActorExpenses(
@@ -73,16 +77,6 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .filter(this.isExpenseOf(actorId))
             .filter(this.expenseLabelMatches(search))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
-    }
-
-    private isExpenseOf(actorId: string): (expense: Expense) => boolean {
-        return (expense) => expense.involves(actorId);
-    }
-
-    private expenseLabelMatches(search: string): (expense: Expense) => boolean {
-        const lowercasedSearch = search.toLowerCase();
-        return (expense) =>
-            expense.getLabel().toLowerCase().includes(lowercasedSearch);
     }
 
     getActorGroupExpenseById(
@@ -100,5 +94,19 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         search: string,
     ): Promise<Expense[]> {
         throw new Error('Method not implemented.');
+    }
+
+    private expenseMatches(expenseId: string): (expense: Expense) => boolean {
+        return (expense) => expense.getId() === expenseId;
+    }
+
+    private isExpenseOf(actorId: string): (expense: Expense) => boolean {
+        return (expense) => expense.involves(actorId);
+    }
+
+    private expenseLabelMatches(search: string): (expense: Expense) => boolean {
+        const lowercasedSearch = search.toLowerCase();
+        return (expense) =>
+            expense.getLabel().toLowerCase().includes(lowercasedSearch);
     }
 }

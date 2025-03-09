@@ -6,11 +6,12 @@ import {
     expenseSpecModules as modules,
     expenseSpecProviders as providers,
     generateDefaultUserExpenses,
+    generateDefaultUserExpense,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { shutdown } from '@test/helpers/utils';
+import { raw, shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
 
 describe('ExpenseController', () => {
@@ -112,6 +113,34 @@ describe('ExpenseController', () => {
                 return (dto: ExpenseDTO) =>
                     expenses.some((expense) => expense.getId() === dto.id);
             }
+        });
+    });
+
+    describe('GET /expenses/:id', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
+            async (id: unknown) => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/${id}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        it('should return the right expense for given id', async () => {
+            const dummyExpense = generateDefaultUserExpense();
+            await expenseRepo.insert(dummyExpense);
+
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
+            );
+
+            expect(response.body).toStrictEqual(
+                raw(ExpenseDTO.from(dummyExpense)),
+            );
         });
     });
 });
