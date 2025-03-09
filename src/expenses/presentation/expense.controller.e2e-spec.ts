@@ -13,6 +13,7 @@ import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { raw, shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -136,6 +137,50 @@ describe('ExpenseController', () => {
 
             const response = await request(httpServer).get(
                 `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
+            );
+
+            expect(response.body).toStrictEqual(
+                raw(ExpenseDTO.from(dummyExpense)),
+            );
+        });
+    });
+
+    describe('GET /expenses/contact/:contactId/expense/:expenseId', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given contactId "%s" is not a valid uuid',
+            async (contactId: unknown) => {
+                const validUuid = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${contactId}/expense/${validUuid}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given expenseId "%s" is not a valid uuid',
+            async (expenseId: unknown) => {
+                const validUuid = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${validUuid}/expense/${expenseId}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        it('should return the right expense for given contactId and expenseId', async () => {
+            const dummyExpense = generateDefaultUserExpense();
+            await expenseRepo.insert(dummyExpense);
+
+            const contact = dummyExpense.getCounterpartyOf(
+                DEFAULT_USER.getId(),
+            );
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
             );
 
             expect(response.body).toStrictEqual(

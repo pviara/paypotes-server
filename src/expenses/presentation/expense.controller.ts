@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
+import { GetActorContactExpenseByIdQuery } from '@expenses/application/get-actor-contact-expense-by-id.handler';
 import { GetActorExpenseByIdQuery } from '@expenses/application/get-actor-expense-by-id.handler';
 import { GetActorExpensesQuery } from '@expenses/application/get-actor-expenses.handler';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
@@ -19,7 +20,8 @@ import { Search } from '@app/shared/decorators/search.query-decorator';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
-const ExpenseId = () => Param('id', ParseUUIDPipe);
+const ContactId = () => Param('contactId', ParseUUIDPipe);
+const ExpenseId = () => Param('expenseId', ParseUUIDPipe);
 
 @AuthGuard()
 @Controller(EXPENSES_API_ROUTE)
@@ -32,7 +34,22 @@ export class ExpenseController {
         @Body() expense: AddExpenseDTO,
     ): Promise<void> {}
 
-    @Get(':id')
+    @Get('contact/:contactId/expense/:expenseId')
+    async getActorContactExpenseById(
+        @ActorId() actorId: string,
+        @ContactId() contactId: string,
+        @ExpenseId() expenseId: string,
+    ): Promise<ExpenseDTO> {
+        const query = new GetActorContactExpenseByIdQuery({
+            actorId,
+            contactId,
+            expenseId,
+        });
+        const expense = await this.queryBus.execute(query);
+        return ExpenseDTO.from(expense);
+    }
+
+    @Get(':expenseId')
     async getActorExpenseById(
         @ActorId() actorId: string,
         @ExpenseId() expenseId: string,

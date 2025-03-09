@@ -32,6 +32,11 @@ export class Expense {
         return `${this.data.payment.balance}`;
     }
 
+    getCounterpartyOf(stakeholderId: string): Stakeholder {
+        const { creditor, debtor } = this.data.payment;
+        return creditor.getId() === stakeholderId ? debtor : creditor;
+    }
+
     involves(stakeholderId: string): boolean {
         const { creditor, debtor } = this.data.payment;
         return (

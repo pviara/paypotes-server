@@ -39,21 +39,29 @@ const MAX_EXPENSES_PER_PAGE = 20;
 export class ExpenseInMemoryRepository implements ExpenseRepository {
     protected expenses: Array<Expense> = [];
 
-    getActorContactExpenseById(
+    async getActorContactExpenseById(
         actorId: string,
         contactId: string,
         expenseId: string,
     ): Promise<Expense | null> {
-        throw new Error('Method not implemented.');
+        const expense = this.expenses
+            .filter(this.isExpenseOf(actorId, contactId))
+            .find(this.expenseMatches(expenseId));
+
+        return expense ?? null;
     }
 
-    getActorContactExpenses(
+    async getActorContactExpenses(
         actorId: string,
         contactId: string,
         pageIndex: number,
         search: string,
     ): Promise<Expense[]> {
-        throw new Error('Method not implemented.');
+        const start = pageIndex * MAX_EXPENSES_PER_PAGE;
+        return this.expenses
+            .filter(this.isExpenseOf(actorId, contactId))
+            .filter(this.expenseLabelMatches(search))
+            .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
 
     async getActorExpenseById(
@@ -100,8 +108,15 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         return (expense) => expense.getId() === expenseId;
     }
 
-    private isExpenseOf(actorId: string): (expense: Expense) => boolean {
-        return (expense) => expense.involves(actorId);
+    private isExpenseOf(
+        actorId: string,
+        contactId?: string,
+    ): (expense: Expense) => boolean {
+        return (expense) => {
+            return contactId
+                ? expense.involves(actorId) && expense.involves(contactId)
+                : expense.involves(actorId);
+        };
     }
 
     private expenseLabelMatches(search: string): (expense: Expense) => boolean {
