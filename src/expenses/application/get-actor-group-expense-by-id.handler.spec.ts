@@ -5,14 +5,17 @@ import {
 } from '@expenses/application/get-actor-group-expense-by-id.handler';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
-import { generateDefaultUserExpense } from '@test/helpers/expense/utils';
+import { generateDefaultUserGroupExpense } from '@test/helpers/expense/utils';
+import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 
 describe('GetActorGroupExpenseByIdHandler', () => {
     let sut: GetActorGroupExpenseByIdHandler;
     let expenseRepo: ExpenseRepositorySpy;
 
+    const dummyGroup = generateDefaultUserRandomGroup();
+
     const dummyActorId = DEFAULT_USER.getId();
-    const dummyGroupId = crypto.randomUUID();
+    const dummyGroupId = dummyGroup.getId();
     const dummyExpenseId = crypto.randomUUID();
 
     const dummyQuery = new GetActorGroupExpenseByIdQuery({
@@ -21,7 +24,7 @@ describe('GetActorGroupExpenseByIdHandler', () => {
         expenseId: dummyExpenseId,
     });
 
-    const dummyExpense = generateDefaultUserExpense();
+    const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
 
     beforeEach(() => {
         expenseRepo = new ExpenseRepositorySpy();

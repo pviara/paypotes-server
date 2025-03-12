@@ -1,51 +1,55 @@
-import { SimpleExpense } from '@app/expenses/domain/simple-expense';
+import { AnyKindOfExpense } from '@expenses/domain/any-expense';
+import { Expense } from '@expenses/domain/expense';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { PairExpense } from '@expenses/domain/pair-expense';
 
 export interface ExpenseRepository {
     getActorContactExpenseById(
         actorId: string,
         contactId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null>;
+    ): Promise<PairExpense | null>;
     getActorContactExpenses(
         actorId: string,
         contactId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]>;
+    ): Promise<PairExpense[]>;
     getActorExpenseById(
         actorId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null>;
+    ): Promise<Expense | null>;
     getActorExpenses(
         actorId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]>;
+    ): Promise<Expense[]>;
     getActorGroupExpenseById(
         actorId: string,
         groupId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null>;
+    ): Promise<GroupExpense | null>;
     getActorGroupExpenses(
         actorId: string,
         groupId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]>;
+    ): Promise<GroupExpense[]>;
 }
 
 const MAX_EXPENSES_PER_PAGE = 20;
 
 export class ExpenseInMemoryRepository implements ExpenseRepository {
-    protected expenses: Array<SimpleExpense> = [];
+    protected expenses: Array<AnyKindOfExpense> = [];
 
     async getActorContactExpenseById(
         actorId: string,
         contactId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null> {
+    ): Promise<PairExpense | null> {
         const expense = this.expenses
-            .filter(this.isExpenseOf(actorId, contactId))
+            .filter((expense) => expense instanceof PairExpense)
+            .filter(this.isPairExpenseOf(actorId, contactId))
             .find(this.expenseMatches(expenseId));
 
         return expense ?? null;
@@ -56,10 +60,11 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         contactId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]> {
+    ): Promise<PairExpense[]> {
         const start = pageIndex * MAX_EXPENSES_PER_PAGE;
         return this.expenses
-            .filter(this.isExpenseOf(actorId, contactId))
+            .filter(this.isPairExpense())
+            .filter(this.isPairExpenseOf(actorId, contactId))
             .filter(this.expenseLabelMatches(search))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
@@ -67,9 +72,10 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     async getActorExpenseById(
         actorId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null> {
+    ): Promise<Expense | null> {
         const expense = this.expenses
-            .filter(this.isExpenseOf(actorId))
+            .filter(this.isPairExpense())
+            .filter(this.isPairExpenseOf(actorId))
             .find(this.expenseMatches(expenseId));
 
         return expense ?? null;
@@ -79,10 +85,11 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         actorId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]> {
+    ): Promise<Expense[]> {
         const start = pageIndex * MAX_EXPENSES_PER_PAGE;
         return this.expenses
-            .filter(this.isExpenseOf(actorId))
+            .filter(this.isPairExpense())
+            .filter(this.isPairExpenseOf(actorId))
             .filter(this.expenseLabelMatches(search))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
@@ -91,10 +98,11 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         actorId: string,
         groupId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null> {
+    ): Promise<GroupExpense | null> {
         const expense = this.expenses
+            .filter(this.isGroupExpense())
             .filter(this.isExpenseFrom(groupId))
-            .filter(this.isExpenseOf(actorId))
+            .filter(this.isGroupExpenseOf(actorId))
             .find(this.expenseMatches(expenseId));
 
         return expense ?? null;
@@ -105,42 +113,51 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         groupId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]> {
+    ): Promise<GroupExpense[]> {
         const start = pageIndex * MAX_EXPENSES_PER_PAGE;
         return this.expenses
+            .filter(this.isGroupExpense())
             .filter(this.isExpenseFrom(groupId))
-            .filter(this.isExpenseOf(actorId))
+            .filter(this.isGroupExpenseOf(actorId))
             .filter(this.expenseLabelMatches(search))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
 
-    private expenseMatches(
-        expenseId: string,
-    ): (expense: SimpleExpense) => boolean {
+    private isPairExpense(): (value: AnyKindOfExpense) => value is PairExpense {
+        return (expense) => expense instanceof PairExpense;
+    }
+
+    private isPairExpenseOf(
+        actorId: string,
+        contactId?: string,
+    ): (expense: PairExpense) => boolean {
+        return (expense: PairExpense) =>
+            contactId
+                ? expense.involves(actorId) && expense.involves(contactId)
+                : expense.involves(actorId);
+    }
+
+    private expenseMatches(expenseId: string): (expense: Expense) => boolean {
         return (expense) => expense.getId() === expenseId;
     }
 
-    private isExpenseOf(
+    private isGroupExpense(): (
+        value: AnyKindOfExpense,
+    ) => value is GroupExpense {
+        return (expense) => expense instanceof GroupExpense;
+    }
+
+    private isGroupExpenseOf(
         actorId: string,
-        contactId?: string,
-    ): (expense: SimpleExpense) => boolean {
-        return (expense) => {
-            return contactId
-                ? expense.involvesStakeholder(actorId) &&
-                      expense.involvesStakeholder(contactId)
-                : expense.involvesStakeholder(actorId);
-        };
+    ): (expense: GroupExpense) => boolean {
+        return (expense: GroupExpense) => expense.involves(actorId);
     }
 
-    private isExpenseFrom(
-        groupId: string,
-    ): (expense: SimpleExpense) => boolean {
-        return (expense: SimpleExpense) => expense.involvesGroup(groupId);
+    private isExpenseFrom(groupId: string): (expense: GroupExpense) => boolean {
+        return (expense: GroupExpense) => expense.belongsTo(groupId);
     }
 
-    private expenseLabelMatches(
-        search: string,
-    ): (expense: SimpleExpense) => boolean {
+    private expenseLabelMatches(search: string): (expense: Expense) => boolean {
         const lowercasedSearch = search.toLowerCase();
         return (expense) =>
             expense.getLabel().toLowerCase().includes(lowercasedSearch);

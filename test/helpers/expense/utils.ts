@@ -1,13 +1,15 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { SimpleExpense, Payment } from '@app/expenses/domain/simple-expense';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { ExpenseModule } from '@expenses/expense.module';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { Group } from '@groups/domain/group';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { Metadata } from '@expenses/domain/expense';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { PairExpense } from '@expenses/domain/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Group } from '@app/groups/domain/group';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: OverridingProviders = [
@@ -21,9 +23,9 @@ const getDefaultUserAsStakeholder = (): Stakeholder => {
     return Stakeholder.fromUser(DEFAULT_USER);
 };
 
-const getRandomPaymentWithDefaultUser = (
+const getRandomPairPaymentWithDefaultUser = (
     counterparty?: Stakeholder,
-): Payment => {
+): PairExpense['payment'] => {
     const isDebtor = Math.random() < 0.5;
     const isCreditor = !isDebtor;
     return {
@@ -31,6 +33,22 @@ const getRandomPaymentWithDefaultUser = (
         debtor: isDebtor
             ? getDefaultUserAsStakeholder()
             : counterparty || generateRandomStakeholder(),
+        creditor: isCreditor
+            ? getDefaultUserAsStakeholder()
+            : counterparty || generateRandomStakeholder(),
+    };
+};
+
+const getRandomGroupPaymentWithDefaultUser = (
+    counterparty?: Stakeholder,
+): GroupExpense['payment'] => {
+    const isDebtor = Math.random() < 0.5;
+    const isCreditor = !isDebtor;
+    return {
+        balance: Math.floor(Math.random() * 350),
+        debtors: isDebtor
+            ? [getDefaultUserAsStakeholder()]
+            : [counterparty || generateRandomStakeholder()],
         creditor: isCreditor
             ? getDefaultUserAsStakeholder()
             : counterparty || generateRandomStakeholder(),
@@ -45,34 +63,62 @@ export const generateRandomStakeholder = (): Stakeholder => {
     });
 };
 
-export const generateDefaultUserExpense = (group?: Group): SimpleExpense => {
-    return new SimpleExpense({
+export const generateDefaultUserPairExpense = (): PairExpense => {
+    const metadata: Metadata = {
         id: crypto.randomUUID(),
         emoji: '📦',
         label: 'Label',
-        payment: getRandomPaymentWithDefaultUser(),
-        group,
+    };
+    const payment = getRandomPairPaymentWithDefaultUser();
+    return new PairExpense(metadata, payment);
+};
+
+export const generateDefaultUserPairExpenses = ({
+    length,
+    counterparty,
+}: RandomPairExpenseArrayGenerationOptions): Array<PairExpense> => {
+    return Array.from({ length }).map((_, index) => {
+        const metadata: Metadata = {
+            id: crypto.randomUUID(),
+            emoji: '📦',
+            label: `label_${index}`,
+        };
+        const payment = getRandomPairPaymentWithDefaultUser(counterparty);
+        return new PairExpense(metadata, payment);
     });
 };
 
-type RandomExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
-    counterparty?: Stakeholder;
-    group?: Group;
+export const generateDefaultUserGroupExpense = (group: Group): GroupExpense => {
+    const metadata: Metadata = {
+        id: crypto.randomUUID(),
+        emoji: '📦',
+        label: 'Label',
+    };
+    const payment = getRandomGroupPaymentWithDefaultUser();
+    return new GroupExpense(metadata, group, payment);
 };
 
-export const generateDefaultUserExpenses = ({
+export const generateDefaultUserGroupExpenses = ({
     length,
     counterparty,
     group,
-}: RandomExpenseArrayGenerationOptions): Array<SimpleExpense> => {
-    return Array.from({ length }).map(
-        (_, index) =>
-            new SimpleExpense({
-                id: crypto.randomUUID(),
-                emoji: '📦',
-                label: `label_${index}`,
-                group,
-                payment: getRandomPaymentWithDefaultUser(counterparty),
-            }),
-    );
+}: RandomGroupExpenseArrayGenerationOptions): Array<GroupExpense> => {
+    return Array.from({ length }).map((_, index) => {
+        const metadata: Metadata = {
+            id: crypto.randomUUID(),
+            emoji: '📦',
+            label: `label_${index}`,
+        };
+        const payment = getRandomGroupPaymentWithDefaultUser(counterparty);
+        return new GroupExpense(metadata, group, payment);
+    });
 };
+
+type RandomPairExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
+    counterparty?: Stakeholder;
+};
+
+type RandomGroupExpenseArrayGenerationOptions =
+    RandomPairExpenseArrayGenerationOptions & {
+        group: Group;
+    };

@@ -5,7 +5,7 @@ import {
     GetActorExpenseByIdHandler,
     GetActorExpenseByIdQuery,
 } from '@expenses/application/get-actor-expense-by-id.handler';
-import { generateDefaultUserExpense } from '@test/helpers/expense/utils';
+import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
 
 describe('GetActorExpenseByIdHandler', () => {
     let sut: GetActorExpenseByIdHandler;
@@ -18,7 +18,7 @@ describe('GetActorExpenseByIdHandler', () => {
         expenseId: dummyExpenseId,
     });
 
-    const dummyExpense = generateDefaultUserExpense();
+    const dummyExpense = generateDefaultUserPairExpense();
 
     beforeEach(() => {
         expenseRepo = new ExpenseRepositorySpy();

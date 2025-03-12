@@ -1,6 +1,6 @@
-import { SimpleExpense } from '@app/expenses/domain/simple-expense';
+import { GroupExpense } from '@expenses/domain/group-expense';
 
-export class ExpenseDTO {
+export class GroupExpenseDTO {
     constructor(
         readonly id: string,
         readonly label: string,
@@ -8,7 +8,7 @@ export class ExpenseDTO {
         readonly balance: string,
     ) {}
 
-    static from(expense: SimpleExpense): ExpenseDTO {
+    static from(expense: GroupExpense): GroupExpenseDTO {
         return {
             id: expense.getId(),
             label: expense.getLabel(),

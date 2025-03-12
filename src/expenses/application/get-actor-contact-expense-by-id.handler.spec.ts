@@ -5,7 +5,7 @@ import {
 } from '@expenses/application/get-actor-contact-expense-by-id.handler';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
-import { generateDefaultUserExpense } from '@test/helpers/expense/utils';
+import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
 
 describe('GetActorContactExpenseByIdHandler', () => {
     let sut: GetActorContactExpenseByIdHandler;
@@ -21,7 +21,7 @@ describe('GetActorContactExpenseByIdHandler', () => {
         expenseId: dummyExpenseId,
     });
 
-    const dummyExpense = generateDefaultUserExpense();
+    const dummyExpense = generateDefaultUserPairExpense();
 
     beforeEach(() => {
         expenseRepo = new ExpenseRepositorySpy();

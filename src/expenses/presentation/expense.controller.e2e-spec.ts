@@ -1,22 +1,26 @@
+import { AnyKindOfExpense } from '@expenses/domain/any-expense';
 import { App } from 'supertest/types';
-import { SimpleExpense } from '@app/expenses/domain/simple-expense';
-import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     expenseSpecModules as modules,
     expenseSpecProviders as providers,
-    generateDefaultUserExpenses,
-    generateDefaultUserExpense,
+    generateDefaultUserPairExpenses,
+    generateDefaultUserPairExpense,
     generateRandomStakeholder,
+    generateDefaultUserGroupExpenses,
+    generateDefaultUserGroupExpense,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
+import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { PairExpense } from '@expenses/domain/pair-expense';
+import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { raw, shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { Stakeholder } from '../domain/stakeholder';
-import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -46,10 +50,10 @@ describe('ExpenseController', () => {
         });
 
         describe('actor has expenses', () => {
-            let dummyExpenses: Array<SimpleExpense>;
+            let dummyExpenses: Array<PairExpense>;
 
             beforeEach(async () => {
-                dummyExpenses = generateDefaultUserExpenses({ length: 40 });
+                dummyExpenses = generateDefaultUserPairExpenses({ length: 40 });
 
                 await expenseRepo.empty();
                 await expenseRepo.insert(...dummyExpenses);
@@ -77,7 +81,7 @@ describe('ExpenseController', () => {
                 });
 
                 function expectReturnedDtosToBeTheSecondTwentyExpenses(
-                    dtos: Array<ExpenseDTO>,
+                    dtos: Array<PairExpenseDTO>,
                 ): void {
                     const secondTwentyExpenses = dummyExpenses.slice(20, 40);
                     const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
@@ -101,7 +105,7 @@ describe('ExpenseController', () => {
             });
 
             function expectReturnedDtosToBeTheFirstTwentyExpenses(
-                dtos: Array<ExpenseDTO>,
+                dtos: Array<PairExpenseDTO>,
             ): void {
                 const firstTwentyExpenses = dummyExpenses.slice(0, 20);
                 const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
@@ -128,7 +132,7 @@ describe('ExpenseController', () => {
         );
 
         it('should return the right expense for given id', async () => {
-            const dummyExpense = generateDefaultUserExpense();
+            const dummyExpense = generateDefaultUserPairExpense();
             await expenseRepo.insert(dummyExpense);
 
             const response = await request(httpServer).get(
@@ -136,7 +140,7 @@ describe('ExpenseController', () => {
             );
 
             expect(response.body).toStrictEqual(
-                raw(ExpenseDTO.from(dummyExpense)),
+                raw(PairExpenseDTO.from(dummyExpense)),
             );
         });
     });
@@ -169,7 +173,7 @@ describe('ExpenseController', () => {
         );
 
         it('should return the right expense for given contactId and expenseId', async () => {
-            const dummyExpense = generateDefaultUserExpense();
+            const dummyExpense = generateDefaultUserPairExpense();
             await expenseRepo.insert(dummyExpense);
 
             const contact = dummyExpense.getCounterpartyOf(
@@ -180,7 +184,7 @@ describe('ExpenseController', () => {
             );
 
             expect(response.body).toStrictEqual(
-                raw(ExpenseDTO.from(dummyExpense)),
+                raw(PairExpenseDTO.from(dummyExpense)),
             );
         });
     });
@@ -212,11 +216,11 @@ describe('ExpenseController', () => {
         });
 
         describe('actor has expenses with contact', () => {
-            let dummyContactExpenses: Array<SimpleExpense>;
+            let dummyContactExpenses: Array<PairExpense>;
             let dummyContact = generateRandomStakeholder();
 
             beforeEach(async () => {
-                dummyContactExpenses = generateDefaultUserExpenses({
+                dummyContactExpenses = generateDefaultUserPairExpenses({
                     length: 40,
                     counterparty: dummyContact,
                 });
@@ -259,7 +263,7 @@ describe('ExpenseController', () => {
             });
 
             function expectReturnedDtosToBeTheFirstTwentyExpenses(
-                dtos: Array<ExpenseDTO>,
+                dtos: Array<PairExpenseDTO>,
             ): void {
                 const firstTwentyExpenses = dummyContactExpenses.slice(0, 20);
                 const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
@@ -270,7 +274,7 @@ describe('ExpenseController', () => {
             }
 
             function expectReturnedDtosToBeTheSecondTwentyExpenses(
-                dtos: Array<ExpenseDTO>,
+                dtos: Array<PairExpenseDTO>,
             ): void {
                 const secondTwentyExpenses = dummyContactExpenses.slice(20, 40);
                 const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
@@ -311,7 +315,7 @@ describe('ExpenseController', () => {
 
         it('should return the right expense for given groupId and expenseId', async () => {
             const dummyGroup = generateDefaultUserRandomGroup();
-            const dummyExpense = generateDefaultUserExpense(dummyGroup);
+            const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
             await expenseRepo.insert(dummyExpense);
 
             const response = await request(httpServer).get(
@@ -319,7 +323,7 @@ describe('ExpenseController', () => {
             );
 
             expect(response.body).toStrictEqual(
-                raw(ExpenseDTO.from(dummyExpense)),
+                raw(GroupExpenseDTO.from(dummyExpense)),
             );
         });
     });
@@ -351,11 +355,11 @@ describe('ExpenseController', () => {
         });
 
         describe('actor has expenses with group', () => {
-            let dummyGroupExpenses: Array<SimpleExpense>;
+            let dummyGroupExpenses: Array<GroupExpense>;
             let dummyGroup = generateDefaultUserRandomGroup();
 
             beforeEach(async () => {
-                dummyGroupExpenses = generateDefaultUserExpenses({
+                dummyGroupExpenses = generateDefaultUserGroupExpenses({
                     length: 40,
                     group: dummyGroup,
                 });
@@ -398,7 +402,7 @@ describe('ExpenseController', () => {
             });
 
             function expectReturnedDtosToBeTheFirstTwentyExpenses(
-                dtos: Array<ExpenseDTO>,
+                dtos: Array<GroupExpenseDTO>,
             ): void {
                 const firstTwentyExpenses = dummyGroupExpenses.slice(0, 20);
                 const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
@@ -409,7 +413,7 @@ describe('ExpenseController', () => {
             }
 
             function expectReturnedDtosToBeTheSecondTwentyExpenses(
-                dtos: Array<ExpenseDTO>,
+                dtos: Array<GroupExpenseDTO>,
             ): void {
                 const secondTwentyExpenses = dummyGroupExpenses.slice(20, 40);
                 const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
@@ -422,9 +426,9 @@ describe('ExpenseController', () => {
     });
 
     function dtoIsIn(
-        expenses: Array<SimpleExpense>,
-    ): (dto: ExpenseDTO) => boolean {
-        return (dto: ExpenseDTO) =>
+        expenses: Array<AnyKindOfExpense>,
+    ): (dto: PairExpenseDTO) => boolean {
+        return (dto: PairExpenseDTO) =>
             expenses.some((expense) => expense.getId() === dto.id);
     }
 });

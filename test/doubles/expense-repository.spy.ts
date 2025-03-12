@@ -1,5 +1,7 @@
-import { SimpleExpense } from '@app/expenses/domain/simple-expense';
+import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { PairExpense } from '@expenses/domain/pair-expense';
 import { Spy } from '@test/helpers/spy';
 
 export class ExpenseRepositorySpy
@@ -37,7 +39,7 @@ export class ExpenseRepositorySpy
         actorId: string,
         contactId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null> {
+    ): Promise<PairExpense | null> {
         this.calls.getActorContactExpenseById.count++;
         this.calls.getActorContactExpenseById.history.push([
             actorId,
@@ -52,7 +54,7 @@ export class ExpenseRepositorySpy
         contactId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]> {
+    ): Promise<PairExpense[]> {
         this.calls.getActorContactExpenses.count++;
         this.calls.getActorContactExpenses.history.push([
             actorId,
@@ -66,7 +68,7 @@ export class ExpenseRepositorySpy
     async getActorExpenseById(
         actorId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null> {
+    ): Promise<Expense | null> {
         this.calls.getActorExpenseById.count++;
         this.calls.getActorExpenseById.history.push([actorId, expenseId]);
         return this.getStubOrDefault('getActorExpenseById', null);
@@ -76,7 +78,7 @@ export class ExpenseRepositorySpy
         actorId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]> {
+    ): Promise<Expense[]> {
         this.calls.getActorExpenses.count++;
         this.calls.getActorExpenses.history.push([actorId, pageIndex, search]);
         return this.getStubOrDefault('getActorExpenses', []);
@@ -86,7 +88,7 @@ export class ExpenseRepositorySpy
         actorId: string,
         groupId: string,
         expenseId: string,
-    ): Promise<SimpleExpense | null> {
+    ): Promise<GroupExpense | null> {
         this.calls.getActorGroupExpenseById.count++;
         this.calls.getActorGroupExpenseById.history.push([
             actorId,
@@ -101,7 +103,7 @@ export class ExpenseRepositorySpy
         groupId: string,
         pageIndex: number,
         search: string,
-    ): Promise<SimpleExpense[]> {
+    ): Promise<GroupExpense[]> {
         this.calls.getActorGroupExpenses.count++;
         this.calls.getActorGroupExpenses.history.push([
             actorId,

@@ -1,14 +1,36 @@
 import { Group } from '@groups/domain/group';
-import { Payment } from '@app/expenses/domain/simple-expense';
+import { Stakeholder } from './stakeholder';
+import { Expense, Metadata } from './expense';
 
-export class GroupExpense {
+type GroupPayment = {
+    balance: number;
+    creditor: Stakeholder;
+    debtors: Array<Stakeholder>;
+};
+
+export class GroupExpense extends Expense {
     constructor(
-        private data: {
-            id: string;
-            label: string;
-            emoji: string;
-            payment: Payment;
-            group: Group;
-        },
-    ) {}
+        metadata: Metadata,
+        private group: Group,
+        private payment: GroupPayment,
+    ) {
+        super(metadata);
+    }
+
+    belongsTo(groupId: string): boolean {
+        return this.group.getId() === groupId;
+    }
+
+    getBalance(): string {
+        return `${this.payment.balance}`;
+    }
+
+    involves(stakeholderId: string): boolean {
+        const { creditor, debtors } = this.payment;
+        const isCreditor = creditor.getId() === stakeholderId;
+        const isDebtor = debtors.some(
+            (debtor) => debtor.getId() === stakeholderId,
+        );
+        return isCreditor || isDebtor;
+    }
 }
