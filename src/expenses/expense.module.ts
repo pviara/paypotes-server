@@ -5,6 +5,8 @@ import { GetActorContactExpenseByIdHandler } from '@expenses/application/get-act
 import { GetActorContactExpensesHandler } from '@expenses/application/get-actor-contact-expenses.handler';
 import { GetActorExpenseByIdHandler } from '@expenses/application/get-actor-expense-by-id.handler';
 import { GetActorExpensesHandler } from '@expenses/application/get-actor-expenses.handler';
+import { GetActorGroupExpenseByIdHandler } from '@expenses/application/get-actor-group-expense-by-id.handler';
+import { GetActorGroupExpensesHandler } from '@expenses/application/get-actor-group-expenses.handler';
 import { Module } from '@nestjs/common';
 
 @Module({
@@ -16,6 +18,8 @@ import { Module } from '@nestjs/common';
         GetActorContactExpensesHandler,
         GetActorExpenseByIdHandler,
         GetActorExpensesHandler,
+        GetActorGroupExpenseByIdHandler,
+        GetActorGroupExpensesHandler,
     ],
 })
 export class ExpenseModule {}

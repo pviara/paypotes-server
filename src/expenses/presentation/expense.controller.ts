@@ -19,6 +19,7 @@ import { GetActorGroupExpenseByIdQuery } from '@expenses/application/get-actor-g
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { QueryBus } from '@nestjs/cqrs';
 import { Search } from '@app/shared/decorators/search.query-decorator';
+import { GetActorGroupExpensesQuery } from '@expenses/application/get-actor-group-expenses.handler';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
@@ -110,6 +111,23 @@ export class ExpenseController {
         });
         const expense = await this.queryBus.execute(query);
         return ExpenseDTO.from(expense);
+    }
+
+    @Get('group/:groupId')
+    async getActorGroupExpenses(
+        @ActorId() actorId: string,
+        @GroupId() groupId: string,
+        @PageIndex() pageIndex: number,
+        @Search() search: string,
+    ): Promise<ExpenseDTO[]> {
+        const query = new GetActorGroupExpensesQuery({
+            actorId,
+            groupId,
+            pageIndex,
+            search,
+        });
+        const expenses = await this.queryBus.execute(query);
+        return this.mapDTOsFrom(expenses);
     }
 
     private mapDTOsFrom(expenses: any): Array<ExpenseDTO> {

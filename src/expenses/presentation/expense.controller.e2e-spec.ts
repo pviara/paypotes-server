@@ -350,75 +350,75 @@ describe('ExpenseController', () => {
             });
         });
 
-        // describe('actor has expenses with group', () => {
-        //     let dummyGroupExpenses: Array<Expense>;
-        //     let dummyGroup = generateDefaultUserRandomGroup();
+        describe('actor has expenses with group', () => {
+            let dummyGroupExpenses: Array<Expense>;
+            let dummyGroup = generateDefaultUserRandomGroup();
 
-        //     beforeEach(async () => {
-        //         dummyGroupExpenses = generateDefaultUserExpenses({
-        //             length: 40,
-        //             group: dummyGroup,
-        //         });
-        //         await expenseRepo.empty();
-        //         await expenseRepo.insert(...dummyGroupExpenses);
-        //     });
+            beforeEach(async () => {
+                dummyGroupExpenses = generateDefaultUserExpenses({
+                    length: 40,
+                    group: dummyGroup,
+                });
+                await expenseRepo.empty();
+                await expenseRepo.insert(...dummyGroupExpenses);
+            });
 
-        //     it('should return the first 20 group expenses by default', async () => {
-        //         const response = await request(httpServer).get(
-        //             `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
-        //         );
+            it('should return the first 20 group expenses by default', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
+                );
 
-        //         const dtos = response.body;
-        //         expect(dtos.length).toBe(20);
-        //         expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
-        //     });
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
+            });
 
-        //     describe('page index has been given', () => {
-        //         it('should return the second 20 expenses when given index is 1', async () => {
-        //             const response = await request(httpServer).get(
-        //                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?pageIndex=1`,
-        //             );
+            describe('page index has been given', () => {
+                it('should return the second 20 expenses when given index is 1', async () => {
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?pageIndex=1`,
+                    );
 
-        //             const dtos = response.body;
-        //             expect(dtos.length).toBe(20);
-        //             expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
-        //         });
-        //     });
+                    const dtos = response.body;
+                    expect(dtos.length).toBe(20);
+                    expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
+                });
+            });
 
-        //     describe('search has been given', () => {
-        //         it('should return the group expenses that match the search', async () => {
-        //             const targetExpense = dummyGroupExpenses[0];
-        //             const response = await request(httpServer).get(
-        //                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?search=${targetExpense.getLabel()}`,
-        //             );
+            describe('search has been given', () => {
+                it('should return the group expenses that match the search', async () => {
+                    const targetExpense = dummyGroupExpenses[0];
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?search=${targetExpense.getLabel()}`,
+                    );
 
-        //             expect(response.body.length).toBe(1);
-        //             expect(response.body[0].id).toBe(targetExpense.getId());
-        //         });
-        //     });
+                    expect(response.body.length).toBe(1);
+                    expect(response.body[0].id).toBe(targetExpense.getId());
+                });
+            });
 
-        //     function expectReturnedDtosToBeTheFirstTwentyExpenses(
-        //         dtos: Array<ExpenseDTO>,
-        //     ): void {
-        //         const firstTwentyExpenses = dummyGroupExpenses.slice(0, 20);
-        //         const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
-        //             dtoIsIn(firstTwentyExpenses),
-        //         );
+            function expectReturnedDtosToBeTheFirstTwentyExpenses(
+                dtos: Array<ExpenseDTO>,
+            ): void {
+                const firstTwentyExpenses = dummyGroupExpenses.slice(0, 20);
+                const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
+                    dtoIsIn(firstTwentyExpenses),
+                );
 
-        //         expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
-        //     }
+                expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
+            }
 
-        //     function expectReturnedDtosToBeTheSecondTwentyExpenses(
-        //         dtos: Array<ExpenseDTO>,
-        //     ): void {
-        //         const secondTwentyExpenses = dummyGroupExpenses.slice(20, 40);
-        //         const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
-        //             dtoIsIn(secondTwentyExpenses),
-        //         );
+            function expectReturnedDtosToBeTheSecondTwentyExpenses(
+                dtos: Array<ExpenseDTO>,
+            ): void {
+                const secondTwentyExpenses = dummyGroupExpenses.slice(20, 40);
+                const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
+                    dtoIsIn(secondTwentyExpenses),
+                );
 
-        //         expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
-        //     }
-        // });
+                expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
+            }
+        });
     });
 
     function dtoIsIn(expenses: Array<Expense>): (dto: ExpenseDTO) => boolean {

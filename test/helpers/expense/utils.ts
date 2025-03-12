@@ -45,12 +45,13 @@ export const generateRandomStakeholder = (): Stakeholder => {
     });
 };
 
-export const generateDefaultUserExpense = (): Expense => {
+export const generateDefaultUserExpense = (group?: Group): Expense => {
     return new Expense({
         id: crypto.randomUUID(),
         emoji: '📦',
         label: 'Label',
         payment: getRandomPaymentWithDefaultUser(),
+        group,
     });
 };
 

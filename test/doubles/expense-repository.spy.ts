@@ -29,7 +29,7 @@ export class ExpenseRepositorySpy
         },
         getActorGroupExpenses: {
             count: 0,
-            history: [] as Array<[string, string, number]>,
+            history: [] as Array<[string, string, number, string]>,
         },
     };
 
@@ -100,12 +100,14 @@ export class ExpenseRepositorySpy
         actorId: string,
         groupId: string,
         pageIndex: number,
+        search: string,
     ): Promise<Expense[]> {
         this.calls.getActorGroupExpenses.count++;
         this.calls.getActorGroupExpenses.history.push([
             actorId,
             groupId,
             pageIndex,
+            search,
         ]);
         return this.getStubOrDefault('getActorGroupExpenses', []);
     }
