@@ -1,5 +1,5 @@
 import { Group } from '@groups/domain/group';
-import { Payment } from '@expenses/domain/expense';
+import { Payment } from '@app/expenses/domain/simple-expense';
 
 export class GroupExpense {
     constructor(

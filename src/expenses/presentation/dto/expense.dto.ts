@@ -1,4 +1,4 @@
-import { Expense } from '@app/expenses/domain/expense';
+import { SimpleExpense } from '@app/expenses/domain/simple-expense';
 
 export class ExpenseDTO {
     constructor(
@@ -8,7 +8,7 @@ export class ExpenseDTO {
         readonly balance: string,
     ) {}
 
-    static from(expense: Expense): ExpenseDTO {
+    static from(expense: SimpleExpense): ExpenseDTO {
         return {
             id: expense.getId(),
             label: expense.getLabel(),

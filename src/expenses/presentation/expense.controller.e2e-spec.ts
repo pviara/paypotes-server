@@ -1,5 +1,5 @@
 import { App } from 'supertest/types';
-import { Expense } from '@expenses/domain/expense';
+import { SimpleExpense } from '@app/expenses/domain/simple-expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
@@ -46,7 +46,7 @@ describe('ExpenseController', () => {
         });
 
         describe('actor has expenses', () => {
-            let dummyExpenses: Array<Expense>;
+            let dummyExpenses: Array<SimpleExpense>;
 
             beforeEach(async () => {
                 dummyExpenses = generateDefaultUserExpenses({ length: 40 });
@@ -212,7 +212,7 @@ describe('ExpenseController', () => {
         });
 
         describe('actor has expenses with contact', () => {
-            let dummyContactExpenses: Array<Expense>;
+            let dummyContactExpenses: Array<SimpleExpense>;
             let dummyContact = generateRandomStakeholder();
 
             beforeEach(async () => {
@@ -351,7 +351,7 @@ describe('ExpenseController', () => {
         });
 
         describe('actor has expenses with group', () => {
-            let dummyGroupExpenses: Array<Expense>;
+            let dummyGroupExpenses: Array<SimpleExpense>;
             let dummyGroup = generateDefaultUserRandomGroup();
 
             beforeEach(async () => {
@@ -421,7 +421,9 @@ describe('ExpenseController', () => {
         });
     });
 
-    function dtoIsIn(expenses: Array<Expense>): (dto: ExpenseDTO) => boolean {
+    function dtoIsIn(
+        expenses: Array<SimpleExpense>,
+    ): (dto: ExpenseDTO) => boolean {
         return (dto: ExpenseDTO) =>
             expenses.some((expense) => expense.getId() === dto.id);
     }

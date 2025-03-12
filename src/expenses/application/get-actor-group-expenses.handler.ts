@@ -1,4 +1,4 @@
-import { Expense } from '@expenses/domain/expense';
+import { SimpleExpense } from '@app/expenses/domain/simple-expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
@@ -24,7 +24,7 @@ export class GetActorGroupExpensesHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    execute(query: GetActorGroupExpensesQuery): Promise<Expense[]> {
+    execute(query: GetActorGroupExpensesQuery): Promise<SimpleExpense[]> {
         const { actorId, groupId, pageIndex, search } = query.payload;
         return this.expenseRepository.getActorGroupExpenses(
             actorId,

@@ -1,5 +1,5 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { Expense, Payment } from '@expenses/domain/expense';
+import { SimpleExpense, Payment } from '@app/expenses/domain/simple-expense';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { ExpenseModule } from '@expenses/expense.module';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
@@ -45,8 +45,8 @@ export const generateRandomStakeholder = (): Stakeholder => {
     });
 };
 
-export const generateDefaultUserExpense = (group?: Group): Expense => {
-    return new Expense({
+export const generateDefaultUserExpense = (group?: Group): SimpleExpense => {
+    return new SimpleExpense({
         id: crypto.randomUUID(),
         emoji: '📦',
         label: 'Label',
@@ -64,10 +64,10 @@ export const generateDefaultUserExpenses = ({
     length,
     counterparty,
     group,
-}: RandomExpenseArrayGenerationOptions): Array<Expense> => {
+}: RandomExpenseArrayGenerationOptions): Array<SimpleExpense> => {
     return Array.from({ length }).map(
         (_, index) =>
-            new Expense({
+            new SimpleExpense({
                 id: crypto.randomUUID(),
                 emoji: '📦',
                 label: `label_${index}`,

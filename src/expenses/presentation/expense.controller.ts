@@ -9,7 +9,7 @@ import {
     ParseUUIDPipe,
     Post,
 } from '@nestjs/common';
-import { Expense } from '@expenses/domain/expense';
+import { SimpleExpense } from '@app/expenses/domain/simple-expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { GetActorContactExpenseByIdQuery } from '@expenses/application/get-actor-contact-expense-by-id.handler';
 import { GetActorContactExpensesQuery } from '@expenses/application/get-actor-contact-expenses.handler';
@@ -131,6 +131,8 @@ export class ExpenseController {
     }
 
     private mapDTOsFrom(expenses: any): Array<ExpenseDTO> {
-        return expenses.map((expense: Expense) => ExpenseDTO.from(expense));
+        return expenses.map((expense: SimpleExpense) =>
+            ExpenseDTO.from(expense),
+        );
     }
 }

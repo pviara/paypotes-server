@@ -1,4 +1,4 @@
-import { Expense } from '@expenses/domain/expense';
+import { SimpleExpense } from '@app/expenses/domain/simple-expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
@@ -23,7 +23,9 @@ export class GetActorGroupExpenseByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    async execute(query: GetActorGroupExpenseByIdQuery): Promise<Expense> {
+    async execute(
+        query: GetActorGroupExpenseByIdQuery,
+    ): Promise<SimpleExpense> {
         const { actorId, groupId, expenseId } = query.payload;
         const expense = await this.expenseRepository.getActorGroupExpenseById(
             actorId,

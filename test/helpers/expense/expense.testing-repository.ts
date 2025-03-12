@@ -1,4 +1,4 @@
-import { Expense } from '@app/expenses/domain/expense';
+import { SimpleExpense } from '@app/expenses/domain/simple-expense';
 import { ExpenseInMemoryRepository } from '@expenses/persistence/expense.repository';
 
 export class ExpenseInMemoryTestingRepository extends ExpenseInMemoryRepository {
@@ -6,7 +6,7 @@ export class ExpenseInMemoryTestingRepository extends ExpenseInMemoryRepository 
         this.expenses = [];
     }
 
-    async insert(...expenses: Array<Expense>): Promise<void> {
+    async insert(...expenses: Array<SimpleExpense>): Promise<void> {
         this.expenses.push(...expenses);
     }
 }

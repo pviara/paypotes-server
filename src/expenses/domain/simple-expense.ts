@@ -7,7 +7,7 @@ export type Payment = {
     debtor: Stakeholder;
 };
 
-export class Expense {
+export class SimpleExpense {
     constructor(
         private data: {
             id: string;
