@@ -107,7 +107,7 @@ export const generateDefaultUserGroupExpenses = ({
     });
 };
 
-function generateRandomMetadata(
+export function generateRandomMetadata(
     options?: RandomMetadataGenerationOptions,
 ): Metadata {
     return {

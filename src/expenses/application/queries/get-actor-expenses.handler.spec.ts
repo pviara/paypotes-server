@@ -24,15 +24,13 @@ describe('GetActorExpensesHandler', () => {
         sut = new GetActorExpensesHandler(expenseRepo);
     });
 
-    describe('execute', () => {
-        it("should retrieve the actor's expenses", async () => {
-            await sut.execute(dummyQuery);
-            expect(expenseRepo.calls.getActorExpenses.count).toBe(1);
-            expect(expenseRepo.calls.getActorExpenses.history).toContainEqual([
-                dummyActorId,
-                dummyPageIndex,
-                dummySearch,
-            ]);
-        });
+    it("should retrieve the actor's expenses", async () => {
+        await sut.execute(dummyQuery);
+        expect(expenseRepo.calls.getActorExpenses.count).toBe(1);
+        expect(expenseRepo.calls.getActorExpenses.history).toContainEqual([
+            dummyActorId,
+            dummyPageIndex,
+            dummySearch,
+        ]);
     });
 });

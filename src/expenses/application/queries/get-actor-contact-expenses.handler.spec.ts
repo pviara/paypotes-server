@@ -26,18 +26,16 @@ describe('GetActorContactExpensesHandler', () => {
         sut = new GetActorContactExpensesHandler(expenseRepo);
     });
 
-    describe('execute', () => {
-        it("should retrieve the actor's contact expenses", async () => {
-            await sut.execute(dummyQuery);
-            expect(expenseRepo.calls.getActorContactExpenses.count).toBe(1);
-            expect(
-                expenseRepo.calls.getActorContactExpenses.history,
-            ).toContainEqual([
-                dummyActorId,
-                dummyContactId,
-                dummyPageIndex,
-                dummySearch,
-            ]);
-        });
+    it("should retrieve the actor's contact expenses", async () => {
+        await sut.execute(dummyQuery);
+        expect(expenseRepo.calls.getActorContactExpenses.count).toBe(1);
+        expect(
+            expenseRepo.calls.getActorContactExpenses.history,
+        ).toContainEqual([
+            dummyActorId,
+            dummyContactId,
+            dummyPageIndex,
+            dummySearch,
+        ]);
     });
 });
