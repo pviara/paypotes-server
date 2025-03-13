@@ -3,6 +3,7 @@ import { GroupExpense } from '@expenses/domain/group-expense';
 import { PairExpense } from '@expenses/domain/pair-expense';
 
 export interface ExpenseRepository {
+    delete(expenseId: string): Promise<void>;
     getActorContactExpenseById(
         actorId: string,
         contactId: string,
@@ -41,6 +42,11 @@ const MAX_EXPENSES_PER_PAGE = 20;
 
 export class ExpenseInMemoryRepository implements ExpenseRepository {
     protected expenses: Array<Expense> = [];
+
+    async delete(expenseId: string): Promise<void> {
+        const index = this.expenses.findIndex(this.expenseMatches(expenseId));
+        if (this.valid(index)) this.expenses.splice(index, 1);
+    }
 
     async getActorContactExpenseById(
         actorId: string,
@@ -127,6 +133,14 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         this.expenses.push(expense);
     }
 
+    private expenseMatches(expenseId: string): (expense: Expense) => boolean {
+        return (expense) => expense.getId() === expenseId;
+    }
+
+    private valid(index: number): boolean {
+        return index > -1;
+    }
+
     private isPairExpense(): (value: Expense) => value is PairExpense {
         return (expense) => expense instanceof PairExpense;
     }
@@ -139,10 +153,6 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             contactId
                 ? expense.involves(actorId, contactId)
                 : expense.involves(actorId);
-    }
-
-    private expenseMatches(expenseId: string): (expense: Expense) => boolean {
-        return (expense) => expense.getId() === expenseId;
     }
 
     private isGroupExpense(): (value: Expense) => value is GroupExpense {

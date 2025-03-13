@@ -8,6 +8,7 @@ import { AuthGuard } from '@auth/auth-guard.decorator';
 import {
     Body,
     Controller,
+    Delete,
     Get,
     Param,
     ParseUUIDPipe,
@@ -28,6 +29,7 @@ import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
+import { PaybackExpenseCommand } from '../application/payback-expense.handler';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
@@ -44,7 +46,7 @@ export class ExpenseController {
     ) {}
 
     @Post('group')
-    async addGroup(
+    addGroup(
         @ActorId() actorId: string,
         @Body() expense: AddGroupExpenseDTO,
     ): Promise<void> {
@@ -61,7 +63,7 @@ export class ExpenseController {
     }
 
     @Post('pair')
-    async addPair(
+    addPair(
         @Actor() actor: User,
         @Body() expense: AddPairExpenseDTO,
     ): Promise<void> {
@@ -178,6 +180,15 @@ export class ExpenseController {
         });
         const expenses = await this.queryBus.execute(query);
         return this.mapGroupExpenseDTOs(expenses);
+    }
+
+    @Delete(':expenseId')
+    payback(
+        @ActorId() actorId: string,
+        @ExpenseId() expenseId: string,
+    ): Promise<void> {
+        const command = new PaybackExpenseCommand({ actorId, expenseId });
+        return this.commandBus.execute(command);
     }
 
     private mapPairExpenseDTOs(

@@ -11,6 +11,7 @@ import { GetActorGroupExpenseByIdHandler } from '@expenses/application/get-actor
 import { GetActorGroupExpensesHandler } from '@expenses/application/get-actor-group-expenses.handler';
 import { GroupModule } from '@groups/group.module';
 import { Module } from '@nestjs/common';
+import { PaybackExpenseHandler } from '@expenses/application/payback-expense.handler';
 import { UserModule } from '@users/user.module';
 
 @Module({
@@ -26,6 +27,7 @@ import { UserModule } from '@users/user.module';
         GetActorExpensesHandler,
         GetActorGroupExpenseByIdHandler,
         GetActorGroupExpensesHandler,
+        PaybackExpenseHandler,
     ],
 })
 export class ExpenseModule {}
