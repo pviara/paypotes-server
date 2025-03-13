@@ -52,9 +52,6 @@ const getRandomGroupPaymentWithDefaultUser = (
     const isCreditor = !isDebtor;
     return {
         balance: generateRandomBalance(),
-        debtors: isDebtor
-            ? [getDefaultUserAsStakeholder()]
-            : [counterparty || generateRandomStakeholder()],
         creditor: isCreditor
             ? getDefaultUserAsStakeholder()
             : counterparty || generateRandomStakeholder(),

@@ -35,7 +35,7 @@ export interface ExpenseRepository {
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]>;
-    save(expense: PairExpense): Promise<void>;
+    save(expense: AnyKindOfExpense): Promise<void>;
 }
 
 const MAX_EXPENSES_PER_PAGE = 20;
@@ -124,7 +124,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
 
-    async save(expense: PairExpense): Promise<void> {
+    async save(expense: AnyKindOfExpense): Promise<void> {
         this.expenses.push(expense);
     }
 

@@ -5,7 +5,6 @@ import { Expense, Metadata } from './expense';
 export type GroupPayment = {
     balance: number;
     creditor: Stakeholder;
-    debtors: Array<Stakeholder>;
 };
 
 export class GroupExpense extends Expense {
@@ -26,11 +25,11 @@ export class GroupExpense extends Expense {
     }
 
     involves(stakeholderId: string): boolean {
-        const { creditor, debtors } = this.payment;
+        const { creditor } = this.payment;
         const isCreditor = creditor.getId() === stakeholderId;
-        const isDebtor = debtors.some(
-            (debtor) => debtor.getId() === stakeholderId,
-        );
-        return isCreditor || isDebtor;
+        const isGroupMember = this.group
+            .getMembers()
+            .some((member) => member.getId() === stakeholderId);
+        return isCreditor || isGroupMember;
     }
 }

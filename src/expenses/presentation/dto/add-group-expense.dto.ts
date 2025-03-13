@@ -1,8 +1,8 @@
 import { convertCents } from '@expenses/presentation/dto/utils';
-import { IsBoolean, IsString, IsUUID, Matches } from 'class-validator';
+import { IsString, IsUUID, Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class AddPairExpenseDTO {
+export class AddGroupExpenseDTO {
     @IsUUID('4')
     id!: string;
 
@@ -16,9 +16,9 @@ export class AddPairExpenseDTO {
     @Transform(convertCents())
     balance!: number;
 
-    @IsBoolean()
-    isCurrentPayer!: boolean;
+    @IsUUID('4')
+    groupId!: string;
 
     @IsUUID('4')
-    userId!: string;
+    memberId!: string;
 }

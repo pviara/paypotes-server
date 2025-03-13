@@ -1,3 +1,4 @@
+import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
 
 export class Stakeholder {
@@ -8,6 +9,14 @@ export class Stakeholder {
             lastname: string;
         },
     ) {}
+
+    static fromMember(member: Member): Stakeholder {
+        return new Stakeholder({
+            id: member.getId(),
+            firstname: member.getFirstname(),
+            lastname: member.getLastname(),
+        });
+    }
 
     static fromUser(user: User): Stakeholder {
         return new Stakeholder({

@@ -67,7 +67,7 @@ describe('AddExpenseHandler', () => {
     });
 
     describe('user exists', () => {
-        it('should save the expense metadata', async () => {
+        it('should save the expense', async () => {
             await sut.execute(dummyCommand);
 
             const metadata: Metadata = {
