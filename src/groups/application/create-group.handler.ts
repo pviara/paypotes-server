@@ -34,7 +34,7 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
 
         const users = await this.userRepository.get(...payload.userIds);
         if (users.length < payload.userIds.length) {
-            throw new MemberNotFoundError();
+            throw new UserNotFoundError();
         }
 
         return this.groupRepository.save(
@@ -54,10 +54,8 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
     }
 }
 
-export class MemberNotFoundError extends Error {
+export class UserNotFoundError extends Error {
     constructor() {
-        super(
-            `Group cannot be created: at least one member could not be found`,
-        );
+        super(`Group cannot be created: at least one user could not be found`);
     }
 }

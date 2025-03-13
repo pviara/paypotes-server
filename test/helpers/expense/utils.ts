@@ -4,6 +4,8 @@ import { ExpenseModule } from '@expenses/expense.module';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Metadata } from '@expenses/domain/expense';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
@@ -18,6 +20,10 @@ export const expenseSpecProviders: OverridingProviders = [
     {
         provide: expenseRepositoryToken,
         useClass: ExpenseInMemoryTestingRepository,
+    },
+    {
+        provide: groupRepositoryToken,
+        useClass: GroupInMemoryTestingRepository,
     },
     {
         provide: userRepositoryToken,

@@ -1,3 +1,4 @@
+import { AddGroupExpenseHandler } from '@expenses/application/add-group-expense.handler';
 import { AddPairExpenseHandler } from '@expenses/application/add-pair-expense.handler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ExpenseController } from '@expenses/presentation/expense.controller';
@@ -8,13 +9,15 @@ import { GetActorExpenseByIdHandler } from '@expenses/application/get-actor-expe
 import { GetActorExpensesHandler } from '@expenses/application/get-actor-expenses.handler';
 import { GetActorGroupExpenseByIdHandler } from '@expenses/application/get-actor-group-expense-by-id.handler';
 import { GetActorGroupExpensesHandler } from '@expenses/application/get-actor-group-expenses.handler';
+import { GroupModule } from '@groups/group.module';
 import { Module } from '@nestjs/common';
 import { UserModule } from '@users/user.module';
 
 @Module({
     controllers: [ExpenseController],
-    imports: [CqrsModule, UserModule],
+    imports: [CqrsModule, GroupModule, UserModule],
     providers: [
+        AddGroupExpenseHandler,
         AddPairExpenseHandler,
         expenseRepositoryProvider,
         GetActorContactExpenseByIdHandler,

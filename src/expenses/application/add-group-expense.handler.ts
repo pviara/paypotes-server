@@ -1,11 +1,14 @@
 import { GroupNotFoundError } from '@groups/application/get-actor-group-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { ICommand, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { Metadata } from '@expenses/domain/expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Inject } from '@nestjs/common';
 
 export class AddGroupExpenseCommand implements ICommand {
     constructor(
@@ -21,11 +24,15 @@ export class AddGroupExpenseCommand implements ICommand {
     ) {}
 }
 
+@CommandHandler(AddGroupExpenseCommand)
 export class AddGroupExpenseHandler
     implements ICommandHandler<AddGroupExpenseCommand>
 {
     constructor(
+        @Inject(expenseRepositoryToken)
         private expenseRepo: ExpenseRepository,
+
+        @Inject(groupRepositoryToken)
         private groupRepo: GroupRepository,
     ) {}
 

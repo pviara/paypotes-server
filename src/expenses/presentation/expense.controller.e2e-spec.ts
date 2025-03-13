@@ -1,5 +1,6 @@
 import { App } from 'supertest/types';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { Expense } from '@expenses/domain/expense';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     expenseSpecModules as modules,
@@ -12,22 +13,25 @@ import {
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
+import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { generateRandomUser } from '@test/helpers/user/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { raw, shutdown } from '@test/helpers/utils';
-import * as request from 'supertest';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
-import { generateRandomUser } from '@test/helpers/user/utils';
-import { Expense } from '../domain/expense';
+import * as request from 'supertest';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
 
     let expenseRepo: ExpenseInMemoryTestingRepository;
+    let groupRepo: GroupInMemoryTestingRepository;
     let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
 
@@ -35,6 +39,7 @@ describe('ExpenseController', () => {
         await runner.bootstrap();
 
         expenseRepo = runner.getRepository('expense');
+        groupRepo = runner.getRepository('group');
         userRepo = runner.getRepository('user');
         httpServer = runner.getHttpServer();
     });
@@ -429,7 +434,149 @@ describe('ExpenseController', () => {
         });
     });
 
-    describe('POST /expenses', () => {
+    describe('POST /expenses/group', () => {
+        const invalidPayloads: NonNullable<unknown>[] = [
+            '',
+            {},
+            { id: 'not-a-uuid' },
+            { id: crypto.randomUUID() },
+            { id: crypto.randomUUID(), label: '' },
+            { id: crypto.randomUUID(), label: 'Label', emoji: 'not-an-emoji' },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: 'not-a-number',
+                groupId: crypto.randomUUID(),
+                memberId: crypto.randomUUID(),
+            },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: '100',
+                groupId: 'not-a-uuid',
+                memberId: crypto.randomUUID(),
+            },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: '100',
+                groupId: crypto.randomUUID(),
+                memberId: 'not-a-uuid',
+            },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: '100',
+                groupId: crypto.randomUUID(),
+            },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: '100',
+                memberId: crypto.randomUUID(),
+            },
+        ];
+
+        it.each(invalidPayloads)(
+            'should return 400 BAD_REQUEST when given payload "%s" is invalid',
+            async (payload: NonNullable<unknown>) => {
+                const response = await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/group`)
+                    .send(payload);
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('expense group does not exist', () => {
+            beforeEach(async () => {
+                await groupRepo.empty();
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const NOT_EXISTING_ID = crypto.randomUUID();
+
+                const response = await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/group`)
+                    .send({
+                        id: crypto.randomUUID(),
+                        label: 'Label',
+                        emoji: '😀',
+                        balance: '100',
+                        groupId: NOT_EXISTING_ID,
+                        memberId: NOT_EXISTING_ID,
+                    });
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+
+        describe('expense member does not exist in group', () => {
+            const dummyGroup = generateDefaultUserRandomGroup();
+
+            beforeEach(async () => {
+                await groupRepo.empty();
+                await groupRepo.save(dummyGroup);
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const NOT_EXISTING_ID = crypto.randomUUID();
+
+                const response = await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/group`)
+                    .send({
+                        id: crypto.randomUUID(),
+                        label: 'Label',
+                        emoji: '😀',
+                        balance: '100',
+                        groupId: dummyGroup.getId(),
+                        memberId: NOT_EXISTING_ID,
+                    });
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+
+        describe('both group and group member exist', () => {
+            const dummyGroup = generateDefaultUserRandomGroup();
+            const dummyMember = getAnyMemberFrom(dummyGroup);
+
+            beforeEach(async () => {
+                await groupRepo.empty();
+                await groupRepo.save(dummyGroup);
+            });
+
+            it('should save a group expense in database', async () => {
+                const expenseId = crypto.randomUUID();
+                const response = await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/group`)
+                    .send({
+                        id: expenseId,
+                        label: 'Label',
+                        emoji: '😀',
+                        balance: '100',
+                        groupId: dummyGroup.getId(),
+                        memberId: dummyMember.getId(),
+                    });
+
+                expect(response.status).toBe(HttpStatus.CREATED);
+                expect(expenseRepo.expenseSaved(expenseId));
+            });
+
+            function getAnyMemberFrom(group: Group): Member {
+                const members = group.getMembers();
+                const index = Math.floor(Math.random() * members.length);
+                return members[index];
+            }
+        });
+    });
+
+    describe('POST /expenses/pair', () => {
         const invalidPayloads: NonNullable<unknown>[] = [
             '',
             {},
@@ -465,13 +612,21 @@ describe('ExpenseController', () => {
                 isCurrentPayer: true,
                 userId: 'not-a-uuid',
             },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: 'not-a-number',
+                isCurrentPayer: true,
+                userId: crypto.randomUUID(),
+            },
         ];
 
         it.each(invalidPayloads)(
             'should return 400 BAD_REQUEST when given payload "%s" is invalid',
             async (payload: NonNullable<unknown>) => {
                 const response = await request(httpServer)
-                    .post(`/${EXPENSES_API_ROUTE}`)
+                    .post(`/${EXPENSES_API_ROUTE}/pair`)
                     .send(payload);
 
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
@@ -486,10 +641,10 @@ describe('ExpenseController', () => {
                 await userRepo.insert(dummyUser);
             });
 
-            it('should insert an expense in database', async () => {
+            it('should insert a pair expense in database', async () => {
                 const expenseId = crypto.randomUUID();
                 const response = await request(httpServer)
-                    .post(`/${EXPENSES_API_ROUTE}`)
+                    .post(`/${EXPENSES_API_ROUTE}/pair`)
                     .send({
                         id: expenseId,
                         label: 'Label',
@@ -513,7 +668,7 @@ describe('ExpenseController', () => {
                 const NOT_EXISTING_ID = crypto.randomUUID();
 
                 const response = await request(httpServer)
-                    .post(`/${EXPENSES_API_ROUTE}`)
+                    .post(`/${EXPENSES_API_ROUTE}/pair`)
                     .send({
                         id: crypto.randomUUID(),
                         label: 'Label',

@@ -1,4 +1,7 @@
 import { Actor, ActorId } from '@test/doubles/auth/actor.decorator';
+import { AddGroupExpenseCommand } from '@expenses/application/add-group-expense.handler';
+import { AddGroupExpenseDTO } from '@expenses/presentation/dto/add-group-expense.dto';
+import { AddPairExpenseCommand } from '@expenses/application/add-pair-expense.handler';
 import { AddPairExpenseDTO } from '@app/expenses/presentation/dto/add-pair-expense.dto';
 import { AnyExpenseDTO } from '@expenses/presentation/dto/any-expense.dto';
 import { AuthGuard } from '@auth/auth-guard.decorator';
@@ -24,8 +27,7 @@ import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { Search } from '@app/shared/decorators/search.query-decorator';
-import { User } from '@app/users/domain/user';
-import { AddPairExpenseCommand } from '../application/add-pair-expense.handler';
+import { User } from '@users/domain/user';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
@@ -41,8 +43,25 @@ export class ExpenseController {
         private queryBus: QueryBus,
     ) {}
 
-    @Post()
-    async add(
+    @Post('group')
+    async addGroup(
+        @ActorId() actorId: string,
+        @Body() expense: AddGroupExpenseDTO,
+    ): Promise<void> {
+        const command = new AddGroupExpenseCommand({
+            actorId,
+            id: expense.id,
+            label: expense.label,
+            emoji: expense.emoji,
+            balance: expense.balance,
+            groupId: expense.groupId,
+            memberId: expense.memberId,
+        });
+        return this.commandBus.execute(command);
+    }
+
+    @Post('pair')
+    async addPair(
         @Actor() actor: User,
         @Body() expense: AddPairExpenseDTO,
     ): Promise<void> {
