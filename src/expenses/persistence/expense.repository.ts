@@ -137,7 +137,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): (expense: PairExpense) => boolean {
         return (expense: PairExpense) =>
             contactId
-                ? expense.involves(actorId) && expense.involves(contactId)
+                ? expense.involves(actorId, contactId)
                 : expense.involves(actorId);
     }
 

@@ -24,10 +24,16 @@ export class PairExpense extends Expense {
         return creditor.getId() === stakeholderId ? debtor : creditor;
     }
 
-    involves(stakeholderId: string): boolean {
+    involves(...stakeholderIds: Array<string>): boolean {
+        return stakeholderIds.every(this.eitherCreditorOrDebtor());
+    }
+
+    private eitherCreditorOrDebtor(): (stakeholderId: string) => boolean {
         const { creditor, debtor } = this.payment;
-        const isCreditor = creditor.getId() === stakeholderId;
-        const isDebtor = debtor.getId() === stakeholderId;
-        return isCreditor || isDebtor;
+        return (stakeholderId: string) => {
+            const isCreditor = creditor.getId() === stakeholderId;
+            const isDebtor = debtor.getId() === stakeholderId;
+            return isCreditor || isDebtor;
+        };
     }
 }
