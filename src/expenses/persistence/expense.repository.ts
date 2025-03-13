@@ -35,6 +35,7 @@ export interface ExpenseRepository {
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]>;
+    save(expense: PairExpense): Promise<void>;
 }
 
 const MAX_EXPENSES_PER_PAGE = 20;
@@ -121,6 +122,10 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .filter(this.isGroupExpenseOf(actorId))
             .filter(this.expenseLabelMatches(search))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
+    }
+
+    async save(expense: PairExpense): Promise<void> {
+        this.expenses.push(expense);
     }
 
     private isPairExpense(): (value: AnyKindOfExpense) => value is PairExpense {

@@ -3,11 +3,11 @@ import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.
 import { ExpenseModule } from '@expenses/expense.module';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
-import { GroupExpense } from '@expenses/domain/group-expense';
+import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { Metadata } from '@expenses/domain/expense';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
-import { PairExpense } from '@expenses/domain/pair-expense';
+import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 
@@ -25,11 +25,11 @@ const getDefaultUserAsStakeholder = (): Stakeholder => {
 
 const getRandomPairPaymentWithDefaultUser = (
     counterparty?: Stakeholder,
-): PairExpense['payment'] => {
-    const isDebtor = Math.random() < 0.5;
+): PairPayment => {
+    const isDebtor = generateRandomBoolean();
     const isCreditor = !isDebtor;
     return {
-        balance: Math.floor(Math.random() * 350),
+        balance: generateRandomBalance(),
         debtor: isDebtor
             ? getDefaultUserAsStakeholder()
             : counterparty || generateRandomStakeholder(),
@@ -41,11 +41,11 @@ const getRandomPairPaymentWithDefaultUser = (
 
 const getRandomGroupPaymentWithDefaultUser = (
     counterparty?: Stakeholder,
-): GroupExpense['payment'] => {
-    const isDebtor = Math.random() < 0.5;
+): GroupPayment => {
+    const isDebtor = generateRandomBoolean();
     const isCreditor = !isDebtor;
     return {
-        balance: Math.floor(Math.random() * 350),
+        balance: generateRandomBalance(),
         debtors: isDebtor
             ? [getDefaultUserAsStakeholder()]
             : [counterparty || generateRandomStakeholder()],
@@ -113,6 +113,14 @@ export const generateDefaultUserGroupExpenses = ({
         return new GroupExpense(metadata, group, payment);
     });
 };
+
+export function generateRandomBalance(): number {
+    return Math.floor(Math.random() * 350);
+}
+
+export function generateRandomBoolean(): boolean {
+    return Math.random() < 0.5;
+}
 
 type RandomPairExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
     counterparty?: Stakeholder;

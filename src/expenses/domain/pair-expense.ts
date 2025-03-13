@@ -1,7 +1,7 @@
 import { Expense, Metadata } from './expense';
 import { Stakeholder } from './stakeholder';
 
-type PairPayment = {
+export type PairPayment = {
     balance: number;
     creditor: Stakeholder;
     debtor: Stakeholder;

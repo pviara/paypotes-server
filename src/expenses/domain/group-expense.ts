@@ -2,7 +2,7 @@ import { Group } from '@groups/domain/group';
 import { Stakeholder } from './stakeholder';
 import { Expense, Metadata } from './expense';
 
-type GroupPayment = {
+export type GroupPayment = {
     balance: number;
     creditor: Stakeholder;
     debtors: Array<Stakeholder>;

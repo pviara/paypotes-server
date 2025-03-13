@@ -33,6 +33,10 @@ export class ExpenseRepositorySpy
             count: 0,
             history: [] as Array<[string, string, number, string]>,
         },
+        save: {
+            count: 0,
+            history: [] as Array<PairExpense>,
+        },
     };
 
     async getActorContactExpenseById(
@@ -112,5 +116,11 @@ export class ExpenseRepositorySpy
             search,
         ]);
         return this.getStubOrDefault('getActorGroupExpenses', []);
+    }
+
+    async save(expense: PairExpense): Promise<void> {
+        this.calls.save.count++;
+        this.calls.save.history.push(expense);
+        this.getStubOrDefault('save', undefined);
     }
 }
