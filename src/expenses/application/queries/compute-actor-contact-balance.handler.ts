@@ -1,5 +1,7 @@
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
-import { IQuery, IQueryHandler } from '@nestjs/cqrs';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { Inject } from '@nestjs/common';
+import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PairExpense } from '@expenses/domain/pair-expense';
 
 export class ComputeActorContactBalanceQuery implements IQuery {
@@ -11,10 +13,14 @@ export class ComputeActorContactBalanceQuery implements IQuery {
     ) {}
 }
 
+@QueryHandler(ComputeActorContactBalanceQuery)
 export class ComputeActorContactBalanceHandler
     implements IQueryHandler<ComputeActorContactBalanceQuery>
 {
-    constructor(private expenseRepo: ExpenseRepository) {}
+    constructor(
+        @Inject(expenseRepositoryToken)
+        private expenseRepo: ExpenseRepository,
+    ) {}
 
     async execute(query: ComputeActorContactBalanceQuery): Promise<number> {
         const { actorId, contactId } = query.payload;

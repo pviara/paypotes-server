@@ -27,6 +27,7 @@ import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { raw, shutdown } from '@test/helpers/utils';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { generateDefaultUserRelationship } from '@test/helpers/contact/utils';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -46,6 +47,72 @@ describe('ExpenseController', () => {
     });
 
     afterAll(shutdown(runner));
+
+    describe('DELETE /expenses/:expenseId', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
+            async (id: unknown) => {
+                const response = await request(httpServer).delete(
+                    `/${EXPENSES_API_ROUTE}/${id}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor expense does not exist', () => {
+            beforeEach(async () => {
+                await expenseRepo.empty();
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const NOT_EXISTING_ID = crypto.randomUUID();
+
+                const response = await request(httpServer).delete(
+                    `/${EXPENSES_API_ROUTE}/${NOT_EXISTING_ID}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+
+        describe('actor expense exists', () => {
+            const dummyGroup = generateDefaultUserRandomGroup();
+            const dummyExpense = generateRandomBoolean()
+                ? generateDefaultUserPairExpense()
+                : generateDefaultUserGroupExpense(dummyGroup);
+
+            beforeEach(async () => {
+                await groupRepo.empty();
+                await groupRepo.insert(dummyGroup);
+
+                await expenseRepo.empty();
+                await expenseRepo.insert(dummyExpense);
+            });
+
+            it('should have deleted the right expense', async () => {
+                const actorId = DEFAULT_USER.getId();
+                const expenseId = dummyExpense.getId();
+                const expense = await expenseRepo.getActorExpenseById(
+                    actorId,
+                    expenseId,
+                );
+                expect(expense).toBeDefined();
+
+                await request(httpServer).delete(
+                    `/${EXPENSES_API_ROUTE}/${expenseId}`,
+                );
+
+                const unexistingExpense = await expenseRepo.getActorExpenseById(
+                    actorId,
+                    expenseId,
+                );
+                expect(unexistingExpense).toBeNull();
+            });
+        });
+    });
 
     describe('GET /expenses', () => {
         describe('actor has no expense', () => {
@@ -168,6 +235,81 @@ describe('ExpenseController', () => {
             expect(response.body).toStrictEqual(
                 raw(PairExpenseDTO.from(dummyExpense)),
             );
+        });
+    });
+
+    describe('GET /expenses/contact/:contactId/balance', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given contactId "%s" is not a valid uuid',
+            async (contactId: unknown) => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${contactId}/balance`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor has no expense with contact', () => {
+            it('should return default balance "0,00"', async () => {
+                const dummyContact = generateRandomStakeholder();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}/balance`,
+                );
+
+                expect(response.text).toBe('0,00');
+            });
+        });
+
+        describe('actor has expenses with contact', () => {
+            let dummyContactExpenses: Array<PairExpense>;
+            let dummyContact = generateRandomStakeholder();
+
+            beforeEach(async () => {
+                dummyContactExpenses = generateDefaultUserPairExpenses({
+                    length: 40,
+                    counterparty: dummyContact,
+                });
+                await expenseRepo.empty();
+                await expenseRepo.insert(...dummyContactExpenses);
+            });
+
+            it('should return the right balance', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}/balance`,
+                );
+
+                const balance = computeActorDummyContactBalance();
+                const expected = `${convertCents(balance)}`.replace('.', ',');
+
+                expect(response.text).toBe(expected);
+            });
+
+            function computeActorDummyContactBalance(): number {
+                return dummyContactExpenses.reduce(
+                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
+                    0,
+                );
+            }
+
+            function computeExpenseBalanceFor(
+                actorId: string,
+            ): (balance: number, expense: PairExpense) => number {
+                return (balance, expense) => {
+                    const expenseBalance = expense.getRawBalance();
+                    const actorBalance = expense.hasCreditor(actorId)
+                        ? expenseBalance
+                        : -expenseBalance;
+
+                    return balance + actorBalance;
+                };
+            }
+
+            function convertCents(balance: number): number {
+                return balance / 100;
+            }
         });
     });
 
@@ -448,72 +590,6 @@ describe('ExpenseController', () => {
 
                 expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
             }
-        });
-    });
-
-    describe('DELETE /expenses/:expenseId', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
-            async (id: unknown) => {
-                const response = await request(httpServer).delete(
-                    `/${EXPENSES_API_ROUTE}/${id}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor expense does not exist', () => {
-            beforeEach(async () => {
-                await expenseRepo.empty();
-            });
-
-            it('should return 404 NOT_FOUND', async () => {
-                const NOT_EXISTING_ID = crypto.randomUUID();
-
-                const response = await request(httpServer).delete(
-                    `/${EXPENSES_API_ROUTE}/${NOT_EXISTING_ID}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.NOT_FOUND);
-            });
-        });
-
-        describe('actor expense exists', () => {
-            const dummyGroup = generateDefaultUserRandomGroup();
-            const dummyExpense = generateRandomBoolean()
-                ? generateDefaultUserPairExpense()
-                : generateDefaultUserGroupExpense(dummyGroup);
-
-            beforeEach(async () => {
-                await groupRepo.empty();
-                await groupRepo.insert(dummyGroup);
-
-                await expenseRepo.empty();
-                await expenseRepo.insert(dummyExpense);
-            });
-
-            it('should have deleted the right expense', async () => {
-                const actorId = DEFAULT_USER.getId();
-                const expenseId = dummyExpense.getId();
-                const expense = await expenseRepo.getActorExpenseById(
-                    actorId,
-                    expenseId,
-                );
-                expect(expense).toBeDefined();
-
-                await request(httpServer).delete(
-                    `/${EXPENSES_API_ROUTE}/${expenseId}`,
-                );
-
-                const unexistingExpense = await expenseRepo.getActorExpenseById(
-                    actorId,
-                    expenseId,
-                );
-                expect(unexistingExpense).toBeNull();
-            });
         });
     });
 
