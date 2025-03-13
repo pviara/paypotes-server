@@ -10,12 +10,18 @@ import { OverridingProviders } from '@test/helpers/application-runner/model/over
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { userRepositoryToken } from '@users/persistence/user-repository.provider';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: OverridingProviders = [
     {
         provide: expenseRepositoryToken,
         useClass: ExpenseInMemoryTestingRepository,
+    },
+    {
+        provide: userRepositoryToken,
+        useClass: UserInMemoryTestingRepository,
     },
 ];
 

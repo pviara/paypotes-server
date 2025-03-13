@@ -21,17 +21,21 @@ import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { raw, shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
+import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
 
     let expenseRepo: ExpenseInMemoryTestingRepository;
+    let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
 
     beforeAll(async () => {
         await runner.bootstrap();
 
         expenseRepo = runner.getRepository('expense');
+        userRepo = runner.getRepository('user');
         httpServer = runner.getHttpServer();
     });
 
@@ -422,6 +426,105 @@ describe('ExpenseController', () => {
 
                 expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
             }
+        });
+    });
+
+    describe('POST /expenses', () => {
+        const invalidPayloads: NonNullable<unknown>[] = [
+            '',
+            {},
+            { id: 'not-a-uuid' },
+            { id: crypto.randomUUID() },
+            { id: crypto.randomUUID(), label: '' },
+            { id: crypto.randomUUID(), label: 'Label', emoji: 'not-an-emoji' },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: 'not-a-number',
+            },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: '100',
+                isCurrentPayer: 'not-a-boolean',
+            },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: '100',
+                isCurrentPayer: true,
+            },
+            {
+                id: crypto.randomUUID(),
+                label: 'Label',
+                emoji: '😀',
+                balance: '100',
+                isCurrentPayer: true,
+                userId: 'not-a-uuid',
+            },
+        ];
+
+        it.each(invalidPayloads)(
+            'should return 400 BAD_REQUEST when given payload "%s" is invalid',
+            async (payload: NonNullable<unknown>) => {
+                const response = await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}`)
+                    .send(payload);
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('expense user exists', () => {
+            const dummyUser = generateRandomUser();
+
+            beforeEach(async () => {
+                await userRepo.empty();
+                await userRepo.insert(dummyUser);
+            });
+
+            it('should insert an expense in database', async () => {
+                const expenseId = crypto.randomUUID();
+                const response = await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}`)
+                    .send({
+                        id: expenseId,
+                        label: 'Label',
+                        emoji: '📦',
+                        balance: '14,75',
+                        isCurrentPayer: true,
+                        userId: dummyUser.getId(),
+                    });
+
+                expect(response.status).toBe(HttpStatus.CREATED);
+                expect(expenseRepo.expenseSaved(expenseId)).toBe(true);
+            });
+        });
+
+        describe('expense user does not exist', () => {
+            beforeEach(async () => {
+                await userRepo.empty();
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const NOT_EXISTING_ID = crypto.randomUUID();
+
+                const response = await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}`)
+                    .send({
+                        id: crypto.randomUUID(),
+                        label: 'Label',
+                        emoji: '📦',
+                        balance: '14,75',
+                        isCurrentPayer: true,
+                        userId: NOT_EXISTING_ID,
+                    });
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
         });
     });
 

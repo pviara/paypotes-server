@@ -1,5 +1,5 @@
-import { ActorId } from '@test/doubles/auth/actor.decorator';
-import { AddExpenseDTO } from '@expenses/presentation/dto/add-expense.dto';
+import { Actor, ActorId } from '@test/doubles/auth/actor.decorator';
+import { AddPairExpenseDTO } from '@app/expenses/presentation/dto/add-pair-expense.dto';
 import { AnyExpenseDTO } from '@expenses/presentation/dto/any-expense.dto';
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import {
@@ -10,6 +10,7 @@ import {
     ParseUUIDPipe,
     Post,
 } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Expense } from '@expenses/domain/expense';
 import { GetActorContactExpenseByIdQuery } from '@expenses/application/get-actor-contact-expense-by-id.handler';
 import { GetActorContactExpensesQuery } from '@expenses/application/get-actor-contact-expenses.handler';
@@ -22,8 +23,9 @@ import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { QueryBus } from '@nestjs/cqrs';
 import { Search } from '@app/shared/decorators/search.query-decorator';
+import { User } from '@app/users/domain/user';
+import { AddPairExpenseCommand } from '../application/add-pair-expense.handler';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
@@ -34,13 +36,27 @@ const GroupId = () => Param('groupId', ParseUUIDPipe);
 @AuthGuard()
 @Controller(EXPENSES_API_ROUTE)
 export class ExpenseController {
-    constructor(private queryBus: QueryBus) {}
+    constructor(
+        private commandBus: CommandBus,
+        private queryBus: QueryBus,
+    ) {}
 
     @Post()
     async add(
-        @ActorId() actorId: string,
-        @Body() expense: AddExpenseDTO,
-    ): Promise<void> {}
+        @Actor() actor: User,
+        @Body() expense: AddPairExpenseDTO,
+    ): Promise<void> {
+        const command = new AddPairExpenseCommand({
+            actor,
+            id: expense.id,
+            label: expense.label,
+            emoji: expense.emoji,
+            balance: expense.balance,
+            isCurrentPayer: expense.isCurrentPayer,
+            userId: expense.userId,
+        });
+        return this.commandBus.execute(command);
+    }
 
     @Get('contact/:contactId/expense/:expenseId')
     async getActorContactExpenseById(

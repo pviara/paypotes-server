@@ -6,6 +6,10 @@ export class ExpenseInMemoryTestingRepository extends ExpenseInMemoryRepository 
         this.expenses = [];
     }
 
+    expenseSaved(expenseId: string): boolean {
+        return this.expenses.some((expense) => expense.getId() === expenseId);
+    }
+
     async insert(...expenses: Array<AnyKindOfExpense>): Promise<void> {
         this.expenses.push(...expenses);
     }

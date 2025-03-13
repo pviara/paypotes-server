@@ -5,6 +5,7 @@ import { GroupNotFoundError } from '@groups/application/get-actor-group-by-id.ha
 import { MemberNotFoundError } from '@groups/application/create-group.handler';
 import { ContactExpenseNotFoundError } from './expenses/application/get-actor-contact-expense-by-id.handler';
 import { GroupExpenseNotFoundError } from './expenses/application/get-actor-group-expense-by-id.handler';
+import { UserExpenseNotFoundError } from './expenses/application/add-pair-expense.handler';
 
 @Catch(Error)
 export class ErrorFilter implements ExceptionFilter {
@@ -25,6 +26,9 @@ export class ErrorFilter implements ExceptionFilter {
             throw new NotFoundException();
         }
         if (exception instanceof GroupExpenseNotFoundError) {
+            throw new NotFoundException();
+        }
+        if (exception instanceof UserExpenseNotFoundError) {
             throw new NotFoundException();
         }
         throw exception;
