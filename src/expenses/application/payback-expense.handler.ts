@@ -1,6 +1,8 @@
+import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ExpenseNotFoundError } from '@expenses/application/get-actor-expense-by-id.handler';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
-import { ICommand, ICommandHandler } from '@nestjs/cqrs';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { Inject } from '@nestjs/common';
 
 export class PaybackExpenseCommand implements ICommand {
     constructor(
@@ -11,10 +13,14 @@ export class PaybackExpenseCommand implements ICommand {
     ) {}
 }
 
+@CommandHandler(PaybackExpenseCommand)
 export class PaybackExpenseHandler
     implements ICommandHandler<PaybackExpenseCommand>
 {
-    constructor(private expenseRepo: ExpenseRepository) {}
+    constructor(
+        @Inject(expenseRepositoryToken)
+        private expenseRepo: ExpenseRepository,
+    ) {}
 
     async execute(command: PaybackExpenseCommand): Promise<void> {
         const { actorId, expenseId } = command.payload;
