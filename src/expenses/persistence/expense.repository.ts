@@ -1,4 +1,3 @@
-import { AnyKindOfExpense } from '@expenses/domain/any-expense';
 import { Expense } from '@expenses/domain/expense';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { PairExpense } from '@expenses/domain/pair-expense';
@@ -35,13 +34,13 @@ export interface ExpenseRepository {
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]>;
-    save(expense: AnyKindOfExpense): Promise<void>;
+    save(expense: Expense): Promise<void>;
 }
 
 const MAX_EXPENSES_PER_PAGE = 20;
 
 export class ExpenseInMemoryRepository implements ExpenseRepository {
-    protected expenses: Array<AnyKindOfExpense> = [];
+    protected expenses: Array<Expense> = [];
 
     async getActorContactExpenseById(
         actorId: string,
@@ -124,11 +123,11 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
 
-    async save(expense: AnyKindOfExpense): Promise<void> {
+    async save(expense: Expense): Promise<void> {
         this.expenses.push(expense);
     }
 
-    private isPairExpense(): (value: AnyKindOfExpense) => value is PairExpense {
+    private isPairExpense(): (value: Expense) => value is PairExpense {
         return (expense) => expense instanceof PairExpense;
     }
 
@@ -146,9 +145,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         return (expense) => expense.getId() === expenseId;
     }
 
-    private isGroupExpense(): (
-        value: AnyKindOfExpense,
-    ) => value is GroupExpense {
+    private isGroupExpense(): (value: Expense) => value is GroupExpense {
         return (expense) => expense instanceof GroupExpense;
     }
 

@@ -1,4 +1,3 @@
-import { AnyKindOfExpense } from '@expenses/domain/any-expense';
 import { App } from 'supertest/types';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -23,6 +22,7 @@ import { raw, shutdown } from '@test/helpers/utils';
 import * as request from 'supertest';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { generateRandomUser } from '@test/helpers/user/utils';
+import { Expense } from '../domain/expense';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -529,7 +529,7 @@ describe('ExpenseController', () => {
     });
 
     function dtoIsIn(
-        expenses: Array<AnyKindOfExpense>,
+        expenses: Array<Expense>,
     ): (dto: PairExpenseDTO) => boolean {
         return (dto: PairExpenseDTO) =>
             expenses.some((expense) => expense.getId() === dto.id);

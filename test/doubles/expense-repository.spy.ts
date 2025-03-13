@@ -1,4 +1,3 @@
-import { AnyKindOfExpense } from '@expenses/domain/any-expense';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { GroupExpense } from '@expenses/domain/group-expense';
@@ -36,7 +35,7 @@ export class ExpenseRepositorySpy
         },
         save: {
             count: 0,
-            history: [] as Array<AnyKindOfExpense>,
+            history: [] as Array<Expense>,
         },
     };
 
@@ -119,7 +118,7 @@ export class ExpenseRepositorySpy
         return this.getStubOrDefault('getActorGroupExpenses', []);
     }
 
-    async save(expense: AnyKindOfExpense): Promise<void> {
+    async save(expense: Expense): Promise<void> {
         this.calls.save.count++;
         this.calls.save.history.push(expense);
         this.getStubOrDefault('save', undefined);
