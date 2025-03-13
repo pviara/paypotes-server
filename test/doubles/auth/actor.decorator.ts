@@ -16,3 +16,15 @@ export const ActorId = createParamDecorator(
         );
     },
 );
+
+export const Actor = createParamDecorator(
+    (data: unknown, ctx: ExecutionContext) => {
+        const request = ctx.switchToHttp().getRequest();
+        if (request.actor instanceof User) {
+            return request.actor;
+        }
+        throw new InternalServerErrorException(
+            'Actor not found in http context',
+        );
+    },
+);

@@ -39,8 +39,8 @@ export class ContactController {
             pageIndex,
             search,
         });
-        const groups = await this.queryBus.execute(query);
-        return this.mapDTOsFrom(groups);
+        const contacts = await this.queryBus.execute(query);
+        return this.mapDTOsFrom(contacts);
     }
 
     private mapDTOsFrom(contacts: Array<Contact>): Array<ContactDTO> {

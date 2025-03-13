@@ -1,7 +1,7 @@
 import {
     CreateGroupCommand,
     CreateGroupHandler,
-    MemberNotFoundError,
+    UserNotFoundError,
 } from '@groups/application/create-group.handler';
 import { Group } from '@groups/domain/group';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
@@ -55,7 +55,7 @@ describe('CreateGroupHandler', () => {
 
         it('should throw an error', async () => {
             await expect(sut.execute(dummyCommand)).rejects.toThrow(
-                MemberNotFoundError,
+                UserNotFoundError,
             );
         });
     });

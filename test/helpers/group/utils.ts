@@ -26,7 +26,7 @@ const getDefaultUserAsMember = (): Member => {
     return Member.fromUser(DEFAULT_USER);
 };
 
-const generateRandomMembers = (): Array<Member> => {
+export const generateRandomMembers = (): Array<Member> => {
     return Array.from({ length: 4 }).map(
         (_, index) =>
             new Member({

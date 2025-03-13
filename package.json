@@ -15,9 +15,11 @@
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "jest",
         "test:watch": "jest --watch",
+        "test:all": "npm run test; npm run test:e2e",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json"
+        "test:e2e": "jest --config ./test/jest-e2e.json",
+	"test:e2e:watch": "npm run test:e2e -- --watch"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.1",
@@ -67,6 +69,7 @@
             "@app/(.*)": "<rootDir>/src/$1",
             "@auth/(.*)": "<rootDir>/src/auth/$1",
             "@contacts/(.*)": "<rootDir>/src/contacts/$1",
+            "@expenses/(.*)": "<rootDir>/src/expenses/$1",
             "@groups/(.*)": "<rootDir>/src/groups/$1",
             "@test/(.*)": "<rootDir>/test/$1",
             "@users/(.*)": "<rootDir>/src/users/$1"
