@@ -24,6 +24,10 @@ export class GroupExpense extends Expense {
         return `${this.payment.balance}`;
     }
 
+    getGroup(): Group {
+        return this.group;
+    }
+
     involves(stakeholderId: string): boolean {
         const { creditor } = this.payment;
         const isCreditor = creditor.getId() === stakeholderId;

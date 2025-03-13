@@ -3,7 +3,7 @@ import { AddGroupExpenseCommand } from '@expenses/application/add-group-expense.
 import { AddGroupExpenseDTO } from '@expenses/presentation/dto/add-group-expense.dto';
 import { AddPairExpenseCommand } from '@expenses/application/add-pair-expense.handler';
 import { AddPairExpenseDTO } from '@app/expenses/presentation/dto/add-pair-expense.dto';
-import { AnyExpenseDTO } from '@expenses/presentation/dto/any-expense.dto';
+import { ExpenseDTO } from '@app/expenses/presentation/dto/expense.dto';
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import {
     Body,
@@ -113,7 +113,7 @@ export class ExpenseController {
     async getActorExpenseById(
         @ActorId() actorId: string,
         @ExpenseId() expenseId: string,
-    ): Promise<AnyExpenseDTO> {
+    ): Promise<ExpenseDTO> {
         const query = new GetActorExpenseByIdQuery({
             actorId,
             expenseId,
@@ -132,7 +132,7 @@ export class ExpenseController {
         @ActorId() actorId: string,
         @PageIndex() pageIndex: number,
         @Search() search: string,
-    ): Promise<AnyExpenseDTO[]> {
+    ): Promise<ExpenseDTO[]> {
         const query = new GetActorExpensesQuery({
             actorId,
             pageIndex,
