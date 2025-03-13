@@ -9,6 +9,10 @@ export class ExpenseRepositorySpy
     implements ExpenseRepository
 {
     readonly calls = {
+        delete: {
+            count: 0,
+            history: [] as Array<string>,
+        },
         getActorContactExpenseById: {
             count: 0,
             history: [] as Array<[string, string, string]>,
@@ -38,6 +42,12 @@ export class ExpenseRepositorySpy
             history: [] as Array<Expense>,
         },
     };
+
+    async delete(expenseId: string): Promise<void> {
+        this.calls.delete.count++;
+        this.calls.delete.history.push(expenseId);
+        return this.getStubOrDefault('delete', undefined);
+    }
 
     async getActorContactExpenseById(
         actorId: string,

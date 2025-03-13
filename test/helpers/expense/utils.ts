@@ -35,7 +35,7 @@ const getDefaultUserAsStakeholder = (): Stakeholder => {
     return Stakeholder.fromUser(DEFAULT_USER);
 };
 
-const getRandomPairPaymentWithDefaultUser = (
+const generateRandomPairPaymentWithDefaultUser = (
     counterparty?: Stakeholder,
 ): PairPayment => {
     const isDebtor = generateRandomBoolean();
@@ -51,7 +51,7 @@ const getRandomPairPaymentWithDefaultUser = (
     };
 };
 
-const getRandomGroupPaymentWithDefaultUser = (
+const generateRandomGroupPaymentWithDefaultUser = (
     counterparty?: Stakeholder,
 ): GroupPayment => {
     const isDebtor = generateRandomBoolean();
@@ -73,12 +73,8 @@ export const generateRandomStakeholder = (): Stakeholder => {
 };
 
 export const generateDefaultUserPairExpense = (): PairExpense => {
-    const metadata: Metadata = {
-        id: crypto.randomUUID(),
-        emoji: '📦',
-        label: 'Label',
-    };
-    const payment = getRandomPairPaymentWithDefaultUser();
+    const metadata = generateRandomMetadata();
+    const payment = generateRandomPairPaymentWithDefaultUser();
     return new PairExpense(metadata, payment);
 };
 
@@ -87,23 +83,15 @@ export const generateDefaultUserPairExpenses = ({
     counterparty,
 }: RandomPairExpenseArrayGenerationOptions): Array<PairExpense> => {
     return Array.from({ length }).map((_, index) => {
-        const metadata: Metadata = {
-            id: crypto.randomUUID(),
-            emoji: '📦',
-            label: `label_${index}`,
-        };
-        const payment = getRandomPairPaymentWithDefaultUser(counterparty);
+        const metadata = generateRandomMetadata({ label: `label_${index}` });
+        const payment = generateRandomPairPaymentWithDefaultUser(counterparty);
         return new PairExpense(metadata, payment);
     });
 };
 
 export const generateDefaultUserGroupExpense = (group: Group): GroupExpense => {
-    const metadata: Metadata = {
-        id: crypto.randomUUID(),
-        emoji: '📦',
-        label: 'Label',
-    };
-    const payment = getRandomGroupPaymentWithDefaultUser();
+    const metadata = generateRandomMetadata();
+    const payment = generateRandomGroupPaymentWithDefaultUser();
     return new GroupExpense(metadata, group, payment);
 };
 
@@ -113,15 +101,21 @@ export const generateDefaultUserGroupExpenses = ({
     group,
 }: RandomGroupExpenseArrayGenerationOptions): Array<GroupExpense> => {
     return Array.from({ length }).map((_, index) => {
-        const metadata: Metadata = {
-            id: crypto.randomUUID(),
-            emoji: '📦',
-            label: `label_${index}`,
-        };
-        const payment = getRandomGroupPaymentWithDefaultUser(counterparty);
+        const metadata = generateRandomMetadata({ label: `label_${index}` });
+        const payment = generateRandomGroupPaymentWithDefaultUser(counterparty);
         return new GroupExpense(metadata, group, payment);
     });
 };
+
+function generateRandomMetadata(
+    options?: RandomMetadataGenerationOptions,
+): Metadata {
+    return {
+        id: crypto.randomUUID(),
+        emoji: '📦',
+        label: options?.label ?? 'Label',
+    };
+}
 
 export function generateRandomBalance(): number {
     return Math.floor(Math.random() * 350);
@@ -130,6 +124,8 @@ export function generateRandomBalance(): number {
 export function generateRandomBoolean(): boolean {
     return Math.random() < 0.5;
 }
+
+type RandomMetadataGenerationOptions = { label?: string };
 
 type RandomPairExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
     counterparty?: Stakeholder;
