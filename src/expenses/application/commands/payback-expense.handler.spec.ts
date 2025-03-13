@@ -1,11 +1,11 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpenseNotFoundError } from '@expenses/application/get-actor-expense-by-id.handler';
+import { ExpenseNotFoundError } from '@app/expenses/application/queries/get-actor-expense-by-id.handler';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
 import {
     PaybackExpenseCommand,
     PaybackExpenseHandler,
-} from '@expenses/application/payback-expense.handler';
+} from '@app/expenses/application/commands/payback-expense.handler';
 
 describe('PaybackExpenseHandler', () => {
     let sut: PaybackExpenseHandler;

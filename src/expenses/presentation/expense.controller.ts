@@ -1,7 +1,7 @@
 import { Actor, ActorId } from '@test/doubles/auth/actor.decorator';
-import { AddGroupExpenseCommand } from '@expenses/application/add-group-expense.handler';
+import { AddGroupExpenseCommand } from '@app/expenses/application/commands/add-group-expense.handler';
 import { AddGroupExpenseDTO } from '@expenses/presentation/dto/add-group-expense.dto';
-import { AddPairExpenseCommand } from '@expenses/application/add-pair-expense.handler';
+import { AddPairExpenseCommand } from '@app/expenses/application/commands/add-pair-expense.handler';
 import { AddPairExpenseDTO } from '@app/expenses/presentation/dto/add-pair-expense.dto';
 import { ExpenseDTO } from '@app/expenses/presentation/dto/expense.dto';
 import { AuthGuard } from '@auth/auth-guard.decorator';
@@ -16,12 +16,12 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Expense } from '@expenses/domain/expense';
-import { GetActorContactExpenseByIdQuery } from '@expenses/application/get-actor-contact-expense-by-id.handler';
-import { GetActorContactExpensesQuery } from '@expenses/application/get-actor-contact-expenses.handler';
-import { GetActorExpenseByIdQuery } from '@expenses/application/get-actor-expense-by-id.handler';
-import { GetActorExpensesQuery } from '@expenses/application/get-actor-expenses.handler';
-import { GetActorGroupExpenseByIdQuery } from '@expenses/application/get-actor-group-expense-by-id.handler';
-import { GetActorGroupExpensesQuery } from '@expenses/application/get-actor-group-expenses.handler';
+import { GetActorContactExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-contact-expense-by-id.handler';
+import { GetActorContactExpensesQuery } from '@app/expenses/application/queries/get-actor-contact-expenses.handler';
+import { GetActorExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-expense-by-id.handler';
+import { GetActorExpensesQuery } from '@app/expenses/application/queries/get-actor-expenses.handler';
+import { GetActorGroupExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-group-expense-by-id.handler';
+import { GetActorGroupExpensesQuery } from '@app/expenses/application/queries/get-actor-group-expenses.handler';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
@@ -29,7 +29,7 @@ import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
-import { PaybackExpenseCommand } from '../application/payback-expense.handler';
+import { PaybackExpenseCommand } from '../application/commands/payback-expense.handler';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
