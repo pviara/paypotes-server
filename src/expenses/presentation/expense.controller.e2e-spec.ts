@@ -27,7 +27,6 @@ import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { raw, shutdown } from '@test/helpers/utils';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
-import { generateDefaultUserRelationship } from '@test/helpers/contact/utils';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -254,9 +253,9 @@ describe('ExpenseController', () => {
 
         describe('actor has no expense with contact', () => {
             it('should return default balance "0,00"', async () => {
-                const dummyContact = generateRandomStakeholder();
+                const validContactId = crypto.randomUUID();
                 const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}/balance`,
+                    `/${EXPENSES_API_ROUTE}/contact/${validContactId}/balance`,
                 );
 
                 expect(response.text).toBe('0,00');
@@ -450,6 +449,82 @@ describe('ExpenseController', () => {
                 );
 
                 expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
+            }
+        });
+    });
+
+    // todo
+    describe('GET /expenses/group/:groupId/balance', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given groupId "%s" is not a valid uuid',
+            async (groupId: unknown) => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${groupId}/balance`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor has no expense with group', () => {
+            it('should return default balance "0,00"', async () => {
+                const validGroupId = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${validGroupId}/balance`,
+                );
+
+                expect(response.text).toBe('0,00');
+            });
+        });
+
+        describe.only('actor has expenses with group', () => {
+            let dummyGroupExpenses: Array<GroupExpense>;
+            let dummyGroup = generateDefaultUserRandomGroup();
+
+            beforeEach(async () => {
+                dummyGroupExpenses = generateDefaultUserGroupExpenses({
+                    length: 40,
+                    group: dummyGroup,
+                });
+                await expenseRepo.empty();
+                await expenseRepo.insert(...dummyGroupExpenses);
+            });
+
+            it('should return the right balance', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/balance`,
+                );
+
+                const balance = computeActorDummyGroupBalance();
+                const expected = `${convertCents(balance)}`.replace('.', ',');
+
+                expect(response.text).toBe(expected);
+            });
+
+            function computeActorDummyGroupBalance(): number {
+                return dummyGroupExpenses.reduce(
+                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
+                    0,
+                );
+            }
+
+            function computeExpenseBalanceFor(
+                actorId: string,
+            ): (balance: number, expense: GroupExpense) => number {
+                return (balance, expense) => {
+                    const expenseBalance = expense.getRawBalance();
+                    const actorBalance = expense.hasCreditor(actorId)
+                        ? expenseBalance
+                        : -expenseBalance;
+
+                    return balance + actorBalance;
+                };
+            }
+
+            function convertCents(balance: number): number {
+                return balance / 100;
             }
         });
     });

@@ -95,6 +95,20 @@ export class ExpenseController {
         return this.format(balance);
     }
 
+    @Get('group/:groupId/balance')
+    async computeActorGroupBalance(
+        @ActorId() actorId: string,
+        @GroupId() groupId: string,
+    ): Promise<string> {
+        // const query = new ComputeActorContactBalanceQuery({
+        //     actorId,
+        //     contactId,
+        // });
+        // const balance = await this.queryBus.execute(query);
+        // return this.format(balance);
+        return this.format(0);
+    }
+
     @Get('contact/:contactId/expense/:expenseId')
     async getActorContactExpenseById(
         @ActorId() actorId: string,
