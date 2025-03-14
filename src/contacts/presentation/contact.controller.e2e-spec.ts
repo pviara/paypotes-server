@@ -9,7 +9,7 @@ import {
     generateDefaultUserRelationships,
     generateRandomContacts,
 } from '@test/helpers/contact/utils';
-import { CONTACTS_API_ROUTE } from './contact.controller';
+import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { raw, shutdown } from '@test/helpers/utils';

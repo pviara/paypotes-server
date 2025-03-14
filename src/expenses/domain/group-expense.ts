@@ -1,6 +1,6 @@
 import { Group } from '@groups/domain/group';
-import { Stakeholder } from './stakeholder';
-import { Expense, Metadata } from './expense';
+import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Expense, Metadata } from '@expenses/domain/expense';
 
 export type GroupPayment = {
     balance: number;
@@ -28,15 +28,15 @@ export class GroupExpense extends Expense {
         return this.group;
     }
 
-    getRawBalance(): number {
+    override getRawBalance(): number {
         return this.payment.balance;
     }
 
-    hasCreditor(actorId: string): boolean {
+    override hasCreditor(actorId: string): boolean {
         return this.payment.creditor.getId() === actorId;
     }
 
-    involves(stakeholderId: string): boolean {
+    override involves(stakeholderId: string): boolean {
         const { creditor } = this.payment;
         const isCreditor = creditor.getId() === stakeholderId;
         const isGroupMember = this.group

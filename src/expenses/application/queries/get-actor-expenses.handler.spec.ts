@@ -3,7 +3,7 @@ import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import {
     GetActorExpensesHandler,
     GetActorExpensesQuery,
-} from '@app/expenses/application/queries/get-actor-expenses.handler';
+} from '@expenses/application/queries/get-actor-expenses.handler';
 
 describe('GetActorExpensesHandler', () => {
     let sut: GetActorExpensesHandler;

@@ -1,6 +1,6 @@
+import { Calculator } from '@expenses/domain/calculator';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { GroupExpense } from '@expenses/domain/group-expense';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
@@ -29,19 +29,6 @@ export class ComputeActorGroupBalanceHandler
             groupId,
         );
 
-        return expenses.reduce(this.computeExpenseBalanceFor(actorId), 0);
-    }
-
-    private computeExpenseBalanceFor(
-        actorId: string,
-    ): (balance: number, expense: GroupExpense) => number {
-        return (balance, expense) => {
-            const expenseBalance = expense.getRawBalance();
-            const actorBalance = expense.hasCreditor(actorId)
-                ? expenseBalance
-                : -expenseBalance;
-
-            return balance + actorBalance;
-        };
+        return new Calculator(expenses).calculateFor(actorId);
     }
 }

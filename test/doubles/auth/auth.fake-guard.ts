@@ -1,4 +1,4 @@
-import { DEFAULT_USER } from './default-user';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { User } from '@users/domain/user';

@@ -19,5 +19,9 @@ export abstract class Expense {
         return this.metadata.emoji;
     }
 
+    abstract getRawBalance(): number;
+
+    abstract hasCreditor(stakeholderId: string): boolean;
+
     abstract involves(stakeholderId: string): boolean;
 }

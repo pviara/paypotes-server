@@ -1,8 +1,8 @@
 import { Actor, ActorId } from '@test/doubles/auth/actor.decorator';
-import { AddGroupExpenseCommand } from '@app/expenses/application/commands/add-group-expense.handler';
+import { AddGroupExpenseCommand } from '@expenses/application/commands/add-group-expense.handler';
 import { AddGroupExpenseDTO } from '@expenses/presentation/dto/add-group-expense.dto';
-import { AddPairExpenseCommand } from '@app/expenses/application/commands/add-pair-expense.handler';
-import { AddPairExpenseDTO } from '@app/expenses/presentation/dto/add-pair-expense.dto';
+import { AddPairExpenseCommand } from '@expenses/application/commands/add-pair-expense.handler';
+import { AddPairExpenseDTO } from '@expenses/presentation/dto/add-pair-expense.dto';
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import {
     Body,
@@ -14,16 +14,17 @@ import {
     Post,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ComputeActorBalanceQuery } from '@expenses/application/queries/compute-actor-balance.handler';
 import { ComputeActorContactBalanceQuery } from '@expenses/application/queries/compute-actor-contact-balance.handler';
 import { ComputeActorGroupBalanceQuery } from '@expenses/application/queries/compute-actor-group-balance.handler';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
-import { GetActorContactExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-contact-expense-by-id.handler';
-import { GetActorContactExpensesQuery } from '@app/expenses/application/queries/get-actor-contact-expenses.handler';
-import { GetActorExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-expense-by-id.handler';
-import { GetActorExpensesQuery } from '@app/expenses/application/queries/get-actor-expenses.handler';
-import { GetActorGroupExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-group-expense-by-id.handler';
-import { GetActorGroupExpensesQuery } from '@app/expenses/application/queries/get-actor-group-expenses.handler';
+import { GetActorContactExpenseByIdQuery } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
+import { GetActorContactExpensesQuery } from '@expenses/application/queries/get-actor-contact-expenses.handler';
+import { GetActorExpenseByIdQuery } from '@expenses/application/queries/get-actor-expense-by-id.handler';
+import { GetActorExpensesQuery } from '@expenses/application/queries/get-actor-expenses.handler';
+import { GetActorGroupExpenseByIdQuery } from '@expenses/application/queries/get-actor-group-expense-by-id.handler';
+import { GetActorGroupExpensesQuery } from '@expenses/application/queries/get-actor-group-expenses.handler';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
@@ -85,7 +86,11 @@ export class ExpenseController {
 
     @Get('balance')
     async computeActorBalance(@ActorId() actorId: string): Promise<string> {
-        return '';
+        const query = new ComputeActorBalanceQuery({
+            actorId,
+        });
+        const balance = await this.queryBus.execute(query);
+        return this.format(balance);
     }
 
     @Get('contact/:contactId/balance')

@@ -1,4 +1,4 @@
-import { AuthFakeGuard } from './auth.fake-guard';
+import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
 import { Module } from '@nestjs/common';
 
 @Module({

@@ -1,4 +1,8 @@
-import { IQuery, IQueryHandler } from '@nestjs/cqrs';
+import { Calculator } from '@expenses/domain/calculator';
+import { ExpenseRepository } from '@expenses/persistence/expense.repository';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { Inject } from '@nestjs/common';
+import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 export class ComputeActorBalanceQuery implements IQuery {
     constructor(
@@ -8,10 +12,19 @@ export class ComputeActorBalanceQuery implements IQuery {
     ) {}
 }
 
+@QueryHandler(ComputeActorBalanceQuery)
 export class ComputeActorBalanceHandler
     implements IQueryHandler<ComputeActorBalanceQuery>
 {
-    async execute(query: ComputeActorBalanceQuery): Promise<any> {
-        throw new Error('Method not implemented.');
+    constructor(
+        @Inject(expenseRepositoryToken)
+        private repository: ExpenseRepository,
+    ) {}
+
+    async execute(query: ComputeActorBalanceQuery): Promise<number> {
+        const { actorId } = query.payload;
+        const expenses = await this.repository.getAllActorExpenses(actorId);
+
+        return new Calculator(expenses).calculateFor(actorId);
     }
 }

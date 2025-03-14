@@ -1,5 +1,5 @@
 import { Contact } from '@contacts/domain/contact';
-import { Relationship } from './relationship';
+import { Relationship } from '@contacts/persistence/relationship';
 
 export interface ContactRepository {
     getActorContactById(

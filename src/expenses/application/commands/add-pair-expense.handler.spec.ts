@@ -2,18 +2,18 @@ import {
     AddPairExpenseCommand,
     AddPairExpenseHandler,
     UserExpenseNotFoundError,
-} from '@app/expenses/application/commands/add-pair-expense.handler';
+} from '@expenses/application/commands/add-pair-expense.handler';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
-import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
-import { User } from '@users/domain/user';
-import { PairExpense, PairPayment } from '../../domain/pair-expense';
-import { Metadata } from '../../domain/expense';
 import {
     generateRandomBalance,
     generateRandomBoolean,
 } from '@test/helpers/expense/utils';
-import { Stakeholder } from '../../domain/stakeholder';
+import { Metadata } from '@expenses/domain/expense';
+import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import { Stakeholder } from '@expenses/domain/stakeholder';
+import { User } from '@users/domain/user';
+import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
 
 describe('AddExpenseHandler', () => {
     let sut: AddPairExpenseHandler;
