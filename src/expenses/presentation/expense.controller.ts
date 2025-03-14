@@ -171,7 +171,7 @@ export class ExpenseController {
         @ActorId() actorId: string,
         @GroupId() groupId: string,
         @ExpenseId() expenseId: string,
-    ): Promise<PairExpenseDTO> {
+    ): Promise<GroupExpenseDTO> {
         const query = new GetActorGroupExpenseByIdQuery({
             actorId,
             groupId,
@@ -187,7 +187,7 @@ export class ExpenseController {
         @GroupId() groupId: string,
         @PageIndex() pageIndex: number,
         @Search() search: string,
-    ): Promise<PairExpenseDTO[]> {
+    ): Promise<GroupExpenseDTO[]> {
         const query = new GetActorGroupExpensesQuery({
             actorId,
             groupId,
