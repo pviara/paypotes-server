@@ -1,6 +1,7 @@
 import { AddGroupExpenseHandler } from '@app/expenses/application/commands/add-group-expense.handler';
 import { AddPairExpenseHandler } from '@app/expenses/application/commands/add-pair-expense.handler';
 import { ComputeActorContactBalanceHandler } from '@expenses/application/queries/compute-actor-contact-balance.handler';
+import { ComputeActorGroupBalanceHandler } from '@expenses/application/queries/compute-actor-group-balance.handler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ExpenseController } from '@expenses/presentation/expense.controller';
 import { expenseRepositoryProvider } from '@expenses/persistence/expense.repository-provider';
@@ -22,6 +23,7 @@ import { UserModule } from '@users/user.module';
         AddGroupExpenseHandler,
         AddPairExpenseHandler,
         ComputeActorContactBalanceHandler,
+        ComputeActorGroupBalanceHandler,
         expenseRepositoryProvider,
         GetActorContactExpenseByIdHandler,
         GetActorContactExpensesHandler,

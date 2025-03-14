@@ -21,7 +21,7 @@ describe('ComputeActorContactBalanceHandler', () => {
     });
 
     const dummyStakeholder = new Stakeholder({
-        id: crypto.randomUUID(),
+        id: dummyContactId,
         firstname: 'Eric',
         lastname: 'Evans',
     });

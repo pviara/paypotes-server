@@ -41,6 +41,10 @@ export class ExpenseRepositorySpy
             count: 0,
             history: [] as Array<[string, string]>,
         },
+        getAllActorGroupExpenses: {
+            count: 0,
+            history: [] as Array<[string, string]>,
+        },
         save: {
             count: 0,
             history: [] as Array<Expense>,
@@ -142,6 +146,15 @@ export class ExpenseRepositorySpy
             contactId,
         ]);
         return this.getStubOrDefault('getAllActorContactExpenses', []);
+    }
+
+    async getAllActorGroupExpenses(
+        actorId: string,
+        groupId: string,
+    ): Promise<GroupExpense[]> {
+        this.calls.getAllActorGroupExpenses.count++;
+        this.calls.getAllActorGroupExpenses.history.push([actorId, groupId]);
+        return this.getStubOrDefault('getAllActorGroupExpenses', []);
     }
 
     async save(expense: Expense): Promise<void> {

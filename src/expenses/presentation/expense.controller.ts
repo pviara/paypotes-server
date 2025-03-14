@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ComputeActorContactBalanceQuery } from '@expenses/application/queries/compute-actor-contact-balance.handler';
+import { ComputeActorGroupBalanceQuery } from '@expenses/application/queries/compute-actor-group-balance.handler';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { GetActorContactExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-contact-expense-by-id.handler';
@@ -100,13 +101,12 @@ export class ExpenseController {
         @ActorId() actorId: string,
         @GroupId() groupId: string,
     ): Promise<string> {
-        // const query = new ComputeActorContactBalanceQuery({
-        //     actorId,
-        //     contactId,
-        // });
-        // const balance = await this.queryBus.execute(query);
-        // return this.format(balance);
-        return this.format(0);
+        const query = new ComputeActorGroupBalanceQuery({
+            actorId,
+            groupId,
+        });
+        const balance = await this.queryBus.execute(query);
+        return this.format(balance);
     }
 
     @Get('contact/:contactId/expense/:expenseId')

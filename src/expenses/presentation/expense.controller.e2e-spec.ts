@@ -479,7 +479,7 @@ describe('ExpenseController', () => {
             });
         });
 
-        describe.only('actor has expenses with group', () => {
+        describe('actor has expenses with group', () => {
             let dummyGroupExpenses: Array<GroupExpense>;
             let dummyGroup = generateDefaultUserRandomGroup();
 

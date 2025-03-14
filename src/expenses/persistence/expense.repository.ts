@@ -39,6 +39,10 @@ export interface ExpenseRepository {
         actorId: string,
         contactId: string,
     ): Promise<PairExpense[]>;
+    getAllActorGroupExpenses(
+        actorId: string,
+        groupId: string,
+    ): Promise<GroupExpense[]>;
     save(expense: Expense): Promise<void>;
 }
 
@@ -140,6 +144,16 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         return this.expenses
             .filter(this.isPairExpense())
             .filter(this.isPairExpenseOf(actorId, contactId));
+    }
+
+    async getAllActorGroupExpenses(
+        actorId: string,
+        groupId: string,
+    ): Promise<GroupExpense[]> {
+        return this.expenses
+            .filter(this.isGroupExpense())
+            .filter(this.isExpenseFrom(groupId))
+            .filter(this.isGroupExpenseOf(actorId));
     }
 
     async save(expense: Expense): Promise<void> {
