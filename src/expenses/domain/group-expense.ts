@@ -28,6 +28,14 @@ export class GroupExpense extends Expense {
         return this.group;
     }
 
+    getRawBalance(): number {
+        return this.payment.balance;
+    }
+
+    hasCreditor(actorId: string): boolean {
+        return this.payment.creditor.getId() === actorId;
+    }
+
     involves(stakeholderId: string): boolean {
         const { creditor } = this.payment;
         const isCreditor = creditor.getId() === stakeholderId;

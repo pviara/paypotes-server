@@ -3,7 +3,7 @@ import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import {
     GetActorContactExpensesHandler,
     GetActorContactExpensesQuery,
-} from '@expenses/application/get-actor-contact-expenses.handler';
+} from '@app/expenses/application/queries/get-actor-contact-expenses.handler';
 
 describe('GetActorContactExpensesHandler', () => {
     let sut: GetActorContactExpensesHandler;
@@ -26,18 +26,16 @@ describe('GetActorContactExpensesHandler', () => {
         sut = new GetActorContactExpensesHandler(expenseRepo);
     });
 
-    describe('execute', () => {
-        it("should retrieve the actor's contact expenses", async () => {
-            await sut.execute(dummyQuery);
-            expect(expenseRepo.calls.getActorContactExpenses.count).toBe(1);
-            expect(
-                expenseRepo.calls.getActorContactExpenses.history,
-            ).toContainEqual([
-                dummyActorId,
-                dummyContactId,
-                dummyPageIndex,
-                dummySearch,
-            ]);
-        });
+    it("should retrieve the actor's contact expenses", async () => {
+        await sut.execute(dummyQuery);
+        expect(expenseRepo.calls.getActorContactExpenses.count).toBe(1);
+        expect(
+            expenseRepo.calls.getActorContactExpenses.history,
+        ).toContainEqual([
+            dummyActorId,
+            dummyContactId,
+            dummyPageIndex,
+            dummySearch,
+        ]);
     });
 });

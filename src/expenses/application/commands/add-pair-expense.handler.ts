@@ -1,10 +1,10 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
-import { ExpenseRepository } from '../persistence/expense.repository';
+import { ExpenseRepository } from '../../persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
 import { Metadata } from '@expenses/domain/expense';
-import { PairExpense, PairPayment } from '../domain/pair-expense';
-import { Stakeholder } from '../domain/stakeholder';
+import { PairExpense, PairPayment } from '../../domain/pair-expense';
+import { Stakeholder } from '../../domain/stakeholder';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user-repository.provider';

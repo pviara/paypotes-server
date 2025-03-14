@@ -1,9 +1,8 @@
 import { Actor, ActorId } from '@test/doubles/auth/actor.decorator';
-import { AddGroupExpenseCommand } from '@expenses/application/add-group-expense.handler';
+import { AddGroupExpenseCommand } from '@app/expenses/application/commands/add-group-expense.handler';
 import { AddGroupExpenseDTO } from '@expenses/presentation/dto/add-group-expense.dto';
-import { AddPairExpenseCommand } from '@expenses/application/add-pair-expense.handler';
+import { AddPairExpenseCommand } from '@app/expenses/application/commands/add-pair-expense.handler';
 import { AddPairExpenseDTO } from '@app/expenses/presentation/dto/add-pair-expense.dto';
-import { ExpenseDTO } from '@app/expenses/presentation/dto/expense.dto';
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import {
     Body,
@@ -15,27 +14,32 @@ import {
     Post,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ComputeActorContactBalanceQuery } from '@expenses/application/queries/compute-actor-contact-balance.handler';
+import { ComputeActorGroupBalanceQuery } from '@expenses/application/queries/compute-actor-group-balance.handler';
 import { Expense } from '@expenses/domain/expense';
-import { GetActorContactExpenseByIdQuery } from '@expenses/application/get-actor-contact-expense-by-id.handler';
-import { GetActorContactExpensesQuery } from '@expenses/application/get-actor-contact-expenses.handler';
-import { GetActorExpenseByIdQuery } from '@expenses/application/get-actor-expense-by-id.handler';
-import { GetActorExpensesQuery } from '@expenses/application/get-actor-expenses.handler';
-import { GetActorGroupExpenseByIdQuery } from '@expenses/application/get-actor-group-expense-by-id.handler';
-import { GetActorGroupExpensesQuery } from '@expenses/application/get-actor-group-expenses.handler';
+import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
+import { GetActorContactExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-contact-expense-by-id.handler';
+import { GetActorContactExpensesQuery } from '@app/expenses/application/queries/get-actor-contact-expenses.handler';
+import { GetActorExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-expense-by-id.handler';
+import { GetActorExpensesQuery } from '@app/expenses/application/queries/get-actor-expenses.handler';
+import { GetActorGroupExpenseByIdQuery } from '@app/expenses/application/queries/get-actor-group-expense-by-id.handler';
+import { GetActorGroupExpensesQuery } from '@app/expenses/application/queries/get-actor-group-expenses.handler';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
+import { PaybackExpenseCommand } from '@expenses/application/commands/payback-expense.handler';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
-import { PaybackExpenseCommand } from '../application/payback-expense.handler';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
 const ContactId = () => Param('contactId', ParseUUIDPipe);
 const ExpenseId = () => Param('expenseId', ParseUUIDPipe);
 const GroupId = () => Param('groupId', ParseUUIDPipe);
+
+const ZERO = 0;
 
 @AuthGuard()
 @Controller(EXPENSES_API_ROUTE)
@@ -77,6 +81,32 @@ export class ExpenseController {
             userId: expense.userId,
         });
         return this.commandBus.execute(command);
+    }
+
+    @Get('contact/:contactId/balance')
+    async computeActorContactBalance(
+        @ActorId() actorId: string,
+        @ContactId() contactId: string,
+    ): Promise<string> {
+        const query = new ComputeActorContactBalanceQuery({
+            actorId,
+            contactId,
+        });
+        const balance = await this.queryBus.execute(query);
+        return this.format(balance);
+    }
+
+    @Get('group/:groupId/balance')
+    async computeActorGroupBalance(
+        @ActorId() actorId: string,
+        @GroupId() groupId: string,
+    ): Promise<string> {
+        const query = new ComputeActorGroupBalanceQuery({
+            actorId,
+            groupId,
+        });
+        const balance = await this.queryBus.execute(query);
+        return this.format(balance);
     }
 
     @Get('contact/:contactId/expense/:expenseId')
@@ -155,7 +185,7 @@ export class ExpenseController {
         @ActorId() actorId: string,
         @GroupId() groupId: string,
         @ExpenseId() expenseId: string,
-    ): Promise<PairExpenseDTO> {
+    ): Promise<GroupExpenseDTO> {
         const query = new GetActorGroupExpenseByIdQuery({
             actorId,
             groupId,
@@ -171,7 +201,7 @@ export class ExpenseController {
         @GroupId() groupId: string,
         @PageIndex() pageIndex: number,
         @Search() search: string,
-    ): Promise<PairExpenseDTO[]> {
+    ): Promise<GroupExpenseDTO[]> {
         const query = new GetActorGroupExpensesQuery({
             actorId,
             groupId,
@@ -189,6 +219,20 @@ export class ExpenseController {
     ): Promise<void> {
         const command = new PaybackExpenseCommand({ actorId, expenseId });
         return this.commandBus.execute(command);
+    }
+
+    private format(balance: number): string {
+        return balance === ZERO
+            ? this.formatZero(balance)
+            : `${this.convertCents(balance)}`.replace('.', ',');
+    }
+
+    private formatZero(balance: number): string {
+        return `${balance.toFixed(2)}`.replace('.', ',');
+    }
+
+    private convertCents(balance: number): number {
+        return balance / 100;
     }
 
     private mapPairExpenseDTOs(

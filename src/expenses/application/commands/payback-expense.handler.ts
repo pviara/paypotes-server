@@ -1,5 +1,5 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
-import { ExpenseNotFoundError } from '@expenses/application/get-actor-expense-by-id.handler';
+import { ExpenseNotFoundError } from '@app/expenses/application/queries/get-actor-expense-by-id.handler';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';

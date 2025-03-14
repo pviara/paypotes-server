@@ -1,7 +1,7 @@
 import {
     AddGroupExpenseCommand,
     AddGroupExpenseHandler,
-} from '@expenses/application/add-group-expense.handler';
+} from '@app/expenses/application/commands/add-group-expense.handler';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomBalance } from '@test/helpers/expense/utils';
 import { generateRandomMembers } from '@test/helpers/group/utils';
