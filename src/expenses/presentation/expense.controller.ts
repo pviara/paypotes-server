@@ -83,6 +83,11 @@ export class ExpenseController {
         return this.commandBus.execute(command);
     }
 
+    @Get('balance')
+    async computeActorBalance(@ActorId() actorId: string): Promise<string> {
+        return '';
+    }
+
     @Get('contact/:contactId/balance')
     async computeActorContactBalance(
         @ActorId() actorId: string,

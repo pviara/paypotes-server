@@ -22,14 +22,14 @@ describe('ContactController', () => {
     let contactRepo: ContactInMemoryTestingRepository;
     let httpServer: App;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         await runner.bootstrap();
 
         contactRepo = runner.getRepository('contact');
         httpServer = runner.getHttpServer();
     });
 
-    afterAll(shutdown(runner));
+    afterEach(shutdown(runner));
 
     describe('GET /contacts', () => {
         describe('actor has no contact', () => {

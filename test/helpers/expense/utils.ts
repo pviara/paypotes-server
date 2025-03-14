@@ -72,6 +72,19 @@ export const generateRandomStakeholder = (): Stakeholder => {
     });
 };
 
+export const generateRandomStakeholders = ({
+    length,
+}: RandomArrayGenerationOptions): Array<Stakeholder> => {
+    return Array.from({ length }).map(
+        (_, index) =>
+            new Stakeholder({
+                id: crypto.randomUUID(),
+                firstname: `f_${index}`,
+                lastname: `l_${index}`,
+            }),
+    );
+};
+
 export const generateDefaultUserPairExpense = (): PairExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomPairPaymentWithDefaultUser();

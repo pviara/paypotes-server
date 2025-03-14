@@ -33,7 +33,7 @@ export class PairExpense extends Expense {
         return creditor.getId() === stakeholderId;
     }
 
-    involves(...stakeholderIds: Array<string>): boolean {
+    override involves(...stakeholderIds: Array<string>): boolean {
         return stakeholderIds.every(this.eitherCreditorOrDebtor());
     }
 

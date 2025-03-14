@@ -11,9 +11,13 @@ import {
     generateDefaultUserGroupExpenses,
     generateDefaultUserGroupExpense,
     generateRandomBoolean,
+    generateRandomStakeholders,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
-import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import {
+    generateDefaultUserRandomGroup,
+    generateDefaultUserRandomGroups,
+} from '@test/helpers/group/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
@@ -36,7 +40,7 @@ describe('ExpenseController', () => {
     let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         await runner.bootstrap();
 
         expenseRepo = runner.getRepository('expense');
@@ -45,7 +49,7 @@ describe('ExpenseController', () => {
         httpServer = runner.getHttpServer();
     });
 
-    afterAll(shutdown(runner));
+    afterEach(shutdown(runner));
 
     describe('DELETE /expenses/:expenseId', () => {
         const invalidIds = ['id', null, 59391, NaN, undefined];
@@ -110,6 +114,100 @@ describe('ExpenseController', () => {
                 );
                 expect(unexistingExpense).toBeNull();
             });
+        });
+    });
+
+    describe('GET /balance', () => {
+        describe('actor has no expense at all', () => {
+            it('should return default balance "0,00"', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/balance`,
+                );
+
+                expect(response.text).toBe('0,00');
+            });
+        });
+
+        describe('actor has expenses with multiple groups and contacts', () => {
+            let allDummyContactExpenses: Array<PairExpense[]>;
+            let allDummyGroupExpenses: Array<GroupExpense[]>;
+
+            const dummyContacts = generateRandomStakeholders({ length: 4 });
+            const dummyGroups = generateDefaultUserRandomGroups({ length: 4 });
+
+            beforeEach(async () => {
+                allDummyContactExpenses = dummyContacts.map((contact) =>
+                    generateDefaultUserPairExpenses({
+                        length: 4,
+                        counterparty: contact,
+                    }),
+                );
+
+                allDummyGroupExpenses = dummyGroups.map((group) =>
+                    generateDefaultUserGroupExpenses({
+                        length: 4,
+                        group: group,
+                    }),
+                );
+
+                await expenseRepo.empty();
+                await expenseRepo.insert(...allDummyContactExpenses.flat());
+                await expenseRepo.insert(...allDummyGroupExpenses.flat());
+            });
+
+            it('should return the total balance from all expenses', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/balance`,
+                );
+
+                const totalBalance = computeTotalBalance();
+                const expected = `${convertCents(totalBalance)}`.replace(
+                    '.',
+                    ',',
+                );
+
+                expect(response.text).toBe(expected);
+            });
+
+            function computeTotalBalance(): number {
+                const pairExpensesBalance =
+                    computeActorAllDummyContactsBalance();
+                const groupExpensesBalance =
+                    computeActorAllDummyGroupsBalance();
+                return pairExpensesBalance + groupExpensesBalance;
+            }
+
+            function computeActorAllDummyContactsBalance(): number {
+                return allDummyContactExpenses
+                    .flat()
+                    .reduce(computeExpenseBalanceFor(DEFAULT_USER.getId()), 0);
+            }
+
+            function computeActorAllDummyGroupsBalance(): number {
+                return allDummyGroupExpenses
+                    .flat()
+                    .reduce(computeExpenseBalanceFor(DEFAULT_USER.getId()), 0);
+            }
+
+            function computeExpenseBalanceFor(
+                actorId: string,
+            ): (
+                balance: number,
+                expense: GroupExpense | PairExpense,
+            ) => number {
+                return (balance, expense) => {
+                    const expenseBalance = expense.getRawBalance();
+                    const actorBalance = expense.hasCreditor(actorId)
+                        ? expenseBalance
+                        : -expenseBalance;
+
+                    return balance + actorBalance;
+                };
+            }
+
+            function convertCents(balance: number): number {
+                return balance / 100;
+            }
         });
     });
 
@@ -453,7 +551,6 @@ describe('ExpenseController', () => {
         });
     });
 
-    // todo
     describe('GET /expenses/group/:groupId/balance', () => {
         const invalidIds = ['id', null, 59391, NaN, undefined];
 
