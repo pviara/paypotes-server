@@ -1,5 +1,5 @@
-import { Expense, Metadata } from './expense';
-import { Stakeholder } from './stakeholder';
+import { Expense, Metadata } from '@expenses/domain/expense';
+import { Stakeholder } from '@expenses/domain/stakeholder';
 
 export type PairPayment = {
     balance: number;
@@ -24,16 +24,16 @@ export class PairExpense extends Expense {
         return creditor.getId() === stakeholderId ? debtor : creditor;
     }
 
-    getRawBalance(): number {
+    override getRawBalance(): number {
         return this.payment.balance;
     }
 
-    hasCreditor(stakeholderId: string) {
+    override hasCreditor(stakeholderId: string) {
         const { creditor } = this.payment;
         return creditor.getId() === stakeholderId;
     }
 
-    involves(...stakeholderIds: Array<string>): boolean {
+    override involves(...stakeholderIds: Array<string>): boolean {
         return stakeholderIds.every(this.eitherCreditorOrDebtor());
     }
 

@@ -2,7 +2,7 @@ import {
     ContactExpenseNotFoundError,
     GetActorContactExpenseByIdHandler,
     GetActorContactExpenseByIdQuery,
-} from '@app/expenses/application/queries/get-actor-contact-expense-by-id.handler';
+} from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';

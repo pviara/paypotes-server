@@ -39,6 +39,7 @@ export interface ExpenseRepository {
         actorId: string,
         contactId: string,
     ): Promise<PairExpense[]>;
+    getAllActorExpenses(actorId: string): Promise<Expense[]>;
     getAllActorGroupExpenses(
         actorId: string,
         groupId: string,
@@ -88,8 +89,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         expenseId: string,
     ): Promise<Expense | null> {
         const expense = this.expenses
-            .filter(this.isPairExpense())
-            .filter(this.isPairExpenseOf(actorId))
+            .filter(this.isExpenseOf(actorId))
             .find(this.expenseMatches(expenseId));
 
         return expense ?? null;
@@ -102,8 +102,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): Promise<Expense[]> {
         const start = pageIndex * MAX_EXPENSES_PER_PAGE;
         return this.expenses
-            .filter(this.isPairExpense())
-            .filter(this.isPairExpenseOf(actorId))
+            .filter(this.isExpenseOf(actorId))
             .filter(this.expenseLabelMatches(search))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
@@ -146,6 +145,10 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .filter(this.isPairExpenseOf(actorId, contactId));
     }
 
+    async getAllActorExpenses(actorId: string): Promise<Expense[]> {
+        return this.expenses.filter(this.isExpenseOf(actorId));
+    }
+
     async getAllActorGroupExpenses(
         actorId: string,
         groupId: string,
@@ -162,6 +165,10 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
 
     private expenseMatches(expenseId: string): (expense: Expense) => boolean {
         return (expense) => expense.getId() === expenseId;
+    }
+
+    private isExpenseOf(actorId: string): (expense: Expense) => boolean {
+        return (expense: Expense) => expense.involves(actorId);
     }
 
     private valid(index: number): boolean {

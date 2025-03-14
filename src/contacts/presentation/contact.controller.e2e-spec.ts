@@ -9,7 +9,7 @@ import {
     generateDefaultUserRelationships,
     generateRandomContacts,
 } from '@test/helpers/contact/utils';
-import { CONTACTS_API_ROUTE } from './contact.controller';
+import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { raw, shutdown } from '@test/helpers/utils';
@@ -22,14 +22,14 @@ describe('ContactController', () => {
     let contactRepo: ContactInMemoryTestingRepository;
     let httpServer: App;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         await runner.bootstrap();
 
         contactRepo = runner.getRepository('contact');
         httpServer = runner.getHttpServer();
     });
 
-    afterAll(shutdown(runner));
+    afterEach(shutdown(runner));
 
     describe('GET /contacts', () => {
         describe('actor has no contact', () => {

@@ -1,11 +1,11 @@
 import { Catch, ExceptionFilter, NotFoundException } from '@nestjs/common';
-import { ContactExpenseNotFoundError } from '@app/expenses/application/queries/get-actor-contact-expense-by-id.handler';
+import { ContactExpenseNotFoundError } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
 import { ContactNotFoundError } from '@contacts/application/get-actor-contact-by-id.handler';
-import { ExpenseNotFoundError } from '@app/expenses/application/queries/get-actor-expense-by-id.handler';
-import { GroupExpenseNotFoundError } from '@app/expenses/application/queries/get-actor-group-expense-by-id.handler';
+import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-expense-by-id.handler';
+import { GroupExpenseNotFoundError } from '@expenses/application/queries/get-actor-group-expense-by-id.handler';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-by-id.handler';
 import { MemberNotInGroupError } from '@groups/domain/group';
-import { UserExpenseNotFoundError } from '@app/expenses/application/commands/add-pair-expense.handler';
+import { UserExpenseNotFoundError } from '@expenses/application/commands/add-pair-expense.handler';
 import { UserNotFoundError } from '@groups/application/create-group.handler';
 
 @Catch(Error)

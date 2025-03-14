@@ -4,30 +4,26 @@ import { expenseRepositoryToken } from '@expenses/persistence/expense.repository
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-export class ComputeActorGroupBalanceQuery implements IQuery {
+export class ComputeActorBalanceQuery implements IQuery {
     constructor(
         readonly payload: {
             actorId: string;
-            groupId: string;
         },
     ) {}
 }
 
-@QueryHandler(ComputeActorGroupBalanceQuery)
-export class ComputeActorGroupBalanceHandler
-    implements IQueryHandler<ComputeActorGroupBalanceQuery>
+@QueryHandler(ComputeActorBalanceQuery)
+export class ComputeActorBalanceHandler
+    implements IQueryHandler<ComputeActorBalanceQuery>
 {
     constructor(
         @Inject(expenseRepositoryToken)
-        private expenseRepo: ExpenseRepository,
+        private repository: ExpenseRepository,
     ) {}
 
-    async execute(query: ComputeActorGroupBalanceQuery): Promise<number> {
-        const { actorId, groupId } = query.payload;
-        const expenses = await this.expenseRepo.getAllActorGroupExpenses(
-            actorId,
-            groupId,
-        );
+    async execute(query: ComputeActorBalanceQuery): Promise<number> {
+        const { actorId } = query.payload;
+        const expenses = await this.repository.getAllActorExpenses(actorId);
 
         return new Calculator(expenses).calculateFor(actorId);
     }

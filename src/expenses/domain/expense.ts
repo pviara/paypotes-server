@@ -4,7 +4,7 @@ export type Metadata = {
     emoji: string;
 };
 
-export class Expense {
+export abstract class Expense {
     constructor(private metadata: Metadata) {}
 
     getId(): string {
@@ -18,4 +18,10 @@ export class Expense {
     getEmoji(): string {
         return this.metadata.emoji;
     }
+
+    abstract getRawBalance(): number;
+
+    abstract hasCreditor(stakeholderId: string): boolean;
+
+    abstract involves(stakeholderId: string): boolean;
 }

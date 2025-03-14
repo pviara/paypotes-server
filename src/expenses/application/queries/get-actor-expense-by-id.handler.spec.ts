@@ -4,7 +4,7 @@ import {
     ExpenseNotFoundError,
     GetActorExpenseByIdHandler,
     GetActorExpenseByIdQuery,
-} from '@app/expenses/application/queries/get-actor-expense-by-id.handler';
+} from '@expenses/application/queries/get-actor-expense-by-id.handler';
 import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
 
 describe('GetActorExpenseByIdHandler', () => {

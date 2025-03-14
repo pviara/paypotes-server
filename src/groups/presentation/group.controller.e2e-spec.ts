@@ -23,7 +23,7 @@ describe('GroupController', () => {
     let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         await runner.bootstrap();
 
         groupRepo = runner.getRepository('group');
@@ -31,7 +31,7 @@ describe('GroupController', () => {
         httpServer = runner.getHttpServer();
     });
 
-    afterAll(shutdown(runner));
+    afterEach(shutdown(runner));
 
     describe('GET /groups', () => {
         describe('no group exists', () => {
