@@ -72,6 +72,7 @@
             "@contacts/(.*)": "<rootDir>/src/contacts/$1",
             "@expenses/(.*)": "<rootDir>/src/expenses/$1",
             "@groups/(.*)": "<rootDir>/src/groups/$1",
+            "@infra/(.*)": "<rootDir>/src/infrastructure/$1",
             "@test/(.*)": "<rootDir>/test/$1",
             "@users/(.*)": "<rootDir>/src/users/$1"
         },

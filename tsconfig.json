@@ -19,6 +19,7 @@
             "@contacts/*": ["src/contacts/*"],
             "@expenses/*": ["src/expenses/*"],
             "@groups/*": ["src/groups/*"],
+            "@infra/*": ["src/infrastructure/*"],
             "@test/*": ["test/*"],
             "@users/*": ["src/users/*"]
         }
