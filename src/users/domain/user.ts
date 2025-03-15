@@ -19,4 +19,8 @@ export class User {
     getLastname(): string {
         return this.data.lastname;
     }
+
+    getPhone() {
+        return this.data.phone;
+    }
 }
