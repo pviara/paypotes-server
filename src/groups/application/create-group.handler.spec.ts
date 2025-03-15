@@ -83,6 +83,7 @@ describe('CreateGroupHandler', () => {
                     id: memberId,
                     firstname: `F_${index}`,
                     lastname: `L_${index}`,
+                    phone: '0754235460',
                 }),
         );
     }
