@@ -1,3 +1,4 @@
+import { AuthModule } from '@auth/auth.module';
 import { ContactModule } from '@contacts/contact.module';
 import { ExpenseModule } from '@expenses/expense.module';
 import { GroupModule } from '@groups/group.module';
@@ -7,6 +8,7 @@ import { UserModule } from '@users/user.module';
 
 @Module({
     imports: [
+        AuthModule,
         ContactModule,
         ExpenseModule,
         GroupModule,
