@@ -7,9 +7,17 @@ export class UserRepositorySpy
     implements UserRepository
 {
     readonly calls = {
+        create: {
+            count: 0,
+            history: [] as Array<User>,
+        },
         get: {
             count: 0,
             history: [] as Array<string[]>,
+        },
+        getByEmail: {
+            count: 0,
+            history: [] as Array<string>,
         },
         getByPhone: {
             count: 0,
@@ -17,10 +25,22 @@ export class UserRepositorySpy
         },
     };
 
+    async create(user: User): Promise<void> {
+        this.calls.create.count++;
+        this.calls.create.history.push(user);
+        return this.getStubOrDefault('create', undefined);
+    }
+
     async get(...userIds: Array<string>): Promise<User[]> {
         this.calls.get.count++;
         this.calls.get.history.push(userIds);
         return this.getStubOrDefault('get', []);
+    }
+
+    async getByEmail(email: string): Promise<User | null> {
+        this.calls.getByEmail.count++;
+        this.calls.getByEmail.history.push(email);
+        return this.getStubOrDefault('getByEmail', null);
     }
 
     async getByPhone(phone: string): Promise<User | null> {
