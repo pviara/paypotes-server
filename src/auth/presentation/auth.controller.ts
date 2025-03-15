@@ -9,6 +9,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { GoogleAuthGuard } from '@auth/presentation/guards/google.auth-guard';
+import { Request } from 'express';
 
 const AUTH_API_ROUTE = 'auth';
 
@@ -20,9 +21,9 @@ export class AuthController {
     @Redirect()
     @Get('google-redirect')
     async catchGoogleRedirect(
-        @Req() req: unknown,
+        @Req() req: Request,
     ): Promise<HttpRedirectResponse> {
-        // const { token } = this.authService.signIn(req.user);
+        console.log('authenticated user', req['user']);
         return this.redirectToClientApp('token');
     }
 
