@@ -1,19 +1,23 @@
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import { Controller, Get, Param } from '@nestjs/common';
 import { GetUserByPhoneQuery } from '@users/application/get-user-by-phone.handler';
+import { ParsePhoneNumberPipe } from '@users/presentation/pipes/parse-phone-number.pipe';
 import { QueryBus } from '@nestjs/cqrs';
-import { User } from '@users/domain/user';
+import { UserDTO } from '@users/presentation/dto/user.dto';
 
-const Phone = () => Param('phone');
+export const USERS_API_ROUTE = 'users';
+
+const Phone = () => Param('phone', ParsePhoneNumberPipe);
 
 @AuthGuard()
-@Controller('user')
+@Controller(USERS_API_ROUTE)
 export class UserController {
     constructor(private queryBus: QueryBus) {}
 
     @Get(':phone')
-    getByPhone(@Phone() phone: string): Promise<User> {
+    async getByPhone(@Phone() phone: string): Promise<UserDTO> {
         const query = new GetUserByPhoneQuery({ phone });
-        return this.queryBus.execute(query);
+        const user = await this.queryBus.execute(query);
+        return UserDTO.from(user);
     }
 }
