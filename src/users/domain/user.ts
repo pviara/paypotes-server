@@ -4,12 +4,17 @@ export class User {
             id: string;
             firstname: string;
             lastname: string;
+            email: string;
             phone: string;
         },
     ) {}
 
     getId(): string {
         return this.data.id;
+    }
+
+    getEmail() {
+        return this.data.email;
     }
 
     getFirstname(): string {

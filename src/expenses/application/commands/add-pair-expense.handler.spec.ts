@@ -41,6 +41,7 @@ describe('AddExpenseHandler', () => {
         id: dummyExpenseUserId,
         firstname: 'Peter',
         lastname: 'Parker',
+        email: 'email@test.com',
         phone: '06457246852',
     });
 
