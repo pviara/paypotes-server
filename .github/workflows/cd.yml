@@ -33,4 +33,4 @@ jobs:
             yarn install
             yarn build
             pm2 delete paypot-api
-            pm2 start dist/main.js --namespace paypot --name paypot-api
+            pm2 start dist/src/main.js --namespace paypot --name paypot-api
