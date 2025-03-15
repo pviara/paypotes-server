@@ -6,12 +6,12 @@ import { GroupExpenseNotFoundError } from '@expenses/application/queries/get-act
 import { GroupNotFoundError } from '@groups/application/get-actor-group-by-id.handler';
 import { MemberNotInGroupError } from '@groups/domain/group';
 import { UserExpenseNotFoundError } from '@expenses/application/commands/add-pair-expense.handler';
-import { UserNotFoundError } from '@groups/application/create-group.handler';
+import { GroupUserNotFoundError } from '@groups/application/create-group.handler';
 
 @Catch(Error)
 export class ErrorFilter implements ExceptionFilter {
     catch(exception: Error): void {
-        if (exception instanceof UserNotFoundError) {
+        if (exception instanceof GroupUserNotFoundError) {
             throw new NotFoundException();
         }
         if (exception instanceof GroupNotFoundError) {

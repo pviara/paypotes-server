@@ -4,6 +4,7 @@ export class User {
             id: string;
             firstname: string;
             lastname: string;
+            phone: string;
         },
     ) {}
 
@@ -17,5 +18,9 @@ export class User {
 
     getLastname(): string {
         return this.data.lastname;
+    }
+
+    getPhone() {
+        return this.data.phone;
     }
 }

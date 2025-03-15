@@ -41,6 +41,7 @@ describe('AddExpenseHandler', () => {
         id: dummyExpenseUserId,
         firstname: 'Peter',
         lastname: 'Parker',
+        phone: '06457246852',
     });
 
     beforeEach(() => {

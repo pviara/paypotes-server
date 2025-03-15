@@ -1,10 +1,24 @@
+import { userRepositoryToken } from '@app/users/persistence/user-repository.provider';
+import { Modules } from '@test/helpers/application-runner/model/module';
+import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { User } from '@users/domain/user';
+import { UserInMemoryTestingRepository } from './user.testing-repository';
+import { UserModule } from '@users/user.module';
+
+export const userSpecModules: Modules = [UserModule];
+export const userSpecProviders: OverridingProviders = [
+    {
+        provide: userRepositoryToken,
+        useClass: UserInMemoryTestingRepository,
+    },
+];
 
 export const generateRandomUser = (): User => {
     return new User({
         id: crypto.randomUUID(),
         firstname: 'Firstname',
         lastname: 'Lastname',
+        phone: '0603497712',
     });
 };
 
@@ -15,6 +29,7 @@ export const generateRandomUsers = (): Array<User> => {
                 id: crypto.randomUUID(),
                 firstname: `firstname_${index}`,
                 lastname: `lastname_${index}`,
+                phone: '078452168344',
             }),
     );
 };

@@ -9,7 +9,11 @@ export class UserRepositorySpy
     readonly calls = {
         get: {
             count: 0,
-            history: [] as string[][],
+            history: [] as Array<string[]>,
+        },
+        getByPhone: {
+            count: 0,
+            history: [] as Array<string>,
         },
     };
 
@@ -17,5 +21,11 @@ export class UserRepositorySpy
         this.calls.get.count++;
         this.calls.get.history.push(userIds);
         return this.getStubOrDefault('get', []);
+    }
+
+    async getByPhone(phone: string): Promise<User | null> {
+        this.calls.getByPhone.count++;
+        this.calls.getByPhone.history.push(phone);
+        return this.getStubOrDefault('getByPhone', null);
     }
 }
