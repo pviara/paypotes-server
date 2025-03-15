@@ -1,5 +1,7 @@
-import { IQuery, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
+import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { UserRepository } from '@users/persistence/user.repository';
+import { userRepositoryToken } from '@users/persistence/user-repository.provider';
 
 export class GetUserByPhoneQuery implements IQuery {
     constructor(
@@ -9,10 +11,14 @@ export class GetUserByPhoneQuery implements IQuery {
     ) {}
 }
 
+@QueryHandler(GetUserByPhoneQuery)
 export class GetUserByPhoneHandler
     implements IQueryHandler<GetUserByPhoneQuery>
 {
-    constructor(private userRepo: UserRepository) {}
+    constructor(
+        @Inject(userRepositoryToken)
+        private userRepo: UserRepository,
+    ) {}
 
     async execute(query: GetUserByPhoneQuery): Promise<any> {
         const { phone } = query.payload;

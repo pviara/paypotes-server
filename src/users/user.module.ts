@@ -1,3 +1,5 @@
+import { CqrsModule } from '@nestjs/cqrs';
+import { GetUserByPhoneHandler } from '@users/application/get-user-by-phone.handler';
 import { Module } from '@nestjs/common';
 import {
     userRepositoryProvider,
@@ -6,6 +8,7 @@ import {
 
 @Module({
     exports: [userRepositoryToken],
-    providers: [userRepositoryProvider],
+    imports: [CqrsModule],
+    providers: [GetUserByPhoneHandler, userRepositoryProvider],
 })
 export class UserModule {}
