@@ -13,13 +13,13 @@
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/main",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-        "test": "jest",
-        "test:watch": "jest --watch",
-        "test:all": "yarn run test; yarn run test:e2e",
+        "test": "jest --runInBand",
+        "test:watch": "yarn test -- --watch",
+        "test:all": "yarn test; yarn test:e2e",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-        "test:e2e:watch": "yarn run test:e2e -- --watchAll"
+        "test:e2e:watch": "yarn test:e2e -- --watchAll"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.1",
@@ -84,12 +84,14 @@
         },
         "testRegex": ".*\\.spec\\.ts$",
         "transform": {
-            "^.+\\.(t|j)s$": "ts-jest"
+            "^.+\\.(t|j)s$": [
+                "ts-jest",
+                {
+                    "isolatedModules": true
+                }
+            ]
         },
-        "collectCoverageFrom": [
-            "**/*.(t|j)s"
-        ],
-        "coverageDirectory": "../coverage",
+        "collectCoverage": false,
         "testEnvironment": "node"
     }
 }

@@ -4,8 +4,14 @@
     "testEnvironment": "node",
     "testRegex": ".e2e-spec.ts$",
     "transform": {
-        "^.+\\.(t|j)s$": "ts-jest"
+        "^.+\\.(t|j)s$": [
+            "ts-jest",
+            {
+                "isolatedModules": true
+            }
+        ]
     },
+    "collectCoverage": false,
     "moduleNameMapper": {
         "@app/(.*)": "<rootDir>/../src/$1",
         "@auth/(.*)": "<rootDir>/../src/auth/$1",
