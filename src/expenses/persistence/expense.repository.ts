@@ -1,6 +1,7 @@
 import { Expense } from '@expenses/domain/expense';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { PairExpense } from '@expenses/domain/pair-expense';
+import { setTimeout } from 'timers/promises';
 
 export interface ExpenseRepository {
     delete(expenseId: string): Promise<void>;
@@ -160,7 +161,9 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     }
 
     async save(expense: Expense): Promise<void> {
-        this.expenses.push(expense);
+        const currentExpenses = [...this.expenses];
+        await setTimeout(Math.random() * 10);
+        this.expenses = [...currentExpenses, expense];
     }
 
     private expenseMatches(expenseId: string): (expense: Expense) => boolean {
