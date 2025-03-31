@@ -33,3 +33,6 @@ jobs:
 
       - name: 🧑‍🔬 Run e2e tests
         run: yarn test:e2e
+
+      - name: 🧑‍🔬 Run concurrency tests
+        run: yarn test:concurrency
