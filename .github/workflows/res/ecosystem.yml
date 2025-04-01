@@ -2,3 +2,4 @@ apps:
   - name : 'paypot-server'
     script: 'dist/src/main.js'
     instances: 'max'
+    env_file: './path/to/your/.env'
