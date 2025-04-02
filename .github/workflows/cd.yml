@@ -32,4 +32,4 @@ jobs:
             git reset --hard origin/main
             yarn install
             yarn build
-            ~/dev/repos/paypot/paypot-server/.github/workflows/scripts/reload-cluster.sh
+            bash ~/dev/repos/paypot/paypot-server/.github/workflows/scripts/reload-cluster.sh
