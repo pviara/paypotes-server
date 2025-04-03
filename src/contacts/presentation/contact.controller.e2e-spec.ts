@@ -10,9 +10,16 @@ import {
     generateRandomContacts,
 } from '@test/helpers/contact/utils';
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import {
+    generateDefaultUserPairExpenses,
+    generateRandomStakeholder,
+} from '@test/helpers/expense/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { raw, shutdown } from '@test/helpers/utils';
+import { PairExpense } from '@expenses/domain/pair-expense';
 import { Relationship } from '@contacts/persistence/relationship';
 import * as request from 'supertest';
 
@@ -20,12 +27,14 @@ describe('ContactController', () => {
     const runner = initRunnerWith(modules, providers);
 
     let contactRepo: ContactInMemoryTestingRepository;
+    let expenseRepo: ExpenseInMemoryTestingRepository;
     let httpServer: App;
 
     beforeEach(async () => {
         await runner.bootstrap();
 
         contactRepo = runner.getRepository('contact');
+        expenseRepo = runner.getRepository('expense');
         httpServer = runner.getHttpServer();
     });
 
@@ -123,8 +132,17 @@ describe('ContactController', () => {
     });
 
     describe('GET /contacts/:id', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
+        let dummyRelationship: Relationship;
+        let contact: Contact;
 
+        beforeEach(async () => {
+            dummyRelationship = generateDefaultUserRelationship();
+            await contactRepo.insert(dummyRelationship);
+
+            contact = dummyRelationship.userB;
+        });
+
+        const invalidIds = ['id', null, 59391, NaN, undefined];
         it.each(invalidIds)(
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
             async (id: unknown) => {
@@ -137,15 +155,73 @@ describe('ContactController', () => {
         );
 
         it('should return the right contact for given id', async () => {
-            const dummyRelationship = generateDefaultUserRelationship();
-            await contactRepo.insert(dummyRelationship);
-
-            const { userB: contact } = dummyRelationship;
             const response = await request(httpServer).get(
                 `/${CONTACTS_API_ROUTE}/${contact.getId()}`,
             );
 
             expect(response.body).toStrictEqual(raw(ContactDTO.from(contact)));
+        });
+
+        describe('actor has no expense with contact', () => {
+            it('should return default balance "0,00"', async () => {
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}/${contact.getId()}`,
+                );
+
+                expect(response.body.id).toBe(contact.getId());
+                expect(response.body.firstname).toBe(contact.getFirstname());
+                expect(response.body.lastname).toBe(contact.getLastname());
+                expect(response.body.balance).toBe('0,00');
+            });
+        });
+
+        describe('actor has expenses with contact', () => {
+            let dummyContactExpenses: Array<PairExpense>;
+            let dummyContact = generateRandomStakeholder();
+
+            beforeEach(async () => {
+                dummyContactExpenses = generateDefaultUserPairExpenses({
+                    length: 40,
+                    counterparty: dummyContact,
+                });
+                await expenseRepo.empty();
+                await expenseRepo.insert(...dummyContactExpenses);
+            });
+
+            it('should return the right balance', async () => {
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}`,
+                );
+
+                const balance = computeActorDummyContactBalance();
+                const expected = `${convertCents(balance)}`.replace('.', ',');
+
+                expect(response.body.balance).toBe(expected);
+            });
+
+            function computeActorDummyContactBalance(): number {
+                return dummyContactExpenses.reduce(
+                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
+                    0,
+                );
+            }
+
+            function computeExpenseBalanceFor(
+                actorId: string,
+            ): (balance: number, expense: PairExpense) => number {
+                return (balance, expense) => {
+                    const expenseBalance = expense.getRawBalance();
+                    const actorBalance = expense.hasCreditor(actorId)
+                        ? expenseBalance
+                        : -expenseBalance;
+
+                    return balance + actorBalance;
+                };
+            }
+
+            function convertCents(balance: number): number {
+                return balance / 100;
+            }
         });
     });
 });
