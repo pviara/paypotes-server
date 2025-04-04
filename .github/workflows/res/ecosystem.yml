@@ -2,3 +2,4 @@ apps:
   - name : 'paypot-api'
     script: 'dist/src/main.js'
     instances: 'max'
+    namespace: 'paypot'
