@@ -14,7 +14,7 @@ import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 
-describe('GetGroupByIdHandler', () => {
+describe('GetActorGroupWithBalanceByIdHandler', () => {
     let sut: GetActorGroupWithBalanceByIdHandler;
 
     let groupRepo: GroupRepositorySpy;

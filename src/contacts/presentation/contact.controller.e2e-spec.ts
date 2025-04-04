@@ -1,6 +1,6 @@
 import { App } from 'supertest/types';
 import { Contact } from '@contacts/domain/contact';
-import { ContactWithBalanceDTO } from '@app/contacts/presentation/dto/contact-with-balance.dto';
+import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import {
     contactSpecModules as modules,
@@ -20,7 +20,7 @@ import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { shutdown } from '@test/helpers/utils';
-import { Stakeholder } from '@app/expenses/domain/stakeholder';
+import { Stakeholder } from '@expenses/domain/stakeholder';
 import * as request from 'supertest';
 
 describe('ContactController', () => {

@@ -1,4 +1,4 @@
-import { ContactWithBalance } from '@app/contacts/domain/contact-with-balance';
+import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 
 export class ContactWithBalanceDTO {
     private static ZERO = 0;

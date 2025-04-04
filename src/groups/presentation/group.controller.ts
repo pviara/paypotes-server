@@ -12,8 +12,8 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { CreateGroupCommand } from '@groups/application/create-group.handler';
-import { GetActorGroupWithBalanceByIdQuery } from '@app/groups/application/get-actor-group-with-balance-by-id.handler';
-import { GetActorGroupsQuery } from '@groups/application/get-actor-groups.handler';
+import { GetActorGroupWithBalanceByIdQuery } from '@groups/application/get-actor-group-with-balance-by-id.handler';
+import { GetActorGroupsWithBalanceQuery } from '@groups/application/get-actor-groups-with-balance.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import { Member } from '@groups/domain/member';
@@ -63,7 +63,7 @@ export class GroupController {
         @PageIndex() pageIndex: number,
         @Search() search: string,
     ): Promise<GroupDTO[]> {
-        const query = new GetActorGroupsQuery({
+        const query = new GetActorGroupsWithBalanceQuery({
             actorId,
             pageIndex,
             search,

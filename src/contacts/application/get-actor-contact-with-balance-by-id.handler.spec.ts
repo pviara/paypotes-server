@@ -5,7 +5,7 @@ import {
     ContactNotFoundError,
     GetActorContactWithBalanceByIdHandler,
     GetActorContactWithBalanceByIdQuery,
-} from '@app/contacts/application/get-actor-contact-with-balance-by-id.handler';
+} from '@contacts/application/get-actor-contact-with-balance-by-id.handler';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';

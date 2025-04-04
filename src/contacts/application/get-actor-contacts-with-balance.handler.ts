@@ -6,10 +6,10 @@ import { expenseRepositoryToken } from '@expenses/persistence/expense.repository
 import { Contact } from '@contacts/domain/contact';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
+import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
+import { Expense } from '@expenses/domain/expense';
 import { Inject, Scope } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { ContactWithBalance } from '../domain/contact-with-balance';
-import { Expense } from '@app/expenses/domain/expense';
 
 export class GetActorContactsWithBalanceQuery implements IQuery {
     constructor(
@@ -72,12 +72,10 @@ export class GetActorContactsWithBalanceHandler
         actorId: string,
     ): Array<ContactWithBalance> {
         if (this.areAllContactsWithoutExpenses(expensesByContact)) {
-            return this.contacts.map((contact) =>
-                this.buildContactWithBalanceFrom(contact.getId(), actorId),
-            );
+            return this.mapSavedContactsToContactsWithDefaultBalance(actorId);
         }
 
-        return this.mapExpensesToContactsWithBalance(
+        return this.mapExpensesByContactToContactsWithBalance(
             expensesByContact,
             actorId,
         );
@@ -89,12 +87,11 @@ export class GetActorContactsWithBalanceHandler
         return Object.keys(expensesByContact).length === 0;
     }
 
-    private mapExpensesToContactsWithBalance(
-        expensesByContact: ExpensesByContact,
+    private mapSavedContactsToContactsWithDefaultBalance(
         actorId: string,
     ): Array<ContactWithBalance> {
-        return Object.entries(expensesByContact).map(([contactId, expenses]) =>
-            this.buildContactWithBalanceFrom(contactId, actorId, expenses),
+        return this.contacts.map((contact) =>
+            this.buildContactWithBalanceFrom(contact.getId(), actorId),
         );
     }
 
@@ -104,25 +101,34 @@ export class GetActorContactsWithBalanceHandler
         expenses: Array<Expense> = [],
     ): ContactWithBalance {
         return ContactWithBalance.from({
-            contact: this.getContactFromSavedLits(contactId),
+            contact: this.getContactFromSavedList(contactId),
             expenses,
             perspectiveId: actorId,
         });
     }
 
-    private getContactFromSavedLits(contactId: string): Contact {
+    private getContactFromSavedList(contactId: string): Contact {
         const contact = this.contacts.find(
             (contact) => contact.getId() === contactId,
         );
         if (contact) return contact;
         throw new ContactNotFoundInSavedList(contactId);
     }
+
+    private mapExpensesByContactToContactsWithBalance(
+        expensesByContact: ExpensesByContact,
+        actorId: string,
+    ): Array<ContactWithBalance> {
+        return Object.entries(expensesByContact).map(([contactId, expenses]) =>
+            this.buildContactWithBalanceFrom(contactId, actorId, expenses),
+        );
+    }
 }
 
 export class ContactNotFoundInSavedList extends Error {
     constructor(contactId: string) {
         super(
-            `Contact with "${contactId}" could not be found in saved list although it should have`,
+            `Contact with id "${contactId}" could not be found in saved list although it should have`,
         );
     }
 }

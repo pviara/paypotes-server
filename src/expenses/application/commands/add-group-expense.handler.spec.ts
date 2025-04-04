@@ -7,7 +7,7 @@ import { generateRandomBalance } from '@test/helpers/expense/utils';
 import { generateRandomMembers } from '@test/helpers/group/utils';
 import { Group, MemberNotInGroupError } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
-import { GroupNotFoundError } from '@app/groups/application/get-actor-group-with-balance-by-id.handler';
+import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { Member } from '@groups/domain/member';
 import { Metadata } from '@expenses/domain/expense';

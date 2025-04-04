@@ -7,6 +7,10 @@ export type ExpensesByContact = {
     [contactId: string]: Array<Expense>;
 };
 
+export type ExpensesByGroup = {
+    [groupId: string]: Array<Expense>;
+};
+
 export interface ExpenseRepository {
     delete(expenseId: string): Promise<void>;
     getActorContactExpenseById(
@@ -53,6 +57,10 @@ export interface ExpenseRepository {
         actorId: string,
         groupId: string,
     ): Promise<GroupExpense[]>;
+    getAllActorGroupsExpenses(
+        actorId: string,
+        groupIds: Array<string>,
+    ): Promise<ExpensesByGroup>;
     save(expense: Expense): Promise<void>;
 }
 
@@ -179,6 +187,21 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .filter(this.isGroupExpense())
             .filter(this.isExpenseFrom(groupId))
             .filter(this.isGroupExpenseOf(actorId));
+    }
+
+    async getAllActorGroupsExpenses(
+        actorId: string,
+        groupIds: Array<string>,
+    ): Promise<ExpensesByGroup> {
+        const expensesByGroup: ExpensesByGroup = {};
+        for (const groupId of groupIds) {
+            expensesByGroup[groupId] = await this.getAllActorGroupExpenses(
+                actorId,
+                groupId,
+            );
+        }
+
+        return expensesByGroup;
     }
 
     async save(expense: Expense): Promise<void> {

@@ -6,9 +6,9 @@ import { generateRandomContacts } from '@test/helpers/contact/utils';
 import {
     GetActorContactsWithBalanceHandler,
     GetActorContactsWithBalanceQuery,
-} from '@app/contacts/application/get-actor-contacts-with-balance.handler';
+} from '@contacts/application/get-actor-contacts-with-balance.handler';
 import { mapIdsFrom } from '@test/helpers/utils';
-import { Stakeholder } from '@app/expenses/domain/stakeholder';
+import { Stakeholder } from '@expenses/domain/stakeholder';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 
@@ -35,7 +35,6 @@ describe('GetActorContactsHandler', () => {
 
     beforeEach(() => {
         initSut();
-
         contactRepo.stub('getActorContacts', dummyContacts);
     });
 
@@ -49,7 +48,7 @@ describe('GetActorContactsHandler', () => {
         ]);
     });
 
-    it("'should retrieve all actor's contacts expenses", async () => {
+    it("should retrieve all actor's contacts expenses", async () => {
         await sut.execute(dummyQuery);
 
         expect(expenseRepo.calls.getAllActorContactsExpenses.count).toBe(1);
@@ -60,7 +59,7 @@ describe('GetActorContactsHandler', () => {
         ).toContainEqual([dummyActorId, contactIds]);
     });
 
-    it('should compute each of the actor contact balance correctly', async () => {
+    it("should compute each of the actor's contacts balance correctly", async () => {
         const expensesByContact: ExpensesByContact = {};
         dummyStakeholders.forEach((stakeholder) => {
             expensesByContact[stakeholder.getId()] = [
@@ -80,8 +79,6 @@ describe('GetActorContactsHandler', () => {
         contacts.forEach((contact) =>
             expect(contact.getBalance()).toBe(expectedBalance),
         );
-
-        // // console.dir(expensesByContact, { depth: null });
     });
 
     function initSut(): void {
