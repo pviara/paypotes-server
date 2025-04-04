@@ -19,12 +19,12 @@ export class ComputeActorGroupBalanceHandler
 {
     constructor(
         @Inject(expenseRepositoryToken)
-        private expenseRepo: ExpenseRepository,
+        private expenseRepository: ExpenseRepository,
     ) {}
 
     async execute(query: ComputeActorGroupBalanceQuery): Promise<number> {
         const { actorId, groupId } = query.payload;
-        const expenses = await this.expenseRepo.getAllActorGroupExpenses(
+        const expenses = await this.expenseRepository.getAllActorGroupExpenses(
             actorId,
             groupId,
         );

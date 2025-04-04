@@ -29,23 +29,23 @@ export class AddPairExpenseHandler
 {
     constructor(
         @Inject(expenseRepositoryToken)
-        private expenseRepo: ExpenseRepository,
+        private expenseRepository: ExpenseRepository,
 
         @Inject(userRepositoryToken)
-        private userRepo: UserRepository,
+        private userRepository: UserRepository,
     ) {}
 
     async execute(command: AddPairExpenseCommand): Promise<void> {
         const { userId } = command.payload;
 
-        const [stakeholder] = await this.userRepo.get(userId);
+        const [stakeholder] = await this.userRepository.get(userId);
         if (!stakeholder) throw new UserExpenseNotFoundError(userId);
 
         const metadata = this.extractMetadataFrom(command);
         const payment = this.extractPaymentFrom(command, stakeholder);
         const expense = new PairExpense(metadata, payment);
 
-        return this.expenseRepo.save(expense);
+        return this.expenseRepository.save(expense);
     }
 
     private extractMetadataFrom(command: AddPairExpenseCommand): Metadata {

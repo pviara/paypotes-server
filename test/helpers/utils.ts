@@ -1,5 +1,6 @@
 import { ApplicationRunner } from '@test/helpers/application-runner/application-runner';
 import { AsyncCallback } from '@test/helpers/types';
+import { Contact } from '@contacts/domain/contact';
 import { INestApplication } from '@nestjs/common';
 import { User } from '@users/domain/user';
 
@@ -13,8 +14,8 @@ export const shutdown = (runner: ApplicationRunner): AsyncCallback<void> => {
     return async (): Promise<void> => await runner.shutdown();
 };
 
-export const mapIdsFrom = (users: Array<User>): Array<string> => {
-    return users.map((user: User) => user.getId());
+export const mapIdsFrom = (persons: Array<Contact | User>): Array<string> => {
+    return persons.map((person) => person.getId());
 };
 
 export const raw = (obj: unknown): unknown => {

@@ -14,16 +14,14 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     generateDefaultUserPairExpenses,
-    generateRandomStakeholder,
+    generateRandomMetadata,
 } from '@test/helpers/expense/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { raw, shutdown } from '@test/helpers/utils';
-import { PairExpense } from '@expenses/domain/pair-expense';
-import { Relationship } from '@contacts/persistence/relationship';
-import * as request from 'supertest';
-import { ContactWithBalance } from '../domain/contact-with-balance';
+import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import { shutdown } from '@test/helpers/utils';
 import { Stakeholder } from '@app/expenses/domain/stakeholder';
+import * as request from 'supertest';
 
 describe('ContactController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -42,7 +40,7 @@ describe('ContactController', () => {
 
     afterEach(shutdown(runner));
 
-    describe.skip('GET /contacts', () => {
+    describe('GET /contacts', () => {
         describe('actor has no contact', () => {
             it('should return an empty array', async () => {
                 const response = await request(httpServer).get(
@@ -56,11 +54,11 @@ describe('ContactController', () => {
 
         describe('actor has contacts', () => {
             let dummyContacts: Array<Contact>;
-            let dummyRelationships: Array<Relationship>;
 
             beforeEach(async () => {
                 dummyContacts = generateRandomContacts({ length: 40 });
-                dummyRelationships = generateDefaultUserRelationships({
+
+                const dummyRelationships = generateDefaultUserRelationships({
                     contacts: dummyContacts,
                 });
 
@@ -113,6 +111,86 @@ describe('ContactController', () => {
                 });
             });
 
+            describe('actor has only contacts with no expense', () => {
+                it('should return the contacts with default zero balance', async () => {
+                    const response = await request(httpServer).get(
+                        `/${CONTACTS_API_ROUTE}?pageIndex=1`,
+                    );
+
+                    const dtos = response.body;
+                    expectAllReturnedDtosToHaveDefaultZeroBalance(dtos);
+                });
+
+                function expectAllReturnedDtosToHaveDefaultZeroBalance(
+                    dtos: Array<ContactWithBalanceDTO>,
+                ): void {
+                    dtos.forEach((dto) => expect(dto.balance).toBe('0,00'));
+                }
+            });
+
+            describe('actor has contacts with expenses', () => {
+                beforeEach(async () => {
+                    const expenses = dummyContacts.flatMap((contact) => {
+                        const stakeholder = Stakeholder.fromContact(contact);
+                        return [
+                            createRandomCreditExpenseFor(stakeholder, 894),
+                            createRandomDebitExpenseFor(stakeholder, 145),
+                            createRandomDebitExpenseFor(stakeholder, 311),
+                            createRandomCreditExpenseFor(stakeholder, 28),
+                        ];
+                    });
+
+                    await expenseRepo.empty();
+                    await expenseRepo.insert(...expenses);
+                });
+
+                it('should return the contacts with the right balance', async () => {
+                    const response = await request(httpServer).get(
+                        `/${CONTACTS_API_ROUTE}?pageIndex=1`,
+                    );
+
+                    const dtos = response.body;
+                    expectAllReturnedDtosToHaveRightBalance(dtos);
+                });
+
+                function createRandomCreditExpenseFor(
+                    stakeholder: Stakeholder,
+                    balance: number,
+                ): PairExpense {
+                    const metadata = generateRandomMetadata();
+                    const payment: PairPayment = {
+                        balance,
+                        creditor: Stakeholder.fromUser(DEFAULT_USER),
+                        debtor: stakeholder,
+                    };
+                    return new PairExpense(metadata, payment);
+                }
+
+                function createRandomDebitExpenseFor(
+                    stakeholder: Stakeholder,
+                    balance: number,
+                ): PairExpense {
+                    const metadata = generateRandomMetadata();
+                    const payment: PairPayment = {
+                        balance,
+                        creditor: stakeholder,
+                        debtor: Stakeholder.fromUser(DEFAULT_USER),
+                    };
+                    return new PairExpense(metadata, payment);
+                }
+
+                function expectAllReturnedDtosToHaveRightBalance(
+                    dtos: Array<ContactWithBalanceDTO>,
+                ): void {
+                    const balance = 894 - 145 - 311 + 28;
+                    const expected = `${convertCents(balance)}`.replace(
+                        '.',
+                        ',',
+                    );
+                    dtos.forEach((dto) => expect(dto.balance).toBe(expected));
+                }
+            });
+
             function expectReturnedDtosToBeTheFirstTwentyContacts(
                 dtos: Array<ContactWithBalanceDTO>,
             ): void {
@@ -133,7 +211,16 @@ describe('ContactController', () => {
         });
     });
 
-    describe.skip('GET /contacts/:id', () => {
+    describe('GET /contacts/:id', () => {
+        let dummyContact: Contact;
+
+        beforeEach(async () => {
+            const dummyRelationship = generateDefaultUserRelationship();
+            await contactRepo.insert(dummyRelationship);
+
+            dummyContact = dummyRelationship.userB;
+        });
+
         const invalidIds = ['id', null, 59391, NaN, undefined];
         it.each(invalidIds)(
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
@@ -146,36 +233,10 @@ describe('ContactController', () => {
             },
         );
 
-        // it('should return the right contact for given id', async () => {
-        //     const dummyRelationship = generateDefaultUserRelationship();
-        //     await contactRepo.insert(dummyRelationship);
-
-        //     const contact = dummyRelationship.userB;
-
-        //     const response = await request(httpServer).get(
-        //         `/${CONTACTS_API_ROUTE}/${contact.getId()}`,
-        //     );
-
-        //     expect(response.body).toStrictEqual(
-        //         raw(ContactWithBalanceDTO.from(contact)), // ContactDTO.from(contact)
-        //     );
-        // });
-    });
-
-    describe('GET /contacts/:id/balance', () => {
-        let dummyContact: Contact;
-
-        beforeEach(async () => {
-            const dummyRelationship = generateDefaultUserRelationship();
-            await contactRepo.insert(dummyRelationship);
-
-            dummyContact = dummyRelationship.userB;
-        });
-
         describe('actor has no expense with contact', () => {
             it('should return default balance "0,00"', async () => {
                 const response = await request(httpServer).get(
-                    `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}/balance`,
+                    `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}`,
                 );
 
                 expect(response.body.id).toBe(dummyContact.getId());
@@ -202,7 +263,7 @@ describe('ContactController', () => {
 
             it('should return the right balance', async () => {
                 const response = await request(httpServer).get(
-                    `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}/balance`,
+                    `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}`,
                 );
 
                 const balance = computeActorDummyContactBalance();
@@ -230,10 +291,10 @@ describe('ContactController', () => {
                     return balance + actorBalance;
                 };
             }
-
-            function convertCents(balance: number): number {
-                return balance / 100;
-            }
         });
     });
+
+    function convertCents(balance: number): number {
+        return balance / 100;
+    }
 });

@@ -30,23 +30,26 @@ export class AddGroupExpenseHandler
 {
     constructor(
         @Inject(expenseRepositoryToken)
-        private expenseRepo: ExpenseRepository,
+        private expenseRepository: ExpenseRepository,
 
         @Inject(groupRepositoryToken)
-        private groupRepo: GroupRepository,
+        private groupRepository: GroupRepository,
     ) {}
 
     async execute(command: AddGroupExpenseCommand): Promise<void> {
         const { actorId, groupId } = command.payload;
 
-        const group = await this.groupRepo.getActorGroupById(actorId, groupId);
+        const group = await this.groupRepository.getActorGroupById(
+            actorId,
+            groupId,
+        );
         if (!group) throw new GroupNotFoundError(groupId);
 
         const metadata = this.extractMetadataFrom(command);
         const payment = this.extractPaymentFrom(command, group);
         const expense = new GroupExpense(metadata, group, payment);
 
-        return this.expenseRepo.save(expense);
+        return this.expenseRepository.save(expense);
     }
 
     private extractMetadataFrom(command: AddGroupExpenseCommand): Metadata {

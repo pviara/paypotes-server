@@ -17,12 +17,12 @@ export class GetUserByPhoneHandler
 {
     constructor(
         @Inject(userRepositoryToken)
-        private userRepo: UserRepository,
+        private userRepository: UserRepository,
     ) {}
 
     async execute(query: GetUserByPhoneQuery): Promise<any> {
         const { phone } = query.payload;
-        const user = await this.userRepo.getByPhone(phone);
+        const user = await this.userRepository.getByPhone(phone);
 
         if (user) return user;
         throw new UserNotFoundError(phone);

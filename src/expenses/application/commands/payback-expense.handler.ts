@@ -19,18 +19,18 @@ export class PaybackExpenseHandler
 {
     constructor(
         @Inject(expenseRepositoryToken)
-        private expenseRepo: ExpenseRepository,
+        private expenseRepository: ExpenseRepository,
     ) {}
 
     async execute(command: PaybackExpenseCommand): Promise<void> {
         const { actorId, expenseId } = command.payload;
 
-        const expense = await this.expenseRepo.getActorExpenseById(
+        const expense = await this.expenseRepository.getActorExpenseById(
             actorId,
             expenseId,
         );
 
-        if (expense) return this.expenseRepo.delete(expense.getId());
+        if (expense) return this.expenseRepository.delete(expense.getId());
         throw new ExpenseNotFoundError(expenseId);
     }
 }

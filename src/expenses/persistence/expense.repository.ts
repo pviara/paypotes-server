@@ -3,6 +3,10 @@ import { GroupExpense } from '@expenses/domain/group-expense';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { setTimeout } from 'timers/promises';
 
+export type ExpensesByContact = {
+    [contactId: string]: Array<Expense>;
+};
+
 export interface ExpenseRepository {
     delete(expenseId: string): Promise<void>;
     getActorContactExpenseById(
@@ -40,6 +44,10 @@ export interface ExpenseRepository {
         actorId: string,
         contactId: string,
     ): Promise<PairExpense[]>;
+    getAllActorContactsExpenses(
+        actorId: string,
+        contactIds: Array<string>,
+    ): Promise<ExpensesByContact>;
     getAllActorExpenses(actorId: string): Promise<Expense[]>;
     getAllActorGroupExpenses(
         actorId: string,
@@ -144,6 +152,19 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         return this.expenses
             .filter(this.isPairExpense())
             .filter(this.isPairExpenseOf(actorId, contactId));
+    }
+
+    async getAllActorContactsExpenses(
+        actorId: string,
+        contactIds: Array<string>,
+    ): Promise<ExpensesByContact> {
+        const expensesByContact: ExpensesByContact = {};
+        for (const contactId of contactIds) {
+            expensesByContact[contactId] =
+                await this.getAllActorContactExpenses(actorId, contactId);
+        }
+
+        return expensesByContact;
     }
 
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {

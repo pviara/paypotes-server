@@ -1,5 +1,8 @@
 import { Expense } from '@expenses/domain/expense';
-import { ExpenseRepository } from '@expenses/persistence/expense.repository';
+import {
+    ExpenseRepository,
+    ExpensesByContact,
+} from '@expenses/persistence/expense.repository';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { Spy } from '@test/helpers/spy';
@@ -40,6 +43,10 @@ export class ExpenseRepositorySpy
         getAllActorContactExpenses: {
             count: 0,
             history: [] as Array<[string, string]>,
+        },
+        getAllActorContactsExpenses: {
+            count: 0,
+            history: [] as Array<[string, string[]]>,
         },
         getAllActorExpenses: {
             count: 0,
@@ -150,6 +157,18 @@ export class ExpenseRepositorySpy
             contactId,
         ]);
         return this.getStubOrDefault('getAllActorContactExpenses', []);
+    }
+
+    async getAllActorContactsExpenses(
+        actorId: string,
+        contactIds: Array<string>,
+    ): Promise<ExpensesByContact> {
+        this.calls.getAllActorContactsExpenses.count++;
+        this.calls.getAllActorContactsExpenses.history.push([
+            actorId,
+            contactIds,
+        ]);
+        return this.getStubOrDefault('getAllActorContactsExpenses', {});
     }
 
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {
