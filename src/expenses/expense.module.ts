@@ -5,7 +5,10 @@ import { ComputeActorContactBalanceHandler } from '@expenses/application/queries
 import { ComputeActorGroupBalanceHandler } from '@expenses/application/queries/compute-actor-group-balance.handler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ExpenseController } from '@expenses/presentation/expense.controller';
-import { expenseRepositoryProvider } from '@expenses/persistence/expense.repository-provider';
+import {
+    expenseRepositoryProvider,
+    expenseRepositoryToken,
+} from '@expenses/persistence/expense.repository-provider';
 import { GetActorContactExpenseByIdHandler } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
 import { GetActorContactExpensesHandler } from '@expenses/application/queries/get-actor-contact-expenses.handler';
 import { GetActorExpenseByIdHandler } from '@expenses/application/queries/get-actor-expense-by-id.handler';
@@ -20,6 +23,7 @@ import { UserModule } from '@users/user.module';
 @Module({
     controllers: [ExpenseController],
     imports: [CqrsModule, GroupModule, UserModule],
+    exports: [expenseRepositoryToken],
     providers: [
         AddGroupExpenseHandler,
         AddPairExpenseHandler,

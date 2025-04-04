@@ -1,3 +1,4 @@
+import { Contact } from '@contacts/domain/contact';
 import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
 
@@ -9,6 +10,14 @@ export class Stakeholder {
             lastname: string;
         },
     ) {}
+
+    static fromContact(contact: Contact): Stakeholder {
+        return new Stakeholder({
+            id: contact.getId(),
+            firstname: contact.getFirstname(),
+            lastname: contact.getLastname(),
+        });
+    }
 
     static fromMember(member: Member): Stakeholder {
         return new Stakeholder({

@@ -1,6 +1,6 @@
 import { Catch, ExceptionFilter, NotFoundException } from '@nestjs/common';
 import { ContactExpenseNotFoundError } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
-import { ContactNotFoundError } from '@contacts/application/get-actor-contact-by-id.handler';
+import { ContactNotFoundError } from '@app/contacts/application/get-actor-contact-with-balance-by-id.handler';
 import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-expense-by-id.handler';
 import { GroupExpenseNotFoundError } from '@expenses/application/queries/get-actor-group-expense-by-id.handler';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-by-id.handler';

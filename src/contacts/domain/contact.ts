@@ -1,6 +1,6 @@
 export class Contact {
     constructor(
-        private data: {
+        protected data: {
             id: string; // <=> userId
             firstname: string;
             lastname: string;
