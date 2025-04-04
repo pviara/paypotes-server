@@ -294,6 +294,97 @@ describe('ContactController', () => {
         });
     });
 
+    describe('GET /contacts/without-balance', () => {
+        describe('actor has no contact', () => {
+            it('should return an empty array', async () => {
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}/without-balance`,
+                );
+
+                expect(response.status).toBe(HttpStatus.OK);
+                expect(response.body.length).toBe(0);
+            });
+        });
+
+        describe('actor has contacts', () => {
+            let dummyContacts: Array<Contact>;
+
+            beforeEach(async () => {
+                dummyContacts = generateRandomContacts({ length: 40 });
+
+                const dummyRelationships = generateDefaultUserRelationships({
+                    contacts: dummyContacts,
+                });
+
+                await contactRepo.empty();
+                await contactRepo.insert(...dummyRelationships);
+            });
+
+            it('should return the first 20 contacts by default', async () => {
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}/without-balance`,
+                );
+
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheFirstTwentyContacts(dtos);
+            });
+
+            describe('page index has been given', () => {
+                it('should return the second 20 contacts when given index is 1', async () => {
+                    const response = await request(httpServer).get(
+                        `/${CONTACTS_API_ROUTE}/without-balance?pageIndex=1`,
+                    );
+
+                    const dtos = response.body;
+                    expect(dtos.length).toBe(20);
+                    expectReturnedDtosToBeTheSecondTwentyContacts(dtos);
+                });
+
+                function expectReturnedDtosToBeTheSecondTwentyContacts(
+                    dtos: Array<ContactWithBalanceDTO>,
+                ): void {
+                    const secondTwentyContacts = dummyContacts.slice(20, 40);
+                    const returnedDtosAreTheSecondTwentyContacts = dtos.every(
+                        dtoIsIn(secondTwentyContacts),
+                    );
+
+                    expect(returnedDtosAreTheSecondTwentyContacts).toBe(true);
+                }
+            });
+
+            describe('search has been given', () => {
+                it('should return the contacts that match the search', async () => {
+                    const targetContact = dummyContacts[0];
+                    const response = await request(httpServer).get(
+                        `/${CONTACTS_API_ROUTE}/without-balance?search=${targetContact.getFirstname()}`,
+                    );
+
+                    expect(response.body.length).toBe(1);
+                    expect(response.body[0].id).toBe(targetContact.getId());
+                });
+            });
+
+            function expectReturnedDtosToBeTheFirstTwentyContacts(
+                dtos: Array<ContactWithBalanceDTO>,
+            ): void {
+                const firstTwentyContacts = dummyContacts.slice(0, 20);
+                const returnedDtosAreTheFirstTwentyContacts = dtos.every(
+                    dtoIsIn(firstTwentyContacts),
+                );
+
+                expect(returnedDtosAreTheFirstTwentyContacts).toBe(true);
+            }
+
+            function dtoIsIn(
+                contacts: Array<Contact>,
+            ): (dto: ContactWithBalanceDTO) => boolean {
+                return (dto: ContactWithBalanceDTO) =>
+                    contacts.some((contact) => contact.getId() === dto.id);
+            }
+        });
+    });
+
     function convertCents(balance: number): number {
         return balance / 100;
     }

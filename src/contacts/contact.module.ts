@@ -3,6 +3,7 @@ import { contactRepositoryProvider } from '@contacts/persistence/contact.reposit
 import { CqrsModule } from '@nestjs/cqrs';
 import { ExpenseModule } from '@expenses/expense.module';
 import { GetActorContactWithBalanceByIdHandler } from '@app/contacts/application/get-actor-contact-with-balance-by-id.handler';
+import { GetActorContactsHandler } from '@contacts/application/get-actor-contacts.handler';
 import { GetActorContactsWithBalanceHandler } from '@app/contacts/application/get-actor-contacts-with-balance.handler';
 import { Module } from '@nestjs/common';
 
@@ -12,6 +13,7 @@ import { Module } from '@nestjs/common';
     providers: [
         contactRepositoryProvider,
         GetActorContactWithBalanceByIdHandler,
+        GetActorContactsHandler,
         GetActorContactsWithBalanceHandler,
     ],
 })
