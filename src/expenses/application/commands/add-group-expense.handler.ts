@@ -1,4 +1,4 @@
-import { GroupNotFoundError } from '@groups/application/get-actor-group-by-id.handler';
+import { GroupNotFoundError } from '@app/groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';

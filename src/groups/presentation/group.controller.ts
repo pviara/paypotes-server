@@ -12,7 +12,7 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { CreateGroupCommand } from '@groups/application/create-group.handler';
-import { GetActorGroupByIdQuery } from '@groups/application/get-actor-group-by-id.handler';
+import { GetActorGroupWithBalanceByIdQuery } from '@app/groups/application/get-actor-group-with-balance-by-id.handler';
 import { GetActorGroupsQuery } from '@groups/application/get-actor-groups.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
@@ -49,7 +49,10 @@ export class GroupController {
         @ActorId() actorId: string,
         @GroupId() groupId: string,
     ): Promise<GroupDTO> {
-        const query = new GetActorGroupByIdQuery({ actorId, groupId });
+        const query = new GetActorGroupWithBalanceByIdQuery({
+            actorId,
+            groupId,
+        });
         const group = await this.queryBus.execute(query);
         return GroupDTO.from(group);
     }

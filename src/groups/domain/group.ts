@@ -2,7 +2,7 @@ import { Member } from '@groups/domain/member';
 
 export class Group {
     constructor(
-        private data: {
+        protected data: {
             id: string;
             name: string;
             emoji: string;

@@ -1,7 +1,7 @@
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateGroupHandler } from '@groups/application/create-group.handler';
 import { GetActorGroupsHandler } from '@groups/application/get-actor-groups.handler';
-import { GetActorGroupByIdHandler } from '@groups/application/get-actor-group-by-id.handler';
+import { GetActorGroupWithBalanceByIdHandler } from '@app/groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupController } from '@groups/presentation/group.controller';
 import {
     groupRepositoryProvider,
@@ -17,7 +17,7 @@ import { UserModule } from '@users/user.module';
     providers: [
         CreateGroupHandler,
         GetActorGroupsHandler,
-        GetActorGroupByIdHandler,
+        GetActorGroupWithBalanceByIdHandler,
         groupRepositoryProvider,
     ],
 })
