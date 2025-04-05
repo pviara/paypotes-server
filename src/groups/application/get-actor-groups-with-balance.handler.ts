@@ -53,14 +53,14 @@ export class GetActorGroupsWithBalanceHandler
     private async getGroupIdsUsing(query: GetActorGroupsWithBalanceQuery) {
         const { actorId, pageIndex, search } = query.payload;
 
-        const contacts = await this.groupRepository.getActorGroups(
+        const groups = await this.groupRepository.getActorGroups(
             actorId,
             pageIndex,
             search,
         );
-        this.groups = contacts;
+        this.groups = groups;
 
-        return this.mapIdsFrom(contacts);
+        return this.mapIdsFrom(groups);
     }
 
     private mapIdsFrom(groups: Array<Group>): Array<string> {
