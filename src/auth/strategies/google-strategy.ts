@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type GoogleProfile = {
     email: string;
@@ -17,7 +17,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         configService: ConfigService,
 
         @Inject(userRepositoryToken)
-        private userRepo: UserRepository,
+        private userRepository: UserRepository,
     ) {
         super({
             clientID: configService.get('OAUTH_CLIENT', ''),
@@ -38,7 +38,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     }
 
     private async getOrCreateUserFrom(profile: GoogleProfile): Promise<User> {
-        const user = await this.userRepo.getByEmail(profile.email);
+        const user = await this.userRepository.getByEmail(profile.email);
         if (!user) {
             const userToAdd = new User({
                 id: crypto.randomUUID(),
@@ -47,7 +47,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
                 email: profile.email,
                 phone: '',
             });
-            await this.userRepo.create(userToAdd);
+            await this.userRepository.create(userToAdd);
             return this.getOrCreateUserFrom(profile);
         }
         return user;

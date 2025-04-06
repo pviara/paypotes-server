@@ -1,4 +1,6 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupModule } from '@groups/group.module';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
@@ -8,7 +10,7 @@ import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const groupSpecModules: Modules = [GroupModule];
 export const groupSpecProviders: OverridingProviders = [
@@ -19,6 +21,10 @@ export const groupSpecProviders: OverridingProviders = [
     {
         provide: groupRepositoryToken,
         useClass: GroupInMemoryTestingRepository,
+    },
+    {
+        provide: expenseRepositoryToken,
+        useClass: ExpenseInMemoryTestingRepository,
     },
 ];
 

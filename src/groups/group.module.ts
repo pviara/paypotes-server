@@ -1,24 +1,27 @@
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateGroupHandler } from '@groups/application/create-group.handler';
+import { ExpenseRepositoryModule } from '@expenses/persistence/expense.repository-module';
 import { GetActorGroupsHandler } from '@groups/application/get-actor-groups.handler';
-import { GetActorGroupByIdHandler } from '@groups/application/get-actor-group-by-id.handler';
+import { GetActorGroupsWithBalanceHandler } from '@groups/application/get-actor-groups-with-balance.handler';
+import { GetActorGroupWithBalanceByIdHandler } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupController } from '@groups/presentation/group.controller';
-import {
-    groupRepositoryProvider,
-    groupRepositoryToken,
-} from '@groups/persistence/group.repository-provider';
+import { GroupRepositoryModule } from '@groups/persistence/group.repository-module';
 import { Module } from '@nestjs/common';
-import { UserModule } from '@users/user.module';
+import { UserRepositoryModule } from '@users/persistence/user.repository-module';
 
 @Module({
     controllers: [GroupController],
-    exports: [groupRepositoryToken],
-    imports: [CqrsModule, UserModule],
+    imports: [
+        CqrsModule,
+        ExpenseRepositoryModule,
+        GroupRepositoryModule,
+        UserRepositoryModule,
+    ],
     providers: [
         CreateGroupHandler,
         GetActorGroupsHandler,
-        GetActorGroupByIdHandler,
-        groupRepositoryProvider,
+        GetActorGroupsWithBalanceHandler,
+        GetActorGroupWithBalanceByIdHandler,
     ],
 })
 export class GroupModule {}

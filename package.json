@@ -1,6 +1,6 @@
 {
     "name": "paypot-server",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "description": "",
     "author": "",
     "private": true,
@@ -14,14 +14,14 @@
         "start:prod": "node dist/main",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "jest --runInBand",
-        "test:watch": "yarn test -- --watch",
+        "test:watch": "yarn test --watch",
         "test:all": "yarn test; yarn test:e2e",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-        "test:e2e:watch": "yarn test:e2e -- --watchAll",
+        "test:e2e:watch": "yarn test:e2e --watchAll",
         "test:concurrency": "jest --config ./test/jest-concurrency.json",
-        "test:concurrency:watch": "yarn test:concurrency -- --watchAll"
+        "test:concurrency:watch": "yarn test:concurrency --watchAll"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.1",

@@ -1,5 +1,9 @@
 import { Expense } from '@expenses/domain/expense';
-import { ExpenseRepository } from '@expenses/persistence/expense.repository';
+import {
+    ExpenseRepository,
+    ExpensesByContact,
+    ExpensesByGroup,
+} from '@expenses/persistence/expense.repository';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { Spy } from '@test/helpers/spy';
@@ -41,6 +45,10 @@ export class ExpenseRepositorySpy
             count: 0,
             history: [] as Array<[string, string]>,
         },
+        getAllActorContactsExpenses: {
+            count: 0,
+            history: [] as Array<[string, string[]]>,
+        },
         getAllActorExpenses: {
             count: 0,
             history: [] as Array<string>,
@@ -48,6 +56,10 @@ export class ExpenseRepositorySpy
         getAllActorGroupExpenses: {
             count: 0,
             history: [] as Array<[string, string]>,
+        },
+        getAllActorGroupsExpenses: {
+            count: 0,
+            history: [] as Array<[string, string[]]>,
         },
         save: {
             count: 0,
@@ -152,6 +164,18 @@ export class ExpenseRepositorySpy
         return this.getStubOrDefault('getAllActorContactExpenses', []);
     }
 
+    async getAllActorContactsExpenses(
+        actorId: string,
+        contactIds: Array<string>,
+    ): Promise<ExpensesByContact> {
+        this.calls.getAllActorContactsExpenses.count++;
+        this.calls.getAllActorContactsExpenses.history.push([
+            actorId,
+            contactIds,
+        ]);
+        return this.getStubOrDefault('getAllActorContactsExpenses', {});
+    }
+
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {
         this.calls.getAllActorExpenses.count++;
         this.calls.getAllActorExpenses.history.push(actorId);
@@ -165,6 +189,15 @@ export class ExpenseRepositorySpy
         this.calls.getAllActorGroupExpenses.count++;
         this.calls.getAllActorGroupExpenses.history.push([actorId, groupId]);
         return this.getStubOrDefault('getAllActorGroupExpenses', []);
+    }
+
+    async getAllActorGroupsExpenses(
+        actorId: string,
+        groupIds: Array<string>,
+    ): Promise<ExpensesByGroup> {
+        this.calls.getAllActorGroupsExpenses.count++;
+        this.calls.getAllActorGroupsExpenses.history.push([actorId, groupIds]);
+        return this.getStubOrDefault('getAllActorGroupsExpenses', {});
     }
 
     async save(expense: Expense): Promise<void> {

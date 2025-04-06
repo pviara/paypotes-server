@@ -1,4 +1,4 @@
-import { userRepositoryToken } from '@app/users/persistence/user-repository.provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { User } from '@users/domain/user';

@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { convertCents, raw, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -28,7 +29,6 @@ import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { raw, shutdown } from '@test/helpers/utils';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
@@ -204,10 +204,6 @@ describe('ExpenseController', () => {
                     return balance + actorBalance;
                 };
             }
-
-            function convertCents(balance: number): number {
-                return balance / 100;
-            }
         });
     });
 
@@ -335,81 +331,6 @@ describe('ExpenseController', () => {
         });
     });
 
-    describe('GET /expenses/contact/:contactId/balance', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given contactId "%s" is not a valid uuid',
-            async (contactId: unknown) => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/contact/${contactId}/balance`,
-                );
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor has no expense with contact', () => {
-            it('should return default balance "0,00"', async () => {
-                const validContactId = crypto.randomUUID();
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/contact/${validContactId}/balance`,
-                );
-
-                expect(response.text).toBe('0,00');
-            });
-        });
-
-        describe('actor has expenses with contact', () => {
-            let dummyContactExpenses: Array<PairExpense>;
-            let dummyContact = generateRandomStakeholder();
-
-            beforeEach(async () => {
-                dummyContactExpenses = generateDefaultUserPairExpenses({
-                    length: 40,
-                    counterparty: dummyContact,
-                });
-                await expenseRepo.empty();
-                await expenseRepo.insert(...dummyContactExpenses);
-            });
-
-            it('should return the right balance', async () => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}/balance`,
-                );
-
-                const balance = computeActorDummyContactBalance();
-                const expected = `${convertCents(balance)}`.replace('.', ',');
-
-                expect(response.text).toBe(expected);
-            });
-
-            function computeActorDummyContactBalance(): number {
-                return dummyContactExpenses.reduce(
-                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
-                    0,
-                );
-            }
-
-            function computeExpenseBalanceFor(
-                actorId: string,
-            ): (balance: number, expense: PairExpense) => number {
-                return (balance, expense) => {
-                    const expenseBalance = expense.getRawBalance();
-                    const actorBalance = expense.hasCreditor(actorId)
-                        ? expenseBalance
-                        : -expenseBalance;
-
-                    return balance + actorBalance;
-                };
-            }
-
-            function convertCents(balance: number): number {
-                return balance / 100;
-            }
-        });
-    });
-
     describe('GET /expenses/contact/:contactId/expense/:expenseId', () => {
         const invalidIds = ['id', null, 59391, NaN, undefined];
 
@@ -454,178 +375,6 @@ describe('ExpenseController', () => {
         });
     });
 
-    describe('GET /expenses/contact/:contactId', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given contactId "%s" is not a valid uuid',
-            async (contactId: unknown) => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/contact/${contactId}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor has no expense with contact', () => {
-            it('should return an empty array', async () => {
-                const validContactId = crypto.randomUUID();
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/contact/${validContactId}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.OK);
-                expect(response.body.length).toBe(0);
-            });
-        });
-
-        describe('actor has expenses with contact', () => {
-            let dummyContactExpenses: Array<PairExpense>;
-            let dummyContact = generateRandomStakeholder();
-
-            beforeEach(async () => {
-                dummyContactExpenses = generateDefaultUserPairExpenses({
-                    length: 40,
-                    counterparty: dummyContact,
-                });
-                await expenseRepo.empty();
-                await expenseRepo.insert(...dummyContactExpenses);
-            });
-
-            it('should return the first 20 contact expenses by default', async () => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}`,
-                );
-
-                const dtos = response.body;
-                expect(dtos.length).toBe(20);
-                expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
-            });
-
-            describe('page index has been given', () => {
-                it('should return the second 20 expenses when given index is 1', async () => {
-                    const response = await request(httpServer).get(
-                        `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}?pageIndex=1`,
-                    );
-
-                    const dtos = response.body;
-                    expect(dtos.length).toBe(20);
-                    expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
-                });
-            });
-
-            describe('search has been given', () => {
-                it('should return the contact expenses that match the search', async () => {
-                    const targetExpense = dummyContactExpenses[0];
-                    const response = await request(httpServer).get(
-                        `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}?search=${targetExpense.getLabel()}`,
-                    );
-
-                    expect(response.body.length).toBe(1);
-                    expect(response.body[0].id).toBe(targetExpense.getId());
-                });
-            });
-
-            function expectReturnedDtosToBeTheFirstTwentyExpenses(
-                dtos: Array<PairExpenseDTO>,
-            ): void {
-                const firstTwentyExpenses = dummyContactExpenses.slice(0, 20);
-                const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
-                    dtoIsIn(firstTwentyExpenses),
-                );
-
-                expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
-            }
-
-            function expectReturnedDtosToBeTheSecondTwentyExpenses(
-                dtos: Array<PairExpenseDTO>,
-            ): void {
-                const secondTwentyExpenses = dummyContactExpenses.slice(20, 40);
-                const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
-                    dtoIsIn(secondTwentyExpenses),
-                );
-
-                expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
-            }
-        });
-    });
-
-    describe('GET /expenses/group/:groupId/balance', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given groupId "%s" is not a valid uuid',
-            async (groupId: unknown) => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/group/${groupId}/balance`,
-                );
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor has no expense with group', () => {
-            it('should return default balance "0,00"', async () => {
-                const validGroupId = crypto.randomUUID();
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/group/${validGroupId}/balance`,
-                );
-
-                expect(response.text).toBe('0,00');
-            });
-        });
-
-        describe('actor has expenses with group', () => {
-            let dummyGroupExpenses: Array<GroupExpense>;
-            let dummyGroup = generateDefaultUserRandomGroup();
-
-            beforeEach(async () => {
-                dummyGroupExpenses = generateDefaultUserGroupExpenses({
-                    length: 40,
-                    group: dummyGroup,
-                });
-                await expenseRepo.empty();
-                await expenseRepo.insert(...dummyGroupExpenses);
-            });
-
-            it('should return the right balance', async () => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/balance`,
-                );
-
-                const balance = computeActorDummyGroupBalance();
-                const expected = `${convertCents(balance)}`.replace('.', ',');
-
-                expect(response.text).toBe(expected);
-            });
-
-            function computeActorDummyGroupBalance(): number {
-                return dummyGroupExpenses.reduce(
-                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
-                    0,
-                );
-            }
-
-            function computeExpenseBalanceFor(
-                actorId: string,
-            ): (balance: number, expense: GroupExpense) => number {
-                return (balance, expense) => {
-                    const expenseBalance = expense.getRawBalance();
-                    const actorBalance = expense.hasCreditor(actorId)
-                        ? expenseBalance
-                        : -expenseBalance;
-
-                    return balance + actorBalance;
-                };
-            }
-
-            function convertCents(balance: number): number {
-                return balance / 100;
-            }
-        });
-    });
-
     describe('GET /expenses/group/:groupId/expense/:expenseId', () => {
         const invalidIds = ['id', null, 59391, NaN, undefined];
 
@@ -665,103 +414,6 @@ describe('ExpenseController', () => {
             expect(response.body).toStrictEqual(
                 raw(GroupExpenseDTO.from(dummyExpense)),
             );
-        });
-    });
-
-    describe('GET /expenses/group/:groupId', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given groupId "%s" is not a valid uuid',
-            async (groupId: unknown) => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/group/${groupId}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor has no expense with group', () => {
-            it('should return an empty array', async () => {
-                const validGroupId = crypto.randomUUID();
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/group/${validGroupId}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.OK);
-                expect(response.body.length).toBe(0);
-            });
-        });
-
-        describe('actor has expenses with group', () => {
-            let dummyGroupExpenses: Array<GroupExpense>;
-            let dummyGroup = generateDefaultUserRandomGroup();
-
-            beforeEach(async () => {
-                dummyGroupExpenses = generateDefaultUserGroupExpenses({
-                    length: 40,
-                    group: dummyGroup,
-                });
-                await expenseRepo.empty();
-                await expenseRepo.insert(...dummyGroupExpenses);
-            });
-
-            it('should return the first 20 group expenses by default', async () => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
-                );
-
-                const dtos = response.body;
-                expect(dtos.length).toBe(20);
-                expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
-            });
-
-            describe('page index has been given', () => {
-                it('should return the second 20 expenses when given index is 1', async () => {
-                    const response = await request(httpServer).get(
-                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?pageIndex=1`,
-                    );
-
-                    const dtos = response.body;
-                    expect(dtos.length).toBe(20);
-                    expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
-                });
-            });
-
-            describe('search has been given', () => {
-                it('should return the group expenses that match the search', async () => {
-                    const targetExpense = dummyGroupExpenses[0];
-                    const response = await request(httpServer).get(
-                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?search=${targetExpense.getLabel()}`,
-                    );
-
-                    expect(response.body.length).toBe(1);
-                    expect(response.body[0].id).toBe(targetExpense.getId());
-                });
-            });
-
-            function expectReturnedDtosToBeTheFirstTwentyExpenses(
-                dtos: Array<GroupExpenseDTO>,
-            ): void {
-                const firstTwentyExpenses = dummyGroupExpenses.slice(0, 20);
-                const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
-                    dtoIsIn(firstTwentyExpenses),
-                );
-
-                expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
-            }
-
-            function expectReturnedDtosToBeTheSecondTwentyExpenses(
-                dtos: Array<GroupExpenseDTO>,
-            ): void {
-                const secondTwentyExpenses = dummyGroupExpenses.slice(20, 40);
-                const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
-                    dtoIsIn(secondTwentyExpenses),
-                );
-
-                expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
-            }
         });
     });
 

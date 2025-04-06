@@ -4,7 +4,7 @@ import { GoogleStrategy } from '@auth/strategies/google-strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { UserModule } from '@users/user.module';
+import { UserRepositoryModule } from '@users/persistence/user.repository-module';
 
 @Module({
     controllers: [AuthController],
@@ -20,7 +20,7 @@ import { UserModule } from '@users/user.module';
             },
         }),
         PassportModule,
-        UserModule,
+        UserRepositoryModule,
     ],
     providers: [GoogleStrategy],
 })
