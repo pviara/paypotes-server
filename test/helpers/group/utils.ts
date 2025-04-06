@@ -1,4 +1,6 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupModule } from '@groups/group.module';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
@@ -19,6 +21,10 @@ export const groupSpecProviders: OverridingProviders = [
     {
         provide: groupRepositoryToken,
         useClass: GroupInMemoryTestingRepository,
+    },
+    {
+        provide: expenseRepositoryToken,
+        useClass: ExpenseInMemoryTestingRepository,
     },
 ];
 

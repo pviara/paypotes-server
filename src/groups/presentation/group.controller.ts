@@ -16,8 +16,7 @@ import { GetActorGroupWithBalanceByIdQuery } from '@groups/application/get-actor
 import { GetActorGroupsWithBalanceQuery } from '@groups/application/get-actor-groups-with-balance.handler';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
-import { Member } from '@groups/domain/member';
-import { MemberDTO } from '@groups/presentation/dto/member.dto';
+import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 
@@ -45,16 +44,16 @@ export class GroupController {
     }
 
     @Get(':id')
-    async getActorGroupById(
+    async getActorGroupWithBalanceById(
         @ActorId() actorId: string,
         @GroupId() groupId: string,
-    ): Promise<GroupDTO> {
+    ): Promise<GroupWithBalanceDTO> {
         const query = new GetActorGroupWithBalanceByIdQuery({
             actorId,
             groupId,
         });
         const group = await this.queryBus.execute(query);
-        return GroupDTO.from(group);
+        return GroupWithBalanceDTO.from(group);
     }
 
     @Get()

@@ -1,25 +1,30 @@
 import { App } from 'supertest/types';
-import { mapIdsFrom, raw, shutdown } from '@test/helpers/utils';
-import { Group } from '@groups/domain/group';
-import { GroupDTO } from '@groups/presentation/dto/group.dto';
+import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     generateDefaultUserRandomGroup,
     generateDefaultUserRandomGroups,
     groupSpecModules as modules,
     groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
+import { generateDefaultUserGroupExpenses } from '@test/helpers/expense/utils';
 import { generateRandomUsers } from '@test/helpers/user/utils';
+import { Group } from '@groups/domain/group';
+import { GroupDTO } from '@groups/presentation/dto/group.dto';
+import { GroupExpense } from '@app/expenses/domain/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
 
     let groupRepo: GroupInMemoryTestingRepository;
+    let expenseRepo: ExpenseInMemoryTestingRepository;
     let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
 
@@ -27,6 +32,7 @@ describe('GroupController', () => {
         await runner.bootstrap();
 
         groupRepo = runner.getRepository('group');
+        expenseRepo = runner.getRepository('expense');
         userRepo = runner.getRepository('user');
         httpServer = runner.getHttpServer();
     });
@@ -123,8 +129,14 @@ describe('GroupController', () => {
     });
 
     describe('GET /groups/:id', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
+        let dummyGroup: Group;
 
+        beforeEach(async () => {
+            dummyGroup = generateDefaultUserRandomGroup();
+            await groupRepo.insert(dummyGroup);
+        });
+
+        const invalidIds = ['id', null, 59391, NaN, undefined];
         it.each(invalidIds)(
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
             async (id: unknown) => {
@@ -136,15 +148,76 @@ describe('GroupController', () => {
             },
         );
 
-        it('should return the right group for given id', async () => {
-            const dummyGroup = generateDefaultUserRandomGroup();
-            await groupRepo.insert(dummyGroup);
+        // // it('should return the right group for given id', async () => {
+        // //     const dummyGroup = generateDefaultUserRandomGroup();
+        // //     await groupRepo.insert(dummyGroup);
 
-            const response = await request(httpServer).get(
-                `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
-            );
+        // //     const response = await request(httpServer).get(
+        // //         `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
+        // //     );
 
-            expect(response.body).toStrictEqual(raw(GroupDTO.from(dummyGroup)));
+        // //     expect(response.body).toStrictEqual(raw(GroupDTO.from(dummyGroup)));
+        // // });
+
+        describe('actor has no expense in group', () => {
+            it('should return default balance "0,00"', async () => {
+                const response = await request(httpServer).get(
+                    `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
+                );
+
+                expect(response.body.id).toBe(dummyGroup.getId());
+                expect(response.body.name).toBe(dummyGroup.getName());
+                expect(response.body.emoji).toBe(dummyGroup.getEmoji());
+                expect(response.body.balance).toBe('0,00');
+            });
+        });
+
+        describe('actor has expenses in group', () => {
+            let dummyGroupExpenses: Array<GroupExpense>;
+
+            beforeEach(async () => {
+                dummyGroupExpenses = generateDefaultUserGroupExpenses({
+                    length: 10,
+                    group: dummyGroup,
+                });
+                await expenseRepo.empty();
+                await expenseRepo.insert(...dummyGroupExpenses);
+            });
+
+            it('should return the right balance', async () => {
+                const response = await request(httpServer).get(
+                    `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
+                );
+
+                const balance = computeActorDummyGroupBalance();
+                const expected = `${convertCents(balance)}`.replace('.', ',');
+
+                expect(response.body.balance).toBe(expected);
+            });
+
+            function computeActorDummyGroupBalance(): number {
+                return dummyGroupExpenses.reduce(
+                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
+                    0,
+                );
+            }
+
+            function computeExpenseBalanceFor(
+                actorId: string,
+            ): (balance: number, expense: GroupExpense) => number {
+                return (balance, expense) => {
+                    const expenseBalance = expense.getRawBalance();
+                    const actorBalance = expense.hasCreditor(actorId)
+                        ? expenseBalance
+                        : -expenseBalance;
+
+                    return balance + actorBalance;
+                };
+            }
+
+            function convertCents(balance: number): number {
+                return balance / 100;
+            }
         });
     });
 
