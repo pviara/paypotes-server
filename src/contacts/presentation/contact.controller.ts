@@ -3,9 +3,9 @@ import { AuthGuard } from '@auth/auth-guard.decorator';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
-import { GetActorContactWithBalanceByIdQuery } from '@contacts/application/get-actor-contact-with-balance-by-id.handler';
 import { GetActorContactsQuery } from '@contacts/application/get-actor-contacts.handler';
 import { GetActorContactsWithBalanceQuery } from '@contacts/application/get-actor-contacts-with-balance.handler';
+import { GetActorContactWithBalanceByIdQuery } from '@contacts/application/get-actor-contact-with-balance-by-id.handler';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { QueryBus } from '@nestjs/cqrs';
 import { Search } from '@app/shared/decorators/search.query-decorator';
@@ -64,13 +64,13 @@ export class ContactController {
         return this.mapContactWithBalanceDTOsFrom(contacts);
     }
 
+    private mapContactDTOsFrom(contacts: Array<Contact>): Array<ContactDTO> {
+        return contacts.map((contact) => ContactDTO.from(contact));
+    }
+
     private mapContactWithBalanceDTOsFrom(
         contacts: Array<ContactWithBalance>,
     ): Array<ContactWithBalanceDTO> {
         return contacts.map((contact) => ContactWithBalanceDTO.from(contact));
-    }
-
-    private mapContactDTOsFrom(contacts: Array<Contact>): Array<ContactDTO> {
-        return contacts.map((contact) => ContactDTO.from(contact));
     }
 }

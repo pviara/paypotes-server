@@ -12,8 +12,10 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { CreateGroupCommand } from '@groups/application/create-group.handler';
-import { GetActorGroupWithBalanceByIdQuery } from '@groups/application/get-actor-group-with-balance-by-id.handler';
+import { GetActorGroupsQuery } from '@groups/application/get-actor-groups.handler';
 import { GetActorGroupsWithBalanceQuery } from '@groups/application/get-actor-groups-with-balance.handler';
+import { GetActorGroupWithBalanceByIdQuery } from '@groups/application/get-actor-group-with-balance-by-id.handler';
+import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import { GroupWithBalance } from '@groups/domain/group-with-balance';
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
@@ -43,6 +45,21 @@ export class GroupController {
         return this.commandBus.execute(command);
     }
 
+    @Get('without-balance')
+    async getActorGroups(
+        @ActorId() actorId: string,
+        @PageIndex() pageIndex: number,
+        @Search() search: string,
+    ): Promise<GroupDTO[]> {
+        const query = new GetActorGroupsQuery({
+            actorId,
+            pageIndex,
+            search,
+        });
+        const groups = await this.queryBus.execute(query);
+        return this.mapGroupDTOsFrom(groups);
+    }
+
     @Get(':id')
     async getActorGroupWithBalanceById(
         @ActorId() actorId: string,
@@ -68,10 +85,14 @@ export class GroupController {
             search,
         });
         const groups = await this.queryBus.execute(query);
-        return this.mapDTOsFrom(groups);
+        return this.mapGroupWithBalanceDTOsFrom(groups);
     }
 
-    private mapDTOsFrom(
+    private mapGroupDTOsFrom(groups: Array<Group>): Array<GroupDTO> {
+        return groups.map((group) => GroupDTO.from(group));
+    }
+
+    private mapGroupWithBalanceDTOsFrom(
         groups: Array<GroupWithBalance>,
     ): Array<GroupWithBalanceDTO> {
         return groups.map((group) => GroupWithBalanceDTO.from(group));

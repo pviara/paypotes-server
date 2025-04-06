@@ -289,6 +289,95 @@ describe('GroupController', () => {
         });
     });
 
+    describe('GET /groups/without-balance', () => {
+        describe('actor has no group', () => {
+            it('should return an empty array', async () => {
+                const response = await request(httpServer).get(
+                    `/${GROUPS_API_ROUTE}/without-balance`,
+                );
+
+                expect(response.status).toBe(HttpStatus.OK);
+                expect(response.body.length).toBe(0);
+            });
+        });
+
+        describe('actor has groups', () => {
+            let dummyGroups: Array<Group>;
+
+            beforeEach(() => {
+                dummyGroups = generateDefaultUserRandomGroups({
+                    length: 40,
+                });
+
+                groupRepo.empty();
+                groupRepo.insert(...dummyGroups);
+            });
+
+            it('should return the first 20 groups by default', async () => {
+                const response = await request(httpServer).get(
+                    `/${GROUPS_API_ROUTE}/without-balance`,
+                );
+
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheFirstTwentyGroups(dtos);
+            });
+
+            describe('page index has been given', () => {
+                it('should return the second 20 groups when given index is 1', async () => {
+                    const response = await request(httpServer).get(
+                        `/${GROUPS_API_ROUTE}/without-balance?pageIndex=1`,
+                    );
+
+                    const dtos = response.body;
+                    expect(dtos.length).toBe(20);
+                    expectReturnedDtosToBeTheSecondTwentyGroups(dtos);
+                });
+
+                function expectReturnedDtosToBeTheSecondTwentyGroups(
+                    dtos: Array<GroupDTO>,
+                ): void {
+                    const secondTwentyGroups = dummyGroups.slice(20, 40);
+                    const returnedDtosAreTheSecondTwentyGroups = dtos.every(
+                        dtoIsIn(secondTwentyGroups),
+                    );
+
+                    expect(returnedDtosAreTheSecondTwentyGroups).toBe(true);
+                }
+            });
+
+            describe('search has been given', () => {
+                it('should return the groups that match the search', async () => {
+                    const targetGroup = dummyGroups[0];
+                    const search = targetGroup.getName();
+
+                    const response = await request(httpServer).get(
+                        `/${GROUPS_API_ROUTE}/without-balance?search=${search}`,
+                    );
+
+                    expect(response.body.length).toBe(1);
+                    expect(response.body[0].id).toBe(targetGroup.getId());
+                });
+            });
+
+            function expectReturnedDtosToBeTheFirstTwentyGroups(
+                dtos: Array<GroupDTO>,
+            ): void {
+                const firstTwentyGroups = dummyGroups.slice(0, 20);
+                const returnedDtosAreTheFirstTwentyGroups = dtos.every(
+                    dtoIsIn(firstTwentyGroups),
+                );
+
+                expect(returnedDtosAreTheFirstTwentyGroups).toBe(true);
+            }
+
+            function dtoIsIn(groups: Array<Group>): (dto: GroupDTO) => boolean {
+                return (dto: GroupDTO) =>
+                    groups.some((group) => group.getId() === dto.id);
+            }
+        });
+    });
+
     describe('POST /groups', () => {
         const dummyGroupMembers = generateRandomUsers();
         const invalidPayloads: NonNullable<unknown>[] = [
