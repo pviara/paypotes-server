@@ -17,7 +17,7 @@ import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testin
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type ApplicationRunnerResources = {
     modules: Modules;

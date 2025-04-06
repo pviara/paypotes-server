@@ -6,7 +6,7 @@ import { Inject } from '@nestjs/common';
 import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export class CreateGroupCommand implements ICommand {
     constructor(

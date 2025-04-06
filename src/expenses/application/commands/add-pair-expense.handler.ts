@@ -7,7 +7,7 @@ import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export class AddPairExpenseCommand implements ICommand {
     constructor(

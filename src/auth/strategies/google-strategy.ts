@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type GoogleProfile = {
     email: string;

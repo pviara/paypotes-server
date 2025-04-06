@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user-repository.provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export class GetUserByPhoneQuery implements IQuery {
     constructor(
