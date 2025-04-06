@@ -14,8 +14,8 @@ import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { CreateGroupCommand } from '@groups/application/create-group.handler';
 import { GetActorGroupWithBalanceByIdQuery } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GetActorGroupsWithBalanceQuery } from '@groups/application/get-actor-groups-with-balance.handler';
-import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
+import { GroupWithBalance } from '@groups/domain/group-with-balance';
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { Search } from '@app/shared/decorators/search.query-decorator';
@@ -57,7 +57,7 @@ export class GroupController {
     }
 
     @Get()
-    async getActorGroups(
+    async getActorGroupsWithBalance(
         @ActorId() actorId: string,
         @PageIndex() pageIndex: number,
         @Search() search: string,
@@ -71,7 +71,9 @@ export class GroupController {
         return this.mapDTOsFrom(groups);
     }
 
-    private mapDTOsFrom(groups: Array<Group>): Array<GroupDTO> {
-        return groups.map((group) => GroupDTO.from(group));
+    private mapDTOsFrom(
+        groups: Array<GroupWithBalance>,
+    ): Array<GroupWithBalanceDTO> {
+        return groups.map((group) => GroupWithBalanceDTO.from(group));
     }
 }

@@ -1,4 +1,6 @@
 import { App } from 'supertest/types';
+import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     generateDefaultUserRandomGroup,
@@ -6,19 +8,23 @@ import {
     groupSpecModules as modules,
     groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
-import { generateDefaultUserGroupExpenses } from '@test/helpers/expense/utils';
+import {
+    generateDefaultUserGroupExpenses,
+    generateRandomMetadata,
+    generateRandomStakeholder,
+} from '@test/helpers/expense/utils';
 import { generateRandomUsers } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
-import { GroupExpense } from '@app/expenses/domain/group-expense';
+import { GroupExpense, GroupPayment } from '@app/expenses/domain/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { mapIdsFrom, shutdown } from '@test/helpers/utils';
+import { Stakeholder } from '@expenses/domain/stakeholder';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -40,7 +46,7 @@ describe('GroupController', () => {
     afterEach(shutdown(runner));
 
     describe('GET /groups', () => {
-        describe('no group exists', () => {
+        describe('actor has no groups', () => {
             it('should return an empty array', async () => {
                 const response = await request(httpServer).get(
                     `/${GROUPS_API_ROUTE}`,
@@ -51,7 +57,7 @@ describe('GroupController', () => {
             });
         });
 
-        describe('some groups exist', () => {
+        describe('actor has groups', () => {
             let dummyGroups: Array<Group>;
 
             beforeEach(() => {
@@ -110,6 +116,83 @@ describe('GroupController', () => {
                 });
             });
 
+            describe('actor has only groups with no expense', () => {
+                it('should return the groups with default zero balance', async () => {
+                    const response = await request(httpServer).get(
+                        `/${GROUPS_API_ROUTE}`,
+                    );
+
+                    const dtos = response.body;
+                    expectAllReturnedDtosToHaveDefaultZeroBalance(dtos);
+                });
+
+                function expectAllReturnedDtosToHaveDefaultZeroBalance(
+                    dtos: Array<GroupWithBalanceDTO>,
+                ): void {
+                    dtos.forEach((dto) => expect(dto.balance).toBe('0,00'));
+                }
+            });
+
+            describe('actor has groups with expenses', () => {
+                beforeEach(async () => {
+                    const expenses = dummyGroups.flatMap((group) => {
+                        return [
+                            createRandomCreditExpenseFor(group, 894),
+                            createRandomDebitExpenseFor(group, 145),
+                            createRandomDebitExpenseFor(group, 311),
+                            createRandomCreditExpenseFor(group, 28),
+                        ];
+                    });
+
+                    await expenseRepo.empty();
+                    await expenseRepo.insert(...expenses);
+                });
+
+                it('should return the groups with the right balance', async () => {
+                    const response = await request(httpServer).get(
+                        `/${GROUPS_API_ROUTE}`,
+                    );
+
+                    const dtos = response.body;
+                    expectAllReturnedDtosToHaveRightBalance(dtos);
+                });
+
+                function createRandomCreditExpenseFor(
+                    group: Group,
+                    balance: number,
+                ): GroupExpense {
+                    const metadata = generateRandomMetadata();
+                    const payment: GroupPayment = {
+                        balance,
+                        creditor: Stakeholder.fromUser(DEFAULT_USER),
+                    };
+                    return new GroupExpense(metadata, group, payment);
+                }
+
+                function createRandomDebitExpenseFor(
+                    group: Group,
+                    balance: number,
+                ): GroupExpense {
+                    const metadata = generateRandomMetadata();
+                    const payment: GroupPayment = {
+                        balance,
+                        creditor: generateRandomStakeholder(),
+                    };
+                    return new GroupExpense(metadata, group, payment);
+                }
+
+                function expectAllReturnedDtosToHaveRightBalance(
+                    dtos: Array<GroupWithBalanceDTO>,
+                ): void {
+                    const balance = 894 - 145 - 311 + 28;
+                    const expected = `${convertCents(balance)}`.replace(
+                        '.',
+                        ',',
+                    );
+                    dtos.forEach((dto) => expect(dto.balance).toBe(expected));
+                }
+            });
+
             function expectReturnedDtosToBeTheFirstTwentyGroups(
                 dtos: Array<GroupDTO>,
             ): void {
@@ -147,17 +230,6 @@ describe('GroupController', () => {
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
             },
         );
-
-        // // it('should return the right group for given id', async () => {
-        // //     const dummyGroup = generateDefaultUserRandomGroup();
-        // //     await groupRepo.insert(dummyGroup);
-
-        // //     const response = await request(httpServer).get(
-        // //         `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
-        // //     );
-
-        // //     expect(response.body).toStrictEqual(raw(GroupDTO.from(dummyGroup)));
-        // // });
 
         describe('actor has no expense in group', () => {
             it('should return default balance "0,00"', async () => {
@@ -213,10 +285,6 @@ describe('GroupController', () => {
 
                     return balance + actorBalance;
                 };
-            }
-
-            function convertCents(balance: number): number {
-                return balance / 100;
             }
         });
     });

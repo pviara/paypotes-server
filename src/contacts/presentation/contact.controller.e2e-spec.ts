@@ -10,6 +10,7 @@ import {
     generateRandomContacts,
 } from '@test/helpers/contact/utils';
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
+import { convertCents, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
@@ -19,7 +20,6 @@ import {
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
-import { shutdown } from '@test/helpers/utils';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import * as request from 'supertest';
 
@@ -114,7 +114,7 @@ describe('ContactController', () => {
             describe('actor has only contacts with no expense', () => {
                 it('should return the contacts with default zero balance', async () => {
                     const response = await request(httpServer).get(
-                        `/${CONTACTS_API_ROUTE}?pageIndex=1`,
+                        `/${CONTACTS_API_ROUTE}`,
                     );
 
                     const dtos = response.body;
@@ -146,7 +146,7 @@ describe('ContactController', () => {
 
                 it('should return the contacts with the right balance', async () => {
                     const response = await request(httpServer).get(
-                        `/${CONTACTS_API_ROUTE}?pageIndex=1`,
+                        `/${CONTACTS_API_ROUTE}`,
                     );
 
                     const dtos = response.body;
@@ -384,8 +384,4 @@ describe('ContactController', () => {
             }
         });
     });
-
-    function convertCents(balance: number): number {
-        return balance / 100;
-    }
 });

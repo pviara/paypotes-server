@@ -24,3 +24,7 @@ export const mapIdsFrom = (
 export const raw = (obj: unknown): unknown => {
     return JSON.parse(JSON.stringify(obj));
 };
+
+export const convertCents = (balance: number): number => {
+    return balance / 100;
+};

@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { convertCents, raw, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -28,7 +29,6 @@ import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { raw, shutdown } from '@test/helpers/utils';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
@@ -203,10 +203,6 @@ describe('ExpenseController', () => {
 
                     return balance + actorBalance;
                 };
-            }
-
-            function convertCents(balance: number): number {
-                return balance / 100;
             }
         });
     });
@@ -543,10 +539,6 @@ describe('ExpenseController', () => {
 
                     return balance + actorBalance;
                 };
-            }
-
-            function convertCents(balance: number): number {
-                return balance / 100;
             }
         });
     });
