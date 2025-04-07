@@ -25,8 +25,7 @@ export class GroupRepositorySpy
         actorId: string,
         groupId: string,
     ): Promise<Group | null> {
-        this.calls.getActorGroupById.count++;
-        this.calls.getActorGroupById.history.push([actorId, groupId]);
+        this.saveCall('getActorGroupById', [actorId, groupId]);
         return this.getStubOrDefault('getActorGroupById', null);
     }
 
@@ -35,14 +34,12 @@ export class GroupRepositorySpy
         pageIndex: number,
         search: string,
     ): Promise<Group[]> {
-        this.calls.getActorGroups.count++;
-        this.calls.getActorGroups.history.push([actorId, pageIndex, search]);
+        this.saveCall('getActorGroups', [actorId, pageIndex, search]);
         return this.getStubOrDefault('getActorGroups', []);
     }
 
     async save(group: Group): Promise<void> {
-        this.calls.save.count++;
-        this.calls.save.history.push(group);
+        this.saveCall('save', group);
         return this.getStubOrDefault('save', undefined);
     }
 }

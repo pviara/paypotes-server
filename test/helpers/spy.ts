@@ -5,10 +5,10 @@ type Stubs<T> = {
 };
 
 type Calls<T> = {
-    [K in keyof T]: Partial<{
+    [K in keyof T]: {
         count: number;
         history: unknown[];
-    }>;
+    };
 };
 
 type Throws<T> = Partial<{
@@ -18,13 +18,13 @@ type Throws<T> = Partial<{
     };
 }>;
 
-export class Spy<T> {
+export class Spy<T, K extends keyof T = keyof T> {
     private EMPTY_ERROR_MESSAGE = '';
 
     private stubs = {} as Stubs<T>;
     private throwingMethods: Throws<T> = {};
 
-    protected calls!: Calls<T>;
+    protected calls = {} as Calls<T>;
 
     makeThrow<K extends keyof T>(
         method: K,
@@ -48,10 +48,21 @@ export class Spy<T> {
         return typeof stub === 'boolean' ? stub : stub || value;
     }
 
+    protected saveCall(method: K, history: unknown): void {
+        const calls = this.calls[method] ?? {};
+
+        calls.count = (calls.count ?? 0) + 1;
+
+        calls.history ??= [];
+        calls.history.push(history);
+
+        this.calls[method] = calls;
+    }
+
     private throwErrorIfThrowing<K extends keyof T>(method: K): void {
         if (this.throws(method)) {
             const throwingMethod = this.throwingMethods[method];
-            if (throwingMethod?.error) throw throwingMethod?.error;
+            if (throwingMethod?.error) throw throwingMethod.error;
             throw new Error(throwingMethod?.errorMessage);
         }
     }
