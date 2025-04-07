@@ -26,26 +26,22 @@ export class UserRepositorySpy
     };
 
     async create(user: User): Promise<void> {
-        this.calls.create.count++;
-        this.calls.create.history.push(user);
+        this.saveCall('create', user);
         return this.getStubOrDefault('create', undefined);
     }
 
     async get(...userIds: Array<string>): Promise<User[]> {
-        this.calls.get.count++;
-        this.calls.get.history.push(userIds);
+        this.saveCall('get', userIds);
         return this.getStubOrDefault('get', []);
     }
 
     async getByEmail(email: string): Promise<User | null> {
-        this.calls.getByEmail.count++;
-        this.calls.getByEmail.history.push(email);
+        this.saveCall('getByEmail', email);
         return this.getStubOrDefault('getByEmail', null);
     }
 
     async getByPhone(phone: string): Promise<User | null> {
-        this.calls.getByPhone.count++;
-        this.calls.getByPhone.history.push(phone);
+        this.saveCall('getByPhone', phone);
         return this.getStubOrDefault('getByPhone', null);
     }
 }

@@ -68,8 +68,7 @@ export class ExpenseRepositorySpy
     };
 
     async delete(expenseId: string): Promise<void> {
-        this.calls.delete.count++;
-        this.calls.delete.history.push(expenseId);
+        this.saveCall('delete', expenseId);
         return this.getStubOrDefault('delete', undefined);
     }
 
@@ -78,8 +77,7 @@ export class ExpenseRepositorySpy
         contactId: string,
         expenseId: string,
     ): Promise<PairExpense | null> {
-        this.calls.getActorContactExpenseById.count++;
-        this.calls.getActorContactExpenseById.history.push([
+        this.saveCall('getActorContactExpenseById', [
             actorId,
             contactId,
             expenseId,
@@ -93,8 +91,7 @@ export class ExpenseRepositorySpy
         pageIndex: number,
         search: string,
     ): Promise<PairExpense[]> {
-        this.calls.getActorContactExpenses.count++;
-        this.calls.getActorContactExpenses.history.push([
+        this.saveCall('getActorContactExpenses', [
             actorId,
             contactId,
             pageIndex,
@@ -107,8 +104,7 @@ export class ExpenseRepositorySpy
         actorId: string,
         expenseId: string,
     ): Promise<Expense | null> {
-        this.calls.getActorExpenseById.count++;
-        this.calls.getActorExpenseById.history.push([actorId, expenseId]);
+        this.saveCall('getActorExpenseById', [actorId, expenseId]);
         return this.getStubOrDefault('getActorExpenseById', null);
     }
 
@@ -117,8 +113,7 @@ export class ExpenseRepositorySpy
         pageIndex: number,
         search: string,
     ): Promise<Expense[]> {
-        this.calls.getActorExpenses.count++;
-        this.calls.getActorExpenses.history.push([actorId, pageIndex, search]);
+        this.saveCall('getActorExpenses', [actorId, pageIndex, search]);
         return this.getStubOrDefault('getActorExpenses', []);
     }
 
@@ -127,8 +122,7 @@ export class ExpenseRepositorySpy
         groupId: string,
         expenseId: string,
     ): Promise<GroupExpense | null> {
-        this.calls.getActorGroupExpenseById.count++;
-        this.calls.getActorGroupExpenseById.history.push([
+        this.saveCall('getActorGroupExpenseById', [
             actorId,
             groupId,
             expenseId,
@@ -142,8 +136,7 @@ export class ExpenseRepositorySpy
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]> {
-        this.calls.getActorGroupExpenses.count++;
-        this.calls.getActorGroupExpenses.history.push([
+        this.saveCall('getActorGroupExpenses', [
             actorId,
             groupId,
             pageIndex,
@@ -156,11 +149,7 @@ export class ExpenseRepositorySpy
         actorId: string,
         contactId: string,
     ): Promise<PairExpense[]> {
-        this.calls.getAllActorContactExpenses.count++;
-        this.calls.getAllActorContactExpenses.history.push([
-            actorId,
-            contactId,
-        ]);
+        this.saveCall('getAllActorContactExpenses', [actorId, contactId]);
         return this.getStubOrDefault('getAllActorContactExpenses', []);
     }
 
@@ -168,17 +157,12 @@ export class ExpenseRepositorySpy
         actorId: string,
         contactIds: Array<string>,
     ): Promise<ExpensesByContact> {
-        this.calls.getAllActorContactsExpenses.count++;
-        this.calls.getAllActorContactsExpenses.history.push([
-            actorId,
-            contactIds,
-        ]);
+        this.saveCall('getAllActorContactsExpenses', [actorId, contactIds]);
         return this.getStubOrDefault('getAllActorContactsExpenses', {});
     }
 
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {
-        this.calls.getAllActorExpenses.count++;
-        this.calls.getAllActorExpenses.history.push(actorId);
+        this.saveCall('getAllActorExpenses', actorId);
         return this.getStubOrDefault('getAllActorExpenses', []);
     }
 
@@ -186,8 +170,7 @@ export class ExpenseRepositorySpy
         actorId: string,
         groupId: string,
     ): Promise<GroupExpense[]> {
-        this.calls.getAllActorGroupExpenses.count++;
-        this.calls.getAllActorGroupExpenses.history.push([actorId, groupId]);
+        this.saveCall('getAllActorGroupExpenses', [actorId, groupId]);
         return this.getStubOrDefault('getAllActorGroupExpenses', []);
     }
 
@@ -195,14 +178,12 @@ export class ExpenseRepositorySpy
         actorId: string,
         groupIds: Array<string>,
     ): Promise<ExpensesByGroup> {
-        this.calls.getAllActorGroupsExpenses.count++;
-        this.calls.getAllActorGroupsExpenses.history.push([actorId, groupIds]);
+        this.saveCall('getAllActorGroupsExpenses', [actorId, groupIds]);
         return this.getStubOrDefault('getAllActorGroupsExpenses', {});
     }
 
     async save(expense: Expense): Promise<void> {
-        this.calls.save.count++;
-        this.calls.save.history.push(expense);
+        this.saveCall('save', expense);
         this.getStubOrDefault('save', undefined);
     }
 }
