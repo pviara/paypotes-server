@@ -25,11 +25,11 @@ export class GetUserByPhoneHandler
         const user = await this.userRepository.getByPhone(phone);
 
         if (user) return user;
-        throw new UserNotFoundError(phone);
+        throw new UserNotFoundWithPhoneError(phone);
     }
 }
 
-export class UserNotFoundError extends Error {
+export class UserNotFoundWithPhoneError extends Error {
     constructor(phone: string) {
         super(`User with phone number "${phone}" could not be found`);
     }

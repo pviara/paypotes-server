@@ -19,6 +19,10 @@ export class UserRepositorySpy
             count: 0,
             history: [] as Array<string>,
         },
+        getByName: {
+            count: 0,
+            history: [] as Array<string>,
+        },
         getByPhone: {
             count: 0,
             history: [] as Array<string>,
@@ -38,6 +42,11 @@ export class UserRepositorySpy
     async getByEmail(email: string): Promise<User | null> {
         this.saveCall('getByEmail', email);
         return this.getStubOrDefault('getByEmail', null);
+    }
+
+    async getByName(name: string): Promise<User | null> {
+        this.saveCall('getByName', name);
+        return this.getStubOrDefault('getByName', null);
     }
 
     async getByPhone(phone: string): Promise<User | null> {
