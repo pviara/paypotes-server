@@ -26,25 +26,25 @@ describe('UserController', () => {
 
     afterEach(shutdown(runner));
 
-    describe('GET /user/:phone', () => {
-        const invalidPhones = [null, undefined, '067845 6633', 'abc'];
+    describe('GET /user/:name', () => {
+        const invalidStrings = ['580940', 'test3104', '@', '___'];
 
-        it.each(invalidPhones)(
-            'should return 400 BAD_REQUEST when given phone param "%s" is not valid',
-            async (phone: unknown) => {
+        it.each(invalidStrings)(
+            'should return 400 BAD_REQUEST when given name param "%s" is not valid',
+            async (name: unknown) => {
                 const response = await request(httpServer).get(
-                    `/${USERS_API_ROUTE}/${phone}`,
+                    `/${USERS_API_ROUTE}/${name}`,
                 );
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
             },
         );
 
-        it('should return the right user for given phone', async () => {
+        it('should return the right user for given name', async () => {
             const dummyUser = generateRandomUser();
             await userRepo.insert(dummyUser);
 
             const response = await request(httpServer).get(
-                `/${USERS_API_ROUTE}/${dummyUser.getPhone()}`,
+                `/${USERS_API_ROUTE}/${dummyUser.getFirstname()}`,
             );
 
             expect(response.status).toBe(HttpStatus.OK);
