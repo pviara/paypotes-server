@@ -10,9 +10,10 @@ import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-ex
 import { ContactNotFoundInSavedList } from '@contacts/application/get-actor-contacts-with-balance.handler';
 import { GroupExpenseNotFoundError } from '@expenses/application/queries/get-actor-group-expense-by-id.handler';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
+import { GroupUserNotFoundError } from '@groups/application/create-group.handler';
 import { MemberNotInGroupError } from '@groups/domain/group';
 import { UserExpenseNotFoundError } from '@expenses/application/commands/add-pair-expense.handler';
-import { GroupUserNotFoundError } from '@groups/application/create-group.handler';
+import { UserNotFoundWithNameError } from '@users/application/get-user-by-name.handler';
 
 @Catch(Error)
 export class ErrorFilter implements ExceptionFilter {
@@ -42,6 +43,9 @@ export class ErrorFilter implements ExceptionFilter {
             throw new NotFoundException(exception.message);
         }
         if (exception instanceof MemberNotInGroupError) {
+            throw new NotFoundException(exception.message);
+        }
+        if (exception instanceof UserNotFoundWithNameError) {
             throw new NotFoundException(exception.message);
         }
         throw exception;

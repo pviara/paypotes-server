@@ -1,31 +1,31 @@
 import { generateRandomUser } from '@test/helpers/user/utils';
 import {
-    GetUserByPhoneHandler,
-    GetUserByPhoneQuery,
-    UserNotFoundWithPhoneError,
-} from '@users/application/get-user-by-phone.handler';
+    GetUserByNameHandler,
+    GetUserByNameQuery,
+    UserNotFoundWithNameError,
+} from '@users/application/get-user-by-name.handler';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
 
-describe('GetUserByPhoneHandler', () => {
-    let sut: GetUserByPhoneHandler;
+describe('GetUserByNameHandler', () => {
+    let sut: GetUserByNameHandler;
     let userRepo: UserRepositorySpy;
 
-    const dummyQuery = new GetUserByPhoneQuery({ phone: '0647896642' });
+    const dummyQuery = new GetUserByNameQuery({ name: 'Charlie' });
     const dummyUser = generateRandomUser();
 
     beforeEach(() => {
         userRepo = new UserRepositorySpy();
-        sut = new GetUserByPhoneHandler(userRepo);
+        sut = new GetUserByNameHandler(userRepo);
 
-        userRepo.stub('getByPhone', dummyUser);
+        userRepo.stub('getByName', dummyUser);
     });
 
-    it('should retrieve the user by its phone', async () => {
+    it('should retrieve the user by their name', async () => {
         await sut.execute(dummyQuery);
 
-        expect(userRepo.calls.getByPhone.count).toBe(1);
-        expect(userRepo.calls.getByPhone.history).toContain(
-            dummyQuery.payload.phone,
+        expect(userRepo.calls.getByName.count).toBe(1);
+        expect(userRepo.calls.getByName.history).toContain(
+            dummyQuery.payload.name,
         );
     });
 
@@ -36,9 +36,9 @@ describe('GetUserByPhoneHandler', () => {
 
     describe("user doesn't exist", () => {
         it('should throw an error', async () => {
-            userRepo.stub('getByPhone', null);
+            userRepo.stub('getByName', null);
             await expect(sut.execute(dummyQuery)).rejects.toThrow(
-                UserNotFoundWithPhoneError,
+                UserNotFoundWithNameError,
             );
         });
     });

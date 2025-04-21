@@ -4,6 +4,7 @@ export interface UserRepository {
     create(user: User): Promise<void>;
     get(...userIds: Array<string>): Promise<User[]>;
     getByEmail(email: string): Promise<User | null>;
+    getByName(name: string): Promise<User | null>;
     getByPhone(phone: string): Promise<User | null>;
 }
 
@@ -24,6 +25,12 @@ export class UserInMemoryRepository implements UserRepository {
         return user ?? null;
     }
 
+    async getByName(name: string): Promise<User | null> {
+        const lowercasedName = name.toLowerCase();
+        const user = this.users.find(this.nameMatches(lowercasedName));
+        return user ?? null;
+    }
+
     async getByPhone(phone: string): Promise<User | null> {
         const user = this.users.find((user) => user.getPhone() === phone);
         return user ?? null;
@@ -32,5 +39,11 @@ export class UserInMemoryRepository implements UserRepository {
     private userIdFiguresIn(userIds: Array<string>): (user: User) => boolean {
         return (user: User): boolean =>
             userIds.some((userId: string) => userId === user.getId());
+    }
+
+    private nameMatches(lowercasedName: string): (value: User) => boolean {
+        return (user) =>
+            user.getFirstname().toLowerCase().includes(lowercasedName) ||
+            user.getLastname().toLowerCase().includes(lowercasedName);
     }
 }
