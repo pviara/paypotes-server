@@ -1,0 +1,22 @@
+name: 'paypot-server'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "${RMQ_PORT}:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - paypot-network
+
+networks:
+  paypot-network:
+    name: paypot-network
+    driver: bridge
+
+volumes:
+  rabbitmq_data:
+    name: paypot_rabbitmq_data
