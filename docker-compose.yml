@@ -6,15 +6,18 @@ services:
     container_name: rabbitmq
     hostname: rabbitmq
     ports:
-      - "${RMQ_PORT}:5672"
+      - "${RABBITMQ_PORT}:5672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     networks:
-      - paypot-network
+      - messaging
 
 networks:
-  paypot-network:
-    name: paypot-network
+  messaging:
+    name: messaging
     driver: bridge
 
 volumes:
