@@ -1,5 +1,5 @@
+import { Channel, ChannelModel, connect } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
-import { ChannelModel, connect } from 'amqplib';
 import {
     Injectable,
     Logger,
@@ -10,23 +10,78 @@ import { Nullable } from '@test/helpers/application-runner/model/nullable';
 
 @Injectable()
 export class RabbitMQService implements OnApplicationShutdown, OnModuleInit {
+    private consumer: Nullable<Channel> = null;
     private connection: Nullable<ChannelModel> = null;
     private logger = new Logger(RabbitMQService.name);
+    private producer: Nullable<Channel> = null;
 
     constructor(private configService: ConfigService) {}
 
+    getConsumer(): Channel {
+        if (this.consumer) return this.consumer;
+        throw new Error(
+            'RabbitMQ seems not to have create any consumer channel',
+        );
+    }
+
+    getProducer(): Channel {
+        if (this.producer) return this.producer;
+        throw new Error(
+            'RabbitMQ seems not to have create any producer channel',
+        );
+    }
+
     async onApplicationShutdown(): Promise<void> {
-        await this.getConnection().close();
-        this.logDisconnectedRabbitMQ();
+        await this.disconnectConsumer();
+        await this.disconnectProducer();
+        await this.closeConnection();
     }
 
     async onModuleInit(): Promise<void> {
         try {
             await this.connectRabbitMQ();
-            this.logConnectedToRabbitMQ();
+            await this.createConsumer();
+            await this.createProducer();
         } catch (error: unknown) {
             this.logErrorConnectingToRabbitMQ(error);
         }
+    }
+
+    private async disconnectConsumer(): Promise<void> {
+        await this.getConsumer().close();
+        this.logDisconnectedConsumer();
+    }
+
+    private logDisconnectedConsumer(): void {
+        this.logger.log('Disconnected RabbitMQ consumer channel');
+    }
+
+    private async disconnectProducer(): Promise<void> {
+        await this.getProducer().close();
+        this.logDisconnectedProducer();
+    }
+
+    private logDisconnectedProducer(): void {
+        this.logger.log('Disconnected RabbitMQ producer channel');
+    }
+
+    private async closeConnection() {
+        await this.getConnection().close();
+        this.logDisconnectedRabbitMQ();
+    }
+
+    private logDisconnectedRabbitMQ(): void {
+        this.logger.log('Disconnected RabbitMQ');
+    }
+
+    private async createConsumer(): Promise<void> {
+        this.consumer = await this.getConnection().createChannel();
+        this.logConsumerCreated();
+    }
+
+    private async createProducer(): Promise<void> {
+        this.producer = await this.getConnection().createChannel();
+        this.logProducerCreated();
     }
 
     private getConnection(): ChannelModel {
@@ -37,6 +92,7 @@ export class RabbitMQService implements OnApplicationShutdown, OnModuleInit {
     private async connectRabbitMQ(): Promise<void> {
         const url = this.buildRabbitMQURL();
         this.connection = await connect(url);
+        this.logConnectedToRabbitMQ();
     }
 
     private logConnectedToRabbitMQ(): void {
@@ -59,7 +115,11 @@ export class RabbitMQService implements OnApplicationShutdown, OnModuleInit {
         this.logger.error('Error connecting to RabbitMQ', error);
     }
 
-    private logDisconnectedRabbitMQ(): void {
-        this.logger.log('Disconnected RabbitMQ');
+    private logConsumerCreated(): void {
+        this.logger.log('Created RabbitMQ consumer channel');
+    }
+
+    private logProducerCreated(): void {
+        this.logger.log('Created RabbitMQ producer channel');
     }
 }
