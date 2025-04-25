@@ -16,8 +16,8 @@ export class RabbitMQService implements OnApplicationShutdown, OnModuleInit {
     constructor(private configService: ConfigService) {}
 
     async onApplicationShutdown(): Promise<void> {
+        await this.getConnection().close();
         this.logDisconnectedRabbitMQ();
-        await this.connection?.close();
     }
 
     async onModuleInit(): Promise<void> {
@@ -27,6 +27,11 @@ export class RabbitMQService implements OnApplicationShutdown, OnModuleInit {
         } catch (error: unknown) {
             this.logErrorConnectingToRabbitMQ(error);
         }
+    }
+
+    private getConnection(): ChannelModel {
+        if (this.connection) return this.connection;
+        throw new Error('RabbitMQ seems not to have been connected');
     }
 
     private async connectRabbitMQ(): Promise<void> {
