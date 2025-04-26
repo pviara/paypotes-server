@@ -1,3 +1,5 @@
+import { ContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
+import { contactTaskMessengerToken } from '@infra/task-messengers/contact.task-messenger.provider';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
@@ -34,6 +36,9 @@ export class AddGroupExpenseHandler
 
         @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
+
+        @Inject(contactTaskMessengerToken)
+        private messenger: ContactTaskMessenger,
     ) {}
 
     async execute(command: AddGroupExpenseCommand): Promise<void> {
@@ -49,7 +54,10 @@ export class AddGroupExpenseHandler
         const payment = this.extractPaymentFrom(command, group);
         const expense = new GroupExpense(metadata, group, payment);
 
-        return this.expenseRepository.save(expense);
+        await this.expenseRepository.save(expense);
+
+        const members = group.getMembers();
+        return this.messenger.sendRelationshipsMustBeCreatedBetween(members);
     }
 
     private extractMetadataFrom(command: AddGroupExpenseCommand): Metadata {

@@ -2,6 +2,7 @@ import {
     AddGroupExpenseCommand,
     AddGroupExpenseHandler,
 } from '@expenses/application/commands/add-group-expense.handler';
+import { ContactTaskMessengerSpy } from '@test/doubles/contact-task-messenger.spy';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomBalance } from '@test/helpers/expense/utils';
 import { generateRandomMembers } from '@test/helpers/group/utils';
@@ -18,6 +19,7 @@ describe('AddGroupExpenseHandler', () => {
 
     let expenseRepo: ExpenseRepositorySpy;
     let groupRepo: GroupRepositorySpy;
+    let messenger: ContactTaskMessengerSpy;
 
     const dummyActorId = crypto.randomUUID();
     const dummyExpenseId = crypto.randomUUID();
@@ -112,13 +114,24 @@ describe('AddGroupExpenseHandler', () => {
         expect(expenseRepo.calls.save.history).toContainEqual(expense);
     });
 
+    it('should send a message using contact task messenger', async () => {
+        await sut.execute(dummyCommand);
+        expect(
+            messenger.calls.sendRelationshipsMustBeCreatedBetween.count,
+        ).toBe(1);
+        expect(
+            messenger.calls.sendRelationshipsMustBeCreatedBetween.history,
+        ).toContainEqual(dummyGroup.getMembers());
+    });
+
     function initSut(): void {
         initDependencies();
-        sut = new AddGroupExpenseHandler(expenseRepo, groupRepo);
+        sut = new AddGroupExpenseHandler(expenseRepo, groupRepo, messenger);
     }
 
     function initDependencies(): void {
         expenseRepo = new ExpenseRepositorySpy();
         groupRepo = new GroupRepositorySpy();
+        messenger = new ContactTaskMessengerSpy();
     }
 });
