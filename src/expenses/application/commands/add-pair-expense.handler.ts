@@ -1,4 +1,6 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
+import { ContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
+import { contactTaskMessengerToken } from '@infra/task-messengers/contact.task-messenger.provider';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
@@ -33,10 +35,13 @@ export class AddPairExpenseHandler
 
         @Inject(userRepositoryToken)
         private userRepository: UserRepository,
+
+        @Inject(contactTaskMessengerToken)
+        private messenger: ContactTaskMessenger,
     ) {}
 
     async execute(command: AddPairExpenseCommand): Promise<void> {
-        const { userId } = command.payload;
+        const { actor, userId } = command.payload;
 
         const [stakeholder] = await this.userRepository.get(userId);
         if (!stakeholder) throw new UserExpenseNotFoundError(userId);
@@ -45,7 +50,11 @@ export class AddPairExpenseHandler
         const payment = this.extractPaymentFrom(command, stakeholder);
         const expense = new PairExpense(metadata, payment);
 
-        return this.expenseRepository.save(expense);
+        await this.expenseRepository.save(expense);
+        return this.messenger.sendRelationshipMustBeCreatedBetween(
+            actor,
+            stakeholder,
+        );
     }
 
     private extractMetadataFrom(command: AddPairExpenseCommand): Metadata {
