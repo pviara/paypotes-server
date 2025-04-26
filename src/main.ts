@@ -8,6 +8,7 @@ async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule);
     app.useGlobalPipes(new ValidationPipe());
     app.useGlobalFilters(new ErrorFilter());
+    app.enableShutdownHooks();
 
     const configService = app.get(ConfigService);
     const port = configService.get('APP_PORT');
