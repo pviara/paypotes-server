@@ -108,7 +108,13 @@ export class DefaultRabbitMQService
             'RABBITMQ_DEFAULT_PASS',
         );
         const host = this.configService.get<string>('RABBITMQ_HOST');
-        const port = this.configService.get<string>('RABBITMQ_PORT');
+
+        const env = this.configService.get<string>('APP_ENVIRONMENT');
+        const port =
+            env !== 'test'
+                ? this.configService.get<string>('RABBITMQ_PORT')
+                : this.configService.get<string>('RABBITMQ_TEST_PORT');
+
         return `amqp://${username}:${password}@${host}:${port}`;
     }
 

@@ -6,10 +6,10 @@
     "private": true,
     "license": "UNLICENSED",
     "scripts": {
-        "reset:docker": "docker compose down; docker volume rm paypot_rabbitmq_data; docker compose up -d",
-        "setup:docker": "docker compose down; docker compose up -d",
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+        "setup:docker": "docker compose down; docker compose -f ./docker-compose.yml up -d",
+        "setup:docker:e2e": "docker compose down; docker compose -f ./docker-compose.test.yml up -d",
         "start": "nest start",
         "start:dev": "nest start --watch",
         "start:debug": "nest start --debug --watch",
@@ -20,7 +20,7 @@
         "test:all": "yarn test; yarn test:e2e",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+        "test:e2e": "APP_ENVIRONMENT=test jest --config ./test/jest-e2e.json --runInBand",
         "test:e2e:watch": "yarn test:e2e --watchAll",
         "test:concurrency": "jest --config ./test/jest-concurrency.json",
         "test:concurrency:watch": "yarn test:concurrency --watchAll"
