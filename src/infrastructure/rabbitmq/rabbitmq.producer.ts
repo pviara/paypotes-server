@@ -1,20 +1,15 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
-import { setTimeout } from 'node:timers/promises';
+import { DefaultRabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 
-@Injectable()
-export class RabbitMQProducer implements OnModuleInit {
-    private logger = new Logger(RabbitMQProducer.name);
+export type SendingOptions = { queue: string; message: unknown };
 
-    constructor(private service: RabbitMQService) {}
+export interface Producer {
+    send(options: SendingOptions): Promise<void>;
+}
 
-    async onModuleInit(): Promise<void> {
-        await setTimeout(2000);
+export class RabbitMQProducer implements Producer {
+    constructor(private service: DefaultRabbitMQService) {}
 
-        const queue = 'tasks';
-        this.service.getProducer().assertQueue(queue);
-        this.service
-            .getProducer()
-            .sendToQueue(queue, Buffer.from('hello world'));
+    send(options: SendingOptions): Promise<void> {
+        throw new Error('Method not implemented.');
     }
 }

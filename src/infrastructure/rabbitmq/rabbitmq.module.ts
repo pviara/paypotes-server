@@ -1,9 +1,17 @@
+import { DefaultRabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { Module } from '@nestjs/common';
 import { RabbitMQConsumer } from '@infra/rabbitmq/rabbitmq.consumer';
-import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
-import { RabbitMQProducer } from '@infra/rabbitmq/rabbitmq.producer';
+import {
+    rabbitMQProducerProvider,
+    rabbitMQProducerToken,
+} from '@infra/rabbitmq/rabbitmq.producer.provider';
 
 @Module({
-    providers: [RabbitMQConsumer, RabbitMQProducer, RabbitMQService],
+    exports: [rabbitMQProducerToken],
+    providers: [
+        DefaultRabbitMQService,
+        RabbitMQConsumer,
+        rabbitMQProducerProvider,
+    ],
 })
 export class RabbitMQModule {}

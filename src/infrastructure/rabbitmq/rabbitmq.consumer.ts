@@ -1,12 +1,12 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
+import { DefaultRabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { setTimeout } from 'node:timers/promises';
 
 @Injectable()
 export class RabbitMQConsumer implements OnModuleInit {
     private logger = new Logger(RabbitMQConsumer.name);
 
-    constructor(private service: RabbitMQService) {}
+    constructor(private service: DefaultRabbitMQService) {}
 
     async onModuleInit(): Promise<void> {
         await setTimeout(1000);
