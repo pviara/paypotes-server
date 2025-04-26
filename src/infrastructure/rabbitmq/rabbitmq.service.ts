@@ -34,7 +34,7 @@ export class RabbitMQService implements OnApplicationShutdown, OnModuleInit {
     async onApplicationShutdown(): Promise<void> {
         await this.disconnectConsumer();
         await this.disconnectProducer();
-        await this.closeConnection();
+        await this.disconnectRabbitMQ();
     }
 
     async onModuleInit(): Promise<void> {
@@ -65,7 +65,7 @@ export class RabbitMQService implements OnApplicationShutdown, OnModuleInit {
         this.logger.log('Disconnected RabbitMQ producer channel');
     }
 
-    private async closeConnection() {
+    private async disconnectRabbitMQ() {
         await this.getConnection().close();
         this.logDisconnectedRabbitMQ();
     }
