@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { RabbitMQConsumer } from '@infra/rabbitmq/rabbitmq.consumer';
 import {
     rabbitMQProducerProvider,
     rabbitMQProducerToken,

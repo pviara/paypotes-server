@@ -8,6 +8,7 @@ import { UserModule } from '@users/user.module';
 
 @Module({
     imports: [
+        AuthModule,
         ContactModule,
         ExpenseModule,
         GroupModule,
