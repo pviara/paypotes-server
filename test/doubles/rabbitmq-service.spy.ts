@@ -6,6 +6,11 @@ export class RabbitMQServiceSpy
     extends Spy<RabbitMQService>
     implements RabbitMQService
 {
+    private readonly DEFAULT_CHANNEL = {
+        assertQueue: async () => {},
+        sendToQueue: () => {},
+    } as unknown as Channel;
+
     readonly calls = {
         getConsumer: {
             count: 0,
@@ -19,11 +24,11 @@ export class RabbitMQServiceSpy
 
     getConsumer(): Channel {
         this.saveCall('getConsumer', null);
-        return this.getStubOrDefault('getConsumer', {} as Channel);
+        return this.getStubOrDefault('getConsumer', this.DEFAULT_CHANNEL);
     }
 
     getProducer(): Channel {
         this.saveCall('getProducer', null);
-        return this.getStubOrDefault('getProducer', {} as Channel);
+        return this.getStubOrDefault('getProducer', this.DEFAULT_CHANNEL);
     }
 }

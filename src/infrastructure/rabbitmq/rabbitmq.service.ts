@@ -13,7 +13,6 @@ export interface RabbitMQService {
     getProducer(): Channel;
 }
 
-@Injectable()
 export class DefaultRabbitMQService
     implements OnApplicationShutdown, OnModuleInit, RabbitMQService
 {
