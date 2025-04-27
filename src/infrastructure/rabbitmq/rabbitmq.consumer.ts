@@ -1,21 +1,27 @@
-import { DefaultRabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 
-@Injectable()
-export class RabbitMQConsumer implements OnModuleInit {
+export type ConsumerOptions = { queue: string };
+
+export class RabbitMQConsumer implements OnApplicationBootstrap {
+    private logger = new Logger(RabbitMQConsumer.name);
+
     constructor(
+        private options: ConsumerOptions,
+
         @Inject(rabbitMQServiceToken)
-        private service: DefaultRabbitMQService,
+        private service: RabbitMQService,
     ) {}
 
-    async onModuleInit(): Promise<void> {
-        // todo: works with a setTimeout
-        // const queue = 'contact_tasks';
-        // const consumer = this.service.getConsumer();
-        // consumer.assertQueue(queue);
-        // await consumer.consume(queue, (message) =>
-        //     console.log(message?.content.toString()),
-        // );
+    async onApplicationBootstrap(): Promise<void> {
+        const { queue } = this.options;
+        this.logger.log(`Consuming queue ${queue}`);
+
+        const consumer = this.service.getConsumer();
+        consumer.assertQueue(queue);
+        await consumer.consume(queue, (message) =>
+            console.log(message?.content.toString()),
+        );
     }
 }

@@ -51,5 +51,5 @@ bootstrap();
 
 function logListeningOn(port: string): () => void {
     return () =>
-        new Logger().verbose(`Listening on port ${port}`, 'NestApplication');
+        new Logger().log(`Listening on port ${port}`, 'NestApplication');
 }
