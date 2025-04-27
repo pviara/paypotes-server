@@ -1,7 +1,8 @@
 import { AppModule } from '@app/app.module';
 import { ConfigService } from '@nestjs/config';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ErrorFilter } from '@app/error-filter';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
@@ -13,8 +14,18 @@ async function bootstrap(): Promise<void> {
     app.useGlobalFilters(new ErrorFilter());
     app.enableShutdownHooks();
 
-    const configService = app.get(ConfigService);
+    await createSampleUsersInLocalMode(app);
 
+    const configService = app.get(ConfigService);
+    const port = configService.get('APP_PORT');
+    await app.listen(port, logListeningOn(port));
+}
+bootstrap();
+
+async function createSampleUsersInLocalMode(
+    app: INestApplication,
+): Promise<void> {
+    const configService = app.get(ConfigService);
     const environment = configService.get('APP_ENVIRONMENT');
     if (environment === 'local') {
         const users = [
@@ -33,7 +44,7 @@ async function bootstrap(): Promise<void> {
                 phone: '0712345678',
             }),
             new User({
-                id: 'b714106e-7691-49f9-94c9-86eaea845642',
+                id: DEFAULT_USER.getId(),
                 firstname: 'Clark',
                 lastname: 'Kent',
                 email: 'clark.kent@test.com',
@@ -43,11 +54,7 @@ async function bootstrap(): Promise<void> {
         const userRepo = app.get<UserRepository>(userRepositoryToken);
         for (const user of users) await userRepo?.create(user);
     }
-
-    const port = configService.get('APP_PORT');
-    await app.listen(port, logListeningOn(port));
 }
-bootstrap();
 
 function logListeningOn(port: string): () => void {
     return () =>
