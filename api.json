@@ -1,0 +1,549 @@
+{
+    "name": "💰 Paypot",
+    "version": "1",
+    "items": [
+        {
+            "type": "folder",
+            "name": "contact",
+            "items": [
+                {
+                    "type": "http",
+                    "name": "getActorContacts",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/contacts/without-balance",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorContactsWithBalance",
+                    "seq": 3,
+                    "request": {
+                        "url": "{{host}}/contacts",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorContactWithBalanceById",
+                    "seq": 2,
+                    "request": {
+                        "url": "{{host}}/contacts/{{contactId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                }
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "group",
+            "items": [
+                {
+                    "type": "http",
+                    "name": "create",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/groups",
+                        "method": "POST",
+                        "headers": [],
+                        "body": {
+                            "mode": "json",
+                            "json": "{\n  \"id\": \"{{groupId}}\",\n  \"name\": \"Vacaciones\",\n  \"emoji\": \"🏖️\",\n  \"userIds\": [\"{{actorId}}\", \"{{contactId}}\", \"b6c614d7-7ac1-4822-b8e1-71c4b71051e1\"]\n}",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroups",
+                    "seq": 2,
+                    "request": {
+                        "url": "{{host}}/groups/without-balance",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroupsWithBalance",
+                    "seq": 4,
+                    "request": {
+                        "url": "{{host}}/groups",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroupWithBalanceById",
+                    "seq": 3,
+                    "request": {
+                        "url": "{{host}}/groups/{{groupId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                }
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "expense",
+            "items": [
+                {
+                    "type": "http",
+                    "name": "addGroupExpense",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/expenses/group",
+                        "method": "POST",
+                        "headers": [],
+                        "body": {
+                            "mode": "json",
+                            "json": "{\n  \"id\": \"6a541ccf-ab1c-48a5-865e-9353ed80e4fe\",\n  \"label\": \"Burgers\",\n  \"emoji\": \"🍔\",\n  \"balance\": \"10,00\",\n  \"groupId\": \"{{groupId}}\",\n  \"memberId\": \"{{contactId}}\"\n}",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "computeActorBalance",
+                    "seq": 3,
+                    "request": {
+                        "url": "{{host}}/expenses/balance",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "addPairExpense",
+                    "seq": 2,
+                    "request": {
+                        "url": "{{host}}/expenses/pair",
+                        "method": "POST",
+                        "headers": [],
+                        "body": {
+                            "mode": "json",
+                            "json": "{\n  \"id\": \"d3343dfd-e94c-4cbb-9577-454a271770f8\",\n  \"label\": \"Domac\",\n  \"emoji\": \"🍟\",\n  \"balance\": \"32,50\",\n  \"isCurrentPayer\": true,\n  \"userId\": \"{{contactId}}\"\n}",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorContactExpenseById",
+                    "seq": 4,
+                    "request": {
+                        "url": "{{host}}/expenses/contact/{{contactId}}/expense/expenseId",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorExpenseById",
+                    "seq": 5,
+                    "request": {
+                        "url": "{{host}}/expenses/d3343dfd-e94c-4cbb-9577-454a271770f8",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorExpenses",
+                    "seq": 6,
+                    "request": {
+                        "url": "{{host}}/expenses",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroupExpenseById",
+                    "seq": 7,
+                    "request": {
+                        "url": "{{host}}/expenses/group/{{groupId}}/expense/6a541ccf-ab1c-48a5-865e-9353ed80e4fe",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "payback",
+                    "seq": 8,
+                    "request": {
+                        "url": "{{host}}/expenses/d3343dfd-e94c-4cbb-9577-454a271770f8",
+                        "method": "DELETE",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                }
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "user",
+            "items": [
+                {
+                    "type": "http",
+                    "name": "getByName",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/users/name",
+                        "method": "GET",
+                        "headers": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": []
+                        },
+                        "auth": {
+                            "mode": "none",
+                            "basic": {
+                                "username": "",
+                                "password": ""
+                            },
+                            "bearer": {
+                                "token": ""
+                            }
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "query": []
+                    }
+                }
+            ]
+        }
+    ],
+    "activeEnvironmentUid": "0FL0ngGNQV4a59kAZWjlh",
+    "environments": [
+        {
+            "variables": [
+                {
+                    "name": "host",
+                    "value": "http://localhost:5000",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "contactId",
+                    "value": "6852eafd-5179-46f2-9425-b4938b9eb3c0",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "groupId",
+                    "value": "c8761390-f0fb-4ff8-bc85-4d9f3f93ca40",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "actorId",
+                    "value": "b714106e-7691-49f9-94c9-86eaea845642",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                }
+            ],
+            "name": "localhost"
+        }
+    ]
+}
