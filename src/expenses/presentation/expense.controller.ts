@@ -48,7 +48,7 @@ export class ExpenseController {
     ) {}
 
     @Post('group')
-    addGroup(
+    addGroupExpense(
         @ActorId() actorId: string,
         @Body() expense: AddGroupExpenseDTO,
     ): Promise<void> {
@@ -65,7 +65,7 @@ export class ExpenseController {
     }
 
     @Post('pair')
-    addPair(
+    addPairExpense(
         @Actor() actor: User,
         @Body() expense: AddPairExpenseDTO,
     ): Promise<void> {
