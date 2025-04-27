@@ -3,6 +3,8 @@ import { AuthFakeModule } from '@test/doubles/auth/auth.fake-module';
 import { InfrastructureModule } from '@infra/infrastructure.module';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
+import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 
 export const initRunnerWith = (
     modules: Modules,
@@ -12,10 +14,10 @@ export const initRunnerWith = (
         modules: [AuthFakeModule, InfrastructureModule, ...modules],
         providers: [
             ...providers,
-            // {
-            //     provide: rabbitMQServiceToken,
-            //     useClass: RabbitMQServiceSpy,
-            // },
+            {
+                provide: rabbitMQServiceToken,
+                useClass: RabbitMQServiceSpy,
+            },
         ],
     });
 };

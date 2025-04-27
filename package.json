@@ -20,7 +20,7 @@
         "test:all": "yarn test; yarn test:e2e",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "yarn setup:docker:e2e; sleep 5; APP_ENVIRONMENT=test jest --config ./test/jest-e2e.json --runInBand",
+        "test:e2e": "APP_ENVIRONMENT=test jest --config ./test/jest-e2e.json --runInBand",
         "test:e2e:watch": "yarn test:e2e --watchAll",
         "test:concurrency": "jest --config ./test/jest-concurrency.json",
         "test:concurrency:watch": "yarn test:concurrency --watchAll"

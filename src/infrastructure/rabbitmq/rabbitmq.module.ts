@@ -4,9 +4,14 @@ import {
     rabbitMQProducerToken,
 } from '@infra/rabbitmq/rabbitmq.producer.provider';
 import { rabbitMQServiceProvider } from '@infra/rabbitmq/rabbitmq.service.provider';
+import { RabbitMQConsumer } from './rabbitmq.consumer';
 
 @Module({
     exports: [rabbitMQProducerToken],
-    providers: [rabbitMQProducerProvider, rabbitMQServiceProvider],
+    providers: [
+        RabbitMQConsumer,
+        rabbitMQProducerProvider,
+        rabbitMQServiceProvider,
+    ],
 })
 export class RabbitMQModule {}

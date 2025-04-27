@@ -1,22 +1,21 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DefaultRabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
-import { setTimeout } from 'node:timers/promises';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 
 @Injectable()
 export class RabbitMQConsumer implements OnModuleInit {
-    private logger = new Logger(RabbitMQConsumer.name);
-
-    constructor(private service: DefaultRabbitMQService) {}
+    constructor(
+        @Inject(rabbitMQServiceToken)
+        private service: DefaultRabbitMQService,
+    ) {}
 
     async onModuleInit(): Promise<void> {
-        await setTimeout(1000);
-
-        const queue = 'tasks';
-        this.service.getConsumer().assertQueue(queue);
-        this.service
-            .getConsumer()
-            .consume(queue, (message) =>
-                console.log('received task!', message?.content.toString()),
-            );
+        // todo: works with a setTimeout
+        // const queue = 'contact_tasks';
+        // const consumer = this.service.getConsumer();
+        // consumer.assertQueue(queue);
+        // await consumer.consume(queue, (message) =>
+        //     console.log(message?.content.toString()),
+        // );
     }
 }

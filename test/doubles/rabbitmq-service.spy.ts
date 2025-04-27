@@ -9,6 +9,7 @@ export class RabbitMQServiceSpy
     private readonly DEFAULT_CHANNEL = {
         assertQueue: async () => {},
         sendToQueue: () => {},
+        consume: () => {},
     } as unknown as Channel;
 
     readonly calls = {
