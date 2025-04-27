@@ -1,15 +1,18 @@
+import { ConfigService } from '@nestjs/config';
+import { generateRandomUser } from '@test/helpers/user/utils';
 import { RabbitMQContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
 import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
-import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
-import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('RabbitMQContactTaskMessenger', () => {
     let sut: RabbitMQContactTaskMessenger;
+
     let rabbitMQProducer: RabbitMQProducerSpy;
+    let configService: ConfigService;
 
     beforeEach(() => {
         rabbitMQProducer = new RabbitMQProducerSpy();
-        sut = new RabbitMQContactTaskMessenger(rabbitMQProducer);
+        configService = new ConfigService();
+        sut = new RabbitMQContactTaskMessenger(configService, rabbitMQProducer);
     });
 
     describe('sendRelationshipMustBeCreatedBetween', () => {

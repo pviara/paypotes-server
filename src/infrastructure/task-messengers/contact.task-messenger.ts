@@ -3,6 +3,7 @@ import { Member } from '@groups/domain/member';
 import { Producer } from '@infra/rabbitmq/rabbitmq.producer';
 import { rabbitMQProducerToken } from '@infra/rabbitmq/rabbitmq.producer.provider';
 import { User } from '@users/domain/user';
+import { ConfigService } from '@nestjs/config';
 
 export interface ContactTaskMessenger {
     sendRelationshipMustBeCreatedBetween(
@@ -15,9 +16,11 @@ export interface ContactTaskMessenger {
 }
 
 export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
-    readonly queue = 'contact_tasks';
+    readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
 
     constructor(
+        private configService: ConfigService,
+
         @Inject(rabbitMQProducerToken)
         private producer: Producer,
     ) {}
