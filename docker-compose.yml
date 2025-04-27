@@ -1,0 +1,25 @@
+name: 'paypot-server'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - messaging
+
+networks:
+  messaging:
+    name: messaging
+    driver: bridge
+
+volumes:
+  rabbitmq_data:
+    name: paypot_rabbitmq_data

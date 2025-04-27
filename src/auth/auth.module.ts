@@ -9,7 +9,6 @@ import { UserRepositoryModule } from '@users/persistence/user.repository-module'
 @Module({
     controllers: [AuthController],
     imports: [
-        ConfigModule,
         JwtModule.registerAsync({
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {

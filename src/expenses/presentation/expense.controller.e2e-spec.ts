@@ -8,7 +8,6 @@ import {
     expenseSpecProviders as providers,
     generateDefaultUserPairExpenses,
     generateDefaultUserPairExpense,
-    generateRandomStakeholder,
     generateDefaultUserGroupExpenses,
     generateDefaultUserGroupExpense,
     generateRandomBoolean,

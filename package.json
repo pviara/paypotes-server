@@ -1,6 +1,6 @@
 {
     "name": "paypot-server",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "",
     "author": "",
     "private": true,
@@ -8,7 +8,9 @@
     "scripts": {
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-        "start": "nest start",
+        "setup:docker": "docker compose down; docker compose -f ./docker-compose.yml up -d",
+        "setup:docker:e2e": "docker compose down; docker compose -f ./docker-compose.test.yml up -d",
+        "start": "yarn setup:docker; sleep 5; nest start",
         "start:dev": "nest start --watch",
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/main",
@@ -18,7 +20,7 @@
         "test:all": "yarn test; yarn test:e2e",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+        "test:e2e": "APP_ENVIRONMENT=test jest --config ./test/jest-e2e.json --runInBand",
         "test:e2e:watch": "yarn test:e2e --watchAll",
         "test:concurrency": "jest --config ./test/jest-concurrency.json",
         "test:concurrency:watch": "yarn test:concurrency --watchAll"
@@ -31,6 +33,7 @@
         "@nestjs/jwt": "^11.0.0",
         "@nestjs/passport": "^11.0.5",
         "@nestjs/platform-express": "^11.0.1",
+        "amqplib": "^0.10.7",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.1",
         "passport": "^0.7.0",
@@ -46,6 +49,7 @@
         "@nestjs/testing": "^11.0.1",
         "@swc/cli": "^0.6.0",
         "@swc/core": "^1.10.7",
+        "@types/amqplib": "^0.10.7",
         "@types/express": "^5.0.0",
         "@types/jest": "^29.5.14",
         "@types/node": "^22.10.7",

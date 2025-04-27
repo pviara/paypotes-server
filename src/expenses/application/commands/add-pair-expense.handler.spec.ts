@@ -14,12 +14,14 @@ import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import { User } from '@users/domain/user';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
+import { ContactTaskMessengerSpy } from '@test/doubles/contact-task-messenger.spy';
 
-describe('AddExpenseHandler', () => {
+describe('AddPairExpenseHandler', () => {
     let sut: AddPairExpenseHandler;
 
     let expenseRepo: ExpenseRepositorySpy;
     let userRepo: UserRepositorySpy;
+    let messenger: ContactTaskMessengerSpy;
 
     const dummyActor = DEFAULT_USER;
     const dummyExpenseId = crypto.randomUUID();
@@ -88,6 +90,16 @@ describe('AddExpenseHandler', () => {
             expect(expenseRepo.calls.save.history).toContainEqual(expense);
         });
 
+        it('should send a message using contact task messenger', async () => {
+            await sut.execute(dummyCommand);
+            expect(
+                messenger.calls.sendRelationshipMustBeCreatedBetween.count,
+            ).toBe(1);
+            expect(
+                messenger.calls.sendRelationshipMustBeCreatedBetween.history,
+            ).toContainEqual([dummyActor, dummyUser]);
+        });
+
         function getCommandCreditor(): Stakeholder {
             return dummyCommand.payload.isCurrentPayer
                 ? Stakeholder.fromUser(dummyActor)
@@ -103,11 +115,12 @@ describe('AddExpenseHandler', () => {
 
     function initSut(): void {
         initDependencies();
-        sut = new AddPairExpenseHandler(expenseRepo, userRepo);
+        sut = new AddPairExpenseHandler(expenseRepo, userRepo, messenger);
     }
 
     function initDependencies(): void {
         expenseRepo = new ExpenseRepositorySpy();
         userRepo = new UserRepositorySpy();
+        messenger = new ContactTaskMessengerSpy();
     }
 });

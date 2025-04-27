@@ -3,17 +3,17 @@ import {
     ComputeActorBalanceQuery,
 } from '@expenses/application/queries/compute-actor-balance.handler';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
+import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 import {
     generateRandomBoolean,
     generateRandomMetadata,
     generateRandomStakeholder,
 } from '@test/helpers/expense/utils';
+import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
-import { Expense } from '@expenses/domain/expense';
-import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 
 describe('ComputeActorBalanceHandler', () => {
     let sut: ComputeActorBalanceHandler;
@@ -90,27 +90,4 @@ describe('ComputeActorBalanceHandler', () => {
         const payment: GroupPayment = { balance, creditor };
         return new GroupExpense(metadata, dummyGroup, payment);
     }
-
-    // function createRandomCreditExpense(balance: number): PairExpense {
-    //     const metadata = generateRandomMetadata();
-    //     const payment: PairPayment = {
-    //         balance,
-    //         creditor: Stakeholder.fromUser(DEFAULT_USER),
-    //         debtor: generateRandomStakeholder(),
-    //     };
-    //     return new PairExpense(metadata, payment);
-    // }
-
-    // function createRandomDebitExpense(balance: number): PairExpense {
-    //     const metadata = generateRandomMetadata();
-    //     const payment: PairPayment = {
-    //         balance,
-    //         creditor: dummyStakeholder,
-    //         debtor: Stakeholder.fromUser(DEFAULT_USER),
-    //     };
-    //     return new PairExpense(metadata, payment);
-    // }
 });
-function generateRandomGroup() {
-    throw new Error('Function not implemented.');
-}
