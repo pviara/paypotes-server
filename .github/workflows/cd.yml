@@ -32,4 +32,4 @@ jobs:
             git reset --hard origin/main
             yarn install
             yarn build
-            bash ~/dev/repos/paypot/paypot-server/.github/workflows/scripts/reload-cluster.sh
+            pm2 start ./dist/src/main.js --namespace paypot --name paypot-api # temporary deactivate cluster when using in memory database
