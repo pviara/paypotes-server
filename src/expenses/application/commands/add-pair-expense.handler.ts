@@ -1,6 +1,6 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
-import { ContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
-import { contactTaskMessengerToken } from '@infra/task-messengers/contact.task-messenger.provider';
+import { ContactTaskMessenger } from '@infra/task-managers/contact.task-messenger';
+import { contactTaskMessengerToken } from '@infra/task-managers/contact.task-messenger.provider';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';

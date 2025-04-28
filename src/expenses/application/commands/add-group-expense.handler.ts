@@ -1,5 +1,5 @@
-import { ContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
-import { contactTaskMessengerToken } from '@infra/task-messengers/contact.task-messenger.provider';
+import { ContactTaskMessenger } from '@infra/task-managers/contact.task-messenger';
+import { contactTaskMessengerToken } from '@infra/task-managers/contact.task-messenger.provider';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';

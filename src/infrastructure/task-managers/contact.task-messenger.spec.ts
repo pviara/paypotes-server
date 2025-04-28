@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { generateRandomUser } from '@test/helpers/user/utils';
-import { RabbitMQContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
+import { RabbitMQContactTaskMessenger } from '@infra/task-managers/contact.task-messenger';
 import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
 
 describe('RabbitMQContactTaskMessenger', () => {

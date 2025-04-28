@@ -1,4 +1,4 @@
-import { ContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
+import { ContactTaskMessenger } from '@infra/task-managers/contact.task-messenger';
 import { Spy } from '@test/helpers/spy';
 import { User } from '@users/domain/user';
 

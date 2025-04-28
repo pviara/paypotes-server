@@ -1,4 +1,4 @@
-import { ContactTaskMessengerModule } from '@infra/task-messengers/contact.task-messenger.module';
+import { ContactTaskMessengerModule } from '@infra/task-managers/contact.task-messenger.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateGroupHandler } from '@groups/application/create-group.handler';
 import { ExpenseRepositoryModule } from '@expenses/persistence/expense.repository-module';

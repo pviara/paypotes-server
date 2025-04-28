@@ -1,26 +1,26 @@
 import { Inject, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
+import { ConfigService } from '@nestjs/config';
 
-export type ConsumerOptions = { queue: string };
+export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
+    private logger = new Logger(RabbitMQContactTaskRecipient.name);
 
-export class RabbitMQConsumer implements OnApplicationBootstrap {
-    private logger = new Logger(RabbitMQConsumer.name);
+    readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
 
     constructor(
-        private options: ConsumerOptions,
+        private configService: ConfigService,
 
         @Inject(rabbitMQServiceToken)
         private service: RabbitMQService,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
-        const { queue } = this.options;
-        this.logger.log(`Consuming queue ${queue}`);
+        this.logger.log(`Consuming queue ${this.queue}`);
 
         const consumer = this.service.getConsumer();
-        consumer.assertQueue(queue);
-        await consumer.consume(queue, (message) =>
+        consumer.assertQueue(this.queue);
+        await consumer.consume(this.queue, (message) =>
             console.log(message?.content.toString()),
         );
     }
