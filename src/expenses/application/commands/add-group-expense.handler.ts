@@ -36,9 +36,6 @@ export class AddGroupExpenseHandler
 
         @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
-
-        @Inject(contactTaskMessengerToken)
-        private messenger: ContactTaskMessenger,
     ) {}
 
     async execute(command: AddGroupExpenseCommand): Promise<void> {
@@ -54,10 +51,7 @@ export class AddGroupExpenseHandler
         const payment = this.extractPaymentFrom(command, group);
         const expense = new GroupExpense(metadata, group, payment);
 
-        await this.expenseRepository.save(expense);
-
-        const members = group.getMembers();
-        return this.messenger.sendRelationshipsMustBeCreatedBetween(members);
+        return this.expenseRepository.save(expense);
     }
 
     private extractMetadataFrom(command: AddGroupExpenseCommand): Metadata {

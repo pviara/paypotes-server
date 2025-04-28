@@ -1,5 +1,4 @@
 import { ContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
-import { Member } from '@groups/domain/member';
 import { Spy } from '@test/helpers/spy';
 import { User } from '@users/domain/user';
 
@@ -14,7 +13,7 @@ export class ContactTaskMessengerSpy
         },
         sendRelationshipsMustBeCreatedBetween: {
             count: 0,
-            history: [] as Array<Member[]>,
+            history: [] as Array<User[]>,
         },
     };
 
@@ -30,7 +29,7 @@ export class ContactTaskMessengerSpy
     }
 
     async sendRelationshipsMustBeCreatedBetween(
-        members: Array<Member>,
+        members: Array<User>,
     ): Promise<void> {
         this.saveCall('sendRelationshipsMustBeCreatedBetween', members);
         return this.getStubOrDefault(

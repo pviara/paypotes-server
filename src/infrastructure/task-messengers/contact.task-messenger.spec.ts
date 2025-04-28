@@ -38,4 +38,24 @@ describe('RabbitMQContactTaskMessenger', () => {
             });
         });
     });
+
+    describe('sendRelationshipsMustBeCreatedBetween', () => {
+        it('should send given message on the appropriate topic', async () => {
+            const users = Array.from({ length: 5 }).map(() =>
+                generateRandomUser(),
+            );
+
+            await sut.sendRelationshipsMustBeCreatedBetween(users);
+
+            expect(rabbitMQProducer.calls.send.count).toBe(1);
+            expect(rabbitMQProducer.calls.send.history).toContainEqual({
+                queue: sut.queue,
+                message: {
+                    data: {
+                        users,
+                    },
+                },
+            });
+        });
+    });
 });

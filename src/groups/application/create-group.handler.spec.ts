@@ -1,3 +1,4 @@
+import { ContactTaskMessengerSpy } from '@test/doubles/contact-task-messenger.spy';
 import {
     CreateGroupCommand,
     CreateGroupHandler,
@@ -11,8 +12,10 @@ import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
 
 describe('CreateGroupHandler', () => {
     let sut: CreateGroupHandler;
+
     let groupRepo: GroupRepositorySpy;
     let userRepo: UserRepositorySpy;
+    let messenger: ContactTaskMessengerSpy;
 
     const dummyGroupId = crypto.randomUUID();
     const dummyGroupName = 'Holidays';
@@ -33,9 +36,7 @@ describe('CreateGroupHandler', () => {
     let dummyUsers: Array<User>;
 
     beforeEach(() => {
-        groupRepo = new GroupRepositorySpy();
-        userRepo = new UserRepositorySpy();
-        sut = new CreateGroupHandler(groupRepo, userRepo);
+        initSut();
 
         dummyUsers = mapToUsers(dummyUserIds);
         userRepo.stub('get', dummyUsers);
@@ -74,7 +75,28 @@ describe('CreateGroupHandler', () => {
 
             expect(groupRepo.calls.save.history).toContainEqual(group);
         });
+
+        it('should send a message using contact task messenger', async () => {
+            await sut.execute(dummyCommand);
+            expect(
+                messenger.calls.sendRelationshipsMustBeCreatedBetween.count,
+            ).toBe(1);
+            expect(
+                messenger.calls.sendRelationshipsMustBeCreatedBetween.history,
+            ).toContainEqual(dummyUsers);
+        });
     });
+
+    function initSut(): void {
+        initDependencies();
+        sut = new CreateGroupHandler(groupRepo, userRepo, messenger);
+    }
+
+    function initDependencies(): void {
+        groupRepo = new GroupRepositorySpy();
+        userRepo = new UserRepositorySpy();
+        messenger = new ContactTaskMessengerSpy();
+    }
 
     function mapToUsers(memberIds: Array<string>): Array<User> {
         return memberIds.map(
