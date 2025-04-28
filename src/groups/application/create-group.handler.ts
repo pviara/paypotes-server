@@ -1,6 +1,6 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
-import { ContactTaskMessenger } from '@infra/task-managers/contact.task-messenger';
-import { contactTaskMessengerToken } from '@infra/task-managers/contact.task-messenger.provider';
+import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
+import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.task-messenger.provider';
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';

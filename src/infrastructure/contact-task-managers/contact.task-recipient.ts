@@ -1,7 +1,9 @@
+import { ConfigService } from '@nestjs/config';
+import { ContactTaskHandler } from '@app/infrastructure/contact-task-handlers/contact.task-handler';
+import { contactTaskHandlerToken } from '@app/infrastructure/contact-task-handlers/contact.task-handler.provider';
 import { Inject, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
-import { ConfigService } from '@nestjs/config';
 
 export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
     private logger = new Logger(RabbitMQContactTaskRecipient.name);
@@ -13,6 +15,9 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
 
         @Inject(rabbitMQServiceToken)
         private service: RabbitMQService,
+
+        @Inject(contactTaskHandlerToken)
+        private handler: ContactTaskHandler,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
@@ -20,8 +25,9 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
 
         const consumer = this.service.getConsumer();
         consumer.assertQueue(this.queue);
-        await consumer.consume(this.queue, (message) =>
-            console.log(message?.content.toString()),
-        );
+        consumer.consume(this.queue, (message) => {
+            if (!message) return;
+            return this.handler.on(message?.content.toString());
+        });
     }
 }
