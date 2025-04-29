@@ -47,10 +47,14 @@ describe('contact application tasks', () => {
 
         await setTimeout(100);
 
-        const createdContact = await contactRepo.getActorContactById(
+        const addedContacts = await contactRepo.getActorContacts(
             DEFAULT_USER.getId(),
-            dummyUser.getId(),
+            0,
+            '',
         );
-        expect(createdContact?.getId()).toBe(dummyUser.getId());
+        expect(addedContacts.length).toBe(1);
+
+        const [addedContact] = addedContacts;
+        expect(addedContact?.getId()).toBe(dummyUser.getId());
     });
 });

@@ -23,12 +23,15 @@ export class ContactInMemoryRepository implements ContactRepository {
     async addRelationshipBetween(users: Array<User>): Promise<void> {
         for (const user of users) {
             const otherUsers = this.getOtherUsersThan(user, users);
-            otherUsers.forEach((otherUser) =>
+            for (const otherUser of otherUsers) {
+                const exists = await this.existsBetween(user, otherUser);
+                if (exists) continue;
+
                 this.relationships.push({
-                    userA: Contact.from(user),
-                    userB: Contact.from(otherUser),
-                }),
-            );
+                    userA: Contact.fromUser(user),
+                    userB: Contact.fromUser(otherUser),
+                });
+            }
         }
     }
 
@@ -58,7 +61,30 @@ export class ContactInMemoryRepository implements ContactRepository {
     }
 
     private getOtherUsersThan(user: User, users: Array<User>): Array<User> {
-        return users.filter((otherUser) => otherUser.getId() !== user.getId());
+        return users.filter((otherUser) => user.getId() !== otherUser.getId());
+    }
+
+    private async existsBetween(userA: User, userB: User): Promise<boolean> {
+        return this.relationships
+            .map(this.mapRelationshipToContactIds())
+            .some(this.idsInclude(userA, userB));
+    }
+
+    private mapRelationshipToContactIds(): (
+        value: Relationship,
+    ) => Array<string> {
+        return (relationship) => [
+            relationship.userA.getId(),
+            relationship.userB.getId(),
+        ];
+    }
+
+    private idsInclude(
+        userA: User,
+        userB: User,
+    ): (value: Array<string>) => unknown {
+        return (ids) =>
+            ids.includes(userA.getId()) && ids.includes(userB.getId());
     }
 
     private isRelationshipOf(

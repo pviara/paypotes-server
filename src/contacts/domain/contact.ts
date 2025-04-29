@@ -9,7 +9,7 @@ export class Contact {
         },
     ) {}
 
-    static from(user: User): Contact {
+    static fromUser(user: User): Contact {
         return new Contact({
             id: user.getId(),
             firstname: user.getFirstname(),
