@@ -2,6 +2,7 @@ import { Contact } from '@contacts/domain/contact';
 import { Relationship } from '@contacts/persistence/relationship';
 
 export interface ContactRepository {
+    addRelationshipBetween(userIds: Array<string>): Promise<void>;
     getActorContactById(
         actorId: string,
         contactId: string,
@@ -17,6 +18,10 @@ const MAX_CONTACTS_PER_PAGE = 20;
 
 export class ContactInMemoryRepository implements ContactRepository {
     protected relationships: Array<Relationship> = [];
+
+    async addRelationshipBetween(userIds: Array<string>): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
 
     async getActorContactById(
         actorId: string,

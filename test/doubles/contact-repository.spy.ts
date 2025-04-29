@@ -15,7 +15,16 @@ export class ContactRepositorySpy
             count: 0,
             history: [] as Array<[string, number, string]>,
         },
+        addRelationshipBetween: {
+            count: 0,
+            history: [] as Array<string[]>,
+        },
     };
+
+    async addRelationshipBetween(userIds: Array<string>): Promise<void> {
+        this.saveCall('addRelationshipBetween', userIds);
+        return this.getStubOrDefault('addRelationshipBetween', undefined);
+    }
 
     async getActorContactById(
         actorId: string,
