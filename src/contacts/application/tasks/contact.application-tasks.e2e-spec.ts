@@ -1,35 +1,56 @@
+import { App } from 'supertest/types';
+import { ContactRepository } from '@contacts/persistence/contact.repository';
+import {
+    contactTasksSpecModules as modules,
+    contactTasksSpecProviders as providers,
+} from '@test/helpers/contact/tasks/utils';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
+import { generateRandomUser } from '@test/helpers/user/utils';
 import { initMessagingRunnerWith } from '@test/helpers/application-runner/utils';
-import { Modules } from '@test/helpers/application-runner/model/module';
-import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
-import { shutdown } from '@test/helpers/utils';
-import { rabbitMQServiceToken } from '@app/infrastructure/rabbitmq/rabbitmq.service.provider';
-import { AppModule } from '@app/app.module';
 import { setTimeout } from 'node:timers/promises';
-import { rabbitMQProducerToken } from '@app/infrastructure/rabbitmq/rabbitmq.producer.provider';
-import { ContactTaskMessenger } from '@app/infrastructure/contact-task-managers/contact.task-messenger';
-import { contactTaskMessengerToken } from '@app/infrastructure/contact-task-managers/contact.task-messenger.provider';
+import { shutdown } from '@test/helpers/utils';
+import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import * as request from 'supertest';
 
 describe('contact application tasks', () => {
-    const runner = initMessagingRunnerWith([AppModule], []);
+    const runner = initMessagingRunnerWith(modules, providers);
 
-    const modules: Modules = [];
-    const providers: OverridingProviders = [];
+    let contactRepo: ContactRepository;
+    let userRepo: UserInMemoryTestingRepository;
+    let httpServer: App;
 
     beforeEach(async () => {
         await runner.bootstrap();
+
+        contactRepo = runner.getRepository('contact');
+        userRepo = runner.getRepository('user');
+        httpServer = runner.getHttpServer();
     });
 
     afterEach(shutdown(runner));
 
-    it('should do...', async () => {
-        const service = runner.getApplication().get(rabbitMQServiceToken);
-        const contactTaskMessenger = runner
-            .getApplication()
-            .get<ContactTaskMessenger>(contactTaskMessengerToken);
-        await contactTaskMessenger.sendRelationshipMustBeCreatedBetween(
-            'test',
-            'test',
+    it('should add a relationship between pair expense users', async () => {
+        const dummyUser = generateRandomUser();
+        await userRepo.empty();
+        await userRepo.insert(DEFAULT_USER, dummyUser);
+
+        const expenseId = crypto.randomUUID();
+        await request(httpServer).post(`/${EXPENSES_API_ROUTE}/pair`).send({
+            id: expenseId,
+            label: 'Label',
+            emoji: '📦',
+            balance: '14,75',
+            isCurrentPayer: true,
+            userId: dummyUser.getId(),
+        });
+
+        await setTimeout(100);
+
+        const createdContact = await contactRepo.getActorContactById(
+            DEFAULT_USER.getId(),
+            dummyUser.getId(),
         );
-        await setTimeout(10);
+        expect(createdContact?.getId()).toBe(dummyUser.getId());
     });
 });

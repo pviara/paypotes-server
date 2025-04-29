@@ -16,8 +16,8 @@ import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
-import { RabbitMQService } from '@app/infrastructure/rabbitmq/rabbitmq.service';
-import { rabbitMQServiceToken } from '@app/infrastructure/rabbitmq/rabbitmq.service.provider';
+import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
+import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';

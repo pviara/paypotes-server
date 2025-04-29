@@ -28,5 +28,6 @@ export const initMessagingRunnerWith = (
 ): ApplicationRunner => {
     return new ApplicationRunner({
         modules: [AuthFakeModule, InfrastructureModule, ...modules],
+        providers,
     });
 };
