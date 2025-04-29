@@ -1,8 +1,9 @@
 import { Contact } from '@contacts/domain/contact';
 import { Relationship } from '@contacts/persistence/relationship';
+import { User } from '@users/domain/user';
 
 export interface ContactRepository {
-    addRelationshipBetween(userIds: Array<string>): Promise<void>;
+    addRelationshipBetween(users: Array<User>): Promise<void>;
     getActorContactById(
         actorId: string,
         contactId: string,
@@ -19,8 +20,16 @@ const MAX_CONTACTS_PER_PAGE = 20;
 export class ContactInMemoryRepository implements ContactRepository {
     protected relationships: Array<Relationship> = [];
 
-    async addRelationshipBetween(userIds: Array<string>): Promise<void> {
-        throw new Error('Method not implemented.');
+    async addRelationshipBetween(users: Array<User>): Promise<void> {
+        for (const user of users) {
+            const otherUsers = this.getOtherUsersThan(user, users);
+            otherUsers.forEach((otherUser) =>
+                this.relationships.push({
+                    userA: Contact.from(user),
+                    userB: Contact.from(otherUser),
+                }),
+            );
+        }
     }
 
     async getActorContactById(
@@ -46,6 +55,10 @@ export class ContactInMemoryRepository implements ContactRepository {
             .map(this.extractContactFromRelationshipOf(actorId))
             .filter(this.contactNamesMatch(search))
             .slice(start, start + MAX_CONTACTS_PER_PAGE);
+    }
+
+    private getOtherUsersThan(user: User, users: Array<User>): Array<User> {
+        return users.filter((otherUser) => otherUser.getId() !== user.getId());
     }
 
     private isRelationshipOf(

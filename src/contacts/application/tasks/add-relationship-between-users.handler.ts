@@ -34,12 +34,7 @@ export class AddRelationshipBetweenUsersHandler
             throw new RelationshipUserNotFoundError();
         }
 
-        const userIds = this.mapIdsFrom(users);
-        return this.contactRepo.addRelationshipBetween(userIds);
-    }
-
-    private mapIdsFrom(users: Array<User>): Array<string> {
-        return users.map((user) => user.getId());
+        return this.contactRepo.addRelationshipBetween(users);
     }
 }
 

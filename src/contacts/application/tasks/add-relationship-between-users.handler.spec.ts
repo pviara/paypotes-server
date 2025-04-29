@@ -9,7 +9,6 @@ import {
     generateRandomUsers,
 } from '@test/helpers/user/utils';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
-import { mapIdsFrom } from '@test/helpers/utils';
 
 describe('AddRelationshipBetweenUsersHandler', () => {
     let sut: AddRelationshipBetweenUsersHandler;
@@ -50,9 +49,8 @@ describe('AddRelationshipBetweenUsersHandler', () => {
 
         expect(contactRepo.calls.addRelationshipBetween.count).toBe(1);
 
-        const userIds = mapIdsFrom(dummyUsers);
         expect(contactRepo.calls.addRelationshipBetween.history).toContainEqual(
-            userIds,
+            dummyUsers,
         );
     });
 

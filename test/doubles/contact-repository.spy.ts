@@ -1,6 +1,7 @@
 import { Contact } from '@contacts/domain/contact';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { Spy } from '@test/helpers/spy';
+import { User } from '@users/domain/user';
 
 export class ContactRepositorySpy
     extends Spy<ContactRepository>
@@ -17,12 +18,12 @@ export class ContactRepositorySpy
         },
         addRelationshipBetween: {
             count: 0,
-            history: [] as Array<string[]>,
+            history: [] as Array<User[]>,
         },
     };
 
-    async addRelationshipBetween(userIds: Array<string>): Promise<void> {
-        this.saveCall('addRelationshipBetween', userIds);
+    async addRelationshipBetween(users: Array<User>): Promise<void> {
+        this.saveCall('addRelationshipBetween', users);
         return this.getStubOrDefault('addRelationshipBetween', undefined);
     }
 
