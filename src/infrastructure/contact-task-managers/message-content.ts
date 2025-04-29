@@ -8,12 +8,12 @@ export enum MessageType {
 type BaseMessageContent = { type: MessageType };
 
 type AddRelationshipBetweenUsersMessageContent = BaseMessageContent & {
-    users: [User, User];
+    userIds: [string, string];
     type: MessageType.PairExpenseCreated;
 };
 
 type AddRelationshipsBetweenUsersMessageContent = BaseMessageContent & {
-    users: Array<User>;
+    userIds: Array<string>;
     type: MessageType.GroupCreated;
 };
 

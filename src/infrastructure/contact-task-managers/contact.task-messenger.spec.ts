@@ -18,14 +18,14 @@ describe('RabbitMQContactTaskMessenger', () => {
 
     describe('sendRelationshipMustBeCreatedBetween', () => {
         it('should send given message on the appropriate topic', async () => {
-            const [dummyUserA, dummyUserB] = [
-                generateRandomUser(),
-                generateRandomUser(),
+            const [dummyUserIdA, dummyUserIdB] = [
+                crypto.randomUUID(),
+                crypto.randomUUID(),
             ];
 
             await sut.sendRelationshipMustBeCreatedBetween(
-                dummyUserA,
-                dummyUserB,
+                dummyUserIdA,
+                dummyUserIdB,
             );
 
             expect(rabbitMQProducer.calls.send.count).toBe(1);
@@ -33,7 +33,7 @@ describe('RabbitMQContactTaskMessenger', () => {
                 queue: sut.queue,
                 message: {
                     type: MessageType.PairExpenseCreated,
-                    users: [dummyUserA, dummyUserB],
+                    userIds: [dummyUserIdA, dummyUserIdB],
                 },
             });
         });
@@ -41,18 +41,18 @@ describe('RabbitMQContactTaskMessenger', () => {
 
     describe('sendRelationshipsMustBeCreatedBetween', () => {
         it('should send given message on the appropriate topic', async () => {
-            const users = Array.from({ length: 5 }).map(() =>
-                generateRandomUser(),
+            const userIds = Array.from({ length: 5 }).map(() =>
+                crypto.randomUUID(),
             );
 
-            await sut.sendRelationshipsMustBeCreatedBetween(users);
+            await sut.sendRelationshipsMustBeCreatedBetween(userIds);
 
             expect(rabbitMQProducer.calls.send.count).toBe(1);
             expect(rabbitMQProducer.calls.send.history).toContainEqual({
                 queue: sut.queue,
                 message: {
                     type: MessageType.GroupCreated,
-                    users,
+                    userIds,
                 },
             });
         });

@@ -7,10 +7,12 @@ import { User } from '@users/domain/user';
 
 export interface ContactTaskMessenger {
     sendRelationshipMustBeCreatedBetween(
-        userA: User,
-        userB: User,
+        userIdA: string,
+        userIdB: string,
     ): Promise<void>;
-    sendRelationshipsMustBeCreatedBetween(members: Array<User>): Promise<void>;
+    sendRelationshipsMustBeCreatedBetween(
+        userIds: Array<string>,
+    ): Promise<void>;
 }
 
 export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
@@ -24,24 +26,26 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
     ) {}
 
     sendRelationshipMustBeCreatedBetween(
-        userA: User,
-        userB: User,
+        userIdA: string,
+        userIdB: string,
     ): Promise<void> {
         return this.producer.send({
             queue: this.queue,
             message: {
                 type: MessageType.PairExpenseCreated,
-                users: [userA, userB],
+                userIds: [userIdA, userIdB],
             },
         });
     }
 
-    sendRelationshipsMustBeCreatedBetween(users: Array<User>): Promise<void> {
+    sendRelationshipsMustBeCreatedBetween(
+        userIds: Array<string>,
+    ): Promise<void> {
         return this.producer.send({
             queue: this.queue,
             message: {
                 type: MessageType.GroupCreated,
-                users,
+                userIds,
             },
         });
     }

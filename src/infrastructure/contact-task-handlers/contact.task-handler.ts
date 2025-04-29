@@ -14,12 +14,12 @@ export class DefaultContactTaskHandler implements ContactTaskHandler {
     async on(message: MessageContent): Promise<void> {
         switch (message.type) {
             case MessageType.GroupCreated: {
-                message.users;
+                message.userIds;
                 return;
             }
 
             case MessageType.PairExpenseCreated: {
-                message.users;
+                message.userIds;
                 return;
             }
         }
