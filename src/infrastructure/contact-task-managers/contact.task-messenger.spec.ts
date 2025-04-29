@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 import { generateRandomUser } from '@test/helpers/user/utils';
+import { MessageType } from '@infra/contact-task-managers/message-content';
 import { RabbitMQContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
-import { MessageType } from './message-content';
 
 describe('RabbitMQContactTaskMessenger', () => {
     let sut: RabbitMQContactTaskMessenger;
