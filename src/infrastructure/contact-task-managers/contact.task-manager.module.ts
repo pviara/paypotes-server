@@ -1,4 +1,4 @@
-import { ContactTaskHandlerModule } from '@app/infrastructure/contact-task-handlers/contact.task-handler.module';
+import { ContactTaskHandlerModule } from '@infra/contact-task-handlers/contact.task-handler.module';
 import {
     contactTaskMessengerProvider,
     contactTaskMessengerToken,
@@ -15,4 +15,4 @@ import { RabbitMQModule } from '@infra/rabbitmq/rabbitmq.module';
     imports: [ContactTaskHandlerModule, RabbitMQModule],
     providers: [contactTaskMessengerProvider, contactTaskRecipientProvider],
 })
-export class ContactTaskMessengerModule {}
+export class ContactTaskManagerModule {}
