@@ -24,13 +24,13 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
-        this.logger.log(`Consuming queue ${this.queue}`);
-
         const consumer = this.service.getConsumer();
         consumer.assertQueue(this.queue);
         consumer.consume(this.queue, (message) =>
             this.attemptHandling(message, consumer),
         );
+
+        this.logger.log(`Consuming queue ${this.queue}`);
     }
 
     private async attemptHandling(
