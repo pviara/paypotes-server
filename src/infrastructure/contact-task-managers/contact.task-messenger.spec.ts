@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { generateRandomUser } from '@test/helpers/user/utils';
 import { RabbitMQContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
+import { MessageType } from './message-content';
 
 describe('RabbitMQContactTaskMessenger', () => {
     let sut: RabbitMQContactTaskMessenger;
@@ -31,9 +32,8 @@ describe('RabbitMQContactTaskMessenger', () => {
             expect(rabbitMQProducer.calls.send.history).toContainEqual({
                 queue: sut.queue,
                 message: {
-                    data: {
-                        users: [dummyUserA, dummyUserB],
-                    },
+                    type: MessageType.PairExpenseCreated,
+                    users: [dummyUserA, dummyUserB],
                 },
             });
         });
@@ -51,9 +51,8 @@ describe('RabbitMQContactTaskMessenger', () => {
             expect(rabbitMQProducer.calls.send.history).toContainEqual({
                 queue: sut.queue,
                 message: {
-                    data: {
-                        users,
-                    },
+                    type: MessageType.GroupCreated,
+                    users,
                 },
             });
         });
