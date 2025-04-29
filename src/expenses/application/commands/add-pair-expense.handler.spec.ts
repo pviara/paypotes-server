@@ -1,7 +1,7 @@
 import {
     AddPairExpenseCommand,
     AddPairExpenseHandler,
-    UserExpenseNotFoundError,
+    ExpenseUserNotFoundError,
 } from '@expenses/application/commands/add-pair-expense.handler';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
@@ -65,7 +65,7 @@ describe('AddPairExpenseHandler', () => {
 
         it('should throw an error', async () => {
             await expect(sut.execute(dummyCommand)).rejects.toThrow(
-                UserExpenseNotFoundError,
+                ExpenseUserNotFoundError,
             );
         });
     });

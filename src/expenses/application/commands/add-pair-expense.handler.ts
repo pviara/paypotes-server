@@ -44,7 +44,7 @@ export class AddPairExpenseHandler
         const { actor, userId } = command.payload;
 
         const [stakeholder] = await this.userRepository.get(userId);
-        if (!stakeholder) throw new UserExpenseNotFoundError(userId);
+        if (!stakeholder) throw new ExpenseUserNotFoundError(userId);
 
         const metadata = this.extractMetadataFrom(command);
         const payment = this.extractPaymentFrom(command, stakeholder);
@@ -79,7 +79,7 @@ export class AddPairExpenseHandler
     }
 }
 
-export class UserExpenseNotFoundError extends Error {
+export class ExpenseUserNotFoundError extends Error {
     constructor(stakeholderId: string) {
         super(
             `Pair expense cannot be created: user with id "${stakeholderId} cannot be found"`,
