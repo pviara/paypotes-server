@@ -379,7 +379,7 @@ describe('GroupController', () => {
     });
 
     describe('POST /groups', () => {
-        const dummyGroupMembers = generateRandomUsers();
+        const dummyGroupMembers = generateRandomUsers({ length: 4 });
         const invalidPayloads: NonNullable<unknown>[] = [
             '',
             {},
