@@ -1,12 +1,12 @@
+import { Channel, ConsumeMessage } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
 import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
 import { contactTaskHandlerToken } from '@infra/contact-task-handlers/contact.task-handler.provider';
 import { Inject, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageContent } from '@infra/contact-task-managers/message-content';
+import { Nullable } from '@test/helpers/application-runner/model/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
-import { ConsumeMessage } from 'amqplib';
-import { Nullable } from '@test/helpers/application-runner/model/nullable';
 
 export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
     private logger = new Logger(RabbitMQContactTaskRecipient.name);
@@ -28,12 +28,29 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
 
         const consumer = this.service.getConsumer();
         consumer.assertQueue(this.queue);
-        await consumer.consume(this.queue, (message) => {
+        consumer.consume(this.queue, (message) =>
+            this.attemptHandling(message, consumer),
+        );
+    }
+
+    private async attemptHandling(
+        message: Nullable<ConsumeMessage>,
+        consumer: Channel,
+    ): Promise<void> {
+        if (!message) return;
+
+        try {
             const messageContent = this.parse(message);
-            if (this.isMessageContent(messageContent)) {
-                return this.handler.on(messageContent);
-            }
-        });
+            if (!this.isMessageContent(messageContent)) return;
+
+            await this.handler.on(messageContent);
+            consumer.ack(message);
+        } catch (error: unknown) {
+            this.logger.error(
+                `Error handling message ${message?.fields.consumerTag}`,
+                error,
+            );
+        }
     }
 
     private parse(message: Nullable<ConsumeMessage>): unknown {
