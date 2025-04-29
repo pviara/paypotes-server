@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
+import { MessageType } from '@infra/contact-task-managers/message-content';
 import { Producer } from '@infra/rabbitmq/rabbitmq.producer';
 import { rabbitMQProducerToken } from '@infra/rabbitmq/rabbitmq.producer.provider';
 import { User } from '@users/domain/user';
@@ -29,9 +30,8 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
         return this.producer.send({
             queue: this.queue,
             message: {
-                data: {
-                    users: [userA, userB],
-                },
+                type: MessageType.PairExpenseCreated,
+                users: [userA, userB],
             },
         });
     }
@@ -40,9 +40,8 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
         return this.producer.send({
             queue: this.queue,
             message: {
-                data: {
-                    users,
-                },
+                type: MessageType.GroupCreated,
+                users,
             },
         });
     }
