@@ -1,5 +1,5 @@
-import { ContactTaskHandler } from '@app/infrastructure/contact-task-handlers/contact.task-handler';
-import { contactTaskHandlerToken } from '@app/infrastructure/contact-task-handlers/contact.task-handler.provider';
+import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
+import { contactTaskHandlerToken } from '@infra/contact-task-handlers/contact.task-handler.provider';
 import { ConfigService } from '@nestjs/config';
 import { RabbitMQContactTaskRecipient } from '@infra/contact-task-managers/contact.task-recipient';
 import { Provider } from '@nestjs/common';
