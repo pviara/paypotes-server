@@ -22,6 +22,10 @@ jobs:
           node-version: '22.14.0'
           cache: 'yarn'
 
+      - name: 🐳 Run containers
+        run: |
+          docker compose -f docker/docker-compose.test.yml up -d
+
       - name: 📦 Install dependencies
         run: yarn install
 
@@ -36,3 +40,7 @@ jobs:
 
       - name: 🧑‍🔬 Run concurrency tests
         run: yarn test:concurrency
+
+      - name: 🐳 Stop containers
+        run: |
+          docker compose -f docker/docker-compose.ci.yml down
