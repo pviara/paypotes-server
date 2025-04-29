@@ -52,8 +52,8 @@ export class AddPairExpenseHandler
 
         await this.expenseRepository.save(expense);
         return this.messenger.sendRelationshipMustBeCreatedBetween(
-            actor,
-            stakeholder,
+            actor.getId(),
+            stakeholder.getId(),
         );
     }
 

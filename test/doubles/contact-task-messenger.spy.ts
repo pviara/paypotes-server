@@ -9,19 +9,22 @@ export class ContactTaskMessengerSpy
     readonly calls = {
         sendRelationshipMustBeCreatedBetween: {
             count: 0,
-            history: [] as Array<[User, User]>,
+            history: [] as Array<[string, string]>,
         },
         sendRelationshipsMustBeCreatedBetween: {
             count: 0,
-            history: [] as Array<User[]>,
+            history: [] as Array<string[]>,
         },
     };
 
     async sendRelationshipMustBeCreatedBetween(
-        userA: User,
-        userB: User,
+        userIdA: string,
+        userIdB: string,
     ): Promise<void> {
-        this.saveCall('sendRelationshipMustBeCreatedBetween', [userA, userB]);
+        this.saveCall('sendRelationshipMustBeCreatedBetween', [
+            userIdA,
+            userIdB,
+        ]);
         return this.getStubOrDefault(
             'sendRelationshipMustBeCreatedBetween',
             undefined,
@@ -29,9 +32,9 @@ export class ContactTaskMessengerSpy
     }
 
     async sendRelationshipsMustBeCreatedBetween(
-        members: Array<User>,
+        userIds: Array<string>,
     ): Promise<void> {
-        this.saveCall('sendRelationshipsMustBeCreatedBetween', members);
+        this.saveCall('sendRelationshipsMustBeCreatedBetween', userIds);
         return this.getStubOrDefault(
             'sendRelationshipsMustBeCreatedBetween',
             undefined,

@@ -51,11 +51,16 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
             }),
         );
 
-        return this.messenger.sendRelationshipsMustBeCreatedBetween(users);
+        const userIds = this.mapIdsFrom(users);
+        return this.messenger.sendRelationshipsMustBeCreatedBetween(userIds);
     }
 
     private mapToMembers(users: Array<User>): Array<Member> {
         return users.map((user) => Member.fromUser(user));
+    }
+
+    private mapIdsFrom(users: Array<User>): Array<string> {
+        return users.map((user) => user.getId());
     }
 }
 

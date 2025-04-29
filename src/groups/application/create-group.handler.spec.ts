@@ -83,7 +83,7 @@ describe('CreateGroupHandler', () => {
             ).toBe(1);
             expect(
                 messenger.calls.sendRelationshipsMustBeCreatedBetween.history,
-            ).toContainEqual(dummyUsers);
+            ).toContainEqual(dummyUserIds);
         });
     });
 

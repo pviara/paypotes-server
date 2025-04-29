@@ -97,7 +97,7 @@ describe('AddPairExpenseHandler', () => {
             ).toBe(1);
             expect(
                 messenger.calls.sendRelationshipMustBeCreatedBetween.history,
-            ).toContainEqual([dummyActor, dummyUser]);
+            ).toContainEqual([dummyActor.getId(), dummyUser.getId()]);
         });
 
         function getCommandCreditor(): Stakeholder {
