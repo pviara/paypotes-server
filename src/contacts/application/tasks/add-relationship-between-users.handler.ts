@@ -1,7 +1,10 @@
-import { ContactRepository } from '@app/contacts/persistence/contact.repository';
-import { ICommand, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '@app/users/persistence/user.repository';
-import { User } from '@app/users/domain/user';
+import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
+import { ContactRepository } from '@contacts/persistence/contact.repository';
+import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
+import { UserRepository } from '@users/persistence/user.repository';
+import { Inject } from '@nestjs/common';
+import { User } from '@users/domain/user';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export class AddRelationshipBetweenUsersCommand implements ICommand {
     constructor(
@@ -11,11 +14,15 @@ export class AddRelationshipBetweenUsersCommand implements ICommand {
     ) {}
 }
 
+@CommandHandler(AddRelationshipBetweenUsersCommand)
 export class AddRelationshipBetweenUsersHandler
     implements ICommandHandler<AddRelationshipBetweenUsersCommand>
 {
     constructor(
+        @Inject(contactRepositoryToken)
         private contactRepo: ContactRepository,
+
+        @Inject(userRepositoryToken)
         private userRepo: UserRepository,
     ) {}
 

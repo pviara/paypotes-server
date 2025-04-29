@@ -1,3 +1,4 @@
+import { ContactApplicationTasksModule } from '@contacts/application/tasks/contact.application-tasks.module';
 import {
     contactTaskHandlerProvider,
     contactTaskHandlerToken,
@@ -7,7 +8,7 @@ import { Module } from '@nestjs/common';
 
 @Module({
     exports: [contactTaskHandlerToken],
-    imports: [CqrsModule],
+    imports: [ContactApplicationTasksModule, CqrsModule],
     providers: [contactTaskHandlerProvider],
 })
 export class ContactTaskHandlerModule {}

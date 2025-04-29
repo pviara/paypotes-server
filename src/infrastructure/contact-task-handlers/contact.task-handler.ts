@@ -1,4 +1,6 @@
+import { AddRelationshipBetweenUsersCommand } from '@contacts/application/tasks/add-relationship-between-users.handler';
 import { CommandBus } from '@nestjs/cqrs';
+import { Injectable } from '@nestjs/common';
 import {
     MessageContent,
     MessageType,
@@ -8,6 +10,7 @@ export interface ContactTaskHandler {
     on(message: MessageContent): Promise<void>;
 }
 
+@Injectable() // -> required for commandBus to be injected
 export class DefaultContactTaskHandler implements ContactTaskHandler {
     constructor(private commandBus: CommandBus) {}
 
@@ -15,12 +18,14 @@ export class DefaultContactTaskHandler implements ContactTaskHandler {
         switch (message.type) {
             case MessageType.GroupCreated: {
                 message.userIds;
-                return;
+                break;
             }
 
             case MessageType.PairExpenseCreated: {
-                message.userIds;
-                return;
+                const command = new AddRelationshipBetweenUsersCommand({
+                    userIds: message.userIds,
+                });
+                return this.commandBus.execute(command);
             }
         }
     }
