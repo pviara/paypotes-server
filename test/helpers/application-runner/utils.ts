@@ -21,3 +21,13 @@ export const initRunnerWith = (
         ],
     });
 };
+
+export const initMessagingRunnerWith = (
+    modules: Modules,
+    providers: OverridingProviders,
+): ApplicationRunner => {
+    return new ApplicationRunner({
+        modules: [AuthFakeModule, InfrastructureModule, ...modules],
+        providers,
+    });
+};

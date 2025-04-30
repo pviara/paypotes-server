@@ -1,5 +1,5 @@
 import { ContactController } from '@contacts/presentation/contact.controller';
-import { contactRepositoryProvider } from '@contacts/persistence/contact.repository-provider';
+import { ContactRepositoryModule } from '@contacts/persistence/contact.repository-module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ExpenseRepositoryModule } from '@expenses/persistence/expense.repository-module';
 import { GetActorContactWithBalanceByIdHandler } from '@contacts/application/get-actor-contact-with-balance-by-id.handler';
@@ -9,9 +9,8 @@ import { Module } from '@nestjs/common';
 
 @Module({
     controllers: [ContactController],
-    imports: [CqrsModule, ExpenseRepositoryModule],
+    imports: [ContactRepositoryModule, CqrsModule, ExpenseRepositoryModule],
     providers: [
-        contactRepositoryProvider,
         GetActorContactWithBalanceByIdHandler,
         GetActorContactsHandler,
         GetActorContactsWithBalanceHandler,

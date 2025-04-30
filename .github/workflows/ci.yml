@@ -22,6 +22,15 @@ jobs:
           node-version: '22.14.0'
           cache: 'yarn'
 
+      - name: 🐳 Run containers
+        run: |
+          docker compose -f docker-compose.test.yml up -d
+        env:
+          RABBITMQ_HOST: 'localhost'
+          RABBITMQ_TEST_PORT: '5673'
+          RABBITMQ_DEFAULT_USER: 'test_paypot'
+          RABBITMQ_DEFAULT_PASS: 'test_access'
+
       - name: 📦 Install dependencies
         run: yarn install
 
@@ -33,6 +42,17 @@ jobs:
 
       - name: 🧑‍🔬 Run e2e tests
         run: yarn test:e2e
+        env:
+          APP_ENVIRONMENT: 'test'
+          RABBITMQ_HOST: 'localhost'
+          RABBITMQ_TEST_PORT: '5673'
+          RABBITMQ_DEFAULT_USER: 'test_paypot'
+          RABBITMQ_DEFAULT_PASS: 'test_access'
+          CONTACT_TASKS_QUEUE: 'test_contact_tasks'
 
       - name: 🧑‍🔬 Run concurrency tests
         run: yarn test:concurrency
+
+      - name: 🐳 Stop containers
+        run: |
+          docker compose -f docker-compose.test.yml down

@@ -1,8 +1,9 @@
 import { Inject } from '@nestjs/common';
+import { MessageContent } from '@infra/contact-task-managers/message-content';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 
-export type SendingOptions = { queue: string; message: unknown };
+export type SendingOptions = { queue: string; message: MessageContent };
 
 export interface Producer {
     send(options: SendingOptions): Promise<void>;

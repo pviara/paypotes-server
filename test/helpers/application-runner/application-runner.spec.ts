@@ -10,6 +10,10 @@ import {
 } from '@test/helpers/application-runner/model/overriding-provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Type } from '@nestjs/common';
+import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
+import { Channel } from 'amqplib';
+import { ConfigService } from '@nestjs/config';
+import { ConfigServiceStub } from '../../doubles/config-service.stub';
 
 describe('ApplicationRunner', () => {
     let sut: ApplicationRunner;
@@ -131,13 +135,44 @@ describe('ApplicationRunner', () => {
     });
 
     describe('shutdown', () => {
+        let configServiceStub: ConfigServiceStub;
+
+        const deleteQueueSpy = { count: 0, history: [] as Array<string> };
+        const consumerSpy = {
+            deleteQueue: async (queue: string) => {
+                deleteQueueSpy.count++;
+                deleteQueueSpy.history.push(queue);
+                return { messageCount: 0 };
+            },
+        } as Channel;
+
+        beforeEach(() => {
+            configServiceStub = new ConfigServiceStub();
+            get.mockReturnValueOnce(configServiceStub);
+
+            const rabbitMQServiceSpy = new RabbitMQServiceSpy();
+            rabbitMQServiceSpy.stub('getConsumer', consumerSpy);
+
+            get.mockReturnValueOnce(rabbitMQServiceSpy);
+        });
+
         it('should throw an error when no application has been bootstrapped', async () => {
             await expect(sut.shutdown()).rejects.toThrow(
                 ApplicationNotBootstrappedError,
             );
         });
 
-        it('should directly call close method from the app that was initialized', async () => {
+        it('should purge rabbitmqctl queue', async () => {
+            await sut.bootstrap();
+            await sut.shutdown();
+
+            expect(deleteQueueSpy.count).toBe(1);
+            expect(deleteQueueSpy.history).toContain(
+                configServiceStub.dummyQueue,
+            );
+        });
+
+        it('should call close method from the app that was initialized', async () => {
             await sut.bootstrap();
             await sut.shutdown();
             expect(close).toHaveBeenCalledTimes(1);

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
-import { ContactTaskMessenger } from '@infra/task-messengers/contact.task-messenger';
-import { contactTaskMessengerToken } from '@infra/task-messengers/contact.task-messenger.provider';
+import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
+import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.task-messenger.provider';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
@@ -44,7 +44,7 @@ export class AddPairExpenseHandler
         const { actor, userId } = command.payload;
 
         const [stakeholder] = await this.userRepository.get(userId);
-        if (!stakeholder) throw new UserExpenseNotFoundError(userId);
+        if (!stakeholder) throw new ExpenseUserNotFoundError(userId);
 
         const metadata = this.extractMetadataFrom(command);
         const payment = this.extractPaymentFrom(command, stakeholder);
@@ -52,8 +52,8 @@ export class AddPairExpenseHandler
 
         await this.expenseRepository.save(expense);
         return this.messenger.sendRelationshipMustBeCreatedBetween(
-            actor,
-            stakeholder,
+            actor.getId(),
+            stakeholder.getId(),
         );
     }
 
@@ -79,7 +79,7 @@ export class AddPairExpenseHandler
     }
 }
 
-export class UserExpenseNotFoundError extends Error {
+export class ExpenseUserNotFoundError extends Error {
     constructor(stakeholderId: string) {
         super(
             `Pair expense cannot be created: user with id "${stakeholderId} cannot be found"`,

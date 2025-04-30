@@ -1,4 +1,6 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
+import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
+import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.task-messenger.provider';
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
@@ -27,6 +29,9 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
 
         @Inject(userRepositoryToken)
         private userRepository: UserRepository,
+
+        @Inject(contactTaskMessengerToken)
+        private messenger: ContactTaskMessenger,
     ) {}
 
     async execute(command: CreateGroupCommand): Promise<void> {
@@ -37,7 +42,7 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
             throw new GroupUserNotFoundError();
         }
 
-        return this.groupRepository.save(
+        await this.groupRepository.save(
             new Group({
                 id: payload.id,
                 name: payload.name,
@@ -46,11 +51,16 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
             }),
         );
 
-        // todo: publish event to create a relationship between each group member
+        const userIds = this.mapIdsFrom(users);
+        return this.messenger.sendRelationshipsMustBeCreatedBetween(userIds);
     }
 
     private mapToMembers(users: Array<User>): Array<Member> {
         return users.map((user) => Member.fromUser(user));
+    }
+
+    private mapIdsFrom(users: Array<User>): Array<string> {
+        return users.map((user) => user.getId());
     }
 }
 

@@ -1,7 +1,9 @@
 import { Contact } from '@contacts/domain/contact';
 import { Relationship } from '@contacts/persistence/relationship';
+import { User } from '@users/domain/user';
 
 export interface ContactRepository {
+    addRelationshipsBetween(users: Array<User>): Promise<void>;
     getActorContactById(
         actorId: string,
         contactId: string,
@@ -17,6 +19,21 @@ const MAX_CONTACTS_PER_PAGE = 20;
 
 export class ContactInMemoryRepository implements ContactRepository {
     protected relationships: Array<Relationship> = [];
+
+    async addRelationshipsBetween(users: Array<User>): Promise<void> {
+        for (const user of users) {
+            const otherUsers = this.getOtherUsersThan(user, users);
+            for (const otherUser of otherUsers) {
+                const exists = await this.existsBetween(user, otherUser);
+                if (exists) continue;
+
+                this.relationships.push({
+                    userA: Contact.fromUser(user),
+                    userB: Contact.fromUser(otherUser),
+                });
+            }
+        }
+    }
 
     async getActorContactById(
         actorId: string,
@@ -41,6 +58,33 @@ export class ContactInMemoryRepository implements ContactRepository {
             .map(this.extractContactFromRelationshipOf(actorId))
             .filter(this.contactNamesMatch(search))
             .slice(start, start + MAX_CONTACTS_PER_PAGE);
+    }
+
+    private getOtherUsersThan(user: User, users: Array<User>): Array<User> {
+        return users.filter((otherUser) => user.getId() !== otherUser.getId());
+    }
+
+    private async existsBetween(userA: User, userB: User): Promise<boolean> {
+        return this.relationships
+            .map(this.mapRelationshipToContactIds())
+            .some(this.idsInclude(userA, userB));
+    }
+
+    private mapRelationshipToContactIds(): (
+        value: Relationship,
+    ) => Array<string> {
+        return (relationship) => [
+            relationship.userA.getId(),
+            relationship.userB.getId(),
+        ];
+    }
+
+    private idsInclude(
+        userA: User,
+        userB: User,
+    ): (value: Array<string>) => unknown {
+        return (ids) =>
+            ids.includes(userA.getId()) && ids.includes(userB.getId());
     }
 
     private isRelationshipOf(

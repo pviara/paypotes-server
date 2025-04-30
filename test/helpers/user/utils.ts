@@ -1,6 +1,7 @@
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from './user.testing-repository';
 import { UserModule } from '@users/user.module';
@@ -23,8 +24,10 @@ export const generateRandomUser = (): User => {
     });
 };
 
-export const generateRandomUsers = (): Array<User> => {
-    return Array.from({ length: 4 }).map(
+export const generateRandomUsers = (
+    options: RandomArrayGenerationOptions,
+): Array<User> => {
+    return Array.from({ length: options.length }).map(
         (_, index) =>
             new User({
                 id: crypto.randomUUID(),

@@ -1,3 +1,4 @@
+import { ContactTaskManagerModule } from '@infra/contact-task-managers/contact.task-manager.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateGroupHandler } from '@groups/application/create-group.handler';
 import { ExpenseRepositoryModule } from '@expenses/persistence/expense.repository-module';
@@ -12,6 +13,7 @@ import { UserRepositoryModule } from '@users/persistence/user.repository-module'
 @Module({
     controllers: [GroupController],
     imports: [
+        ContactTaskManagerModule,
         CqrsModule,
         ExpenseRepositoryModule,
         GroupRepositoryModule,

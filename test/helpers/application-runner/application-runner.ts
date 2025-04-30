@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { ConfigService } from '@nestjs/config';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
@@ -15,6 +16,8 @@ import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
+import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
@@ -78,6 +81,7 @@ export class ApplicationRunner {
     }
 
     async shutdown(): Promise<void> {
+        await this.tryDeletingRabbitMQSingleQueue();
         await this.getApplication().close();
     }
 
@@ -122,6 +126,19 @@ export class ApplicationRunner {
     private useDefaultConfigurationFor(application: INestApplication): void {
         application.useGlobalFilters(new ErrorFilter());
         application.useGlobalPipes(new ValidationPipe());
+    }
+
+    private async tryDeletingRabbitMQSingleQueue(): Promise<void> {
+        try {
+            const configService = this.getApplication().get(ConfigService);
+            const rabbitmqService =
+                this.getApplication().get<RabbitMQService>(
+                    rabbitMQServiceToken,
+                );
+
+            const queue = configService.get('CONTACT_TASKS_QUEUE', '');
+            await rabbitmqService.getConsumer().deleteQueue(queue);
+        } catch (error: unknown) {}
     }
 }
 
