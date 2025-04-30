@@ -34,14 +34,13 @@ describe('contact application tasks', () => {
         httpServer = runner.getHttpServer();
 
         await userRepo.empty();
-        await userRepo.insert(DEFAULT_USER);
     });
 
     afterEach(shutdown(runner));
 
     it('should add a relationship between pair expense users', async () => {
         const dummyUser = generateRandomUser();
-        await userRepo.insert(dummyUser);
+        await userRepo.insert(DEFAULT_USER, dummyUser);
 
         const expenseId = crypto.randomUUID();
         await request(httpServer).post(`/${EXPENSES_API_ROUTE}/pair`).send({
@@ -82,6 +81,8 @@ describe('contact application tasks', () => {
             emoji: '🏕️',
             userIds,
         });
+
+        await setTimeout(100);
 
         const defaultUserContacts = await contactRepo.getActorContacts(
             DEFAULT_USER.getId(),

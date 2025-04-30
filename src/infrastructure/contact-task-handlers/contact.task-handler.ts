@@ -1,4 +1,4 @@
-import { AddRelationshipBetweenUsersCommand } from '@contacts/application/tasks/add-relationship-between-users.handler';
+import { AddRelationshipsBetweenUsersCommand } from '@app/contacts/application/tasks/add-relationships-between-users.handler';
 import { CommandBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import {
@@ -16,13 +16,9 @@ export class DefaultContactTaskHandler implements ContactTaskHandler {
 
     async on(message: MessageContent): Promise<void> {
         switch (message.type) {
-            case MessageType.GroupCreated: {
-                message.userIds;
-                break;
-            }
-
+            case MessageType.GroupCreated:
             case MessageType.PairExpenseCreated: {
-                const command = new AddRelationshipBetweenUsersCommand({
+                const command = new AddRelationshipsBetweenUsersCommand({
                     userIds: message.userIds,
                 });
                 return this.commandBus.execute(command);

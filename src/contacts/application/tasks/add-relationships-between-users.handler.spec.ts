@@ -1,8 +1,8 @@
 import {
-    AddRelationshipBetweenUsersCommand,
-    AddRelationshipBetweenUsersHandler,
+    AddRelationshipsBetweenUsersCommand,
+    AddRelationshipsBetweenUsersHandler,
     RelationshipUserNotFoundError,
-} from '@contacts/application/tasks/add-relationship-between-users.handler';
+} from '@contacts/application/tasks/add-relationships-between-users.handler';
 import { ContactRepositorySpy } from '@test/doubles/contact-repository.spy';
 import {
     generateRandomUser,
@@ -11,12 +11,12 @@ import {
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
 
 describe('AddRelationshipBetweenUsersHandler', () => {
-    let sut: AddRelationshipBetweenUsersHandler;
+    let sut: AddRelationshipsBetweenUsersHandler;
 
     let contactRepo: ContactRepositorySpy;
     let userRepo: UserRepositorySpy;
 
-    const dummyCommand = new AddRelationshipBetweenUsersCommand({
+    const dummyCommand = new AddRelationshipsBetweenUsersCommand({
         userIds: [crypto.randomUUID(), crypto.randomUUID()],
     });
 
@@ -56,7 +56,7 @@ describe('AddRelationshipBetweenUsersHandler', () => {
 
     function initSut(): void {
         initDependencies();
-        sut = new AddRelationshipBetweenUsersHandler(contactRepo, userRepo);
+        sut = new AddRelationshipsBetweenUsersHandler(contactRepo, userRepo);
     }
 
     function initDependencies(): void {

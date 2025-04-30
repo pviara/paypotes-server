@@ -1,22 +1,21 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
-import { UserRepository } from '@users/persistence/user.repository';
 import { Inject } from '@nestjs/common';
-import { User } from '@users/domain/user';
+import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
-export class AddRelationshipBetweenUsersCommand implements ICommand {
+export class AddRelationshipsBetweenUsersCommand implements ICommand {
     constructor(
         readonly payload: {
-            userIds: [string, string];
+            userIds: Array<string>;
         },
     ) {}
 }
 
-@CommandHandler(AddRelationshipBetweenUsersCommand)
-export class AddRelationshipBetweenUsersHandler
-    implements ICommandHandler<AddRelationshipBetweenUsersCommand>
+@CommandHandler(AddRelationshipsBetweenUsersCommand)
+export class AddRelationshipsBetweenUsersHandler
+    implements ICommandHandler<AddRelationshipsBetweenUsersCommand>
 {
     constructor(
         @Inject(contactRepositoryToken)
@@ -26,7 +25,7 @@ export class AddRelationshipBetweenUsersHandler
         private userRepo: UserRepository,
     ) {}
 
-    async execute(command: AddRelationshipBetweenUsersCommand): Promise<void> {
+    async execute(command: AddRelationshipsBetweenUsersCommand): Promise<void> {
         const { payload } = command;
 
         const users = await this.userRepo.get(...payload.userIds);
@@ -34,7 +33,7 @@ export class AddRelationshipBetweenUsersHandler
             throw new RelationshipUserNotFoundError();
         }
 
-        return this.contactRepo.addRelationshipBetween(users);
+        return this.contactRepo.addRelationshipsBetween(users);
     }
 }
 

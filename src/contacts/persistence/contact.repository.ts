@@ -3,7 +3,7 @@ import { Relationship } from '@contacts/persistence/relationship';
 import { User } from '@users/domain/user';
 
 export interface ContactRepository {
-    addRelationshipBetween(users: Array<User>): Promise<void>;
+    addRelationshipsBetween(users: Array<User>): Promise<void>;
     getActorContactById(
         actorId: string,
         contactId: string,
@@ -20,7 +20,7 @@ const MAX_CONTACTS_PER_PAGE = 20;
 export class ContactInMemoryRepository implements ContactRepository {
     protected relationships: Array<Relationship> = [];
 
-    async addRelationshipBetween(users: Array<User>): Promise<void> {
+    async addRelationshipsBetween(users: Array<User>): Promise<void> {
         for (const user of users) {
             const otherUsers = this.getOtherUsersThan(user, users);
             for (const otherUser of otherUsers) {

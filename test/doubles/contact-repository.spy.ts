@@ -22,7 +22,7 @@ export class ContactRepositorySpy
         },
     };
 
-    async addRelationshipBetween(users: Array<User>): Promise<void> {
+    async addRelationshipsBetween(users: Array<User>): Promise<void> {
         this.saveCall('addRelationshipBetween', users);
         return this.getStubOrDefault('addRelationshipBetween', undefined);
     }
