@@ -18,7 +18,6 @@ export class GroupExpense extends Expense {
     ) {
         super(metadata);
         this.participants = this.getParticipants();
-        console.dir(this.participants, { depth: null });
     }
 
     belongsTo(groupId: string): boolean {
@@ -42,12 +41,9 @@ export class GroupExpense extends Expense {
     }
 
     override involves(stakeholderId: string): boolean {
-        const { creditor } = this.payment;
-        const isCreditor = creditor.getId() === stakeholderId;
-        const isGroupMember = this.group
-            .getMembers()
-            .some((member) => member.getId() === stakeholderId);
-        return isCreditor || isGroupMember;
+        return (
+            this.isCreditor(stakeholderId) || this.isParticipant(stakeholderId)
+        );
     }
 
     private getParticipants(): Array<Stakeholder> {
@@ -63,5 +59,15 @@ export class GroupExpense extends Expense {
 
     private mapToStakeholders(members: Array<Member>): Array<Stakeholder> {
         return members.map((member) => Stakeholder.fromMember(member));
+    }
+
+    private isCreditor(stakeholderId: string): boolean {
+        return this.getCreditor().getId() === stakeholderId;
+    }
+
+    private isParticipant(stakeholderId: string): boolean {
+        return this.participants.some(
+            (participant) => participant.getId() === stakeholderId,
+        );
     }
 }
