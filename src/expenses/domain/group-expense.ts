@@ -1,5 +1,6 @@
 import { Expense, Metadata } from '@expenses/domain/expense';
 import { Group } from '@groups/domain/group';
+import { Member } from '@groups/domain/member';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 
 export type GroupPayment = {
@@ -8,12 +9,16 @@ export type GroupPayment = {
 };
 
 export class GroupExpense extends Expense {
+    private participants: Array<Stakeholder>;
+
     constructor(
         metadata: Metadata,
         private group: Group,
         private payment: GroupPayment,
     ) {
         super(metadata);
+        this.participants = this.getParticipants();
+        console.dir(this.participants, { depth: null });
     }
 
     belongsTo(groupId: string): boolean {
@@ -43,5 +48,20 @@ export class GroupExpense extends Expense {
             .getMembers()
             .some((member) => member.getId() === stakeholderId);
         return isCreditor || isGroupMember;
+    }
+
+    private getParticipants(): Array<Stakeholder> {
+        const creditorId = this.getCreditor().getId();
+        const membersExceptCreditor =
+            this.group.getMembersExcluding(creditorId);
+        return this.mapToStakeholders(membersExceptCreditor);
+    }
+
+    private getCreditor(): Stakeholder {
+        return this.payment.creditor;
+    }
+
+    private mapToStakeholders(members: Array<Member>): Array<Stakeholder> {
+        return members.map((member) => Stakeholder.fromMember(member));
     }
 }
