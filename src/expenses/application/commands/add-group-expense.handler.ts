@@ -1,5 +1,3 @@
-import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
-import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.task-messenger.provider';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
@@ -8,9 +6,9 @@ import { expenseRepositoryToken } from '@expenses/persistence/expense.repository
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import { Inject } from '@nestjs/common';
 import { Metadata } from '@expenses/domain/expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Inject } from '@nestjs/common';
 
 export class AddGroupExpenseCommand implements ICommand {
     constructor(
