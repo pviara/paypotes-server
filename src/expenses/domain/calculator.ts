@@ -14,7 +14,10 @@ export class Calculator {
         actorId: string,
     ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {
-            const expenseBalance = expense.getRawBalance();
+            // const stakeholder = expense.getStakeholder(actorId);
+            // const share = stakeholder.getShare();
+            // const actorBalance = expense.hasCreditor(actorId) ? share : -share;
+            const expenseBalance = expense.getRawBalance(); // -> get stakeholder's share
             const actorBalance = expense.hasCreditor(actorId)
                 ? expenseBalance
                 : -expenseBalance;
