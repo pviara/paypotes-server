@@ -8,6 +8,7 @@ export class Stakeholder {
             id: string; // <=> userId
             firstname: string;
             lastname: string;
+            // part: number;
         },
     ) {}
 
