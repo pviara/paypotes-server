@@ -2,6 +2,7 @@ import { Expense, Metadata } from '@expenses/domain/expense';
 import { Group } from '@groups/domain/group';
 import { Member } from '@groups/domain/member';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Stakeholders } from '@expenses/domain/stakeholders';
 
 export type GroupPayment = {
     balance: number;
@@ -9,7 +10,7 @@ export type GroupPayment = {
 };
 
 export class GroupExpense extends Expense {
-    private participants: Array<Stakeholder>;
+    private stakeholders = this.mapStakeholdersFromGroupMembers();
 
     constructor(
         metadata: Metadata,
@@ -17,7 +18,6 @@ export class GroupExpense extends Expense {
         private payment: GroupPayment,
     ) {
         super(metadata);
-        this.participants = this.getParticipants();
     }
 
     belongsTo(groupId: string): boolean {
@@ -42,35 +42,27 @@ export class GroupExpense extends Expense {
 
     override involves(stakeholderId: string): boolean {
         return (
-            this.isCreditor(stakeholderId) || this.isParticipant(stakeholderId)
+            this.isCreditor(stakeholderId) || this.isStakeholder(stakeholderId)
         );
     }
 
-    private getParticipants(): Array<Stakeholder> {
-        const creditorId = this.getCreditor().getId();
-        const membersExceptCreditor =
-            this.group.getMembersExcluding(creditorId);
-        return this.mapToStakeholders(membersExceptCreditor);
+    private mapStakeholdersFromGroupMembers(): Array<Stakeholder> {
+        const members = this.group.getMembers();
+        const { balance } = this.payment;
+        return new Stakeholders(members, balance).getValue();
     }
 
     private getCreditor(): Member {
         return this.payment.creditor;
     }
 
-    private mapToStakeholders(members: Array<Member>): Array<Stakeholder> {
-        return members.map((member) => {
-            const share = 0; // -> calculate share
-            return Stakeholder.from(member, share);
-        });
-    }
-
     private isCreditor(stakeholderId: string): boolean {
         return this.getCreditor().getId() === stakeholderId;
     }
 
-    private isParticipant(stakeholderId: string): boolean {
-        return this.participants.some(
-            (participant) => participant.getId() === stakeholderId,
+    private isStakeholder(stakeholderId: string): boolean {
+        return this.stakeholders.some(
+            (stakeholder) => stakeholder.getId() === stakeholderId,
         );
     }
 }

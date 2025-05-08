@@ -32,8 +32,10 @@ const getDefaultUserAsMember = (): Member => {
     return Member.fromUser(DEFAULT_USER);
 };
 
-export const generateRandomMembers = (): Array<Member> => {
-    return Array.from({ length: 4 }).map(
+export const generateRandomMembers = (
+    options?: RandomArrayGenerationOptions,
+): Array<Member> => {
+    return Array.from({ length: options?.length ?? 4 }).map(
         (_, index) =>
             new Member({
                 id: crypto.randomUUID(),

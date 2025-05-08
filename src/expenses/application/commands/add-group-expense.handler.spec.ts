@@ -11,7 +11,6 @@ import { GroupNotFoundError } from '@groups/application/get-actor-group-with-bal
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { Member } from '@groups/domain/member';
 import { Metadata } from '@expenses/domain/expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
 
 describe('AddGroupExpenseHandler', () => {
     let sut: AddGroupExpenseHandler;

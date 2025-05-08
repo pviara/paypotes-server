@@ -13,6 +13,8 @@ import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Member } from '../domain/member';
+import { generateRandomMembers } from '@test/helpers/group/utils';
 
 describe('GetActorGroupWithBalanceByIdHandler', () => {
     let sut: GetActorGroupWithBalanceByIdHandler;
@@ -31,7 +33,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         id: dummyGroupId,
         name: 'name',
         emoji: '🚧',
-        members: [],
+        members: [Member.fromUser(DEFAULT_USER), ...generateRandomMembers()],
     });
 
     beforeEach(() => {
@@ -95,7 +97,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: GroupPayment = {
             balance,
-            creditor: Stakeholder.from(DEFAULT_USER),
+            creditor: Member.fromUser(DEFAULT_USER),
         };
         return new GroupExpense(metadata, dummyGroup, payment);
     }
@@ -104,8 +106,15 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: GroupPayment = {
             balance,
-            creditor: generateRandomStakeholder(),
+            creditor: getRandomMemberFrom(
+                dummyGroup.getMembersExcluding(DEFAULT_USER.getId()), // todo -> finish this
+            ),
         };
         return new GroupExpense(metadata, dummyGroup, payment);
+    }
+
+    function getRandomMemberFrom(members: Array<Member>): Member {
+        const randomIndex = Math.floor(Math.random() * members.length);
+        return members[randomIndex];
     }
 });

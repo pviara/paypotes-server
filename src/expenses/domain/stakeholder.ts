@@ -24,4 +24,12 @@ export class Stakeholder {
     getId(): string {
         return this.data.id;
     }
+
+    getShare(): number {
+        return this.data.share;
+    }
+
+    shareEquals(number: number): boolean {
+        return this.getShare() === number;
+    }
 }
