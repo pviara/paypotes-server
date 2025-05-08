@@ -29,11 +29,16 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         groupId: dummyGroupId,
     });
 
+    const dummyGroupMembers: Array<Member> = [
+        Member.fromUser(DEFAULT_USER),
+        ...generateRandomMembers({ length: 4 }),
+    ];
+
     const dummyGroup = new Group({
         id: dummyGroupId,
         name: 'name',
         emoji: '🚧',
-        members: [Member.fromUser(DEFAULT_USER), ...generateRandomMembers()],
+        members: dummyGroupMembers,
     });
 
     beforeEach(() => {
@@ -59,7 +64,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         ).toContainEqual([dummyActorId, dummyGroupId]);
     });
 
-    it('should compute the actor group balance correctly', async () => {
+    it("should compute the actor's group balance correctly", async () => {
         const expenses = [
             createRandomCreditExpense(1500),
             createRandomDebitExpense(790),
@@ -70,7 +75,8 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
 
         const group = await sut.execute(dummyQuery);
 
-        const expectedBalance = 1500 - 790 - 2400 + 1100;
+        const expectedBalance =
+            (1500 - 790 - 2400 + 1100) / dummyGroupMembers.length;
         expect(group.getBalance()).toBe(expectedBalance);
     });
 
@@ -107,7 +113,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         const payment: GroupPayment = {
             balance,
             creditor: getRandomMemberFrom(
-                dummyGroup.getMembersExcluding(DEFAULT_USER.getId()), // todo -> finish this
+                dummyGroup.getMembersExcluding(DEFAULT_USER.getId()),
             ),
         };
         return new GroupExpense(metadata, dummyGroup, payment);

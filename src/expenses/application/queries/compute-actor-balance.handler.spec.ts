@@ -69,7 +69,7 @@ describe('ComputeActorBalanceHandler', () => {
         const dummyGroup = generateDefaultUserRandomGroup();
         return new GroupExpense(metadata, dummyGroup, {
             balance,
-            creditor,
+            creditor, // todo: fix this
         });
     }
 

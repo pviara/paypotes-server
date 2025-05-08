@@ -62,7 +62,10 @@ export const generateDefaultUserRandomGroups = (
                 id: crypto.randomUUID(),
                 name: `name_${index}`,
                 emoji: '⛺️',
-                members: [getDefaultUserAsMember(), ...generateRandomMembers()],
+                members: [
+                    getDefaultUserAsMember(),
+                    ...generateRandomMembers({ length: 5 }),
+                ],
             }),
     );
 };

@@ -32,6 +32,10 @@ export class GroupExpense extends Expense {
         return this.group;
     }
 
+    getStakeholders(): Array<Stakeholder> {
+        return this.stakeholders;
+    }
+
     override getRawBalance(): number {
         return this.payment.balance;
     }

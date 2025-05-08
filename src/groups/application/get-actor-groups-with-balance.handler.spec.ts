@@ -15,6 +15,7 @@ import {
     generateRandomStakeholder,
 } from '@test/helpers/expense/utils';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Member } from '../domain/member';
 
 describe('GetActorGroupsWithBalanceHandler', () => {
     let sut: GetActorGroupsWithBalanceHandler;
@@ -65,9 +66,8 @@ describe('GetActorGroupsWithBalanceHandler', () => {
         dummyGroups.forEach((group) => {
             expensesByGroup[group.getId()] = [
                 createRandomCreditExpenseFor(group, 894),
-                createRandomDebitExpenseFor(group, 145),
-                createRandomDebitExpenseFor(group, 311),
-                createRandomCreditExpenseFor(group, 28),
+                createRandomDebitExpenseFor(group, 120),
+                createRandomDebitExpenseFor(group, 312),
             ];
         });
         expenseRepo.stub('getAllActorGroupsExpenses', expensesByGroup);
@@ -76,10 +76,11 @@ describe('GetActorGroupsWithBalanceHandler', () => {
 
         expect(groups.length).toBe(dummyGroups.length);
 
-        const expectedBalance = 894 - 145 - 311 + 28;
-        groups.forEach((group) =>
-            expect(group.getBalance()).toBe(expectedBalance),
-        );
+        groups.forEach((group) => {
+            const expectedBalance =
+                (894 - 120 - 312) / group.getMembers().length;
+            expect(group.getBalance()).toBe(expectedBalance);
+        });
     });
 
     function initSut(): void {
@@ -99,7 +100,7 @@ describe('GetActorGroupsWithBalanceHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: GroupPayment = {
             balance,
-            creditor: Stakeholder.from(DEFAULT_USER),
+            creditor: Member.fromUser(DEFAULT_USER),
         };
         return new GroupExpense(metadata, group, payment);
     }
@@ -111,8 +112,15 @@ describe('GetActorGroupsWithBalanceHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: GroupPayment = {
             balance,
-            creditor: generateRandomStakeholder(),
+            creditor: getRandomMemberFrom(
+                group.getMembersExcluding(DEFAULT_USER.getId()),
+            ),
         };
         return new GroupExpense(metadata, group, payment);
+    }
+
+    function getRandomMemberFrom(members: Array<Member>): Member {
+        const randomIndex = Math.floor(Math.random() * members.length);
+        return members[randomIndex];
     }
 });

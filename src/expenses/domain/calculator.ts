@@ -1,4 +1,7 @@
 import { Expense } from '@expenses/domain/expense';
+import { PairExpense } from './pair-expense';
+import { GroupExpense } from './group-expense';
+import { Stakeholder } from './stakeholder';
 
 export class Calculator {
     constructor(private expenses: Array<Expense>) {}
@@ -14,15 +17,32 @@ export class Calculator {
         actorId: string,
     ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {
-            // const stakeholder = expense.getStakeholder(actorId);
-            // const share = stakeholder.getShare();
-            // const actorBalance = expense.hasCreditor(actorId) ? share : -share;
-            const expenseBalance = expense.getRawBalance(); // -> get stakeholder's share
-            const actorBalance = expense.hasCreditor(actorId)
-                ? expenseBalance
-                : -expenseBalance;
+            if (expense instanceof PairExpense) {
+                const expenseBalance = expense.getRawBalance();
+                const actorBalance = expense.hasCreditor(actorId)
+                    ? expenseBalance
+                    : -expenseBalance;
 
-            return balance + actorBalance;
+                return balance + actorBalance;
+            } else if (expense instanceof GroupExpense) {
+                const actorShare = this.getActorShareFrom(expense, actorId);
+                const actorBalance = expense.hasCreditor(actorId)
+                    ? actorShare
+                    : -actorShare;
+
+                return balance + actorBalance;
+            } else {
+                throw new Error();
+            }
         };
+    }
+
+    private getActorShareFrom(expense: GroupExpense, actorId: string): number {
+        const stakeholder = expense
+            .getStakeholders()
+            .find((stakeholder) => stakeholder.getId() === actorId);
+
+        if (stakeholder) return stakeholder.getShare();
+        throw new Error('Actor stakeholder profile could not be found');
     }
 }

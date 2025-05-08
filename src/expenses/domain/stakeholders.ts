@@ -28,6 +28,7 @@ export class Stakeholders {
             member,
             shares[index],
         ]);
+
         return membersAndTheirShare.map(([member, share]) =>
             Stakeholder.from(member, share),
         );
