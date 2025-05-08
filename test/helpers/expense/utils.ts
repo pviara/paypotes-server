@@ -14,6 +14,7 @@ import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { Member } from '@app/groups/domain/member';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: OverridingProviders = [
@@ -51,16 +52,22 @@ const generateRandomPairPaymentWithDefaultUser = (
     };
 };
 
-const generateRandomGroupPaymentWithDefaultUser = (
-    counterparty?: Stakeholder,
+const generateRandomGroupPaymentWithDefaultUserIn = (
+    group: Group,
+    counterparty?: Member,
 ): GroupPayment => {
     const isDebtor = generateRandomBoolean();
     const isCreditor = !isDebtor;
+
+    const defaultMember = getDefaultUserAsMemberIn(group);
+    const otherMembers = group.getMembersExcluding(defaultMember.getId());
+    const randomGroupMember = getRandomMemberFrom(otherMembers);
+
     return {
         balance: generateRandomBalance(),
         creditor: isCreditor
-            ? getDefaultUserAsStakeholder()
-            : counterparty || generateRandomStakeholder(), // todo: fix
+            ? defaultMember
+            : counterparty || randomGroupMember,
     };
 };
 
@@ -106,7 +113,7 @@ export const generateDefaultUserPairExpenses = ({
 
 export const generateDefaultUserGroupExpense = (group: Group): GroupExpense => {
     const metadata = generateRandomMetadata();
-    const payment = generateRandomGroupPaymentWithDefaultUser();
+    const payment = generateRandomGroupPaymentWithDefaultUserIn(group);
     return new GroupExpense(metadata, group, payment);
 };
 
@@ -117,10 +124,29 @@ export const generateDefaultUserGroupExpenses = ({
 }: RandomGroupExpenseArrayGenerationOptions): Array<GroupExpense> => {
     return Array.from({ length }).map((_, index) => {
         const metadata = generateRandomMetadata({ label: `label_${index}` });
-        const payment = generateRandomGroupPaymentWithDefaultUser(counterparty);
+        const payment = generateRandomGroupPaymentWithDefaultUserIn(
+            group,
+            counterparty,
+        );
         return new GroupExpense(metadata, group, payment);
     });
 };
+
+function getRandomMemberFrom(otherMembers: Array<Member>): Member {
+    const randomIndex = Math.floor(Math.random() * otherMembers.length);
+    return otherMembers[randomIndex];
+}
+
+function getDefaultUserAsMemberIn(group: Group) {
+    const defaultMember = group
+        .getMembers()
+        .find((member) => member.getId() === DEFAULT_USER.getId());
+
+    if (!defaultMember)
+        throw new Error('Could not find default user as member in group');
+
+    return defaultMember;
+}
 
 export function generateRandomMetadata(
     options?: RandomMetadataGenerationOptions,
@@ -146,7 +172,7 @@ type RandomPairExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
     counterparty?: Stakeholder;
 };
 
-type RandomGroupExpenseArrayGenerationOptions =
-    RandomPairExpenseArrayGenerationOptions & {
-        group: Group;
-    };
+type RandomGroupExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
+    counterparty?: Member;
+    group: Group;
+};
