@@ -5,7 +5,7 @@ import { Stakeholder } from '@expenses/domain/stakeholder';
 
 export type GroupPayment = {
     balance: number;
-    creditor: Stakeholder;
+    creditor: Member;
 };
 
 export class GroupExpense extends Expense {
@@ -53,12 +53,15 @@ export class GroupExpense extends Expense {
         return this.mapToStakeholders(membersExceptCreditor);
     }
 
-    private getCreditor(): Stakeholder {
+    private getCreditor(): Member {
         return this.payment.creditor;
     }
 
     private mapToStakeholders(members: Array<Member>): Array<Stakeholder> {
-        return members.map((member) => Stakeholder.fromMember(member));
+        return members.map((member) => {
+            const share = 0; // -> calculate share
+            return Stakeholder.from(member, share);
+        });
     }
 
     private isCreditor(stakeholderId: string): boolean {

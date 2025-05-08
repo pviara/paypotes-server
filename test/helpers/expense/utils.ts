@@ -32,7 +32,7 @@ export const expenseSpecProviders: OverridingProviders = [
 ];
 
 const getDefaultUserAsStakeholder = (): Stakeholder => {
-    return Stakeholder.fromUser(DEFAULT_USER);
+    return Stakeholder.from(DEFAULT_USER);
 };
 
 const generateRandomPairPaymentWithDefaultUser = (
@@ -60,7 +60,7 @@ const generateRandomGroupPaymentWithDefaultUser = (
         balance: generateRandomBalance(),
         creditor: isCreditor
             ? getDefaultUserAsStakeholder()
-            : counterparty || generateRandomStakeholder(),
+            : counterparty || generateRandomStakeholder(), // todo: fix
     };
 };
 
@@ -69,6 +69,7 @@ export const generateRandomStakeholder = (): Stakeholder => {
         id: crypto.randomUUID(),
         firstname: 'Firstname',
         lastname: 'Lastname',
+        share: 0,
     });
 };
 
@@ -81,6 +82,7 @@ export const generateRandomStakeholders = ({
                 id: crypto.randomUUID(),
                 firstname: `f_${index}`,
                 lastname: `l_${index}`,
+                share: 0,
             }),
     );
 };

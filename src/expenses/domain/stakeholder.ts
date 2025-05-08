@@ -8,31 +8,16 @@ export class Stakeholder {
             id: string; // <=> userId
             firstname: string;
             lastname: string;
-            // part: number;
+            share: number;
         },
     ) {}
 
-    static fromContact(contact: Contact): Stakeholder {
+    static from(person: Contact | Member | User, share = 0): Stakeholder {
         return new Stakeholder({
-            id: contact.getId(),
-            firstname: contact.getFirstname(),
-            lastname: contact.getLastname(),
-        });
-    }
-
-    static fromMember(member: Member): Stakeholder {
-        return new Stakeholder({
-            id: member.getId(),
-            firstname: member.getFirstname(),
-            lastname: member.getLastname(),
-        });
-    }
-
-    static fromUser(user: User): Stakeholder {
-        return new Stakeholder({
-            id: user.getId(),
-            firstname: user.getFirstname(),
-            lastname: user.getLastname(),
+            id: person.getId(),
+            firstname: person.getFirstname(),
+            lastname: person.getLastname(),
+            share,
         });
     }
 

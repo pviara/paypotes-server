@@ -56,7 +56,7 @@ describe('ComputeActorBalanceHandler', () => {
 
     function createRandomCreditExpense(balance: number): Expense {
         const metadata = generateRandomMetadata();
-        const creditor = Stakeholder.fromUser(DEFAULT_USER);
+        const creditor = Stakeholder.from(DEFAULT_USER);
 
         if (generateRandomBoolean()) {
             return new PairExpense(metadata, {
@@ -81,7 +81,7 @@ describe('ComputeActorBalanceHandler', () => {
             const payment: PairPayment = {
                 balance,
                 creditor,
-                debtor: Stakeholder.fromUser(DEFAULT_USER),
+                debtor: Stakeholder.from(DEFAULT_USER),
             };
             return new PairExpense(metadata, payment);
         }

@@ -2,6 +2,8 @@ import {
     ApplicationNotBootstrappedError,
     ApplicationRunner,
 } from '@test/helpers/application-runner/application-runner';
+import { Channel } from 'amqplib';
+import { ConfigServiceStub } from '@test/doubles/config-service.stub';
 import {
     OverridingClassProvider,
     OverridingProvider,
@@ -11,9 +13,6 @@ import {
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Type } from '@nestjs/common';
 import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
-import { Channel } from 'amqplib';
-import { ConfigService } from '@nestjs/config';
-import { ConfigServiceStub } from '../../doubles/config-service.stub';
 
 describe('ApplicationRunner', () => {
     let sut: ApplicationRunner;

@@ -95,7 +95,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: GroupPayment = {
             balance,
-            creditor: Stakeholder.fromUser(DEFAULT_USER),
+            creditor: Stakeholder.from(DEFAULT_USER),
         };
         return new GroupExpense(metadata, dummyGroup, payment);
     }

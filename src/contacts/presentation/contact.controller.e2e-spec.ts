@@ -131,7 +131,7 @@ describe('ContactController', () => {
             describe('actor has contacts with expenses', () => {
                 beforeEach(async () => {
                     const expenses = dummyContacts.flatMap((contact) => {
-                        const stakeholder = Stakeholder.fromContact(contact);
+                        const stakeholder = Stakeholder.from(contact);
                         return [
                             createRandomCreditExpenseFor(stakeholder, 894),
                             createRandomDebitExpenseFor(stakeholder, 145),
@@ -160,7 +160,7 @@ describe('ContactController', () => {
                     const metadata = generateRandomMetadata();
                     const payment: PairPayment = {
                         balance,
-                        creditor: Stakeholder.fromUser(DEFAULT_USER),
+                        creditor: Stakeholder.from(DEFAULT_USER),
                         debtor: stakeholder,
                     };
                     return new PairExpense(metadata, payment);
@@ -174,7 +174,7 @@ describe('ContactController', () => {
                     const payment: PairPayment = {
                         balance,
                         creditor: stakeholder,
-                        debtor: Stakeholder.fromUser(DEFAULT_USER),
+                        debtor: Stakeholder.from(DEFAULT_USER),
                     };
                     return new PairExpense(metadata, payment);
                 }
@@ -252,7 +252,7 @@ describe('ContactController', () => {
             let dummyContactExpenses: Array<PairExpense>;
 
             beforeEach(async () => {
-                const counterparty = Stakeholder.fromContact(dummyContact);
+                const counterparty = Stakeholder.from(dummyContact);
                 dummyContactExpenses = generateDefaultUserPairExpenses({
                     length: 40,
                     counterparty,

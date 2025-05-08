@@ -63,9 +63,7 @@ export class AddGroupExpenseHandler
     ): GroupPayment {
         const { balance, memberId } = command.payload;
 
-        const member = group.getMember(memberId);
-        const creditor = Stakeholder.fromMember(member);
-
+        const creditor = group.getMember(memberId);
         return { balance, creditor };
     }
 }

@@ -70,11 +70,11 @@ export class AddPairExpenseHandler
         return {
             balance,
             creditor: isCurrentPayer
-                ? Stakeholder.fromUser(actor)
-                : Stakeholder.fromUser(user),
+                ? Stakeholder.from(actor)
+                : Stakeholder.from(user),
             debtor: isCurrentPayer
-                ? Stakeholder.fromUser(user)
-                : Stakeholder.fromUser(actor),
+                ? Stakeholder.from(user)
+                : Stakeholder.from(actor),
         };
     }
 }

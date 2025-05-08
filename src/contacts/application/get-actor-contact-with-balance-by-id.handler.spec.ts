@@ -34,6 +34,7 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
         id: dummyContactId,
         firstname: 'Eric',
         lastname: 'Evans',
+        share: 0,
     });
 
     beforeEach(() => {
@@ -100,7 +101,7 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: PairPayment = {
             balance,
-            creditor: Stakeholder.fromUser(DEFAULT_USER),
+            creditor: Stakeholder.from(DEFAULT_USER),
             debtor: dummyStakeholder,
         };
         return new PairExpense(metadata, payment);
@@ -111,7 +112,7 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
         const payment: PairPayment = {
             balance,
             creditor: dummyStakeholder,
-            debtor: Stakeholder.fromUser(DEFAULT_USER),
+            debtor: Stakeholder.from(DEFAULT_USER),
         };
         return new PairExpense(metadata, payment);
     }

@@ -104,7 +104,7 @@ describe('AddGroupExpenseHandler', () => {
         };
         const payment: GroupPayment = {
             balance: dummyCommand.payload.balance,
-            creditor: Stakeholder.fromMember(dummyMember),
+            creditor: dummyMember,
         };
         const expense = new GroupExpense(metadata, dummyGroup, payment);
 
