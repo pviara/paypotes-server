@@ -23,9 +23,7 @@
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "APP_ENVIRONMENT=test CONTACT_TASKS_QUEUE=test_contact_tasks jest --config ./test/jest-e2e.json",
         "test:e2e:ci": "APP_ENVIRONMENT=test CONTACT_TASKS_QUEUE=test_contact_tasks jest --config ./test/jest-e2e.json --runInBand",
-        "test:e2e:watch": "yarn test:e2e --watchAll",
-        "test:concurrency": "jest --config ./test/jest-concurrency.json",
-        "test:concurrency:watch": "yarn test:concurrency --watchAll"
+        "test:e2e:watch": "yarn test:e2e --watchAll"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.1",

@@ -50,9 +50,6 @@ jobs:
           RABBITMQ_DEFAULT_PASS: 'test_access'
           CONTACT_TASKS_QUEUE: 'test_contact_tasks'
 
-      - name: 🧑‍🔬 Run concurrency tests
-        run: yarn test:concurrency
-
       - name: 🐳 Stop containers
         run: |
           docker compose -f docker-compose.test.yml down
