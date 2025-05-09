@@ -1,29 +1,30 @@
+import { Expense } from '@expenses/domain/expense';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { PairExpense } from '@expenses/domain/pair-expense';
-
-type AnyKindOfExpense = GroupExpense | PairExpense;
 
 export class Calculator {
-    constructor(private expenses: Array<AnyKindOfExpense>) {}
+    private readonly ZERO = 0;
+
+    constructor(private expenses: Array<Expense>) {}
 
     calculateFor(actorId: string): number {
         return this.expenses.reduce(
             this.calculateExpenseBalanceFor(actorId),
-            0,
+            this.ZERO,
         );
     }
 
     private calculateExpenseBalanceFor(
         actorId: string,
-    ): (balance: number, expense: AnyKindOfExpense) => number {
+    ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {
-            const actorBalance = this.calculateActorBalance(expense, actorId);
-            return balance + actorBalance;
+            const actorExpenseBalance =
+                this.calculateActorSpecificExpenseBalanceFor(expense, actorId);
+            return balance + actorExpenseBalance;
         };
     }
 
-    private calculateActorBalance(
-        expense: AnyKindOfExpense,
+    private calculateActorSpecificExpenseBalanceFor(
+        expense: Expense,
         actorId: string,
     ): number {
         if (expense instanceof GroupExpense) {

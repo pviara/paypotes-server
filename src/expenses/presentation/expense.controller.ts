@@ -37,8 +37,6 @@ const ContactId = () => Param('contactId', ParseUUIDPipe);
 const ExpenseId = () => Param('expenseId', ParseUUIDPipe);
 const GroupId = () => Param('groupId', ParseUUIDPipe);
 
-const ZERO = 0;
-
 @AuthGuard()
 @Controller(EXPENSES_API_ROUTE)
 export class ExpenseController {
