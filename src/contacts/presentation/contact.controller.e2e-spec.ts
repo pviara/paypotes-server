@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { Calculator } from '@expenses/domain/calculator';
 import { Contact } from '@contacts/domain/contact';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
@@ -273,23 +274,9 @@ describe('ContactController', () => {
             });
 
             function computeActorDummyContactBalance(): number {
-                return dummyContactExpenses.reduce(
-                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
-                    0,
+                return new Calculator(dummyContactExpenses).calculateFor(
+                    DEFAULT_USER.getId(),
                 );
-            }
-
-            function computeExpenseBalanceFor(
-                actorId: string,
-            ): (balance: number, expense: PairExpense) => number {
-                return (balance, expense) => {
-                    const expenseBalance = expense.getRawBalance();
-                    const actorBalance = expense.hasCreditor(actorId)
-                        ? expenseBalance
-                        : -expenseBalance;
-
-                    return balance + actorBalance;
-                };
             }
         });
     });

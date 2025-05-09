@@ -33,13 +33,15 @@ export class GroupExpense extends Expense {
     }
 
     getShareOf(stakeholderId: string): number {
+        return this.getStakeholderUsing(stakeholderId).getShare();
+    }
+
+    private getStakeholderUsing(stakeholderId: string): Stakeholder {
         const stakeholder = this.getStakeholders().find(
             (stakeholder) => stakeholder.getId() === stakeholderId,
         );
-        if (!stakeholder)
-            throw new Error('Actor stakeholder profile could not be found');
-
-        return stakeholder.getShare();
+        if (stakeholder) return stakeholder;
+        throw new Error('Actor stakeholder profile could not be found');
     }
 
     getStakeholders(): Array<Stakeholder> {

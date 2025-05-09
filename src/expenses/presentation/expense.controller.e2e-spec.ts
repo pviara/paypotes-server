@@ -30,6 +30,7 @@ import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { Calculator } from '../domain/calculator';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -177,40 +178,17 @@ describe('ExpenseController', () => {
             }
 
             function computeActorAllDummyContactsBalance(): number {
-                return allDummyContactExpenses
-                    .flat()
-                    .reduce(computeExpenseBalanceFor(DEFAULT_USER.getId()), 0);
+                const flattenContactExpenses = allDummyContactExpenses.flat();
+                return new Calculator(flattenContactExpenses).calculateFor(
+                    DEFAULT_USER.getId(),
+                );
             }
 
             function computeActorAllDummyGroupsBalance(): number {
-                return allDummyGroupExpenses
-                    .flat()
-                    .reduce(computeExpenseBalanceFor(DEFAULT_USER.getId()), 0);
-            }
-
-            function computeExpenseBalanceFor(
-                actorId: string,
-            ): (
-                balance: number,
-                expense: GroupExpense | PairExpense,
-            ) => number {
-                return (balance, expense) => {
-                    if (expense instanceof PairExpense) {
-                        const expenseBalance = expense.getRawBalance();
-                        const actorBalance = expense.hasCreditor(actorId)
-                            ? expenseBalance
-                            : -expenseBalance;
-
-                        return balance + actorBalance;
-                    } else if (expense instanceof GroupExpense) {
-                        const actorShare = expense.getShareOf(actorId);
-                        const actorBalance = expense.hasCreditor(actorId)
-                            ? actorShare
-                            : -actorShare;
-
-                        return balance + actorBalance;
-                    } else throw new Error();
-                };
+                const flattenContactExpenses = allDummyGroupExpenses.flat();
+                return new Calculator(flattenContactExpenses).calculateFor(
+                    DEFAULT_USER.getId(),
+                );
             }
         });
     });

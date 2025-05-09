@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { Calculator } from '@expenses/domain/calculator';
 import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -11,7 +12,6 @@ import {
 import {
     generateDefaultUserGroupExpenses,
     generateRandomMetadata,
-    generateRandomStakeholder,
 } from '@test/helpers/expense/utils';
 import { generateRandomUsers } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
@@ -22,10 +22,9 @@ import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Member } from '@groups/domain/member';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
-import { Member } from '../domain/member';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -279,23 +278,9 @@ describe('GroupController', () => {
             });
 
             function computeActorDummyGroupBalance(): number {
-                return dummyGroupExpenses.reduce(
-                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
-                    0,
+                return new Calculator(dummyGroupExpenses).calculateFor(
+                    DEFAULT_USER.getId(),
                 );
-            }
-
-            function computeExpenseBalanceFor(
-                actorId: string,
-            ): (balance: number, expense: GroupExpense) => number {
-                return (balance, expense) => {
-                    const actorShare = expense.getShareOf(actorId);
-                    const actorBalance = expense.hasCreditor(actorId)
-                        ? actorShare
-                        : -actorShare;
-
-                    return balance + actorBalance;
-                };
             }
         });
     });
