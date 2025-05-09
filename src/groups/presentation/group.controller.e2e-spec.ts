@@ -25,6 +25,7 @@ import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { Member } from '../domain/member';
 
 describe('GroupController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -138,9 +139,8 @@ describe('GroupController', () => {
                     const expenses = dummyGroups.flatMap((group) => {
                         return [
                             createRandomCreditExpenseFor(group, 894),
-                            createRandomDebitExpenseFor(group, 145),
-                            createRandomDebitExpenseFor(group, 311),
-                            createRandomCreditExpenseFor(group, 28),
+                            createRandomDebitExpenseFor(group, 120),
+                            createRandomDebitExpenseFor(group, 312),
                         ];
                     });
 
@@ -164,7 +164,7 @@ describe('GroupController', () => {
                     const metadata = generateRandomMetadata();
                     const payment: GroupPayment = {
                         balance,
-                        creditor: Stakeholder.from(DEFAULT_USER),
+                        creditor: Member.fromUser(DEFAULT_USER),
                     };
                     return new GroupExpense(metadata, group, payment);
                 }
@@ -176,20 +176,31 @@ describe('GroupController', () => {
                     const metadata = generateRandomMetadata();
                     const payment: GroupPayment = {
                         balance,
-                        creditor: generateRandomStakeholder(),
+                        creditor: getRandomMemberFrom(
+                            group.getMembersExcluding(DEFAULT_USER.getId()),
+                        ),
                     };
                     return new GroupExpense(metadata, group, payment);
+                }
+
+                function getRandomMemberFrom(members: Array<Member>): Member {
+                    const randomIndex = Math.floor(
+                        Math.random() * members.length,
+                    );
+                    return members[randomIndex];
                 }
 
                 function expectAllReturnedDtosToHaveRightBalance(
                     dtos: Array<GroupWithBalanceDTO>,
                 ): void {
-                    const balance = 894 - 145 - 311 + 28;
-                    const expected = `${convertCents(balance)}`.replace(
-                        '.',
-                        ',',
-                    );
-                    dtos.forEach((dto) => expect(dto.balance).toBe(expected));
+                    dtos.forEach((dto) => {
+                        const balance = (894 - 120 - 312) / dto.members.length;
+                        const expected = `${convertCents(balance)}`.replace(
+                            '.',
+                            ',',
+                        );
+                        expect(dto.balance).toBe(expected);
+                    });
                 }
             });
 
@@ -278,13 +289,25 @@ describe('GroupController', () => {
                 actorId: string,
             ): (balance: number, expense: GroupExpense) => number {
                 return (balance, expense) => {
-                    const expenseBalance = expense.getRawBalance();
+                    const actorShare = getActorShareFrom(expense, actorId);
                     const actorBalance = expense.hasCreditor(actorId)
-                        ? expenseBalance
-                        : -expenseBalance;
+                        ? actorShare
+                        : -actorShare;
 
                     return balance + actorBalance;
                 };
+            }
+
+            function getActorShareFrom(
+                expense: GroupExpense,
+                actorId: string,
+            ): number {
+                const stakeholder = expense
+                    .getStakeholders()
+                    .find((stakeholder) => stakeholder.getId() === actorId);
+
+                if (stakeholder) return stakeholder.getShare();
+                throw new Error('Actor stakeholder profile could not be found');
             }
         });
     });

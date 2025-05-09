@@ -1,7 +1,6 @@
 import { Expense } from '@expenses/domain/expense';
-import { PairExpense } from './pair-expense';
-import { GroupExpense } from './group-expense';
-import { Stakeholder } from './stakeholder';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { PairExpense } from '@expenses/domain/pair-expense';
 
 export class Calculator {
     constructor(private expenses: Array<Expense>) {}
