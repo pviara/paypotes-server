@@ -195,13 +195,34 @@ describe('ExpenseController', () => {
                 expense: GroupExpense | PairExpense,
             ) => number {
                 return (balance, expense) => {
-                    const expenseBalance = expense.getRawBalance();
-                    const actorBalance = expense.hasCreditor(actorId)
-                        ? expenseBalance
-                        : -expenseBalance;
+                    if (expense instanceof PairExpense) {
+                        const expenseBalance = expense.getRawBalance();
+                        const actorBalance = expense.hasCreditor(actorId)
+                            ? expenseBalance
+                            : -expenseBalance;
 
-                    return balance + actorBalance;
+                        return balance + actorBalance;
+                    } else if (expense instanceof GroupExpense) {
+                        const actorShare = getActorShareFrom(expense, actorId);
+                        const actorBalance = expense.hasCreditor(actorId)
+                            ? actorShare
+                            : -actorShare;
+
+                        return balance + actorBalance;
+                    } else throw new Error();
                 };
+            }
+
+            function getActorShareFrom(
+                expense: GroupExpense,
+                actorId: string,
+            ): number {
+                const stakeholder = expense
+                    .getStakeholders()
+                    .find((stakeholder) => stakeholder.getId() === actorId);
+
+                if (stakeholder) return stakeholder.getShare();
+                throw new Error('Actor stakeholder profile could not be found');
             }
         });
     });
