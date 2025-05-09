@@ -203,7 +203,7 @@ describe('ExpenseController', () => {
 
                         return balance + actorBalance;
                     } else if (expense instanceof GroupExpense) {
-                        const actorShare = getActorShareFrom(expense, actorId);
+                        const actorShare = expense.getShareOf(actorId);
                         const actorBalance = expense.hasCreditor(actorId)
                             ? actorShare
                             : -actorShare;
@@ -211,18 +211,6 @@ describe('ExpenseController', () => {
                         return balance + actorBalance;
                     } else throw new Error();
                 };
-            }
-
-            function getActorShareFrom(
-                expense: GroupExpense,
-                actorId: string,
-            ): number {
-                const stakeholder = expense
-                    .getStakeholders()
-                    .find((stakeholder) => stakeholder.getId() === actorId);
-
-                if (stakeholder) return stakeholder.getShare();
-                throw new Error('Actor stakeholder profile could not be found');
             }
         });
     });

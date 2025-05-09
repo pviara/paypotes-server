@@ -289,25 +289,13 @@ describe('GroupController', () => {
                 actorId: string,
             ): (balance: number, expense: GroupExpense) => number {
                 return (balance, expense) => {
-                    const actorShare = getActorShareFrom(expense, actorId);
+                    const actorShare = expense.getShareOf(actorId);
                     const actorBalance = expense.hasCreditor(actorId)
                         ? actorShare
                         : -actorShare;
 
                     return balance + actorBalance;
                 };
-            }
-
-            function getActorShareFrom(
-                expense: GroupExpense,
-                actorId: string,
-            ): number {
-                const stakeholder = expense
-                    .getStakeholders()
-                    .find((stakeholder) => stakeholder.getId() === actorId);
-
-                if (stakeholder) return stakeholder.getShare();
-                throw new Error('Actor stakeholder profile could not be found');
             }
         });
     });
