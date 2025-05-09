@@ -13,7 +13,7 @@ export class GroupExpense extends Expense {
     private stakeholders = this.mapStakeholdersFromGroupMembers();
 
     constructor(
-        metadata: Metadata,
+        protected metadata: Metadata,
         private group: Group,
         private payment: GroupPayment,
     ) {
@@ -22,6 +22,13 @@ export class GroupExpense extends Expense {
 
     belongsTo(groupId: string): boolean {
         return this.group.getId() === groupId;
+    }
+
+    cloneUsing(balance: number): GroupExpense {
+        return new GroupExpense(this.metadata, this.group, {
+            ...this.payment,
+            balance,
+        });
     }
 
     getBalance(): string {

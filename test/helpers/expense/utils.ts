@@ -159,7 +159,7 @@ export function generateRandomMetadata(
 }
 
 export function generateRandomBalance(): number {
-    return Math.floor(Math.random() * 350);
+    return Math.floor(Math.random() * 12000);
 }
 
 export function generateRandomBoolean(): boolean {
