@@ -1,21 +1,17 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { ExpensesByGroup } from '@expenses/persistence/expense.repository';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateDefaultUserRandomGroups } from '@test/helpers/group/utils';
+import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import {
     GetActorGroupsWithBalanceHandler,
     GetActorGroupsWithBalanceQuery,
 } from '@groups/application/get-actor-groups-with-balance.handler';
+import { Group } from '@groups/domain/group';
+import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { mapIdsFrom } from '@test/helpers/utils';
-import { ExpensesByGroup } from '@expenses/persistence/expense.repository';
-import { Group } from '../domain/group';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
-import {
-    generateRandomMetadata,
-    generateRandomStakeholder,
-} from '@test/helpers/expense/utils';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Member } from '../domain/member';
+import { Member } from '@groups/domain/member';
 
 describe('GetActorGroupsWithBalanceHandler', () => {
     let sut: GetActorGroupsWithBalanceHandler;

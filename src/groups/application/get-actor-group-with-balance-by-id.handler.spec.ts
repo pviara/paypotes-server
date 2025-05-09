@@ -1,9 +1,6 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
-import {
-    generateRandomMetadata,
-    generateRandomStakeholder,
-} from '@test/helpers/expense/utils';
+import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import {
     GetActorGroupWithBalanceByIdHandler,
     GetActorGroupWithBalanceByIdQuery,
@@ -12,9 +9,8 @@ import {
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Member } from '../domain/member';
 import { generateRandomMembers } from '@test/helpers/group/utils';
+import { Member } from '@groups/domain/member';
 
 describe('GetActorGroupWithBalanceByIdHandler', () => {
     let sut: GetActorGroupWithBalanceByIdHandler;

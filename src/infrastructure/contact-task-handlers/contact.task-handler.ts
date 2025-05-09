@@ -1,4 +1,4 @@
-import { AddRelationshipsBetweenUsersCommand } from '@app/contacts/application/tasks/add-relationships-between-users.handler';
+import { AddRelationshipsBetweenUsersCommand } from '@contacts/application/tasks/add-relationships-between-users.handler';
 import { CommandBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import {

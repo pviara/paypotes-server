@@ -1,4 +1,4 @@
-import { AddRelationshipsBetweenUsersHandler } from '@app/contacts/application/tasks/add-relationships-between-users.handler';
+import { AddRelationshipsBetweenUsersHandler } from '@contacts/application/tasks/add-relationships-between-users.handler';
 import { ContactRepositoryModule } from '@contacts/persistence/contact.repository-module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Module } from '@nestjs/common';

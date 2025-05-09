@@ -14,7 +14,7 @@ import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
-import { Member } from '@app/groups/domain/member';
+import { Member } from '@groups/domain/member';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: OverridingProviders = [

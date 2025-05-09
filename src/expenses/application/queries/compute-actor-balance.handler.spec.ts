@@ -5,20 +5,16 @@ import {
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
+import { generateRandomMembers } from '@test/helpers/group/utils';
 import {
-    generateDefaultUserRandomGroup,
-    generateRandomMembers,
-} from '@test/helpers/group/utils';
-import {
-    generateRandomBoolean,
     generateRandomMetadata,
     generateRandomStakeholder,
 } from '@test/helpers/expense/utils';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import { Group } from '@groups/domain/group';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { Member } from '@groups/domain/member';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Member } from '@app/groups/domain/member';
-import { Group } from '@app/groups/domain/group';
 
 describe('ComputeActorBalanceHandler', () => {
     let sut: ComputeActorBalanceHandler;
