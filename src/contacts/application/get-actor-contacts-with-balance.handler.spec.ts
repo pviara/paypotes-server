@@ -1,3 +1,4 @@
+import { Contact } from '@contacts/domain/contact';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ContactRepositorySpy } from '@test/doubles/contact-repository.spy';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
@@ -8,9 +9,9 @@ import {
     GetActorContactsWithBalanceQuery,
 } from '@contacts/application/get-actor-contacts-with-balance.handler';
 import { mapIdsFrom } from '@test/helpers/utils';
-import { Stakeholder } from '@expenses/domain/stakeholder';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import { User } from '@users/domain/user';
 
 describe('GetActorContactsHandler', () => {
     let sut: GetActorContactsWithBalanceHandler;
@@ -29,9 +30,7 @@ describe('GetActorContactsHandler', () => {
     });
 
     const dummyContacts = generateRandomContacts({ length: 30 });
-    const dummyStakeholders = dummyContacts.map((contact) =>
-        Stakeholder.from(contact),
-    );
+    const dummyUser = dummyContacts.map((contact) => mapUserFrom(contact));
 
     beforeEach(() => {
         initSut();
@@ -61,7 +60,7 @@ describe('GetActorContactsHandler', () => {
 
     it("should compute each of the actor's contacts balance correctly", async () => {
         const expensesByContact: ExpensesByContact = {};
-        dummyStakeholders.forEach((stakeholder) => {
+        dummyUser.forEach((stakeholder) => {
             expensesByContact[stakeholder.getId()] = [
                 createRandomCreditExpenseFor(stakeholder, 894),
                 createRandomDebitExpenseFor(stakeholder, 145),
@@ -81,6 +80,16 @@ describe('GetActorContactsHandler', () => {
         );
     });
 
+    function mapUserFrom(contact: Contact): User {
+        return new User({
+            id: contact.getId(),
+            firstname: contact.getFirstname(),
+            lastname: contact.getLastname(),
+            email: 'email@test.com',
+            phone: '0673182944',
+        });
+    }
+
     function initSut(): void {
         initDependencies();
         sut = new GetActorContactsWithBalanceHandler(contactRepo, expenseRepo);
@@ -92,27 +101,27 @@ describe('GetActorContactsHandler', () => {
     }
 
     function createRandomCreditExpenseFor(
-        stakeholder: Stakeholder,
+        user: User,
         balance: number,
     ): PairExpense {
         const metadata = generateRandomMetadata();
         const payment: PairPayment = {
             balance,
-            creditor: Stakeholder.from(DEFAULT_USER),
-            debtor: stakeholder,
+            creditor: DEFAULT_USER,
+            debtor: user,
         };
         return new PairExpense(metadata, payment);
     }
 
     function createRandomDebitExpenseFor(
-        stakeholder: Stakeholder,
+        stakeholder: User,
         balance: number,
     ): PairExpense {
         const metadata = generateRandomMetadata();
         const payment: PairPayment = {
             balance,
             creditor: stakeholder,
-            debtor: Stakeholder.from(DEFAULT_USER),
+            debtor: DEFAULT_USER,
         };
         return new PairExpense(metadata, payment);
     }

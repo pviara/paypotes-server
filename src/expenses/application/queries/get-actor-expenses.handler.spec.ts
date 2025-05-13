@@ -14,6 +14,7 @@ import { GroupExpense } from '@expenses/domain/group-expense';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('GetActorExpensesHandler', () => {
     let sut: GetActorExpensesHandler;
@@ -38,8 +39,8 @@ describe('GetActorExpensesHandler', () => {
         }),
         new PairExpense(generateRandomMetadata(), {
             balance: 2000,
-            creditor: generateRandomStakeholder(),
-            debtor: Stakeholder.from(DEFAULT_USER),
+            creditor: generateRandomUser(),
+            debtor: DEFAULT_USER,
         }),
     ];
 

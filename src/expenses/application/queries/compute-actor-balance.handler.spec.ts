@@ -15,6 +15,7 @@ import { GroupExpense } from '@expenses/domain/group-expense';
 import { Member } from '@groups/domain/member';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('ComputeActorBalanceHandler', () => {
     let sut: ComputeActorBalanceHandler;
@@ -83,24 +84,24 @@ describe('ComputeActorBalanceHandler', () => {
 
     function createRandomCreditPairExpense(balance: number): Expense {
         const metadata = generateRandomMetadata();
-        const creditor = Stakeholder.from(DEFAULT_USER);
+        const creditor = DEFAULT_USER;
 
         const payment: PairPayment = {
             balance,
             creditor,
-            debtor: generateRandomStakeholder(),
+            debtor: generateRandomUser(),
         };
         return new PairExpense(metadata, payment);
     }
 
     function createRandomDebitPairExpense(balance: number): Expense {
         const metadata = generateRandomMetadata();
-        const creditor = generateRandomStakeholder();
+        const creditor = generateRandomUser();
 
         const payment: PairPayment = {
             balance,
             creditor,
-            debtor: Stakeholder.from(DEFAULT_USER),
+            debtor: DEFAULT_USER,
         };
         return new PairExpense(metadata, payment);
     }

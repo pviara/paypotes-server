@@ -15,6 +15,8 @@ import { Stakeholder } from '@expenses/domain/stakeholder';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 import { Member } from '@groups/domain/member';
+import { User } from '@app/users/domain/user';
+import { generateRandomUser } from '../user/utils';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: OverridingProviders = [
@@ -37,18 +39,16 @@ const getDefaultUserAsStakeholder = (): Stakeholder => {
 };
 
 const generateRandomPairPaymentWithDefaultUser = (
-    counterparty?: Stakeholder,
+    counterparty?: User,
 ): PairPayment => {
     const isDebtor = generateRandomBoolean();
     const isCreditor = !isDebtor;
     return {
         balance: generateRandomBalance(),
-        debtor: isDebtor
-            ? getDefaultUserAsStakeholder()
-            : counterparty || generateRandomStakeholder(),
+        debtor: isDebtor ? DEFAULT_USER : counterparty || generateRandomUser(),
         creditor: isCreditor
-            ? getDefaultUserAsStakeholder()
-            : counterparty || generateRandomStakeholder(),
+            ? DEFAULT_USER
+            : counterparty || generateRandomUser(),
     };
 };
 
@@ -169,7 +169,7 @@ export function generateRandomBoolean(): boolean {
 type RandomMetadataGenerationOptions = { label?: string };
 
 type RandomPairExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
-    counterparty?: Stakeholder;
+    counterparty?: User;
 };
 
 type RandomGroupExpenseArrayGenerationOptions = RandomArrayGenerationOptions & {
