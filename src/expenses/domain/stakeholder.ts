@@ -2,6 +2,8 @@ import { Contact } from '@contacts/domain/contact';
 import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
 
+export type Person = Contact | Member | User;
+
 export class Stakeholder {
     constructor(
         private data: {

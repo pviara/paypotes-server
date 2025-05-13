@@ -1,8 +1,7 @@
-import { Member } from '@groups/domain/member';
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Person, Stakeholder } from '@expenses/domain/stakeholder';
 
-type MemberWithTheirShare = {
-    member: Member;
+type PersonWithTheirShare = {
+    person: Person;
     share: number;
 };
 
@@ -14,16 +13,16 @@ export class Stakeholders {
     }
 
     constructor(
-        private members: Array<Member>,
+        private persons: Array<Person>,
         private balance: number,
     ) {}
 
     private mapStakeholdersWithTheirShare(): Array<Stakeholder> {
         const shares = this.calculateShares();
-        const membersAndTheirShare = this.assignSharesToMembers(shares);
+        const personsAndTheirShare = this.assignSharesToPersons(shares);
 
-        return membersAndTheirShare.map(({ member, share }) =>
-            Stakeholder.from(member, share),
+        return personsAndTheirShare.map(({ person, share }) =>
+            Stakeholder.from(person, share),
         );
     }
 
@@ -36,8 +35,8 @@ export class Stakeholders {
     }
 
     private getRoundedShares(): Array<number> {
-        const roundedShare = Math.floor(this.balance / this.members.length);
-        return Array<number>(this.members.length).fill(roundedShare);
+        const roundedShare = Math.floor(this.balance / this.persons.length);
+        return Array<number>(this.persons.length).fill(roundedShare);
     }
 
     private calculateRestFrom(shares: Array<number>): number {
@@ -45,11 +44,11 @@ export class Stakeholders {
         return this.balance - distributed;
     }
 
-    private assignSharesToMembers(
+    private assignSharesToPersons(
         shares: Array<number>,
-    ): Array<MemberWithTheirShare> {
-        return this.members.map((member, index) => ({
-            member,
+    ): Array<PersonWithTheirShare> {
+        return this.persons.map((person, index) => ({
+            person,
             share: shares[index],
         }));
     }
