@@ -1,4 +1,4 @@
-import { GroupExpensePerspectiveView } from '@app/expenses/domain/group-expense-perspective-view';
+import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
 import {
     GroupExpenseNotFoundError,
     GetActorGroupExpenseByIdHandler,

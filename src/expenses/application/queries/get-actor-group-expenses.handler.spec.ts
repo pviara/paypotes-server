@@ -6,9 +6,9 @@ import {
 } from '@expenses/application/queries/get-actor-group-expenses.handler';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
-import { GroupExpense } from '@app/expenses/domain/group-expense';
+import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
-import { Member } from '@app/groups/domain/member';
+import { Member } from '@groups/domain/member';
 
 describe('GetActorGroupExpensesHandler', () => {
     let sut: GetActorGroupExpensesHandler;

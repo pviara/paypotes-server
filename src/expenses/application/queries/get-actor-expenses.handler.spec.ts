@@ -4,12 +4,23 @@ import {
     GetActorExpensesHandler,
     GetActorExpensesQuery,
 } from '@expenses/application/queries/get-actor-expenses.handler';
+import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import {
+    generateRandomMetadata,
+    generateRandomStakeholder,
+} from '@test/helpers/expense/utils';
+import { Member } from '@groups/domain/member';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { PairExpense } from '@expenses/domain/pair-expense';
+import { Stakeholder } from '@expenses/domain/stakeholder';
+import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
 
 describe('GetActorExpensesHandler', () => {
     let sut: GetActorExpensesHandler;
     let expenseRepo: ExpenseRepositorySpy;
 
     const dummyActorId = DEFAULT_USER.getId();
+    const dummyGroup = generateDefaultUserRandomGroup();
     const dummyPageIndex = 0;
     const dummySearch = 'a group name';
 
@@ -19,9 +30,24 @@ describe('GetActorExpensesHandler', () => {
         search: dummySearch,
     });
 
+    const otherMembers = dummyGroup.getMembersExcluding(dummyActorId);
+    const dummyExpenses = [
+        new GroupExpense(generateRandomMetadata(), dummyGroup, {
+            balance: 1000,
+            creditor: getRandomMemberFrom(otherMembers),
+        }),
+        new PairExpense(generateRandomMetadata(), {
+            balance: 2000,
+            creditor: generateRandomStakeholder(),
+            debtor: Stakeholder.from(DEFAULT_USER),
+        }),
+    ];
+
     beforeEach(() => {
         expenseRepo = new ExpenseRepositorySpy();
         sut = new GetActorExpensesHandler(expenseRepo);
+
+        expenseRepo.stub('getActorExpenses', dummyExpenses);
     });
 
     it("should retrieve the actor's expenses", async () => {
@@ -33,4 +59,24 @@ describe('GetActorExpensesHandler', () => {
             dummySearch,
         ]);
     });
+
+    it('should return the expenses that were retrieved', async () => {
+        const result = await sut.execute(dummyQuery);
+
+        expect(result).toStrictEqual(
+            dummyExpenses.map((expense) => {
+                if (expense instanceof PairExpense) return expense;
+                if (expense instanceof GroupExpense)
+                    return GroupExpensePerspectiveView.from(
+                        expense,
+                        dummyActorId,
+                    );
+            }),
+        );
+    });
+
+    function getRandomMemberFrom(members: Array<Member>): Member {
+        const randomIndex = Math.floor(Math.random() * members.length);
+        return members[randomIndex];
+    }
 });
