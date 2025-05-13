@@ -12,6 +12,7 @@ import { mapIdsFrom } from '@test/helpers/utils';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { User } from '@users/domain/user';
+import { mapUserFrom } from '@test/helpers/user/utils';
 
 describe('GetActorContactsHandler', () => {
     let sut: GetActorContactsWithBalanceHandler;
@@ -79,16 +80,6 @@ describe('GetActorContactsHandler', () => {
             expect(contact.getBalance()).toBe(expectedBalance),
         );
     });
-
-    function mapUserFrom(contact: Contact): User {
-        return new User({
-            id: contact.getId(),
-            firstname: contact.getFirstname(),
-            lastname: contact.getLastname(),
-            email: 'email@test.com',
-            phone: '0673182944',
-        });
-    }
 
     function initSut(): void {
         initDependencies();

@@ -23,6 +23,8 @@ import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import * as request from 'supertest';
+import { User } from '@app/users/domain/user';
+import { mapUserFrom } from '@test/helpers/user/utils';
 
 describe('ContactController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -132,12 +134,12 @@ describe('ContactController', () => {
             describe('actor has contacts with expenses', () => {
                 beforeEach(async () => {
                     const expenses = dummyContacts.flatMap((contact) => {
-                        const stakeholder = Stakeholder.from(contact);
+                        const user = mapUserFrom(contact);
                         return [
-                            createRandomCreditExpenseFor(stakeholder, 894),
-                            createRandomDebitExpenseFor(stakeholder, 145),
-                            createRandomDebitExpenseFor(stakeholder, 311),
-                            createRandomCreditExpenseFor(stakeholder, 28),
+                            createRandomCreditExpenseFor(user, 894),
+                            createRandomDebitExpenseFor(user, 145),
+                            createRandomDebitExpenseFor(user, 311),
+                            createRandomCreditExpenseFor(user, 28),
                         ];
                     });
 
@@ -155,27 +157,27 @@ describe('ContactController', () => {
                 });
 
                 function createRandomCreditExpenseFor(
-                    stakeholder: Stakeholder,
+                    user: User,
                     balance: number,
                 ): PairExpense {
                     const metadata = generateRandomMetadata();
                     const payment: PairPayment = {
                         balance,
-                        creditor: Stakeholder.from(DEFAULT_USER),
-                        debtor: stakeholder,
+                        creditor: DEFAULT_USER,
+                        debtor: user,
                     };
                     return new PairExpense(metadata, payment);
                 }
 
                 function createRandomDebitExpenseFor(
-                    stakeholder: Stakeholder,
+                    stakeholder: User,
                     balance: number,
                 ): PairExpense {
                     const metadata = generateRandomMetadata();
                     const payment: PairPayment = {
                         balance,
                         creditor: stakeholder,
-                        debtor: Stakeholder.from(DEFAULT_USER),
+                        debtor: DEFAULT_USER,
                     };
                     return new PairExpense(metadata, payment);
                 }
@@ -253,10 +255,9 @@ describe('ContactController', () => {
             let dummyContactExpenses: Array<PairExpense>;
 
             beforeEach(async () => {
-                const counterparty = Stakeholder.from(dummyContact);
                 dummyContactExpenses = generateDefaultUserPairExpenses({
                     length: 40,
-                    counterparty,
+                    counterparty: mapUserFrom(dummyContact),
                 });
                 await expenseRepo.empty();
                 await expenseRepo.insert(...dummyContactExpenses);

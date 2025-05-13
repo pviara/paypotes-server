@@ -22,7 +22,10 @@ import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
-import { generateRandomUser } from '@test/helpers/user/utils';
+import {
+    generateRandomUser,
+    generateRandomUsers,
+} from '@test/helpers/user/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { Member } from '@groups/domain/member';
@@ -132,7 +135,7 @@ describe('ExpenseController', () => {
             let allDummyContactExpenses: Array<PairExpense[]>;
             let allDummyGroupExpenses: Array<GroupExpense[]>;
 
-            const dummyContacts = generateRandomStakeholders({ length: 4 });
+            const dummyContacts = generateRandomUsers({ length: 4 });
             const dummyGroups = generateDefaultUserRandomGroups({ length: 4 });
 
             beforeEach(async () => {
