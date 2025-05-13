@@ -4,13 +4,19 @@ import {
     GetActorGroupExpensesHandler,
     GetActorGroupExpensesQuery,
 } from '@expenses/application/queries/get-actor-group-expenses.handler';
+import { generateRandomMetadata } from '@test/helpers/expense/utils';
+import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { Member } from '@groups/domain/member';
 
 describe('GetActorGroupExpensesHandler', () => {
     let sut: GetActorGroupExpensesHandler;
     let expenseRepo: ExpenseRepositorySpy;
 
     const dummyActorId = DEFAULT_USER.getId();
-    const dummyGroupId = crypto.randomUUID();
+    const dummyGroup = generateDefaultUserRandomGroup();
+    const dummyGroupId = dummyGroup.getId();
     const dummyPageIndex = 0;
     const dummySearch = 'an expense label';
 
@@ -21,9 +27,23 @@ describe('GetActorGroupExpensesHandler', () => {
         search: dummySearch,
     });
 
+    const otherMembers = dummyGroup.getMembersExcluding(dummyActorId);
+    const dummyExpenses = [
+        new GroupExpense(generateRandomMetadata(), dummyGroup, {
+            balance: 1000,
+            creditor: getRandomMemberFrom(otherMembers),
+        }),
+        new GroupExpense(generateRandomMetadata(), dummyGroup, {
+            balance: 3000,
+            creditor: Member.fromUser(DEFAULT_USER),
+        }),
+    ];
+
     beforeEach(() => {
         expenseRepo = new ExpenseRepositorySpy();
         sut = new GetActorGroupExpensesHandler(expenseRepo);
+
+        expenseRepo.stub('getActorGroupExpenses', dummyExpenses);
     });
 
     it("should retrieve the actor's group expenses", async () => {
@@ -36,4 +56,18 @@ describe('GetActorGroupExpensesHandler', () => {
             dummySearch,
         ]);
     });
+
+    it('should return the expenses that were retrieved', async () => {
+        const result = await sut.execute(dummyQuery);
+        expect(result).toStrictEqual(
+            dummyExpenses.map((expense) =>
+                GroupExpensePerspectiveView.from(expense, dummyActorId),
+            ),
+        );
+    });
+
+    function getRandomMemberFrom(members: Array<Member>): Member {
+        const randomIndex = Math.floor(Math.random() * members.length);
+        return members[randomIndex];
+    }
 });

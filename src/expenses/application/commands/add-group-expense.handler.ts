@@ -1,16 +1,13 @@
-import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
-import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.task-messenger.provider';
-import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
-import { GroupRepository } from '@groups/persistence/group.repository';
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
-import { Metadata } from '@expenses/domain/expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
+import { GroupRepository } from '@groups/persistence/group.repository';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
+import { Metadata } from '@expenses/domain/expense';
 
 export class AddGroupExpenseCommand implements ICommand {
     constructor(
@@ -65,9 +62,7 @@ export class AddGroupExpenseHandler
     ): GroupPayment {
         const { balance, memberId } = command.payload;
 
-        const member = group.getMember(memberId);
-        const creditor = Stakeholder.fromMember(member);
-
+        const creditor = group.getMember(memberId);
         return { balance, creditor };
     }
 }

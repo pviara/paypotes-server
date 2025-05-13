@@ -5,13 +5,14 @@ import {
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
-import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import { generateRandomMembers } from '@test/helpers/group/utils';
 import {
-    generateRandomBoolean,
     generateRandomMetadata,
     generateRandomStakeholder,
 } from '@test/helpers/expense/utils';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import { Group } from '@groups/domain/group';
+import { GroupExpense } from '@expenses/domain/group-expense';
+import { Member } from '@groups/domain/member';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 
@@ -20,7 +21,18 @@ describe('ComputeActorBalanceHandler', () => {
     let expenseRepo: ExpenseRepositorySpy;
 
     const dummyActorId = DEFAULT_USER.getId();
-    const dummyContactId = crypto.randomUUID();
+
+    const dummyGroupMembers: Array<Member> = [
+        Member.fromUser(DEFAULT_USER),
+        ...generateRandomMembers({ length: 4 }),
+    ];
+
+    const dummyGroup = new Group({
+        id: crypto.randomUUID(),
+        name: 'name',
+        emoji: '🚧',
+        members: dummyGroupMembers,
+    });
 
     const dummyQuery = new ComputeActorBalanceQuery({
         actorId: dummyActorId,
@@ -41,53 +53,55 @@ describe('ComputeActorBalanceHandler', () => {
 
     it('should compute the actor balance correctly', async () => {
         const expenses = [
-            createRandomCreditExpense(1500),
-            createRandomDebitExpense(790),
-            createRandomDebitExpense(2400),
-            createRandomCreditExpense(1100),
+            createRandomCreditGroupExpense(1500),
+            createRandomDebitPairExpense(790),
+            createRandomDebitPairExpense(2400),
+            createRandomCreditGroupExpense(1100),
         ];
         expenseRepo.stub('getAllActorExpenses', expenses);
 
         const balance = await sut.execute(dummyQuery);
 
-        const expectedBalance = 1500 - 790 - 2400 + 1100;
+        const expectedBalance =
+            1500 / dummyGroupMembers.length -
+            790 -
+            2400 +
+            1100 / dummyGroupMembers.length;
+
         expect(balance).toBe(expectedBalance);
     });
 
-    function createRandomCreditExpense(balance: number): Expense {
+    function createRandomCreditGroupExpense(balance: number): Expense {
         const metadata = generateRandomMetadata();
-        const creditor = Stakeholder.fromUser(DEFAULT_USER);
+        const creditor = Member.fromUser(DEFAULT_USER);
 
-        if (generateRandomBoolean()) {
-            return new PairExpense(metadata, {
-                balance,
-                creditor,
-                debtor: generateRandomStakeholder(),
-            });
-        }
-
-        const dummyGroup = generateDefaultUserRandomGroup();
         return new GroupExpense(metadata, dummyGroup, {
             balance,
             creditor,
         });
     }
 
-    function createRandomDebitExpense(balance: number): Expense {
+    function createRandomCreditPairExpense(balance: number): Expense {
+        const metadata = generateRandomMetadata();
+        const creditor = Stakeholder.from(DEFAULT_USER);
+
+        const payment: PairPayment = {
+            balance,
+            creditor,
+            debtor: generateRandomStakeholder(),
+        };
+        return new PairExpense(metadata, payment);
+    }
+
+    function createRandomDebitPairExpense(balance: number): Expense {
         const metadata = generateRandomMetadata();
         const creditor = generateRandomStakeholder();
 
-        if (generateRandomBoolean()) {
-            const payment: PairPayment = {
-                balance,
-                creditor,
-                debtor: Stakeholder.fromUser(DEFAULT_USER),
-            };
-            return new PairExpense(metadata, payment);
-        }
-
-        const dummyGroup = generateDefaultUserRandomGroup();
-        const payment: GroupPayment = { balance, creditor };
-        return new GroupExpense(metadata, dummyGroup, payment);
+        const payment: PairPayment = {
+            balance,
+            creditor,
+            debtor: Stakeholder.from(DEFAULT_USER),
+        };
+        return new PairExpense(metadata, payment);
     }
 });

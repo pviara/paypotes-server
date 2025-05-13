@@ -5,7 +5,10 @@ export type PairPayment = {
     balance: number;
     creditor: Stakeholder;
     debtor: Stakeholder;
-};
+}; // -> change this object
+// into this:
+// { stakeholders: [Stakeholder, Stakeholder] }
+// and one of them will have share: 0,
 
 export class PairExpense extends Expense {
     constructor(

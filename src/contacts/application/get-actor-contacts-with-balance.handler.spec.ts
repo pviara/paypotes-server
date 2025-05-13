@@ -30,7 +30,7 @@ describe('GetActorContactsHandler', () => {
 
     const dummyContacts = generateRandomContacts({ length: 30 });
     const dummyStakeholders = dummyContacts.map((contact) =>
-        Stakeholder.fromContact(contact),
+        Stakeholder.from(contact),
     );
 
     beforeEach(() => {
@@ -98,7 +98,7 @@ describe('GetActorContactsHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: PairPayment = {
             balance,
-            creditor: Stakeholder.fromUser(DEFAULT_USER),
+            creditor: Stakeholder.from(DEFAULT_USER),
             debtor: stakeholder,
         };
         return new PairExpense(metadata, payment);
@@ -112,7 +112,7 @@ describe('GetActorContactsHandler', () => {
         const payment: PairPayment = {
             balance,
             creditor: stakeholder,
-            debtor: Stakeholder.fromUser(DEFAULT_USER),
+            debtor: Stakeholder.from(DEFAULT_USER),
         };
         return new PairExpense(metadata, payment);
     }

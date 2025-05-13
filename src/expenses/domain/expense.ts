@@ -5,7 +5,7 @@ export type Metadata = {
 };
 
 export abstract class Expense {
-    constructor(private metadata: Metadata) {}
+    constructor(protected metadata: Metadata) {}
 
     getId(): string {
         return this.metadata.id;

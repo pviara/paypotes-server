@@ -1,6 +1,7 @@
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupExpense } from '@expenses/domain/group-expense';
+import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
@@ -31,7 +32,7 @@ export class GetActorGroupExpenseByIdHandler
             expenseId,
         );
 
-        if (expense) return expense;
+        if (expense) return GroupExpensePerspectiveView.from(expense, actorId);
         throw new GroupExpenseNotFoundError(groupId, expenseId);
     }
 }

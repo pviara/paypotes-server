@@ -1,12 +1,15 @@
 import { Expense } from '@expenses/domain/expense';
+import { GroupExpense } from '@expenses/domain/group-expense';
 
 export class Calculator {
+    private readonly ZERO = 0;
+
     constructor(private expenses: Array<Expense>) {}
 
     calculateFor(actorId: string): number {
         return this.expenses.reduce(
             this.calculateExpenseBalanceFor(actorId),
-            0,
+            this.ZERO,
         );
     }
 
@@ -14,12 +17,21 @@ export class Calculator {
         actorId: string,
     ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {
-            const expenseBalance = expense.getRawBalance();
-            const actorBalance = expense.hasCreditor(actorId)
-                ? expenseBalance
-                : -expenseBalance;
-
-            return balance + actorBalance;
+            const actorExpenseBalance =
+                this.calculateActorSpecificExpenseBalanceFor(expense, actorId);
+            return balance + actorExpenseBalance;
         };
+    }
+
+    private calculateActorSpecificExpenseBalanceFor(
+        expense: Expense,
+        actorId: string,
+    ): number {
+        if (expense instanceof GroupExpense) {
+            const actorShare = expense.getShareOf(actorId);
+            return expense.hasCreditor(actorId) ? actorShare : -actorShare;
+        }
+        const expenseBalance = expense.getRawBalance();
+        return expense.hasCreditor(actorId) ? expenseBalance : -expenseBalance;
     }
 }

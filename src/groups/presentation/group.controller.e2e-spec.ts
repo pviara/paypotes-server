@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { Calculator } from '@expenses/domain/calculator';
 import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -11,18 +12,17 @@ import {
 import {
     generateDefaultUserGroupExpenses,
     generateRandomMetadata,
-    generateRandomStakeholder,
 } from '@test/helpers/expense/utils';
 import { generateRandomUsers } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
-import { GroupExpense, GroupPayment } from '@app/expenses/domain/group-expense';
+import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Member } from '@groups/domain/member';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
@@ -138,9 +138,8 @@ describe('GroupController', () => {
                     const expenses = dummyGroups.flatMap((group) => {
                         return [
                             createRandomCreditExpenseFor(group, 894),
-                            createRandomDebitExpenseFor(group, 145),
-                            createRandomDebitExpenseFor(group, 311),
-                            createRandomCreditExpenseFor(group, 28),
+                            createRandomDebitExpenseFor(group, 120),
+                            createRandomDebitExpenseFor(group, 312),
                         ];
                     });
 
@@ -164,7 +163,7 @@ describe('GroupController', () => {
                     const metadata = generateRandomMetadata();
                     const payment: GroupPayment = {
                         balance,
-                        creditor: Stakeholder.fromUser(DEFAULT_USER),
+                        creditor: Member.fromUser(DEFAULT_USER),
                     };
                     return new GroupExpense(metadata, group, payment);
                 }
@@ -176,20 +175,31 @@ describe('GroupController', () => {
                     const metadata = generateRandomMetadata();
                     const payment: GroupPayment = {
                         balance,
-                        creditor: generateRandomStakeholder(),
+                        creditor: getRandomMemberFrom(
+                            group.getMembersExcluding(DEFAULT_USER.getId()),
+                        ),
                     };
                     return new GroupExpense(metadata, group, payment);
+                }
+
+                function getRandomMemberFrom(members: Array<Member>): Member {
+                    const randomIndex = Math.floor(
+                        Math.random() * members.length,
+                    );
+                    return members[randomIndex];
                 }
 
                 function expectAllReturnedDtosToHaveRightBalance(
                     dtos: Array<GroupWithBalanceDTO>,
                 ): void {
-                    const balance = 894 - 145 - 311 + 28;
-                    const expected = `${convertCents(balance)}`.replace(
-                        '.',
-                        ',',
-                    );
-                    dtos.forEach((dto) => expect(dto.balance).toBe(expected));
+                    dtos.forEach((dto) => {
+                        const balance = (894 - 120 - 312) / dto.members.length;
+                        const expected = `${convertCents(balance)}`.replace(
+                            '.',
+                            ',',
+                        );
+                        expect(dto.balance).toBe(expected);
+                    });
                 }
             });
 
@@ -268,23 +278,9 @@ describe('GroupController', () => {
             });
 
             function computeActorDummyGroupBalance(): number {
-                return dummyGroupExpenses.reduce(
-                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
-                    0,
+                return new Calculator(dummyGroupExpenses).calculateFor(
+                    DEFAULT_USER.getId(),
                 );
-            }
-
-            function computeExpenseBalanceFor(
-                actorId: string,
-            ): (balance: number, expense: GroupExpense) => number {
-                return (balance, expense) => {
-                    const expenseBalance = expense.getRawBalance();
-                    const actorBalance = expense.hasCreditor(actorId)
-                        ? expenseBalance
-                        : -expenseBalance;
-
-                    return balance + actorBalance;
-                };
             }
         });
     });

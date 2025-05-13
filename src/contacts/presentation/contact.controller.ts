@@ -1,5 +1,7 @@
 import { ActorId } from '@test/doubles/auth/actor.decorator';
 import { AuthGuard } from '@auth/auth-guard.decorator';
+import { Contact } from '@contacts/domain/contact';
+import { ContactDTO } from './dto/contact.dto';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
@@ -9,8 +11,6 @@ import { GetActorContactWithBalanceByIdQuery } from '@contacts/application/get-a
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { QueryBus } from '@nestjs/cqrs';
 import { Search } from '@app/shared/decorators/search.query-decorator';
-import { Contact } from '../domain/contact';
-import { ContactDTO } from './dto/contact.dto';
 
 export const CONTACTS_API_ROUTE = 'contacts';
 

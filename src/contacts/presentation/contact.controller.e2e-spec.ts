@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { Calculator } from '@expenses/domain/calculator';
 import { Contact } from '@contacts/domain/contact';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
@@ -131,7 +132,7 @@ describe('ContactController', () => {
             describe('actor has contacts with expenses', () => {
                 beforeEach(async () => {
                     const expenses = dummyContacts.flatMap((contact) => {
-                        const stakeholder = Stakeholder.fromContact(contact);
+                        const stakeholder = Stakeholder.from(contact);
                         return [
                             createRandomCreditExpenseFor(stakeholder, 894),
                             createRandomDebitExpenseFor(stakeholder, 145),
@@ -160,7 +161,7 @@ describe('ContactController', () => {
                     const metadata = generateRandomMetadata();
                     const payment: PairPayment = {
                         balance,
-                        creditor: Stakeholder.fromUser(DEFAULT_USER),
+                        creditor: Stakeholder.from(DEFAULT_USER),
                         debtor: stakeholder,
                     };
                     return new PairExpense(metadata, payment);
@@ -174,7 +175,7 @@ describe('ContactController', () => {
                     const payment: PairPayment = {
                         balance,
                         creditor: stakeholder,
-                        debtor: Stakeholder.fromUser(DEFAULT_USER),
+                        debtor: Stakeholder.from(DEFAULT_USER),
                     };
                     return new PairExpense(metadata, payment);
                 }
@@ -252,7 +253,7 @@ describe('ContactController', () => {
             let dummyContactExpenses: Array<PairExpense>;
 
             beforeEach(async () => {
-                const counterparty = Stakeholder.fromContact(dummyContact);
+                const counterparty = Stakeholder.from(dummyContact);
                 dummyContactExpenses = generateDefaultUserPairExpenses({
                     length: 40,
                     counterparty,
@@ -273,23 +274,9 @@ describe('ContactController', () => {
             });
 
             function computeActorDummyContactBalance(): number {
-                return dummyContactExpenses.reduce(
-                    computeExpenseBalanceFor(DEFAULT_USER.getId()),
-                    0,
+                return new Calculator(dummyContactExpenses).calculateFor(
+                    DEFAULT_USER.getId(),
                 );
-            }
-
-            function computeExpenseBalanceFor(
-                actorId: string,
-            ): (balance: number, expense: PairExpense) => number {
-                return (balance, expense) => {
-                    const expenseBalance = expense.getRawBalance();
-                    const actorBalance = expense.hasCreditor(actorId)
-                        ? expenseBalance
-                        : -expenseBalance;
-
-                    return balance + actorBalance;
-                };
             }
         });
     });

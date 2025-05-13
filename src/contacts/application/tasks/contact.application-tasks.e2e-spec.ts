@@ -26,6 +26,15 @@ describe('contact application tasks', () => {
     const NO_PAGE_INDEX = 0;
     const NO_SEARCH = '';
 
+    const dummyGroupMembers = [
+        DEFAULT_USER,
+        generateRandomUser(),
+        generateRandomUser(),
+    ];
+
+    const groupId = crypto.randomUUID();
+    const userIds = mapIdsFrom(dummyGroupMembers);
+
     beforeEach(async () => {
         await runner.bootstrap();
 
@@ -34,6 +43,7 @@ describe('contact application tasks', () => {
         httpServer = runner.getHttpServer();
 
         await userRepo.empty();
+        await userRepo.insert(...dummyGroupMembers);
     });
 
     afterEach(shutdown(runner));
@@ -52,29 +62,15 @@ describe('contact application tasks', () => {
             userId: dummyUser.getId(),
         });
 
-        await setTimeout(100);
+        const makeAssertion = (contacts: Array<Contact>): void => {
+            expect(contacts.length).toBe(1);
+            expectUserToHaveBeenAddedIn(contacts, dummyUser);
+        };
 
-        const defaultUserContacts = await contactRepo.getActorContacts(
-            DEFAULT_USER.getId(),
-            NO_PAGE_INDEX,
-            NO_SEARCH,
-        );
-        expect(defaultUserContacts.length).toBe(1);
-
-        expectUserToHaveBeenAddedAsContact(defaultUserContacts, dummyUser);
+        await waitForAnyContactToBeAddedThen(makeAssertion);
     });
 
     it('should add all relationships between group members', async () => {
-        const dummyGroupMembers = [
-            DEFAULT_USER,
-            generateRandomUser(),
-            generateRandomUser(),
-        ];
-        await userRepo.insert(...dummyGroupMembers);
-
-        const groupId = crypto.randomUUID();
-        const userIds = mapIdsFrom(dummyGroupMembers);
-
         await request(httpServer).post(`/${GROUPS_API_ROUTE}`).send({
             id: groupId,
             name: 'name',
@@ -82,20 +78,44 @@ describe('contact application tasks', () => {
             userIds,
         });
 
-        await setTimeout(100);
+        const makeAssertion = (contacts: Array<Contact>): void => {
+            expect(contacts.length).toBe(dummyGroupMembers.length - 1);
+            expectNotToContainDefaultUser(contacts);
+            expectAllUsersToHaveBeenAddedAsContacts(contacts, userIds);
+        };
 
-        const defaultUserContacts = await contactRepo.getActorContacts(
+        await waitForAnyContactToBeAddedThen(makeAssertion);
+    });
+
+    async function waitForAnyContactToBeAddedThen(
+        makeAssertionUsing: (...params: any[]) => void,
+    ): Promise<void> {
+        const startTime = Date.now();
+        const POLLING_TIMEOUT_MS = 5000;
+        const POLLING_INTERVAL_MS = 10;
+
+        while (Date.now() - startTime < POLLING_TIMEOUT_MS) {
+            const contacts = await getDefaultUserContacts();
+            if (contacts.length > 0) {
+                return makeAssertionUsing(contacts);
+            }
+            await setTimeout(POLLING_INTERVAL_MS);
+        }
+
+        throw new Error(
+            `Test failed: condition not met within ${POLLING_TIMEOUT_MS}`,
+        );
+    }
+
+    function getDefaultUserContacts(): Promise<Contact[]> {
+        return contactRepo.getActorContacts(
             DEFAULT_USER.getId(),
             NO_PAGE_INDEX,
             NO_SEARCH,
         );
-        expect(defaultUserContacts.length).toBe(dummyGroupMembers.length - 1);
+    }
 
-        expectNotToContainDefaultUser(defaultUserContacts);
-        expectAllUsersToHaveBeenAddedAsContacts(defaultUserContacts, userIds);
-    });
-
-    function expectUserToHaveBeenAddedAsContact(
+    function expectUserToHaveBeenAddedIn(
         contacts: Array<Contact>,
         dummyUser: User,
     ): void {

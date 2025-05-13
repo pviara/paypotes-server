@@ -1,15 +1,19 @@
 import { Expense, Metadata } from '@expenses/domain/expense';
 import { Group } from '@groups/domain/group';
+import { Member } from '@groups/domain/member';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Stakeholders } from '@expenses/domain/stakeholders';
 
 export type GroupPayment = {
     balance: number;
-    creditor: Stakeholder;
+    creditor: Member;
 };
 
 export class GroupExpense extends Expense {
+    private stakeholders = this.mapStakeholdersFromGroupMembers();
+
     constructor(
-        metadata: Metadata,
+        protected metadata: Metadata,
         private group: Group,
         private payment: GroupPayment,
     ) {
@@ -20,12 +24,35 @@ export class GroupExpense extends Expense {
         return this.group.getId() === groupId;
     }
 
+    cloneUsing(balance: number): GroupExpense {
+        return new GroupExpense(this.metadata, this.group, {
+            ...this.payment,
+            balance,
+        });
+    }
+
     getBalance(): string {
         return `${this.payment.balance}`;
     }
 
     getGroup(): Group {
         return this.group;
+    }
+
+    getShareOf(stakeholderId: string): number {
+        return this.getStakeholderUsing(stakeholderId).getShare();
+    }
+
+    private getStakeholderUsing(stakeholderId: string): Stakeholder {
+        const stakeholder = this.getStakeholders().find(
+            (stakeholder) => stakeholder.getId() === stakeholderId,
+        );
+        if (stakeholder) return stakeholder;
+        throw new Error('Actor stakeholder profile could not be found');
+    }
+
+    getStakeholders(): Array<Stakeholder> {
+        return this.stakeholders;
     }
 
     override getRawBalance(): number {
@@ -37,11 +64,28 @@ export class GroupExpense extends Expense {
     }
 
     override involves(stakeholderId: string): boolean {
-        const { creditor } = this.payment;
-        const isCreditor = creditor.getId() === stakeholderId;
-        const isGroupMember = this.group
-            .getMembers()
-            .some((member) => member.getId() === stakeholderId);
-        return isCreditor || isGroupMember;
+        return (
+            this.isCreditor(stakeholderId) || this.isStakeholder(stakeholderId)
+        );
+    }
+
+    private mapStakeholdersFromGroupMembers(): Array<Stakeholder> {
+        const members = this.group.getMembers();
+        const { balance } = this.payment;
+        return new Stakeholders(members, balance).getValue();
+    }
+
+    private getCreditor(): Member {
+        return this.payment.creditor;
+    }
+
+    private isCreditor(stakeholderId: string): boolean {
+        return this.getCreditor().getId() === stakeholderId;
+    }
+
+    private isStakeholder(stakeholderId: string): boolean {
+        return this.stakeholders.some(
+            (stakeholder) => stakeholder.getId() === stakeholderId,
+        );
     }
 }

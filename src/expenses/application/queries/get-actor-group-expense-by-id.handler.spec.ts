@@ -1,3 +1,4 @@
+import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
 import {
     GroupExpenseNotFoundError,
     GetActorGroupExpenseByIdHandler,
@@ -44,7 +45,9 @@ describe('GetActorGroupExpenseByIdHandler', () => {
 
     it('should return the expense that was retrieved', async () => {
         const result = await sut.execute(dummyQuery);
-        expect(result).toStrictEqual(dummyExpense);
+        expect(result).toStrictEqual(
+            GroupExpensePerspectiveView.from(dummyExpense, dummyActorId),
+        );
     });
 
     describe("actor's group expense doesn't exist", () => {

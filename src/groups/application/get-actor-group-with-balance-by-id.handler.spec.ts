@@ -1,9 +1,6 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
-import {
-    generateRandomMetadata,
-    generateRandomStakeholder,
-} from '@test/helpers/expense/utils';
+import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import {
     GetActorGroupWithBalanceByIdHandler,
     GetActorGroupWithBalanceByIdQuery,
@@ -12,7 +9,8 @@ import {
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { generateRandomMembers } from '@test/helpers/group/utils';
+import { Member } from '@groups/domain/member';
 
 describe('GetActorGroupWithBalanceByIdHandler', () => {
     let sut: GetActorGroupWithBalanceByIdHandler;
@@ -27,11 +25,16 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         groupId: dummyGroupId,
     });
 
+    const dummyGroupMembers: Array<Member> = [
+        Member.fromUser(DEFAULT_USER),
+        ...generateRandomMembers({ length: 4 }),
+    ];
+
     const dummyGroup = new Group({
         id: dummyGroupId,
         name: 'name',
         emoji: '🚧',
-        members: [],
+        members: dummyGroupMembers,
     });
 
     beforeEach(() => {
@@ -57,7 +60,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         ).toContainEqual([dummyActorId, dummyGroupId]);
     });
 
-    it('should compute the actor group balance correctly', async () => {
+    it("should compute the actor's group balance correctly", async () => {
         const expenses = [
             createRandomCreditExpense(1500),
             createRandomDebitExpense(790),
@@ -68,7 +71,8 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
 
         const group = await sut.execute(dummyQuery);
 
-        const expectedBalance = 1500 - 790 - 2400 + 1100;
+        const expectedBalance =
+            (1500 - 790 - 2400 + 1100) / dummyGroupMembers.length;
         expect(group.getBalance()).toBe(expectedBalance);
     });
 
@@ -95,7 +99,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: GroupPayment = {
             balance,
-            creditor: Stakeholder.fromUser(DEFAULT_USER),
+            creditor: Member.fromUser(DEFAULT_USER),
         };
         return new GroupExpense(metadata, dummyGroup, payment);
     }
@@ -104,8 +108,15 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: GroupPayment = {
             balance,
-            creditor: generateRandomStakeholder(),
+            creditor: getRandomMemberFrom(
+                dummyGroup.getMembersExcluding(DEFAULT_USER.getId()),
+            ),
         };
         return new GroupExpense(metadata, dummyGroup, payment);
+    }
+
+    function getRandomMemberFrom(members: Array<Member>): Member {
+        const randomIndex = Math.floor(Math.random() * members.length);
+        return members[randomIndex];
     }
 });

@@ -11,7 +11,6 @@ import { GroupNotFoundError } from '@groups/application/get-actor-group-with-bal
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { Member } from '@groups/domain/member';
 import { Metadata } from '@expenses/domain/expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
 
 describe('AddGroupExpenseHandler', () => {
     let sut: AddGroupExpenseHandler;
@@ -104,7 +103,7 @@ describe('AddGroupExpenseHandler', () => {
         };
         const payment: GroupPayment = {
             balance: dummyCommand.payload.balance,
-            creditor: Stakeholder.fromMember(dummyMember),
+            creditor: dummyMember,
         };
         const expense = new GroupExpense(metadata, dummyGroup, payment);
 

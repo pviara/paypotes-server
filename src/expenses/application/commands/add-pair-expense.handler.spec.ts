@@ -102,14 +102,14 @@ describe('AddPairExpenseHandler', () => {
 
         function getCommandCreditor(): Stakeholder {
             return dummyCommand.payload.isCurrentPayer
-                ? Stakeholder.fromUser(dummyActor)
-                : Stakeholder.fromUser(dummyUser);
+                ? Stakeholder.from(dummyActor)
+                : Stakeholder.from(dummyUser);
         }
 
         function getCommandDebtor(): Stakeholder {
             return dummyCommand.payload.isCurrentPayer
-                ? Stakeholder.fromUser(dummyUser)
-                : Stakeholder.fromUser(dummyActor);
+                ? Stakeholder.from(dummyUser)
+                : Stakeholder.from(dummyActor);
         }
     });
 
