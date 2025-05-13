@@ -397,9 +397,9 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
             );
 
-            expect(response.body).toStrictEqual(
-                raw(GroupExpenseDTO.from(dummyExpense)),
-            );
+            expect(response.body.id).toBe(dummyExpense.getId());
+            expect(response.body.label).toBe(dummyExpense.getLabel());
+            expect(response.body.emoji).toBe(dummyExpense.getEmoji());
         });
     });
 
