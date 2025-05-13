@@ -2,21 +2,21 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { ExpenseModule } from '@expenses/expense.module';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { generateRandomUser } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { Member } from '@groups/domain/member';
 import { Metadata } from '@expenses/domain/expense';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { User } from '@app/users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
-import { Member } from '@groups/domain/member';
-import { User } from '@app/users/domain/user';
-import { generateRandomUser } from '../user/utils';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: OverridingProviders = [
@@ -33,10 +33,6 @@ export const expenseSpecProviders: OverridingProviders = [
         useClass: UserInMemoryTestingRepository,
     },
 ];
-
-const getDefaultUserAsStakeholder = (): Stakeholder => {
-    return Stakeholder.from(DEFAULT_USER);
-};
 
 const generateRandomPairPaymentWithDefaultUser = (
     counterparty?: User,

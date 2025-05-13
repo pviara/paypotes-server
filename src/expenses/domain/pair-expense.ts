@@ -19,6 +19,13 @@ export class PairExpense extends Expense {
         super(metadata);
     }
 
+    cloneUsing(balance: number): PairExpense {
+        return new PairExpense(this.metadata, {
+            ...this.payment,
+            balance,
+        });
+    }
+
     getBalance(): string {
         return `${this.payment.balance}`;
     }
@@ -30,15 +37,8 @@ export class PairExpense extends Expense {
             : this.getMatchingStakeholder(creditor);
     }
 
-    private getMatchingStakeholder(debtor: User): Stakeholder {
-        const stakeholder = this.stakeholders.find(
-            (stakeholder) => stakeholder.getId() === debtor.getId(),
-        );
-        if (stakeholder) return stakeholder;
-
-        throw new Error(
-            'No stakeholder could be found for debtor with id ${debtor.getId()}',
-        );
+    getShareOf(stakeholderId: string): number {
+        return this.getStakeholderUsing(stakeholderId).getShare();
     }
 
     override getRawBalance(): number {
@@ -68,5 +68,24 @@ export class PairExpense extends Expense {
     private hasDebtor(stakeholderId: string) {
         const { debtor } = this.payment;
         return debtor.getId() === stakeholderId;
+    }
+
+    private getMatchingStakeholder(debtor: User): Stakeholder {
+        const stakeholder = this.stakeholders.find(
+            (stakeholder) => stakeholder.getId() === debtor.getId(),
+        );
+        if (stakeholder) return stakeholder;
+
+        throw new Error(
+            'No stakeholder could be found for debtor with id ${debtor.getId()}',
+        );
+    }
+
+    private getStakeholderUsing(stakeholderId: string): Stakeholder {
+        const stakeholder = this.stakeholders.find(
+            (stakeholder) => stakeholder.getId() === stakeholderId,
+        );
+        if (stakeholder) return stakeholder;
+        throw new Error('Actor stakeholder profile could not be found');
     }
 }
