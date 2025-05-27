@@ -6,6 +6,7 @@ import {
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
+import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
 
 describe('GetActorContactExpenseByIdHandler', () => {
     let sut: GetActorContactExpenseByIdHandler;
@@ -41,7 +42,9 @@ describe('GetActorContactExpenseByIdHandler', () => {
 
     it('should return the expense that was retrieved', async () => {
         const result = await sut.execute(dummyQuery);
-        expect(result).toStrictEqual(dummyExpense);
+        expect(result).toStrictEqual(
+            PairExpensePerspectiveView.from(dummyExpense, dummyActorId),
+        );
     });
 
     describe("actor's contact expense doesn't exist", () => {

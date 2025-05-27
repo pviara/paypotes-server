@@ -1,3 +1,4 @@
+import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
@@ -31,7 +32,7 @@ export class GetActorContactExpenseByIdHandler
             expenseId,
         );
 
-        if (expense) return expense;
+        if (expense) return PairExpensePerspectiveView.from(expense, actorId);
         throw new ContactExpenseNotFoundError(contactId, expenseId);
     }
 }
