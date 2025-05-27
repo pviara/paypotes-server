@@ -33,6 +33,7 @@ import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 import { Calculator } from '../domain/calculator';
+import { PairExpensePerspectiveView } from '../domain/pair-expense-perspective-view';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -313,8 +314,12 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
             );
 
+            const expenseView = PairExpensePerspectiveView.from(
+                dummyExpense,
+                DEFAULT_USER.getId(),
+            );
             expect(response.body).toStrictEqual(
-                raw(PairExpenseDTO.from(dummyExpense)),
+                raw(PairExpenseDTO.from(expenseView)),
             );
         });
     });
@@ -357,8 +362,12 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
             );
 
+            const expenseView = PairExpensePerspectiveView.from(
+                dummyExpense,
+                DEFAULT_USER.getId(),
+            );
             expect(response.body).toStrictEqual(
-                raw(PairExpenseDTO.from(dummyExpense)),
+                raw(PairExpenseDTO.from(expenseView)),
             );
         });
     });

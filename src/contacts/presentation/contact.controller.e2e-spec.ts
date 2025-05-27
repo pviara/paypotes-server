@@ -137,8 +137,8 @@ describe('ContactController', () => {
                         const user = mapUserFrom(contact);
                         return [
                             createRandomCreditExpenseFor(user, 894),
-                            createRandomDebitExpenseFor(user, 145),
-                            createRandomDebitExpenseFor(user, 311),
+                            createRandomDebitExpenseFor(user, 158),
+                            createRandomDebitExpenseFor(user, 310),
                             createRandomCreditExpenseFor(user, 28),
                         ];
                     });
@@ -185,7 +185,7 @@ describe('ContactController', () => {
                 function expectAllReturnedDtosToHaveRightBalance(
                     dtos: Array<ContactWithBalanceDTO>,
                 ): void {
-                    const balance = 894 - 145 - 311 + 28;
+                    const balance = 894 / 2 - 158 / 2 - 310 / 2 + 28 / 2;
                     const expected = `${convertCents(balance)}`.replace(
                         '.',
                         ',',
