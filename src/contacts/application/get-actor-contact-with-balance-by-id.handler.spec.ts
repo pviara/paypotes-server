@@ -73,7 +73,7 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
 
         const contact = await sut.execute(dummyQuery);
 
-        const expectedBalance = 1500 - 790 - 2400 + 1100;
+        const expectedBalance = 1500 / 2 - 790 / 2 - 2400 / 2 + 1100 / 2;
         expect(contact.getBalance()).toBe(expectedBalance);
     });
 

@@ -64,8 +64,8 @@ describe('GetActorContactsHandler', () => {
         dummyUser.forEach((stakeholder) => {
             expensesByContact[stakeholder.getId()] = [
                 createRandomCreditExpenseFor(stakeholder, 894),
-                createRandomDebitExpenseFor(stakeholder, 145),
-                createRandomDebitExpenseFor(stakeholder, 311),
+                createRandomDebitExpenseFor(stakeholder, 158),
+                createRandomDebitExpenseFor(stakeholder, 310),
                 createRandomCreditExpenseFor(stakeholder, 28),
             ];
         });
@@ -75,7 +75,7 @@ describe('GetActorContactsHandler', () => {
 
         expect(contacts.length).toBe(dummyContacts.length);
 
-        const expectedBalance = 894 - 145 - 311 + 28;
+        const expectedBalance = 894 / 2 - 158 / 2 - 310 / 2 + 28 / 2;
         contacts.forEach((contact) =>
             expect(contact.getBalance()).toBe(expectedBalance),
         );
