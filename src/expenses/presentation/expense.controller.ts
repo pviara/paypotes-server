@@ -118,7 +118,7 @@ export class ExpenseController {
         } else if (expense instanceof GroupExpense) {
             return GroupExpenseDTO.from(expense);
         }
-        throw new Error();
+        throw new Error(); // todo -> change this
     }
 
     @Get()

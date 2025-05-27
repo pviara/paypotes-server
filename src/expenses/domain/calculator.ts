@@ -1,5 +1,6 @@
 import { Expense } from '@expenses/domain/expense';
 import { GroupExpense } from '@expenses/domain/group-expense';
+import { PairExpense } from './pair-expense';
 
 export class Calculator {
     private readonly ZERO = 0;
@@ -27,11 +28,10 @@ export class Calculator {
         expense: Expense,
         actorId: string,
     ): number {
-        if (expense instanceof GroupExpense) {
+        if (expense instanceof GroupExpense || expense instanceof PairExpense) {
             const actorShare = expense.getShareOf(actorId);
             return expense.hasCreditor(actorId) ? actorShare : -actorShare;
         }
-        const expenseBalance = expense.getRawBalance();
-        return expense.hasCreditor(actorId) ? expenseBalance : -expenseBalance;
+        throw new Error('Expense is neither pair or group expense');
     }
 }

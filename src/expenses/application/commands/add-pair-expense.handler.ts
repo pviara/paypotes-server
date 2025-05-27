@@ -69,12 +69,8 @@ export class AddPairExpenseHandler
         const { actor, balance, isCurrentPayer } = command.payload;
         return {
             balance,
-            creditor: isCurrentPayer
-                ? Stakeholder.from(actor)
-                : Stakeholder.from(user),
-            debtor: isCurrentPayer
-                ? Stakeholder.from(user)
-                : Stakeholder.from(actor),
+            creditor: isCurrentPayer ? actor : user,
+            debtor: isCurrentPayer ? user : actor,
         };
     }
 }

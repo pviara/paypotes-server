@@ -1,19 +1,17 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
+import { generateRandomMetadata } from '@test/helpers/expense/utils';
+import { generateRandomUser } from '@test/helpers/user/utils';
 import {
     GetActorExpensesHandler,
     GetActorExpensesQuery,
 } from '@expenses/application/queries/get-actor-expenses.handler';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
-import {
-    generateRandomMetadata,
-    generateRandomStakeholder,
-} from '@test/helpers/expense/utils';
-import { Member } from '@groups/domain/member';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { PairExpense } from '@expenses/domain/pair-expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
 import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { Member } from '@groups/domain/member';
+import { PairExpense } from '@expenses/domain/pair-expense';
+import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
 
 describe('GetActorExpensesHandler', () => {
     let sut: GetActorExpensesHandler;
@@ -38,8 +36,8 @@ describe('GetActorExpensesHandler', () => {
         }),
         new PairExpense(generateRandomMetadata(), {
             balance: 2000,
-            creditor: generateRandomStakeholder(),
-            debtor: Stakeholder.from(DEFAULT_USER),
+            creditor: generateRandomUser(),
+            debtor: DEFAULT_USER,
         }),
     ];
 
@@ -65,7 +63,11 @@ describe('GetActorExpensesHandler', () => {
 
         expect(result).toStrictEqual(
             dummyExpenses.map((expense) => {
-                if (expense instanceof PairExpense) return expense;
+                if (expense instanceof PairExpense)
+                    return PairExpensePerspectiveView.from(
+                        expense,
+                        dummyActorId,
+                    );
                 if (expense instanceof GroupExpense)
                     return GroupExpensePerspectiveView.from(
                         expense,

@@ -20,9 +20,11 @@ import {
 } from '@test/helpers/group/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
-import { generateRandomUser } from '@test/helpers/user/utils';
+import {
+    generateRandomUser,
+    generateRandomUsers,
+} from '@test/helpers/user/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { Member } from '@groups/domain/member';
@@ -31,6 +33,7 @@ import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 import { Calculator } from '../domain/calculator';
+import { PairExpensePerspectiveView } from '../domain/pair-expense-perspective-view';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -132,7 +135,7 @@ describe('ExpenseController', () => {
             let allDummyContactExpenses: Array<PairExpense[]>;
             let allDummyGroupExpenses: Array<GroupExpense[]>;
 
-            const dummyContacts = generateRandomStakeholders({ length: 4 });
+            const dummyContacts = generateRandomUsers({ length: 4 });
             const dummyGroups = generateDefaultUserRandomGroups({ length: 4 });
 
             beforeEach(async () => {
@@ -311,8 +314,12 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
             );
 
+            const expenseView = PairExpensePerspectiveView.from(
+                dummyExpense,
+                DEFAULT_USER.getId(),
+            );
             expect(response.body).toStrictEqual(
-                raw(PairExpenseDTO.from(dummyExpense)),
+                raw(PairExpenseDTO.from(expenseView)),
             );
         });
     });
@@ -355,8 +362,12 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
             );
 
+            const expenseView = PairExpensePerspectiveView.from(
+                dummyExpense,
+                DEFAULT_USER.getId(),
+            );
             expect(response.body).toStrictEqual(
-                raw(PairExpenseDTO.from(dummyExpense)),
+                raw(PairExpenseDTO.from(expenseView)),
             );
         });
     });

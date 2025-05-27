@@ -10,6 +10,7 @@ import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { User } from '@app/users/domain/user';
 
 describe('GetActorContactWithBalanceByIdHandler', () => {
     let sut: GetActorContactWithBalanceByIdHandler;
@@ -30,11 +31,12 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
         lastname: 'Parker',
     });
 
-    const dummyStakeholder = new Stakeholder({
+    const dummyUser = new User({
         id: dummyContactId,
         firstname: 'Eric',
         lastname: 'Evans',
-        share: 0,
+        email: 'eric.evans@test.com',
+        phone: '0738192004',
     });
 
     beforeEach(() => {
@@ -71,7 +73,7 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
 
         const contact = await sut.execute(dummyQuery);
 
-        const expectedBalance = 1500 - 790 - 2400 + 1100;
+        const expectedBalance = 1500 / 2 - 790 / 2 - 2400 / 2 + 1100 / 2;
         expect(contact.getBalance()).toBe(expectedBalance);
     });
 
@@ -101,8 +103,8 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: PairPayment = {
             balance,
-            creditor: Stakeholder.from(DEFAULT_USER),
-            debtor: dummyStakeholder,
+            creditor: DEFAULT_USER,
+            debtor: dummyUser,
         };
         return new PairExpense(metadata, payment);
     }
@@ -111,8 +113,8 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
         const metadata = generateRandomMetadata();
         const payment: PairPayment = {
             balance,
-            creditor: dummyStakeholder,
-            debtor: Stakeholder.from(DEFAULT_USER),
+            creditor: dummyUser,
+            debtor: DEFAULT_USER,
         };
         return new PairExpense(metadata, payment);
     }

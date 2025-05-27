@@ -100,16 +100,12 @@ describe('AddPairExpenseHandler', () => {
             ).toContainEqual([dummyActor.getId(), dummyUser.getId()]);
         });
 
-        function getCommandCreditor(): Stakeholder {
-            return dummyCommand.payload.isCurrentPayer
-                ? Stakeholder.from(dummyActor)
-                : Stakeholder.from(dummyUser);
+        function getCommandCreditor(): User {
+            return dummyCommand.payload.isCurrentPayer ? dummyActor : dummyUser;
         }
 
-        function getCommandDebtor(): Stakeholder {
-            return dummyCommand.payload.isCurrentPayer
-                ? Stakeholder.from(dummyUser)
-                : Stakeholder.from(dummyActor);
+        function getCommandDebtor(): User {
+            return dummyCommand.payload.isCurrentPayer ? dummyUser : dummyActor;
         }
     });
 

@@ -6,6 +6,7 @@ import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-pers
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PairExpense } from '@expenses/domain/pair-expense';
+import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
 
 export class GetActorExpensesQuery implements IQuery {
     constructor(
@@ -41,7 +42,8 @@ export class GetActorExpensesHandler
         actorId: string,
     ): Array<Expense> {
         return expenses.map((expense) => {
-            if (expense instanceof PairExpense) return expense;
+            if (expense instanceof PairExpense)
+                return PairExpensePerspectiveView.from(expense, actorId);
             if (expense instanceof GroupExpense)
                 return GroupExpensePerspectiveView.from(expense, actorId);
 

@@ -1,21 +1,29 @@
+import { User } from '@app/users/domain/user';
 import { Expense, Metadata } from '@expenses/domain/expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Stakeholders } from './stakeholders';
 
 export type PairPayment = {
     balance: number;
-    creditor: Stakeholder;
-    debtor: Stakeholder;
-}; // -> change this object
-// into this:
-// { stakeholders: [Stakeholder, Stakeholder] }
-// and one of them will have share: 0,
+    creditor: User;
+    debtor: User;
+};
 
 export class PairExpense extends Expense {
+    private stakeholders = this.mapStakeholdersFromUsers();
+
     constructor(
         metadata: Metadata,
         private payment: PairPayment,
     ) {
         super(metadata);
+    }
+
+    cloneUsing(balance: number): PairExpense {
+        return new PairExpense(this.metadata, {
+            ...this.payment,
+            balance,
+        });
     }
 
     getBalance(): string {
@@ -24,7 +32,13 @@ export class PairExpense extends Expense {
 
     getCounterpartyOf(stakeholderId: string): Stakeholder {
         const { creditor, debtor } = this.payment;
-        return creditor.getId() === stakeholderId ? debtor : creditor;
+        return creditor.getId() === stakeholderId
+            ? this.getMatchingStakeholder(debtor)
+            : this.getMatchingStakeholder(creditor);
+    }
+
+    getShareOf(stakeholderId: string): number {
+        return this.getStakeholderUsing(stakeholderId).getShare();
     }
 
     override getRawBalance(): number {
@@ -40,6 +54,12 @@ export class PairExpense extends Expense {
         return stakeholderIds.every(this.eitherCreditorOrDebtor());
     }
 
+    private mapStakeholdersFromUsers(): Array<Stakeholder> {
+        const { balance, creditor, debtor } = this.payment;
+        const users = [creditor, debtor];
+        return new Stakeholders(users, balance).getValue();
+    }
+
     private eitherCreditorOrDebtor(): (stakeholderId: string) => boolean {
         return (stakeholderId: string) =>
             this.hasCreditor(stakeholderId) || this.hasDebtor(stakeholderId);
@@ -48,5 +68,24 @@ export class PairExpense extends Expense {
     private hasDebtor(stakeholderId: string) {
         const { debtor } = this.payment;
         return debtor.getId() === stakeholderId;
+    }
+
+    private getMatchingStakeholder(debtor: User): Stakeholder {
+        const stakeholder = this.stakeholders.find(
+            (stakeholder) => stakeholder.getId() === debtor.getId(),
+        );
+        if (stakeholder) return stakeholder;
+
+        throw new Error(
+            'No stakeholder could be found for debtor with id ${debtor.getId()}',
+        );
+    }
+
+    private getStakeholderUsing(stakeholderId: string): Stakeholder {
+        const stakeholder = this.stakeholders.find(
+            (stakeholder) => stakeholder.getId() === stakeholderId,
+        );
+        if (stakeholder) return stakeholder;
+        throw new Error('Actor stakeholder profile could not be found');
     }
 }

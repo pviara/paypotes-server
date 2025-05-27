@@ -1,3 +1,4 @@
+import { Contact } from '@contacts/domain/contact';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ContactRepositorySpy } from '@test/doubles/contact-repository.spy';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
@@ -8,9 +9,10 @@ import {
     GetActorContactsWithBalanceQuery,
 } from '@contacts/application/get-actor-contacts-with-balance.handler';
 import { mapIdsFrom } from '@test/helpers/utils';
-import { Stakeholder } from '@expenses/domain/stakeholder';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import { User } from '@users/domain/user';
+import { mapUserFrom } from '@test/helpers/user/utils';
 
 describe('GetActorContactsHandler', () => {
     let sut: GetActorContactsWithBalanceHandler;
@@ -29,9 +31,7 @@ describe('GetActorContactsHandler', () => {
     });
 
     const dummyContacts = generateRandomContacts({ length: 30 });
-    const dummyStakeholders = dummyContacts.map((contact) =>
-        Stakeholder.from(contact),
-    );
+    const dummyUser = dummyContacts.map((contact) => mapUserFrom(contact));
 
     beforeEach(() => {
         initSut();
@@ -61,11 +61,11 @@ describe('GetActorContactsHandler', () => {
 
     it("should compute each of the actor's contacts balance correctly", async () => {
         const expensesByContact: ExpensesByContact = {};
-        dummyStakeholders.forEach((stakeholder) => {
+        dummyUser.forEach((stakeholder) => {
             expensesByContact[stakeholder.getId()] = [
                 createRandomCreditExpenseFor(stakeholder, 894),
-                createRandomDebitExpenseFor(stakeholder, 145),
-                createRandomDebitExpenseFor(stakeholder, 311),
+                createRandomDebitExpenseFor(stakeholder, 158),
+                createRandomDebitExpenseFor(stakeholder, 310),
                 createRandomCreditExpenseFor(stakeholder, 28),
             ];
         });
@@ -75,7 +75,7 @@ describe('GetActorContactsHandler', () => {
 
         expect(contacts.length).toBe(dummyContacts.length);
 
-        const expectedBalance = 894 - 145 - 311 + 28;
+        const expectedBalance = 894 / 2 - 158 / 2 - 310 / 2 + 28 / 2;
         contacts.forEach((contact) =>
             expect(contact.getBalance()).toBe(expectedBalance),
         );
@@ -92,27 +92,27 @@ describe('GetActorContactsHandler', () => {
     }
 
     function createRandomCreditExpenseFor(
-        stakeholder: Stakeholder,
+        user: User,
         balance: number,
     ): PairExpense {
         const metadata = generateRandomMetadata();
         const payment: PairPayment = {
             balance,
-            creditor: Stakeholder.from(DEFAULT_USER),
-            debtor: stakeholder,
+            creditor: DEFAULT_USER,
+            debtor: user,
         };
         return new PairExpense(metadata, payment);
     }
 
     function createRandomDebitExpenseFor(
-        stakeholder: Stakeholder,
+        stakeholder: User,
         balance: number,
     ): PairExpense {
         const metadata = generateRandomMetadata();
         const payment: PairPayment = {
             balance,
             creditor: stakeholder,
-            debtor: Stakeholder.from(DEFAULT_USER),
+            debtor: DEFAULT_USER,
         };
         return new PairExpense(metadata, payment);
     }

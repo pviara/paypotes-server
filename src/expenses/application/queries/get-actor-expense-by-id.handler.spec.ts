@@ -5,7 +5,13 @@ import {
     GetActorExpenseByIdHandler,
     GetActorExpenseByIdQuery,
 } from '@expenses/application/queries/get-actor-expense-by-id.handler';
-import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
+import {
+    generateDefaultUserGroupExpense,
+    generateDefaultUserPairExpense,
+} from '@test/helpers/expense/utils';
+import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
 
 describe('GetActorExpenseByIdHandler', () => {
     let sut: GetActorExpenseByIdHandler;
@@ -37,9 +43,27 @@ describe('GetActorExpenseByIdHandler', () => {
         ]);
     });
 
-    it('should return the expense that was retrieved', async () => {
-        const result = await sut.execute(dummyQuery);
-        expect(result).toStrictEqual(dummyExpense);
+    describe('retrieved expense is a pair expense', () => {
+        it('should return the expense that was retrieved', async () => {
+            const result = await sut.execute(dummyQuery);
+            expect(result).toStrictEqual(
+                PairExpensePerspectiveView.from(dummyExpense, dummyActorId),
+            );
+        });
+    });
+
+    describe('retrieved expense is a group expense', () => {
+        const dummyGroup = generateDefaultUserRandomGroup();
+        const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
+
+        it('should return the expense that was retrieved', async () => {
+            expenseRepo.stub('getActorExpenseById', dummyExpense);
+
+            const result = await sut.execute(dummyQuery);
+            expect(result).toStrictEqual(
+                GroupExpensePerspectiveView.from(dummyExpense, dummyActorId),
+            );
+        });
     });
 
     describe("actor's expense doesn't exist", () => {
