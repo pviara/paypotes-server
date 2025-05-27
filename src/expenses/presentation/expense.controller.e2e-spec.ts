@@ -20,7 +20,6 @@ import {
 } from '@test/helpers/group/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import {
     generateRandomUser,
