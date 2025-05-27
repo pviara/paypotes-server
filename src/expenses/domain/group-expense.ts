@@ -43,16 +43,12 @@ export class GroupExpense extends Expense {
         return this.getStakeholderUsing(stakeholderId).getShare();
     }
 
-    private getStakeholderUsing(stakeholderId: string): Stakeholder {
-        const stakeholder = this.getStakeholders().find(
-            (stakeholder) => stakeholder.getId() === stakeholderId,
-        );
-        if (stakeholder) return stakeholder;
-        throw new Error('Actor stakeholder profile could not be found');
-    }
-
     getStakeholders(): Array<Stakeholder> {
         return this.stakeholders;
+    }
+
+    settleShareOf(stakeholderId: string): void {
+        return this.getStakeholderUsing(stakeholderId).settle();
     }
 
     override getRawBalance(): number {
@@ -73,6 +69,14 @@ export class GroupExpense extends Expense {
         const members = this.group.getMembers();
         const { balance } = this.payment;
         return new Stakeholders(members, balance).getValue();
+    }
+
+    private getStakeholderUsing(stakeholderId: string): Stakeholder {
+        const stakeholder = this.getStakeholders().find(
+            (stakeholder) => stakeholder.getId() === stakeholderId,
+        );
+        if (stakeholder) return stakeholder;
+        throw new Error('Actor stakeholder profile could not be found');
     }
 
     private getCreditor(): Member {

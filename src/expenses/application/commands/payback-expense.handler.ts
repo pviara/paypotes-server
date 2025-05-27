@@ -3,6 +3,8 @@ import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-ex
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
+import { PairExpense } from '@app/expenses/domain/pair-expense';
+import { GroupExpense } from '@app/expenses/domain/group-expense';
 
 export class PaybackExpenseCommand implements ICommand {
     constructor(
@@ -30,7 +32,9 @@ export class PaybackExpenseHandler
             expenseId,
         );
 
-        if (expense) return this.expenseRepository.delete(expense.getId());
-        throw new ExpenseNotFoundError(expenseId);
+        if (!expense) throw new ExpenseNotFoundError(expenseId);
+        if (expense instanceof GroupExpense || expense instanceof PairExpense) {
+            return expense.settleShareOf(actorId);
+        }
     }
 }

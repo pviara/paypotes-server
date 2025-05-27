@@ -41,6 +41,10 @@ export class PairExpense extends Expense {
         return this.getStakeholderUsing(stakeholderId).getShare();
     }
 
+    settleShareOf(stakeholderId: string): void {
+        return this.getStakeholderUsing(stakeholderId).settle();
+    }
+
     override getRawBalance(): number {
         return this.payment.balance;
     }

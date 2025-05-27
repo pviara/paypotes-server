@@ -1,11 +1,15 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-expense-by-id.handler';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
-import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
+import {
+    generateDefaultUserGroupExpense,
+    generateDefaultUserPairExpense,
+} from '@test/helpers/expense/utils';
 import {
     PaybackExpenseCommand,
     PaybackExpenseHandler,
 } from '@expenses/application/commands/payback-expense.handler';
+import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 
 describe('PaybackExpenseHandler', () => {
     let sut: PaybackExpenseHandler;
@@ -49,12 +53,29 @@ describe('PaybackExpenseHandler', () => {
     });
 
     describe('expense exists', () => {
-        it('should delete the expense', async () => {
-            await sut.execute(dummyCommand);
-            expect(expenseRepo.calls.delete.count).toBe(1);
-            expect(expenseRepo.calls.delete.history).toContain(
-                dummyExpense.getId(),
-            );
+        describe('expense is pair expense', () => {
+            it('should directly delete the expense', async () => {
+                const dummyExpense = generateDefaultUserPairExpense();
+                expenseRepo.stub('getActorExpenseById', dummyExpense);
+
+                await sut.execute(dummyCommand);
+
+                expect(dummyExpense.getShareOf(DEFAULT_USER.getId())).toBe(0);
+            });
+        });
+
+        describe('expense is group expense', () => {
+            it("should settle actor's share inside the expense", async () => {
+                const dummyGroup = generateDefaultUserRandomGroup();
+                const dummyExpense =
+                    generateDefaultUserGroupExpense(dummyGroup);
+
+                expenseRepo.stub('getActorExpenseById', dummyExpense);
+
+                await sut.execute(dummyCommand);
+
+                expect(dummyExpense.getShareOf(DEFAULT_USER.getId())).toBe(0);
+            });
         });
     });
 
