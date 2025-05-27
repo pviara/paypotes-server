@@ -32,9 +32,7 @@ export class PaybackExpenseHandler
             expenseId,
         );
 
-        if (!expense) throw new ExpenseNotFoundError(expenseId);
-        if (expense instanceof GroupExpense || expense instanceof PairExpense) {
-            return expense.settleShareOf(actorId);
-        }
+        if (expense) return expense.settleShareOf(actorId);
+        throw new ExpenseNotFoundError(expenseId);
     }
 }

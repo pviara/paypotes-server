@@ -1,7 +1,7 @@
-import { User } from '@app/users/domain/user';
+import { User } from '@users/domain/user';
 import { Expense, Metadata } from '@expenses/domain/expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Stakeholders } from './stakeholders';
+import { Stakeholders } from '@expenses/domain/stakeholders';
 
 export type PairPayment = {
     balance: number;
@@ -10,13 +10,13 @@ export type PairPayment = {
 };
 
 export class PairExpense extends Expense {
-    private stakeholders = this.mapStakeholdersFromUsers();
+    protected stakeholders = this.mapStakeholdersFromUsers();
 
     constructor(
         metadata: Metadata,
-        private payment: PairPayment,
+        protected payment: PairPayment,
     ) {
-        super(metadata);
+        super(metadata, payment);
     }
 
     cloneUsing(balance: number): PairExpense {
@@ -26,52 +26,10 @@ export class PairExpense extends Expense {
         });
     }
 
-    getBalance(): string {
-        return `${this.payment.balance}`;
-    }
-
-    getCounterpartyOf(stakeholderId: string): Stakeholder {
-        const { creditor, debtor } = this.payment;
-        return creditor.getId() === stakeholderId
-            ? this.getMatchingStakeholder(debtor)
-            : this.getMatchingStakeholder(creditor);
-    }
-
-    getShareOf(stakeholderId: string): number {
-        return this.getStakeholderUsing(stakeholderId).getShare();
-    }
-
-    settleShareOf(stakeholderId: string): void {
-        return this.getStakeholderUsing(stakeholderId).settle();
-    }
-
-    override getRawBalance(): number {
-        return this.payment.balance;
-    }
-
-    override hasCreditor(stakeholderId: string) {
-        const { creditor } = this.payment;
-        return creditor.getId() === stakeholderId;
-    }
-
-    override involves(...stakeholderIds: Array<string>): boolean {
-        return stakeholderIds.every(this.eitherCreditorOrDebtor());
-    }
-
     private mapStakeholdersFromUsers(): Array<Stakeholder> {
         const { balance, creditor, debtor } = this.payment;
         const users = [creditor, debtor];
         return new Stakeholders(users, balance).getValue();
-    }
-
-    private eitherCreditorOrDebtor(): (stakeholderId: string) => boolean {
-        return (stakeholderId: string) =>
-            this.hasCreditor(stakeholderId) || this.hasDebtor(stakeholderId);
-    }
-
-    private hasDebtor(stakeholderId: string) {
-        const { debtor } = this.payment;
-        return debtor.getId() === stakeholderId;
     }
 
     private getMatchingStakeholder(debtor: User): Stakeholder {
@@ -85,11 +43,11 @@ export class PairExpense extends Expense {
         );
     }
 
-    private getStakeholderUsing(stakeholderId: string): Stakeholder {
-        const stakeholder = this.stakeholders.find(
-            (stakeholder) => stakeholder.getId() === stakeholderId,
-        );
-        if (stakeholder) return stakeholder;
-        throw new Error('Actor stakeholder profile could not be found');
+    //todo -> delete this because it's used only in tests
+    getCounterpartyOf(stakeholderId: string): Stakeholder {
+        const { creditor, debtor } = this.payment;
+        return creditor.getId() === stakeholderId
+            ? this.getMatchingStakeholder(debtor)
+            : this.getMatchingStakeholder(creditor);
     }
 }
