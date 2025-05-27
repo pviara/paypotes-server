@@ -1,3 +1,7 @@
+import { GroupExpense } from '@app/expenses/domain/group-expense';
+import { GroupExpensePerspectiveView } from '@app/expenses/domain/group-expense-perspective-view';
+import { PairExpense } from '@app/expenses/domain/pair-expense';
+import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
@@ -29,8 +33,17 @@ export class GetActorExpenseByIdHandler
             expenseId,
         );
 
-        if (expense) return expense;
+        if (expense) return this.mapToPerspectiveView(expense, actorId);
         throw new ExpenseNotFoundError(expenseId);
+    }
+
+    private mapToPerspectiveView(expense: Expense, actorId: string): Expense {
+        if (expense instanceof PairExpense)
+            return PairExpensePerspectiveView.from(expense, actorId);
+        if (expense instanceof GroupExpense)
+            return GroupExpensePerspectiveView.from(expense, actorId);
+
+        throw new Error('Expense is neither pair or group expense');
     }
 }
 
