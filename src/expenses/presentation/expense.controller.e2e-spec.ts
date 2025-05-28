@@ -111,10 +111,7 @@ describe('ExpenseController', () => {
                     `/${EXPENSES_API_ROUTE}/${expenseId}`,
                 );
 
-                const updatedExpense = await expenseRepo.getActorExpenseById(
-                    actorId,
-                    expenseId,
-                );
+                const updatedExpense = await expenseRepo.get(expenseId);
                 expect(updatedExpense?.getShareOf(actorId)).toBe(0);
             });
         });
@@ -274,6 +271,50 @@ describe('ExpenseController', () => {
                 expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
             }
         });
+
+        describe('actor has only settled expenses', () => {
+            let dummyPairExpenses: Array<PairExpense>;
+            let dummyGroupExpenses: Array<GroupExpense>;
+
+            beforeEach(async () => {
+                const dummyGroup = generateDefaultUserRandomGroup();
+                dummyGroupExpenses = generateDefaultUserGroupExpenses({
+                    length: 10,
+                    group: dummyGroup,
+                });
+                dummyPairExpenses = generateDefaultUserPairExpenses({
+                    length: 10,
+                });
+
+                const dummyExpenses = [
+                    ...dummyGroupExpenses,
+                    ...dummyPairExpenses,
+                ];
+
+                await expenseRepo.empty();
+                await expenseRepo.insert(...dummyExpenses);
+                await paybackAllExpenses();
+            });
+
+            it('should return no expense', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}`,
+                );
+
+                expect(response.body.length).toBe(0);
+            });
+
+            async function paybackAllExpenses(): Promise<void> {
+                for (const expense of [
+                    ...dummyPairExpenses,
+                    ...dummyGroupExpenses,
+                ]) {
+                    await request(httpServer).delete(
+                        `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
+                    );
+                }
+            }
+        });
     });
 
     describe('GET /expenses/:expenseId', () => {
@@ -321,6 +362,20 @@ describe('ExpenseController', () => {
             expect(response.body).toStrictEqual(
                 raw(PairExpenseDTO.from(expenseView)),
             );
+        });
+
+        describe('expense is settled', () => {
+            it('should return 404 NOT_FOUND', async () => {
+                const dummyExpense = generateDefaultUserPairExpense();
+                await expenseRepo.insert(dummyExpense);
+                await payback(dummyExpense);
+
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
         });
     });
 
@@ -370,6 +425,24 @@ describe('ExpenseController', () => {
                 raw(PairExpenseDTO.from(expenseView)),
             );
         });
+
+        describe('expense is settled', () => {
+            it('should return 404 NOT_FOUND', async () => {
+                const dummyExpense = generateDefaultUserPairExpense();
+                const contact = dummyExpense.getCounterpartyOf(
+                    DEFAULT_USER.getId(),
+                );
+
+                await expenseRepo.insert(dummyExpense);
+                await payback(dummyExpense);
+
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
     });
 
     describe('GET /expenses/group/:groupId/expense/:expenseId', () => {
@@ -411,6 +484,23 @@ describe('ExpenseController', () => {
             expect(response.body.id).toBe(dummyExpense.getId());
             expect(response.body.label).toBe(dummyExpense.getLabel());
             expect(response.body.emoji).toBe(dummyExpense.getEmoji());
+        });
+
+        describe('expense is settled', () => {
+            it('should return 404 NOT_FOUND', async () => {
+                const dummyGroup = generateDefaultUserRandomGroup();
+                const dummyExpense =
+                    generateDefaultUserGroupExpense(dummyGroup);
+
+                await expenseRepo.insert(dummyExpense);
+                await payback(dummyExpense);
+
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
         });
     });
 
@@ -668,5 +758,11 @@ describe('ExpenseController', () => {
     ): (dto: PairExpenseDTO) => boolean {
         return (dto: PairExpenseDTO) =>
             expenses.some((expense) => expense.getId() === dto.id);
+    }
+
+    async function payback(expense: Expense): Promise<void> {
+        await request(httpServer).delete(
+            `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
+        );
     }
 });

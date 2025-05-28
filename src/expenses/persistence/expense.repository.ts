@@ -80,8 +80,9 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         expenseId: string,
     ): Promise<PairExpense | null> {
         const expense = this.expenses
-            .filter((expense) => expense instanceof PairExpense)
+            .filter(this.isPairExpense())
             .filter(this.isPairExpenseOf(actorId, contactId))
+            .filter(this.expenseHasActiveStakeholder(actorId))
             .find(this.expenseMatches(expenseId));
 
         return expense ?? null;
@@ -107,6 +108,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): Promise<Expense | null> {
         const expense = this.expenses
             .filter(this.isExpenseOf(actorId))
+            .filter(this.expenseHasActiveStakeholder(actorId))
             .find(this.expenseMatches(expenseId));
 
         return expense ?? null;
@@ -120,6 +122,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         const start = pageIndex * MAX_EXPENSES_PER_PAGE;
         return this.expenses
             .filter(this.isExpenseOf(actorId))
+            .filter(this.expenseHasActiveStakeholder(actorId))
             .filter(this.expenseLabelMatches(search))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
@@ -133,6 +136,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .filter(this.isGroupExpense())
             .filter(this.isExpenseFrom(groupId))
             .filter(this.isGroupExpenseOf(actorId))
+            .filter(this.expenseHasActiveStakeholder(actorId))
             .find(this.expenseMatches(expenseId));
 
         return expense ?? null;
@@ -234,6 +238,12 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             contactId
                 ? expense.involves(actorId, contactId)
                 : expense.involves(actorId);
+    }
+
+    private expenseHasActiveStakeholder(
+        actorId: string,
+    ): (value: Expense) => boolean {
+        return (expense) => expense.getShareOf(actorId) > 0;
     }
 
     private isGroupExpense(): (value: Expense) => value is GroupExpense {
