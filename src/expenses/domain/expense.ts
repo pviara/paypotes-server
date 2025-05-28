@@ -1,3 +1,7 @@
+import { GroupPayment } from '@expenses/domain/group-expense';
+import { PairPayment } from '@expenses/domain/pair-expense';
+import { Stakeholder } from '@expenses/domain/stakeholder';
+
 export type Metadata = {
     id: string;
     label: string;
@@ -5,7 +9,20 @@ export type Metadata = {
 };
 
 export abstract class Expense {
-    constructor(protected metadata: Metadata) {}
+    protected abstract stakeholders: Array<Stakeholder>;
+
+    constructor(
+        protected metadata: Metadata,
+        protected payment: GroupPayment | PairPayment,
+    ) {}
+
+    getBalance(): string {
+        return `${this.payment.balance}`;
+    }
+
+    getEmoji(): string {
+        return this.metadata.emoji;
+    }
 
     getId(): string {
         return this.metadata.id;
@@ -15,13 +32,40 @@ export abstract class Expense {
         return this.metadata.label;
     }
 
-    getEmoji(): string {
-        return this.metadata.emoji;
+    getShareOf(stakeholderId: string): number {
+        return this.getStakeholderUsing(stakeholderId).getShare();
     }
 
-    abstract getRawBalance(): number;
+    getStakeholders(): Array<Stakeholder> {
+        return this.stakeholders;
+    }
 
-    abstract hasCreditor(stakeholderId: string): boolean;
+    hasCreditor(actorId: string): boolean {
+        const { creditor } = this.payment;
+        return creditor.getId() === actorId;
+    }
 
-    abstract involves(stakeholderId: string): boolean;
+    involves(...stakeholderIds: Array<string>): boolean {
+        return stakeholderIds.every((stakeholderId) =>
+            this.getStakeholders().some(
+                (stakeholder) => stakeholder.getId() === stakeholderId,
+            ),
+        );
+    }
+
+    settleShareOf(stakeholderId: string): void {
+        return this.getStakeholderUsing(stakeholderId).settle();
+    }
+
+    protected getRawBalance(): number {
+        return this.payment.balance;
+    }
+
+    private getStakeholderUsing(stakeholderId: string): Stakeholder {
+        const stakeholder = this.getStakeholders().find(
+            (stakeholder) => stakeholder.getId() === stakeholderId,
+        );
+        if (stakeholder) return stakeholder;
+        throw new Error('Actor stakeholder profile could not be found');
+    }
 }

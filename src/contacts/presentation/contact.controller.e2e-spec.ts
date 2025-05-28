@@ -20,11 +20,10 @@ import {
 } from '@test/helpers/expense/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initRunnerWith } from '@test/helpers/application-runner/utils';
-import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import * as request from 'supertest';
-import { User } from '@app/users/domain/user';
 import { mapUserFrom } from '@test/helpers/user/utils';
+import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import { User } from '@users/domain/user';
+import * as request from 'supertest';
 
 describe('ContactController', () => {
     const runner = initRunnerWith(modules, providers);

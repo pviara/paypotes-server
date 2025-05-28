@@ -33,8 +33,8 @@ export class GetActorExpenseByIdHandler
             expenseId,
         );
 
-        if (expense) return this.mapToPerspectiveView(expense, actorId);
-        throw new ExpenseNotFoundError(expenseId);
+        if (!expense) throw new ExpenseNotFoundError(expenseId);
+        return this.mapToPerspectiveView(expense, actorId);
     }
 
     private mapToPerspectiveView(expense: Expense, actorId: string): Expense {

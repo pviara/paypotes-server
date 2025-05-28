@@ -98,7 +98,7 @@ describe('ExpenseController', () => {
                 await expenseRepo.insert(dummyExpense);
             });
 
-            it('should have deleted the right expense', async () => {
+            it('should have settled the right expense', async () => {
                 const actorId = DEFAULT_USER.getId();
                 const expenseId = dummyExpense.getId();
                 const expense = await expenseRepo.getActorExpenseById(
@@ -111,11 +111,11 @@ describe('ExpenseController', () => {
                     `/${EXPENSES_API_ROUTE}/${expenseId}`,
                 );
 
-                const unexistingExpense = await expenseRepo.getActorExpenseById(
+                const updatedExpense = await expenseRepo.getActorExpenseById(
                     actorId,
                     expenseId,
                 );
-                expect(unexistingExpense).toBeNull();
+                expect(updatedExpense?.getShareOf(actorId)).toBe(0);
             });
         });
     });

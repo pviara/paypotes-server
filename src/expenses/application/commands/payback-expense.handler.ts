@@ -22,6 +22,8 @@ export class PaybackExpenseHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
+    // todo: there's another use case where the actor says who paid back his share inside of a group
+    // todo: that means that we need some "backPayerId" or "memberId" that represents the one who paid back his share
     async execute(command: PaybackExpenseCommand): Promise<void> {
         const { actorId, expenseId } = command.payload;
 
@@ -30,7 +32,7 @@ export class PaybackExpenseHandler
             expenseId,
         );
 
-        if (expense) return this.expenseRepository.delete(expense.getId());
+        if (expense) return expense.settleShareOf(actorId);
         throw new ExpenseNotFoundError(expenseId);
     }
 }
