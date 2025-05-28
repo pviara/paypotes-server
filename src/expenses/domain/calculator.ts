@@ -1,6 +1,4 @@
 import { Expense } from '@expenses/domain/expense';
-import { GroupExpense } from '@expenses/domain/group-expense';
-import { PairExpense } from './pair-expense';
 
 export class Calculator {
     private readonly ZERO = 0;
