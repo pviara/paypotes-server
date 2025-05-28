@@ -13,4 +13,11 @@ export class ExpenseInMemoryTestingRepository extends ExpenseInMemoryRepository 
     async insert(...expenses: Array<Expense>): Promise<void> {
         this.expenses.push(...expenses);
     }
+
+    async get(expenseId: string): Promise<Expense | null> {
+        return (
+            this.expenses.find((expense) => expense.getId() === expenseId) ??
+            null
+        );
+    }
 }
