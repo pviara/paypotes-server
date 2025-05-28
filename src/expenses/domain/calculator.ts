@@ -28,10 +28,7 @@ export class Calculator {
         expense: Expense,
         actorId: string,
     ): number {
-        if (expense instanceof GroupExpense || expense instanceof PairExpense) {
-            const actorShare = expense.getShareOf(actorId);
-            return expense.hasCreditor(actorId) ? actorShare : -actorShare;
-        }
-        throw new Error('Expense is neither pair or group expense');
+        const actorShare = expense.getShareOf(actorId);
+        return expense.hasCreditor(actorId) ? actorShare : -actorShare;
     }
 }

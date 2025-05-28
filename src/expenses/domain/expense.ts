@@ -46,8 +46,10 @@ export abstract class Expense {
     }
 
     involves(...stakeholderIds: Array<string>): boolean {
-        return this.stakeholders.some((stakeholder) =>
-            stakeholderIds.includes(stakeholder.getId()),
+        return stakeholderIds.every((stakeholderId) =>
+            this.getStakeholders().some(
+                (stakeholder) => stakeholder.getId() === stakeholderId,
+            ),
         );
     }
 
