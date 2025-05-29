@@ -33,6 +33,13 @@ export class GetActorGroupExpensesHandler
             pageIndex,
             search,
         );
+        return this.mapToPerspectiveView(expenses, actorId);
+    }
+
+    private mapToPerspectiveView(
+        expenses: Array<GroupExpense>,
+        actorId: string,
+    ): Array<GroupExpense> {
         return expenses.map((expense) =>
             GroupExpensePerspectiveView.from(expense, actorId),
         );

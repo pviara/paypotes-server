@@ -99,6 +99,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .filter(this.isPairExpense())
             .filter(this.isPairExpenseOf(actorId, contactId))
             .filter(this.expenseLabelMatches(search))
+            .filter(this.expenseHasActiveStakeholder(actorId))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
 
@@ -153,6 +154,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
             .filter(this.isGroupExpense())
             .filter(this.isExpenseFrom(groupId))
             .filter(this.isGroupExpenseOf(actorId))
+            .filter(this.expenseHasActiveStakeholder(actorId))
             .filter(this.expenseLabelMatches(search))
             .slice(start, start + MAX_EXPENSES_PER_PAGE);
     }
