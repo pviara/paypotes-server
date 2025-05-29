@@ -89,223 +89,6 @@
     },
     {
       "type": "folder",
-      "name": "expense",
-      "filename": "expense",
-      "items": [
-        {
-          "type": "http",
-          "name": "addGroupExpense",
-          "filename": "addGroupExpense.bru",
-          "seq": 1,
-          "request": {
-            "url": "{{host}}/expenses/group",
-            "method": "POST",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "json",
-              "json": "{\n  \"id\": \"{{groupExpenseId}}\",\n  \"label\": \"Burgers\",\n  \"emoji\": \"🍔\",\n  \"balance\": \"10,00\",\n  \"groupId\": \"{{groupId}}\",\n  \"memberId\": \"{{contactId}}\"\n}",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "none"
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "addPairExpense",
-          "filename": "addPairExpense.bru",
-          "seq": 2,
-          "request": {
-            "url": "{{host}}/expenses/pair",
-            "method": "POST",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "json",
-              "json": "{\n  \"id\": \"{{pairExpenseId}}\",\n  \"label\": \"Domac\",\n  \"emoji\": \"🍟\",\n  \"balance\": \"32,50\",\n  \"isCurrentPayer\": false,\n  \"userId\": \"{{contactId}}\"\n}",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "none"
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "computeActorBalance",
-          "filename": "computeActorBalance.bru",
-          "seq": 3,
-          "request": {
-            "url": "{{host}}/expenses/balance",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "none"
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorContactExpenseById",
-          "filename": "getActorContactExpenseById.bru",
-          "seq": 4,
-          "request": {
-            "url": "{{host}}/expenses/contact/{{contactId}}/expense/{{pairExpenseId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "none"
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorExpenseById",
-          "filename": "getActorExpenseById.bru",
-          "seq": 5,
-          "request": {
-            "url": "{{host}}/expenses/{{pairExpenseId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "none"
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorExpenses",
-          "filename": "getActorExpenses.bru",
-          "seq": 6,
-          "request": {
-            "url": "{{host}}/expenses",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "none"
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorGroupExpenseById",
-          "filename": "getActorGroupExpenseById.bru",
-          "seq": 7,
-          "request": {
-            "url": "{{host}}/expenses/group/{{groupId}}/expense/{{groupExpenseId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "none"
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "payback",
-          "filename": "payback.bru",
-          "seq": 8,
-          "request": {
-            "url": "{{host}}/expenses/d3343dfd-e94c-4cbb-9577-454a271770f8",
-            "method": "DELETE",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "none"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "type": "folder",
       "name": "group",
       "filename": "group",
       "items": [
@@ -418,6 +201,275 @@
     },
     {
       "type": "folder",
+      "name": "expense",
+      "filename": "expense",
+      "items": [
+        {
+          "type": "http",
+          "name": "addGroupExpense",
+          "filename": "addGroupExpense.bru",
+          "seq": 1,
+          "request": {
+            "url": "{{host}}/expenses/group",
+            "method": "POST",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "json",
+              "json": "{\n  \"id\": \"{{groupExpenseId}}\",\n  \"label\": \"Burgers\",\n  \"emoji\": \"🍔\",\n  \"balance\": \"10,00\",\n  \"groupId\": \"{{groupId}}\",\n  \"memberId\": \"{{contactId}}\"\n}",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "addPairExpense",
+          "filename": "addPairExpense.bru",
+          "seq": 2,
+          "request": {
+            "url": "{{host}}/expenses/pair",
+            "method": "POST",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "json",
+              "json": "{\n  \"id\": \"{{pairExpenseId}}\",\n  \"label\": \"Domac\",\n  \"emoji\": \"🍟\",\n  \"balance\": \"32,50\",\n  \"isCurrentPayer\": false,\n  \"userId\": \"{{contactId}}\"\n}",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "computeActorBalance",
+          "filename": "computeActorBalance.bru",
+          "seq": 3,
+          "request": {
+            "url": "{{host}}/expenses/balance",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getActorContactExpenseById",
+          "filename": "getActorContactExpenseById.bru",
+          "seq": 4,
+          "request": {
+            "url": "{{host}}/expenses/contact/{{contactId}}/expense/{{pairExpenseId}}",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getActorContactExpenses",
+          "filename": "getActorContactExpenses.bru",
+          "seq": 5,
+          "request": {
+            "url": "{{host}}/expenses/contact/{{contactId}}",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getActorExpenseById",
+          "filename": "getActorExpenseById.bru",
+          "seq": 6,
+          "request": {
+            "url": "{{host}}/expenses/{{pairExpenseId}}",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getActorExpenses",
+          "filename": "getActorExpenses.bru",
+          "seq": 7,
+          "request": {
+            "url": "{{host}}/expenses",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getActorGroupExpenseById",
+          "filename": "getActorGroupExpenseById.bru",
+          "seq": 8,
+          "request": {
+            "url": "{{host}}/expenses/group/{{groupId}}/expense/{{groupExpenseId}}",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "payback",
+          "filename": "payback.bru",
+          "seq": 10,
+          "request": {
+            "url": "{{host}}/expenses/d3343dfd-e94c-4cbb-9577-454a271770f8",
+            "method": "DELETE",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getActorGroupExpenses",
+          "filename": "getActorGroupExpenses.bru",
+          "seq": 9,
+          "request": {
+            "url": "{{host}}/expenses/group/{{groupId}}",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "user",
       "filename": "user",
       "items": [
@@ -450,7 +502,7 @@
       ]
     }
   ],
-  "activeEnvironmentUid": "UaTQkDX4LRdeRssQXrxzS",
+  "activeEnvironmentUid": "829z00wZ16LoCBXiG5Stk",
   "environments": [
     {
       "variables": [
@@ -555,7 +607,7 @@
       "node_modules",
       ".git"
     ],
-    "size": 0.002971649169921875,
-    "filesCount": 18
+    "size": 0.0032548904418945312,
+    "filesCount": 19
   }
 }
