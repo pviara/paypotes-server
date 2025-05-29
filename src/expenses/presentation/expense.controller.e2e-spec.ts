@@ -34,6 +34,8 @@ import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-r
 import * as request from 'supertest';
 import { Calculator } from '../domain/calculator';
 import { PairExpensePerspectiveView } from '../domain/pair-expense-perspective-view';
+import { Contact } from '@app/contacts/domain/contact';
+import { User } from '@app/users/domain/user';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -215,7 +217,7 @@ describe('ExpenseController', () => {
                 await expenseRepo.insert(...dummyExpenses);
             });
 
-            it('should return the first 20 contacts by default', async () => {
+            it('should return the first 20 expenses by default', async () => {
                 const response = await request(httpServer).get(
                     `/${EXPENSES_API_ROUTE}`,
                 );
@@ -249,7 +251,7 @@ describe('ExpenseController', () => {
             });
 
             describe('search has been given', () => {
-                it('should return the contacts that match the search', async () => {
+                it('should return the expenses that match the search', async () => {
                     const targetExpense = dummyExpenses[0];
                     const response = await request(httpServer).get(
                         `/${EXPENSES_API_ROUTE}?search=${targetExpense.getLabel()}`,
@@ -376,6 +378,109 @@ describe('ExpenseController', () => {
 
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
             });
+        });
+    });
+
+    describe('GET /expenses/contact/:contactId', () => {
+        describe('actor has no expense with contact', () => {
+            it('should return an empty array', async () => {
+                const dummyContactId = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${dummyContactId}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.OK);
+                expect(response.body.length).toBe(0);
+            });
+        });
+
+        describe('actor has expenses with contact', () => {
+            let dummyContact: User;
+            let dummyExpenses: Array<PairExpense>;
+            let unrelatedExpenses: Array<PairExpense>;
+
+            beforeEach(async () => {
+                dummyContact = generateRandomUser();
+                dummyExpenses = generateDefaultUserPairExpenses({
+                    length: 40,
+                    counterparty: dummyContact,
+                });
+
+                unrelatedExpenses = generateDefaultUserPairExpenses({
+                    length: 10,
+                });
+
+                await expenseRepo.insert(
+                    ...dummyExpenses.concat(unrelatedExpenses),
+                );
+            });
+
+            it('should return the first 20 contacts by default', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}`,
+                );
+
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
+                expectReturnedDtosNotToBeUnrelatedExpenses(dtos);
+            });
+
+            describe('page index has been given', () => {
+                it('should return the second 20 expenses when given index is 1', async () => {
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}?pageIndex=1`,
+                    );
+
+                    const dtos = response.body;
+                    expect(dtos.length).toBe(20);
+                    expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
+                });
+
+                function expectReturnedDtosToBeTheSecondTwentyExpenses(
+                    dtos: Array<PairExpenseDTO>,
+                ): void {
+                    const secondTwentyExpenses = dummyExpenses.slice(20, 40);
+                    const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
+                        dtoIsIn(secondTwentyExpenses),
+                    );
+
+                    expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
+                }
+            });
+
+            describe('search has been given', () => {
+                it('should return the expenses that match the search', async () => {
+                    const targetExpense = dummyExpenses[0];
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}?search=${targetExpense.getLabel()}`,
+                    );
+
+                    expect(response.body.length).toBe(1);
+                    expect(response.body[0].id).toBe(targetExpense.getId());
+                });
+            });
+
+            function expectReturnedDtosToBeTheFirstTwentyExpenses(
+                dtos: Array<PairExpenseDTO>,
+            ): void {
+                const firstTwentyExpenses = dummyExpenses.slice(0, 20);
+                const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
+                    dtoIsIn(firstTwentyExpenses),
+                );
+
+                expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
+            }
+
+            function expectReturnedDtosNotToBeUnrelatedExpenses(
+                dtos: Array<PairExpenseDTO>,
+            ): void {
+                const returnedDtosAreNotUnrelatedExpenses = dtos.every(
+                    dtoIsNotIn(unrelatedExpenses),
+                );
+
+                expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
+            }
         });
     });
 
@@ -758,6 +863,13 @@ describe('ExpenseController', () => {
     ): (dto: PairExpenseDTO) => boolean {
         return (dto: PairExpenseDTO) =>
             expenses.some((expense) => expense.getId() === dto.id);
+    }
+
+    function dtoIsNotIn(
+        expenses: Array<Expense>,
+    ): (dto: PairExpenseDTO) => boolean {
+        return (dto: PairExpenseDTO) =>
+            expenses.every((expense) => expense.getId() !== dto.id);
     }
 
     async function payback(expense: Expense): Promise<void> {

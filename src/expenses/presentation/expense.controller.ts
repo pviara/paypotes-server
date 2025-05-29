@@ -30,6 +30,7 @@ import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { PaybackExpenseCommand } from '@expenses/application/commands/payback-expense.handler';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
+import { GetActorContactExpensesQuery } from '../application/queries/get-actor-contact-expenses.handler';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
@@ -101,6 +102,25 @@ export class ExpenseController {
         });
         const expense = await this.queryBus.execute(query);
         return PairExpenseDTO.from(expense);
+    }
+
+    @Get('contact/:contactId')
+    async getActorContactExpenses(
+        @ActorId() actorId: string,
+        @ContactId() contactId: string,
+        @PageIndex() pageIndex: number,
+        @Search() search: string,
+    ): Promise<PairExpenseDTO[]> {
+        const query = new GetActorContactExpensesQuery({
+            actorId,
+            contactId,
+            pageIndex,
+            search,
+        });
+        const expenses = await this.queryBus.execute(query);
+        return expenses.map((expense: PairExpense) =>
+            PairExpenseDTO.from(expense),
+        );
     }
 
     @Get(':expenseId')

@@ -1,9 +1,11 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
+import { generateDefaultUserPairExpenses } from '@test/helpers/expense/utils';
 import {
     GetActorContactExpensesHandler,
     GetActorContactExpensesQuery,
 } from '@expenses/application/queries/get-actor-contact-expenses.handler';
+import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
 
 describe('GetActorContactExpensesHandler', () => {
     let sut: GetActorContactExpensesHandler;
@@ -21,9 +23,13 @@ describe('GetActorContactExpensesHandler', () => {
         search: dummySearch,
     });
 
+    const dummyExpenses = generateDefaultUserPairExpenses({ length: 10 });
+
     beforeEach(() => {
         expenseRepo = new ExpenseRepositorySpy();
         sut = new GetActorContactExpensesHandler(expenseRepo);
+
+        expenseRepo.stub('getActorContactExpenses', dummyExpenses);
     });
 
     it("should retrieve the actor's contact expenses", async () => {
@@ -37,5 +43,15 @@ describe('GetActorContactExpensesHandler', () => {
             dummyPageIndex,
             dummySearch,
         ]);
+    });
+
+    it('should return the expenses that were retrieved', async () => {
+        const result = await sut.execute(dummyQuery);
+
+        expect(result).toStrictEqual(
+            dummyExpenses.map((expense) =>
+                PairExpensePerspectiveView.from(expense, dummyActorId),
+            ),
+        );
     });
 });
