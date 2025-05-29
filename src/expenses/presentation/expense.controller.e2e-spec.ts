@@ -480,6 +480,39 @@ describe('ExpenseController', () => {
                 expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
             }
         });
+
+        describe('actor has only settled expenses', () => {
+            let dummyContact: User;
+            let dummyExpenses: Array<PairExpense>;
+
+            beforeEach(async () => {
+                dummyContact = generateRandomUser();
+                dummyExpenses = generateDefaultUserPairExpenses({
+                    length: 10,
+                    counterparty: dummyContact,
+                });
+
+                await expenseRepo.empty();
+                await expenseRepo.insert(...dummyExpenses);
+                await paybackAllExpenses();
+            });
+
+            it('should return no expense', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}`,
+                );
+
+                expect(response.body.length).toBe(0);
+            });
+
+            async function paybackAllExpenses(): Promise<void> {
+                for (const expense of dummyExpenses) {
+                    await request(httpServer).delete(
+                        `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
+                    );
+                }
+            }
+        });
     });
 
     describe('GET /expenses/contact/:contactId/expense/:expenseId', () => {
@@ -651,6 +684,39 @@ describe('ExpenseController', () => {
                 );
 
                 expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
+            }
+        });
+
+        describe('actor has only settled expenses', () => {
+            let dummyGroup: Group;
+            let dummyExpenses: Array<GroupExpense>;
+
+            beforeEach(async () => {
+                dummyGroup = generateDefaultUserRandomGroup();
+                dummyExpenses = generateDefaultUserGroupExpenses({
+                    length: 10,
+                    group: dummyGroup,
+                });
+
+                await expenseRepo.empty();
+                await expenseRepo.insert(...dummyExpenses);
+                await paybackAllExpenses();
+            });
+
+            it('should return no expense', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
+                );
+
+                expect(response.body.length).toBe(0);
+            });
+
+            async function paybackAllExpenses(): Promise<void> {
+                for (const expense of dummyExpenses) {
+                    await request(httpServer).delete(
+                        `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
+                    );
+                }
             }
         });
     });
