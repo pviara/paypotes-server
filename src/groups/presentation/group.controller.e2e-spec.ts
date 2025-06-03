@@ -1,4 +1,9 @@
 import { App } from 'supertest/types';
+import {
+    calculateExpectedBalanceFor,
+    generateDefaultUserGroupExpenses,
+    generateRandomMetadata,
+} from '@test/helpers/expense/utils';
 import { Calculator } from '@expenses/domain/calculator';
 import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
@@ -9,10 +14,6 @@ import {
     groupSpecModules as modules,
     groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
-import {
-    generateDefaultUserGroupExpenses,
-    generateRandomMetadata,
-} from '@test/helpers/expense/utils';
 import { generateRandomUsers } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
@@ -134,8 +135,10 @@ describe('GroupController', () => {
             });
 
             describe('actor has groups with expenses', () => {
+                let expenses: Array<GroupExpense>;
+
                 beforeEach(async () => {
-                    const expenses = dummyGroups.flatMap((group) => {
+                    expenses = dummyGroups.flatMap((group) => {
                         return [
                             createRandomCreditExpenseFor(group, 894),
                             createRandomDebitExpenseFor(group, 120),
@@ -193,18 +196,22 @@ describe('GroupController', () => {
                     dtos: Array<GroupWithBalanceDTO>,
                 ): void {
                     dtos.forEach((dto) => {
-                        const credit =
-                            (894 / dto.members.length) *
-                            (dto.members.length - 1);
-                        const debit_1 = 120 / dto.members.length;
-                        const debit_2 = 312 / dto.members.length;
-                        const balance = credit - debit_1 - debit_2;
+                        const expenses = getExpensesFrom(dto);
+                        const balance = calculateExpectedBalanceFor(expenses);
                         const expected = `${convertCents(balance)}`.replace(
                             '.',
                             ',',
                         );
                         expect(dto.balance).toBe(expected);
                     });
+                }
+
+                function getExpensesFrom(
+                    group: GroupWithBalanceDTO,
+                ): Array<GroupExpense> {
+                    return expenses.filter(
+                        (expense) => expense.getGroup().getId() === group.id,
+                    );
                 }
             });
 
