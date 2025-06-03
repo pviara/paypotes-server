@@ -12,6 +12,7 @@ import {
     generateDefaultUserGroupExpenses,
     generateDefaultUserGroupExpense,
     generateRandomBoolean,
+    generateRandomMetadata,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
@@ -19,7 +20,7 @@ import {
     generateDefaultUserRandomGroups,
 } from '@test/helpers/group/utils';
 import { Group } from '@groups/domain/group';
-import { GroupExpense } from '@expenses/domain/group-expense';
+import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import {
     generateRandomUser,
@@ -777,6 +778,41 @@ describe('ExpenseController', () => {
 
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
             });
+        });
+
+        describe('actor is the expense creditor', () => {
+            const dummyBalance = 1000;
+            const dummyGroup = generateDefaultUserRandomGroup();
+            const dummyExpense = generateGroupExpenseAsCreditor();
+
+            it("should return an expense that exposes the right actor's share", async () => {
+                await expenseRepo.insert(dummyExpense);
+
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                );
+
+                const members = dummyGroup.getMembers().length;
+                const creditedMembers = members - 1;
+                const expectedBalance =
+                    (dummyBalance / members) * creditedMembers;
+
+                expect(response.body.balance).toBe(`${expectedBalance}`);
+            });
+
+            function generateGroupExpenseAsCreditor(): GroupExpense {
+                const dummyMetadata = generateRandomMetadata();
+                const dummyPayment: GroupPayment = {
+                    balance: dummyBalance,
+                    creditor: Member.fromUser(DEFAULT_USER),
+                };
+
+                return new GroupExpense(
+                    dummyMetadata,
+                    dummyGroup,
+                    dummyPayment,
+                );
+            }
         });
     });
 

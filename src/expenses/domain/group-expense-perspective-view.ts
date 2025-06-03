@@ -1,4 +1,5 @@
 import { GroupExpense } from '@expenses/domain/group-expense';
+import { ShareCalculator } from '@expenses/domain/share-calculator';
 
 export class GroupExpensePerspectiveView {
     private view = this.getGroupExpenseView();
@@ -13,7 +14,9 @@ export class GroupExpensePerspectiveView {
     }
 
     private getGroupExpenseView(): GroupExpense {
-        const balance = this.expense.getShareOf(this.perspectiveId);
+        const balance = new ShareCalculator(this.expense).calculateFor(
+            this.perspectiveId,
+        );
         return this.expense.cloneUsing(balance);
     }
 }
