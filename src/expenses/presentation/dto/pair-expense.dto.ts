@@ -1,3 +1,4 @@
+import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { PairExpense } from '@expenses/domain/pair-expense';
 
 export class PairExpenseDTO {
@@ -9,11 +10,12 @@ export class PairExpenseDTO {
     ) {}
 
     static from(expense: PairExpense): PairExpenseDTO {
+        const balance = BalanceDTO.from(+expense.getBalance());
         return {
             id: expense.getId(),
             label: expense.getLabel(),
             emoji: expense.getEmoji(),
-            balance: expense.getBalance(),
+            balance: balance.getValue(),
         };
     }
 }

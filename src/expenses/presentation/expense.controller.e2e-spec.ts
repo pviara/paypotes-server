@@ -794,10 +794,10 @@ describe('ExpenseController', () => {
 
                 const members = dummyGroup.getMembers().length;
                 const creditedMembers = members - 1;
-                const expectedBalance =
-                    (dummyBalance / members) * creditedMembers;
+                const balance = (dummyBalance / members) * creditedMembers;
 
-                expect(response.body.balance).toBe(`${expectedBalance}`);
+                const expected = `${convertCents(balance)}`.replace('.', ',');
+                expect(response.body.balance).toBe(expected);
             });
 
             function generateGroupExpenseAsCreditor(): GroupExpense {
