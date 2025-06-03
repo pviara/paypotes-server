@@ -1,8 +1,11 @@
+import {
+    calculateExpectedBalanceFor,
+    generateRandomMetadata,
+} from '@test/helpers/expense/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpensesByGroup } from '@expenses/persistence/expense.repository';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateDefaultUserRandomGroups } from '@test/helpers/group/utils';
-import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import {
     GetActorGroupsWithBalanceHandler,
     GetActorGroupsWithBalanceQuery,
@@ -73,8 +76,8 @@ describe('GetActorGroupsWithBalanceHandler', () => {
         expect(groups.length).toBe(dummyGroups.length);
 
         groups.forEach((group) => {
-            const expectedBalance =
-                (894 - 120 - 312) / group.getMembers().length;
+            const expenses = expensesByGroup[group.getId()];
+            const expectedBalance = calculateExpectedBalanceFor(expenses);
             expect(group.getBalance()).toBe(expectedBalance);
         });
     });

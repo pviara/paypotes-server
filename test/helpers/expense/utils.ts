@@ -8,7 +8,7 @@ import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Member } from '@groups/domain/member';
-import { Metadata } from '@expenses/domain/expense';
+import { Expense, Metadata } from '@expenses/domain/expense';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
@@ -161,6 +161,34 @@ export function generateRandomBalance(): number {
 export function generateRandomBoolean(): boolean {
     return Math.random() < 0.5;
 }
+
+export const calculateExpectedBalanceFor = (
+    expenses: Array<Expense>,
+): number => {
+    return expenses.reduce((prev, next) => {
+        const isDefaultUserCreditor = next.hasCreditor(DEFAULT_USER.getId());
+        const balance = calculateBalanceBasedOn(next, isDefaultUserCreditor);
+        return prev + (isDefaultUserCreditor ? balance : -balance);
+    }, 0);
+};
+
+const calculateBalanceBasedOn = (
+    expense: Expense,
+    isDefaultUserCreditor: boolean,
+): number => {
+    if (expense instanceof GroupExpense) {
+        const members = expense.getGroup().getMembers().length;
+        const balance = +expense.getBalance();
+
+        const membersTotalOwedShares = (balance / members) * (members - 1);
+        const defaultUserShare = expense.getShareOf(DEFAULT_USER.getId());
+
+        return isDefaultUserCreditor
+            ? membersTotalOwedShares
+            : defaultUserShare;
+    }
+    return +expense.getBalance() / 2;
+};
 
 type RandomMetadataGenerationOptions = { label?: string };
 

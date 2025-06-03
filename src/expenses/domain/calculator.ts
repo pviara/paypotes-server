@@ -1,4 +1,5 @@
 import { Expense } from '@expenses/domain/expense';
+import { ShareCalculator } from './share-calculator';
 
 export class Calculator {
     private readonly ZERO = 0;
@@ -16,17 +17,10 @@ export class Calculator {
         actorId: string,
     ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {
-            const actorExpenseBalance =
-                this.calculateActorSpecificExpenseBalanceFor(expense, actorId);
+            const actorExpenseBalance = new ShareCalculator(
+                expense,
+            ).calculateFor(actorId);
             return balance + actorExpenseBalance;
         };
-    }
-
-    private calculateActorSpecificExpenseBalanceFor(
-        expense: Expense,
-        actorId: string,
-    ): number {
-        const actorShare = expense.getShareOf(actorId);
-        return expense.hasCreditor(actorId) ? actorShare : -actorShare;
     }
 }

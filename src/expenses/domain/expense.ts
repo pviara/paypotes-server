@@ -40,6 +40,12 @@ export abstract class Expense {
         return this.stakeholders;
     }
 
+    getCounterpartiesOf(stakeholderId: string): Array<Stakeholder> {
+        return this.getStakeholders().filter(
+            (stakeholder) => stakeholder.getId() !== stakeholderId,
+        );
+    }
+
     hasCreditor(actorId: string): boolean {
         const { creditor } = this.payment;
         return creditor.getId() === actorId;

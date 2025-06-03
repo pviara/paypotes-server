@@ -17,7 +17,7 @@ services:
 
 networks:
   messaging:
-    name: messaging
+    name: test_messaging
     driver: bridge
 
 volumes:

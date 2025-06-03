@@ -1,4 +1,9 @@
 import { App } from 'supertest/types';
+import {
+    calculateExpectedBalanceFor,
+    generateDefaultUserGroupExpenses,
+    generateRandomMetadata,
+} from '@test/helpers/expense/utils';
 import { Calculator } from '@expenses/domain/calculator';
 import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
@@ -9,10 +14,6 @@ import {
     groupSpecModules as modules,
     groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
-import {
-    generateDefaultUserGroupExpenses,
-    generateRandomMetadata,
-} from '@test/helpers/expense/utils';
 import { generateRandomUsers } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
@@ -134,8 +135,10 @@ describe('GroupController', () => {
             });
 
             describe('actor has groups with expenses', () => {
+                let expenses: Array<GroupExpense>;
+
                 beforeEach(async () => {
-                    const expenses = dummyGroups.flatMap((group) => {
+                    expenses = dummyGroups.flatMap((group) => {
                         return [
                             createRandomCreditExpenseFor(group, 894),
                             createRandomDebitExpenseFor(group, 120),
@@ -193,13 +196,22 @@ describe('GroupController', () => {
                     dtos: Array<GroupWithBalanceDTO>,
                 ): void {
                     dtos.forEach((dto) => {
-                        const balance = (894 - 120 - 312) / dto.members.length;
+                        const expenses = getExpensesFrom(dto);
+                        const balance = calculateExpectedBalanceFor(expenses);
                         const expected = `${convertCents(balance)}`.replace(
                             '.',
                             ',',
                         );
                         expect(dto.balance).toBe(expected);
                     });
+                }
+
+                function getExpensesFrom(
+                    group: GroupWithBalanceDTO,
+                ): Array<GroupExpense> {
+                    return expenses.filter(
+                        (expense) => expense.getGroup().getId() === group.id,
+                    );
                 }
             });
 
@@ -280,6 +292,43 @@ describe('GroupController', () => {
             function computeActorDummyGroupBalance(): number {
                 return new Calculator(dummyGroupExpenses).calculateFor(
                     DEFAULT_USER.getId(),
+                );
+            }
+        });
+
+        describe('actor has only one expense for which he is the creditor', () => {
+            const dummyBalance = 1000;
+            const dummyGroup = generateDefaultUserRandomGroup();
+            const dummyExpense = generateGroupExpenseAsCreditor();
+
+            it("should return a group that exposes the right actor's balance", async () => {
+                await expenseRepo.empty();
+                await groupRepo.insert(dummyGroup);
+                await expenseRepo.insert(dummyExpense);
+
+                const response = await request(httpServer).get(
+                    `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
+                );
+
+                const members = dummyGroup.getMembers().length;
+                const creditedMembers = members - 1;
+                const balance = (dummyBalance / members) * creditedMembers;
+
+                const expected = `${convertCents(balance)}`.replace('.', ',');
+                expect(response.body.balance).toBe(expected);
+            });
+
+            function generateGroupExpenseAsCreditor(): GroupExpense {
+                const dummyMetadata = generateRandomMetadata();
+                const dummyPayment: GroupPayment = {
+                    balance: dummyBalance,
+                    creditor: Member.fromUser(DEFAULT_USER),
+                };
+
+                return new GroupExpense(
+                    dummyMetadata,
+                    dummyGroup,
+                    dummyPayment,
                 );
             }
         });
