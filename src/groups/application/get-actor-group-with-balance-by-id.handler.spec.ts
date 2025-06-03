@@ -71,8 +71,13 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
 
         const group = await sut.execute(dummyQuery);
 
-        const expectedBalance =
-            (1500 - 790 - 2400 + 1100) / dummyGroupMembers.length;
+        const members = dummyGroupMembers.length;
+        const credit_1 = (1500 / members) * (members - 1);
+        const debit_1 = 790 / members;
+        const debit_2 = 2400 / members;
+        const credit_2 = (1100 / members) * (members - 1);
+
+        const expectedBalance = credit_1 - debit_1 - debit_2 + credit_2;
         expect(group.getBalance()).toBe(expectedBalance);
     });
 

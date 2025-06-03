@@ -73,8 +73,11 @@ describe('GetActorGroupsWithBalanceHandler', () => {
         expect(groups.length).toBe(dummyGroups.length);
 
         groups.forEach((group) => {
-            const expectedBalance =
-                (894 - 120 - 312) / group.getMembers().length;
+            const members = group.getMembers().length;
+            const credit = (894 / members) * (members - 1);
+            const debit_1 = 120 / members;
+            const debit_2 = 312 / members;
+            const expectedBalance = credit - debit_1 - debit_2;
             expect(group.getBalance()).toBe(expectedBalance);
         });
     });

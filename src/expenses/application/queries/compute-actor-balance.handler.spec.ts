@@ -59,12 +59,13 @@ describe('ComputeActorBalanceHandler', () => {
 
         const balance = await sut.execute(dummyQuery);
 
-        const expectedBalance =
-            1500 / dummyGroupMembers.length -
-            790 / 2 +
-            2400 / 2 +
-            1100 / dummyGroupMembers.length;
+        const members = dummyGroupMembers.length;
+        const credit_1 = (1500 / members) * (members - 1);
+        const debit_1 = 790 / 2;
+        const credit_2 = 2400 / 2;
+        const credit_3 = (1100 / members) * (members - 1);
 
+        const expectedBalance = credit_1 - debit_1 + credit_2 + credit_3;
         expect(balance).toBe(expectedBalance);
     });
 
