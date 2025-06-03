@@ -166,18 +166,23 @@ export const calculateExpectedBalanceFor = (
     expenses: Array<Expense>,
 ): number => {
     return expenses.reduce((prev, next) => {
-        const balance = calculateBalanceBasedOnExpenseType(next);
         const isDefaultUserCreditor = next.hasCreditor(DEFAULT_USER.getId());
+        const balance = calculateBalanceBasedOn(next, isDefaultUserCreditor);
         return prev + (isDefaultUserCreditor ? balance : -balance);
     }, 0);
 };
 
-const calculateBalanceBasedOnExpenseType = (next: Expense): number => {
-    if (next instanceof GroupExpense) {
-        const members = next.getGroup().getMembers().length;
-        return (+next.getBalance() / members) * (members - 1);
+const calculateBalanceBasedOn = (
+    expense: Expense,
+    isDefaultUserCreditor: boolean,
+): number => {
+    if (expense instanceof GroupExpense) {
+        const members = expense.getGroup().getMembers().length;
+        return isDefaultUserCreditor
+            ? (+expense.getBalance() / members) * (members - 1)
+            : +expense.getBalance() / members;
     }
-    return +next.getBalance() / 2;
+    return +expense.getBalance() / 2;
 };
 
 type RandomMetadataGenerationOptions = { label?: string };
