@@ -8,7 +8,7 @@ import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Member } from '@groups/domain/member';
-import { Metadata } from '@expenses/domain/expense';
+import { Expense, Metadata } from '@expenses/domain/expense';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
@@ -161,6 +161,24 @@ export function generateRandomBalance(): number {
 export function generateRandomBoolean(): boolean {
     return Math.random() < 0.5;
 }
+
+export const calculateExpectedBalanceFor = (
+    expenses: Array<Expense>,
+): number => {
+    return expenses.reduce((prev, next) => {
+        const balance = calculateBalanceBasedOnExpenseType(next);
+        const isDefaultUserCreditor = next.hasCreditor(DEFAULT_USER.getId());
+        return prev + (isDefaultUserCreditor ? balance : -balance);
+    }, 0);
+};
+
+const calculateBalanceBasedOnExpenseType = (next: Expense): number => {
+    if (next instanceof GroupExpense) {
+        const members = next.getGroup().getMembers().length;
+        return (+next.getBalance() / members) * (members - 1);
+    }
+    return +next.getBalance() / 2;
+};
 
 type RandomMetadataGenerationOptions = { label?: string };
 

@@ -1,4 +1,8 @@
 import {
+    calculateExpectedBalanceFor,
+    generateRandomMetadata,
+} from '@test/helpers/expense/utils';
+import {
     ComputeActorBalanceHandler,
     ComputeActorBalanceQuery,
 } from '@expenses/application/queries/compute-actor-balance.handler';
@@ -6,7 +10,6 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMembers } from '@test/helpers/group/utils';
-import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { Member } from '@groups/domain/member';
@@ -59,13 +62,7 @@ describe('ComputeActorBalanceHandler', () => {
 
         const balance = await sut.execute(dummyQuery);
 
-        const members = dummyGroupMembers.length;
-        const credit_1 = (1500 / members) * (members - 1);
-        const debit_1 = 790 / 2;
-        const credit_2 = 2400 / 2;
-        const credit_3 = (1100 / members) * (members - 1);
-
-        const expectedBalance = credit_1 - debit_1 + credit_2 + credit_3;
+        const expectedBalance = calculateExpectedBalanceFor(expenses);
         expect(balance).toBe(expectedBalance);
     });
 
