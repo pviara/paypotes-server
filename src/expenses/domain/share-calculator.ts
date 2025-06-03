@@ -1,8 +1,8 @@
+import { Expense } from '@expenses/domain/expense';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { PairExpense } from '@expenses/domain/pair-expense';
 
 export class ShareCalculator {
-    constructor(private expense: GroupExpense | PairExpense) {}
+    constructor(private expense: Expense) {}
 
     calculateFor(actorId: string): number {
         if (this.isGroupExpenseCreditor(actorId)) {

@@ -193,7 +193,12 @@ describe('GroupController', () => {
                     dtos: Array<GroupWithBalanceDTO>,
                 ): void {
                     dtos.forEach((dto) => {
-                        const balance = (894 - 120 - 312) / dto.members.length;
+                        const credit =
+                            (894 / dto.members.length) *
+                            (dto.members.length - 1);
+                        const debit_1 = 120 / dto.members.length;
+                        const debit_2 = 312 / dto.members.length;
+                        const balance = credit - debit_1 - debit_2;
                         const expected = `${convertCents(balance)}`.replace(
                             '.',
                             ',',
@@ -280,6 +285,43 @@ describe('GroupController', () => {
             function computeActorDummyGroupBalance(): number {
                 return new Calculator(dummyGroupExpenses).calculateFor(
                     DEFAULT_USER.getId(),
+                );
+            }
+        });
+
+        describe('actor has only one expense for which he is the creditor', () => {
+            const dummyBalance = 1000;
+            const dummyGroup = generateDefaultUserRandomGroup();
+            const dummyExpense = generateGroupExpenseAsCreditor();
+
+            it("should return a group that exposes the right actor's balance", async () => {
+                await expenseRepo.empty();
+                await groupRepo.insert(dummyGroup);
+                await expenseRepo.insert(dummyExpense);
+
+                const response = await request(httpServer).get(
+                    `/${GROUPS_API_ROUTE}/${dummyGroup.getId()}`,
+                );
+
+                const members = dummyGroup.getMembers().length;
+                const creditedMembers = members - 1;
+                const balance = (dummyBalance / members) * creditedMembers;
+
+                const expected = `${convertCents(balance)}`.replace('.', ',');
+                expect(response.body.balance).toBe(expected);
+            });
+
+            function generateGroupExpenseAsCreditor(): GroupExpense {
+                const dummyMetadata = generateRandomMetadata();
+                const dummyPayment: GroupPayment = {
+                    balance: dummyBalance,
+                    creditor: Member.fromUser(DEFAULT_USER),
+                };
+
+                return new GroupExpense(
+                    dummyMetadata,
+                    dummyGroup,
+                    dummyPayment,
                 );
             }
         });
