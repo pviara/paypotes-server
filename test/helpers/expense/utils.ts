@@ -178,9 +178,14 @@ const calculateBalanceBasedOn = (
 ): number => {
     if (expense instanceof GroupExpense) {
         const members = expense.getGroup().getMembers().length;
+        const balance = +expense.getBalance();
+
+        const membersTotalOwedShares = (balance / members) * (members - 1);
+        const defaultUserShare = expense.getShareOf(DEFAULT_USER.getId());
+
         return isDefaultUserCreditor
-            ? (+expense.getBalance() / members) * (members - 1)
-            : +expense.getBalance() / members;
+            ? membersTotalOwedShares
+            : defaultUserShare;
     }
     return +expense.getBalance() / 2;
 };
