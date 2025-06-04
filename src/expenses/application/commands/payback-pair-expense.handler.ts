@@ -4,7 +4,7 @@ import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
 
-export class PaybackExpenseCommand implements ICommand {
+export class PaybackPairExpenseCommand implements ICommand {
     constructor(
         readonly payload: {
             actorId: string;
@@ -13,18 +13,16 @@ export class PaybackExpenseCommand implements ICommand {
     ) {}
 }
 
-@CommandHandler(PaybackExpenseCommand)
-export class PaybackExpenseHandler
-    implements ICommandHandler<PaybackExpenseCommand>
+@CommandHandler(PaybackPairExpenseCommand)
+export class PaybackPairExpenseHandler
+    implements ICommandHandler<PaybackPairExpenseCommand>
 {
     constructor(
         @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    // todo: there's another use case where the actor says who paid back his share inside of a group
-    // todo: that means that we need some "backPayerId" or "memberId" that represents the one who paid back his share
-    async execute(command: PaybackExpenseCommand): Promise<void> {
+    async execute(command: PaybackPairExpenseCommand): Promise<void> {
         const { actorId, expenseId } = command.payload;
 
         const expense = await this.expenseRepository.getActorExpenseById(

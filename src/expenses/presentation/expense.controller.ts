@@ -27,7 +27,7 @@ import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { PaybackExpenseCommand } from '@expenses/application/commands/payback-expense.handler';
+import { PaybackPairExpenseCommand } from '@app/expenses/application/commands/payback-pair-expense.handler';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
 import { GetActorContactExpensesQuery } from '../application/queries/get-actor-contact-expenses.handler';
@@ -198,11 +198,11 @@ export class ExpenseController {
     }
 
     @Delete(':expenseId')
-    payback(
+    paybackPairExpense(
         @ActorId() actorId: string,
         @ExpenseId() expenseId: string,
     ): Promise<void> {
-        const command = new PaybackExpenseCommand({ actorId, expenseId });
+        const command = new PaybackPairExpenseCommand({ actorId, expenseId });
         return this.commandBus.execute(command);
     }
 }

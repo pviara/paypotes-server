@@ -13,7 +13,7 @@ import { GetActorGroupExpenseByIdHandler } from '@expenses/application/queries/g
 import { GetActorGroupExpensesHandler } from '@expenses/application/queries/get-actor-group-expenses.handler';
 import { GroupRepositoryModule } from '@groups/persistence/group.repository-module';
 import { Module } from '@nestjs/common';
-import { PaybackExpenseHandler } from '@expenses/application/commands/payback-expense.handler';
+import { PaybackPairExpenseHandler } from '@app/expenses/application/commands/payback-pair-expense.handler';
 import { UserRepositoryModule } from '@users/persistence/user.repository-module';
 
 @Module({
@@ -35,7 +35,7 @@ import { UserRepositoryModule } from '@users/persistence/user.repository-module'
         GetActorExpensesHandler,
         GetActorGroupExpenseByIdHandler,
         GetActorGroupExpensesHandler,
-        PaybackExpenseHandler,
+        PaybackPairExpenseHandler,
     ],
 })
 export class ExpenseModule {}

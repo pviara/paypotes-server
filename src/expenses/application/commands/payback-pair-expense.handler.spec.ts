@@ -5,20 +5,20 @@ import {
     generateDefaultUserGroupExpense,
     generateDefaultUserPairExpense,
 } from '@test/helpers/expense/utils';
-import {
-    PaybackExpenseCommand,
-    PaybackExpenseHandler,
-} from '@expenses/application/commands/payback-expense.handler';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import {
+    PaybackPairExpenseCommand,
+    PaybackPairExpenseHandler,
+} from '@app/expenses/application/commands/payback-pair-expense.handler';
 
-describe('PaybackExpenseHandler', () => {
-    let sut: PaybackExpenseHandler;
+describe('PaybackPairExpenseHandler', () => {
+    let sut: PaybackPairExpenseHandler;
     let expenseRepo: ExpenseRepositorySpy;
 
     const dummyActorId = DEFAULT_USER.getId();
     const dummyExpenseId = crypto.randomUUID();
 
-    const dummyCommand = new PaybackExpenseCommand({
+    const dummyCommand = new PaybackPairExpenseCommand({
         actorId: dummyActorId,
         expenseId: dummyExpenseId,
     });
@@ -81,7 +81,7 @@ describe('PaybackExpenseHandler', () => {
 
     function initSut(): void {
         initDependencies();
-        sut = new PaybackExpenseHandler(expenseRepo);
+        sut = new PaybackPairExpenseHandler(expenseRepo);
     }
 
     function initDependencies(): void {
