@@ -32,6 +32,7 @@ import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
 import { GetActorContactExpensesQuery } from '../application/queries/get-actor-contact-expenses.handler';
 import { GetActorGroupExpensesQuery } from '../application/queries/get-actor-group-expenses.handler';
+import { PaybackGroupExpenseDTO } from './dto/payback-group-expense.dto';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
@@ -196,6 +197,13 @@ export class ExpenseController {
             GroupExpenseDTO.from(expense),
         );
     }
+
+    @Delete('group/:expenseId')
+    async paybackGroupExpense(
+        @ActorId() actorId: string,
+        @ExpenseId() expenseId: string,
+        @Body() payback: PaybackGroupExpenseDTO,
+    ): Promise<void> {}
 
     @Delete(':expenseId')
     paybackPairExpense(

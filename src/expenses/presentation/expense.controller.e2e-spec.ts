@@ -118,6 +118,60 @@ describe('ExpenseController', () => {
         });
     });
 
+    describe('DELETE /expenses/group', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined, [], ['id']];
+
+        const invalidDebtorIds = [
+            'id',
+            null,
+            59391,
+            NaN,
+            undefined,
+            [],
+            ['id'],
+        ];
+        const dummyDebtorIds = [crypto.randomUUID(), crypto.randomUUID()];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
+            async (id: unknown) => {
+                const response = await request(httpServer)
+                    .delete(`/${EXPENSES_API_ROUTE}/group/${id}`)
+                    .send({ debtorIds: dummyDebtorIds });
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        it.each(invalidDebtorIds)(
+            'should return 400 BAD_REQUEST when given debtor ids "%s" are not valid uuids',
+            async (debtorIds: unknown) => {
+                const dummyExpenseId = crypto.randomUUID();
+                const response = await request(httpServer)
+                    .delete(`/${EXPENSES_API_ROUTE}/group/${dummyExpenseId}`)
+                    .send({ debtorIds });
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor expense does not exist', () => {
+            beforeEach(async () => {
+                await expenseRepo.empty();
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const NOT_EXISTING_ID = crypto.randomUUID();
+
+                const response = await request(httpServer)
+                    .delete(`/${EXPENSES_API_ROUTE}/group/${NOT_EXISTING_ID}`)
+                    .send({ debtorIds: dummyDebtorIds });
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+    });
+
     describe('GET /balance', () => {
         describe('actor has no expense at all', () => {
             it('should return default balance "0,00"', async () => {
