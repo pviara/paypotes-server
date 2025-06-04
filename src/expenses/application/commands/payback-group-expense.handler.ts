@@ -1,4 +1,8 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
+import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-expense-by-id.handler';
+import { ExpenseRepository } from '@expenses/persistence/expense.repository';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { Inject } from '@nestjs/common';
 
 export class PaybackGroupExpenseCommand implements ICommand {
     constructor(
@@ -14,7 +18,18 @@ export class PaybackGroupExpenseCommand implements ICommand {
 export class PaybackGroupExpenseHandler
     implements ICommandHandler<PaybackGroupExpenseCommand>
 {
-    execute(command: PaybackGroupExpenseCommand): Promise<any> {
-        throw new Error('Method not implemented.');
+    constructor(
+        @Inject(expenseRepositoryToken)
+        private expenseRepository: ExpenseRepository,
+    ) {}
+
+    async execute(command: PaybackGroupExpenseCommand): Promise<void> {
+        const { actorId, expenseId } = command.payload;
+
+        const expense = await this.expenseRepository.getActorExpenseById(
+            actorId,
+            expenseId,
+        );
+        if (!expense) throw new ExpenseNotFoundError(expenseId);
     }
 }
