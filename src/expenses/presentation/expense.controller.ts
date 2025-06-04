@@ -19,20 +19,21 @@ import { ComputeActorBalanceQuery } from '@expenses/application/queries/compute-
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { GetActorContactExpenseByIdQuery } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
+import { GetActorContactExpensesQuery } from '@expenses/application/queries/get-actor-contact-expenses.handler';
 import { GetActorExpenseByIdQuery } from '@expenses/application/queries/get-actor-expense-by-id.handler';
 import { GetActorExpensesQuery } from '@expenses/application/queries/get-actor-expenses.handler';
 import { GetActorGroupExpenseByIdQuery } from '@expenses/application/queries/get-actor-group-expense-by-id.handler';
+import { GetActorGroupExpensesQuery } from '@expenses/application/queries/get-actor-group-expenses.handler';
 import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
+import { PaybackGroupExpenseCommand } from '@expenses/application/commands/payback-group-expense.handler';
+import { PaybackGroupExpenseDTO } from '@expenses/presentation/dto/payback-group-expense.dto';
 import { PaybackPairExpenseCommand } from '@app/expenses/application/commands/payback-pair-expense.handler';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
-import { GetActorContactExpensesQuery } from '../application/queries/get-actor-contact-expenses.handler';
-import { GetActorGroupExpensesQuery } from '../application/queries/get-actor-group-expenses.handler';
-import { PaybackGroupExpenseDTO } from './dto/payback-group-expense.dto';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 
@@ -199,11 +200,19 @@ export class ExpenseController {
     }
 
     @Delete('group/:expenseId')
-    async paybackGroupExpense(
+    paybackGroupExpense(
         @ActorId() actorId: string,
         @ExpenseId() expenseId: string,
         @Body() payback: PaybackGroupExpenseDTO,
-    ): Promise<void> {}
+    ): Promise<void> {
+        const { debtorIds } = payback;
+        const command = new PaybackGroupExpenseCommand({
+            actorId,
+            expenseId,
+            debtorIds,
+        });
+        return this.commandBus.execute(command);
+    }
 
     @Delete(':expenseId')
     paybackPairExpense(
