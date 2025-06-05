@@ -29,11 +29,12 @@ export class PaybackPairExpenseHandler
             actorId,
             expenseId,
         );
+        if (!expense) throw new ExpenseNotFoundError(expenseId);
 
-        // todo: you have to check if actor is debtor or creditor
-        // todo: in other termes you have to payback the debtor's share, not the creditor's share
-
-        if (expense) return expense.settleShareOf(actorId);
-        throw new ExpenseNotFoundError(expenseId);
+        if (expense.hasCreditor(actorId)) {
+            const [counterparty] = expense.getCounterpartiesOf(actorId);
+            return expense.settleShareOf(counterparty.getId());
+        }
+        return expense.settleShareOf(actorId);
     }
 }
