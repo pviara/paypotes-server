@@ -2,14 +2,16 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-expense-by-id.handler';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import {
-    generateDefaultUserGroupExpense,
     generateDefaultUserPairExpense,
+    generateRandomBalance,
+    generateRandomMetadata,
 } from '@test/helpers/expense/utils';
-import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
+import { generateRandomUser } from '@test/helpers/user/utils';
+import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import {
     PaybackPairExpenseCommand,
     PaybackPairExpenseHandler,
-} from '@app/expenses/application/commands/payback-pair-expense.handler';
+} from '@expenses/application/commands/payback-pair-expense.handler';
 
 describe('PaybackPairExpenseHandler', () => {
     let sut: PaybackPairExpenseHandler;
@@ -53,29 +55,54 @@ describe('PaybackPairExpenseHandler', () => {
     });
 
     describe('expense exists', () => {
-        describe('expense is pair expense', () => {
-            it('should directly delete the expense', async () => {
-                const dummyExpense = generateDefaultUserPairExpense();
+        describe('actor is debtor', () => {
+            it("should settle actor's share", async () => {
+                const dummyExpense = generateRandomDebitExpense();
                 expenseRepo.stub('getActorExpenseById', dummyExpense);
 
                 await sut.execute(dummyCommand);
 
-                expect(dummyExpense.getShareOf(DEFAULT_USER.getId())).toBe(0);
+                expect(dummyExpense.getShareOf(dummyActorId)).toBe(0);
+
+                const counterparty =
+                    dummyExpense.getCounterpartyOf(dummyActorId);
+                expect(counterparty.getShare()).not.toBe(0);
             });
+
+            function generateRandomDebitExpense(): PairExpense {
+                const metadata = generateRandomMetadata();
+                const payment: PairPayment = {
+                    balance: 1000,
+                    creditor: generateRandomUser(),
+                    debtor: DEFAULT_USER,
+                };
+                return new PairExpense(metadata, payment);
+            }
         });
 
-        describe('expense is group expense', () => {
-            it("should settle actor's share inside the expense", async () => {
-                const dummyGroup = generateDefaultUserRandomGroup();
-                const dummyExpense =
-                    generateDefaultUserGroupExpense(dummyGroup);
-
+        describe('actor is creditor', () => {
+            it("should settle counterparty's share", async () => {
+                const dummyExpense = generateRandomCreditExpense();
                 expenseRepo.stub('getActorExpenseById', dummyExpense);
 
                 await sut.execute(dummyCommand);
 
-                expect(dummyExpense.getShareOf(DEFAULT_USER.getId())).toBe(0);
+                const counterparty =
+                    dummyExpense.getCounterpartyOf(dummyActorId);
+                expect(counterparty.getShare()).toBe(0);
+
+                expect(dummyExpense.getShareOf(dummyActorId)).not.toBe(0);
             });
+
+            function generateRandomCreditExpense(): PairExpense {
+                const metadata = generateRandomMetadata();
+                const payment: PairPayment = {
+                    balance: generateRandomBalance(),
+                    creditor: DEFAULT_USER,
+                    debtor: generateRandomUser(),
+                };
+                return new PairExpense(metadata, payment);
+            }
         });
     });
 

@@ -86,15 +86,9 @@ describe('ExpenseController', () => {
         });
 
         describe('actor expense exists', () => {
-            const dummyGroup = generateDefaultUserRandomGroup();
-            const dummyExpense = generateRandomBoolean()
-                ? generateDefaultUserPairExpense()
-                : generateDefaultUserGroupExpense(dummyGroup);
+            const dummyExpense = generateDefaultUserPairExpense();
 
             beforeEach(async () => {
-                await groupRepo.empty();
-                await groupRepo.insert(dummyGroup);
-
                 await expenseRepo.empty();
                 await expenseRepo.insert(dummyExpense);
             });
@@ -102,11 +96,6 @@ describe('ExpenseController', () => {
             it('should have settled the right expense', async () => {
                 const actorId = DEFAULT_USER.getId();
                 const expenseId = dummyExpense.getId();
-                const expense = await expenseRepo.getActorExpenseById(
-                    actorId,
-                    expenseId,
-                );
-                expect(expense).toBeDefined();
 
                 await request(httpServer).delete(
                     `/${EXPENSES_API_ROUTE}/${expenseId}`,
@@ -170,6 +159,36 @@ describe('ExpenseController', () => {
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
             });
         });
+
+        // describe('actor expense exists', () => {
+        //     const dummyGroup = generateDefaultUserRandomGroup();
+        //     const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
+
+        //     beforeEach(async () => {
+        //         await groupRepo.empty();
+        //         await groupRepo.insert(dummyGroup);
+
+        //         await expenseRepo.empty();
+        //         await expenseRepo.insert(dummyExpense);
+        //     });
+
+        //     it('should have settled the right expense', async () => {
+        //         const actorId = DEFAULT_USER.getId();
+        //         const expenseId = dummyExpense.getId();
+        //         const expense = await expenseRepo.getActorExpenseById(
+        //             actorId,
+        //             expenseId,
+        //         );
+        //         expect(expense).toBeDefined();
+
+        //         await request(httpServer).delete(
+        //             `/${EXPENSES_API_ROUTE}/group/${expenseId}`,
+        //         );
+
+        //         const updatedExpense = await expenseRepo.get(expenseId);
+        //         expect(updatedExpense?.getShareOf(actorId)).toBe(0);
+        //     });
+        // });
     });
 
     describe('GET /balance', () => {
