@@ -63,8 +63,8 @@ describe('ExpenseController', () => {
         it.each(invalidIds)(
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
             async (id: unknown) => {
-                const response = await request(httpServer).delete(
-                    `/${EXPENSES_API_ROUTE}/${id}/${id}`,
+                const response = await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/pair/${id}/${id}`,
                 );
 
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
@@ -82,7 +82,7 @@ describe('ExpenseController', () => {
                     crypto.randomUUID(),
                 ];
 
-                const response = await request(httpServer).delete(
+                const response = await request(httpServer).put(
                     `/${EXPENSES_API_ROUTE}/${NOT_EXISTING_ID_1}/${NOT_EXISTING_ID_2}`,
                 );
 
@@ -105,8 +105,8 @@ describe('ExpenseController', () => {
                     dummyExpense.getCounterpartiesOf(actorId);
                 const contactId = counterparty.getId();
 
-                await request(httpServer).delete(
-                    `/${EXPENSES_API_ROUTE}/${contactId}/${expenseId}`,
+                await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expenseId}`,
                 );
 
                 const updatedExpense = await expenseRepo.get(expenseId);
@@ -145,7 +145,7 @@ describe('ExpenseController', () => {
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
             async (id: unknown) => {
                 const response = await request(httpServer)
-                    .delete(`/${EXPENSES_API_ROUTE}/group/${id}`)
+                    .put(`/${EXPENSES_API_ROUTE}/group/${id}`)
                     .send({ debtorIds: dummyDebtorIds });
 
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
@@ -157,7 +157,7 @@ describe('ExpenseController', () => {
             async (debtorIds: unknown) => {
                 const dummyExpenseId = crypto.randomUUID();
                 const response = await request(httpServer)
-                    .delete(`/${EXPENSES_API_ROUTE}/group/${dummyExpenseId}`)
+                    .put(`/${EXPENSES_API_ROUTE}/group/${dummyExpenseId}`)
                     .send({ debtorIds });
 
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
@@ -173,7 +173,7 @@ describe('ExpenseController', () => {
                 const NOT_EXISTING_ID = crypto.randomUUID();
 
                 const response = await request(httpServer)
-                    .delete(`/${EXPENSES_API_ROUTE}/group/${NOT_EXISTING_ID}`)
+                    .put(`/${EXPENSES_API_ROUTE}/group/${NOT_EXISTING_ID}`)
                     .send({ debtorIds: dummyDebtorIds });
 
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
@@ -200,7 +200,7 @@ describe('ExpenseController', () => {
         //         );
         //         expect(expense).toBeDefined();
 
-        //         await request(httpServer).delete(
+        //         await request(httpServer).put(
         //             `/${EXPENSES_API_ROUTE}/group/${expenseId}`,
         //         );
 
@@ -402,7 +402,7 @@ describe('ExpenseController', () => {
                     ...dummyPairExpenses,
                     ...dummyGroupExpenses,
                 ]) {
-                    await request(httpServer).delete(
+                    await request(httpServer).put(
                         `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
                     );
                 }
@@ -600,8 +600,8 @@ describe('ExpenseController', () => {
 
             async function paybackAllExpenses(): Promise<void> {
                 for (const expense of dummyExpenses) {
-                    await request(httpServer).delete(
-                        `/${EXPENSES_API_ROUTE}/${dummyContact.getId()}/${expense.getId()}`,
+                    await request(httpServer).put(
+                        `/${EXPENSES_API_ROUTE}/pair/${dummyContact.getId()}/${expense.getId()}`,
                     );
                 }
             }
@@ -806,8 +806,8 @@ describe('ExpenseController', () => {
 
             async function paybackAllExpenses(): Promise<void> {
                 for (const expense of dummyExpenses) {
-                    await request(httpServer).delete(
-                        `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
+                    await request(httpServer).put(
+                        `/${EXPENSES_API_ROUTE}/pair/${expense.getId()}`,
                     );
                 }
             }
@@ -1175,8 +1175,8 @@ describe('ExpenseController', () => {
         const [counterparty] = expense.getCounterpartiesOf(actorId);
         const contactId = counterparty.getId();
 
-        await request(httpServer).delete(
-            `/${EXPENSES_API_ROUTE}/${contactId}/${expense.getId()}`,
+        await request(httpServer).put(
+            `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expense.getId()}`,
         );
     }
 });

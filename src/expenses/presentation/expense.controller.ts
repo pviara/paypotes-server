@@ -8,11 +8,11 @@ import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import {
     Body,
     Controller,
-    Delete,
     Get,
     Param,
     ParseUUIDPipe,
     Post,
+    Put,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ComputeActorBalanceQuery } from '@expenses/application/queries/compute-actor-balance.handler';
@@ -214,7 +214,7 @@ export class ExpenseController {
     //     return this.commandBus.execute(command);
     // }
 
-    @Delete(':contactId/:expenseId')
+    @Put('pair/:contactId/:expenseId')
     paybackPairExpense(
         @ActorId() actorId: string,
         @ContactId() contactId: string,
