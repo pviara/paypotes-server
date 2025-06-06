@@ -200,7 +200,7 @@ export class ExpenseController {
     }
 
     @Put('group/:groupId/:expenseId')
-    async paybackGroupExpense(
+    paybackGroupExpense(
         @ActorId() actorId: string,
         @GroupId() groupId: string,
         @ExpenseId() expenseId: string,

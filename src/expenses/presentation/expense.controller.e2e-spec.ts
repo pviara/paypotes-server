@@ -13,11 +13,13 @@ import {
     generateDefaultUserGroupExpense,
     generateRandomBoolean,
     generateRandomMetadata,
+    generateRandomBalance,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
     generateDefaultUserRandomGroup,
     generateDefaultUserRandomGroups,
+    generateRandomMember,
 } from '@test/helpers/group/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
@@ -654,7 +656,7 @@ describe('ExpenseController', () => {
             async function paybackAllExpenses(): Promise<void> {
                 for (const expense of dummyExpenses) {
                     await request(httpServer).put(
-                        `/${EXPENSES_API_ROUTE}/pair/${expense.getId()}`,
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/${expense.getId()}`,
                     );
                 }
             }
@@ -1007,15 +1009,7 @@ describe('ExpenseController', () => {
     describe('PUT /expenses/group/:groupId/:expenseId', () => {
         const invalidIds = ['id', 59391, NaN, ['id']];
 
-        const invalidDebtorIds = [
-            'id',
-            null,
-            59391,
-            NaN,
-            undefined,
-            [],
-            ['id'],
-        ];
+        const invalidDebtorIds = ['id', null, 59391, NaN, undefined, ['id']];
         const dummyDebtorIds = [crypto.randomUUID(), crypto.randomUUID()];
 
         it.each(invalidIds)(
@@ -1068,38 +1062,86 @@ describe('ExpenseController', () => {
 
         describe('actor expense exists', () => {
             const dummyGroup = generateDefaultUserRandomGroup();
-            const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
-
-            const counterparties = dummyExpense.getCounterpartiesOf(actorId);
-            const debtorIds = counterparties.map((c) => c.getId());
 
             beforeEach(async () => {
                 await groupRepo.empty();
                 await groupRepo.insert(dummyGroup);
-
-                await expenseRepo.empty();
-                await expenseRepo.insert(dummyExpense);
             });
 
-            it('should have settled the right expense', async () => {
-                const groupId = dummyGroup.getId();
-                const expenseId = dummyExpense.getId();
+            describe('actor is creditor and settles shares for given debtor ids', () => {
+                const dummyExpense = createRandomCreditExpenseFor(dummyGroup);
+                const debtorIds = dummyExpense
+                    .getCounterpartiesOf(actorId)
+                    .map((counterparty) => counterparty.getId());
 
-                await request(httpServer)
-                    .put(`/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`)
-                    .send({ debtorIds });
+                it('should have settled all expense counterparties', async () => {
+                    await expenseRepo.empty();
+                    await expenseRepo.insert(dummyExpense);
 
-                const updatedExpense = await expenseRepo.get(expenseId);
-                expectAllDebtorsShareToHaveBeenSettledIn(updatedExpense);
+                    const groupId = dummyGroup.getId();
+                    const expenseId = dummyExpense.getId();
+
+                    await request(httpServer)
+                        .put(
+                            `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                        )
+                        .send({ debtorIds });
+
+                    const updatedExpense = await expenseRepo.get(expenseId);
+                    expectAllDebtorsShareToHaveBeenSettledIn(updatedExpense);
+                });
+
+                function createRandomCreditExpenseFor(
+                    group: Group,
+                ): GroupExpense {
+                    const metadata = generateRandomMetadata();
+                    const payment: GroupPayment = {
+                        balance: generateRandomBalance(),
+                        creditor: Member.fromUser(DEFAULT_USER),
+                    };
+                    return new GroupExpense(metadata, group, payment);
+                }
+
+                function expectAllDebtorsShareToHaveBeenSettledIn(
+                    expense: Expense,
+                ): void {
+                    debtorIds.forEach((debtorId) =>
+                        expect(expense.getShareOf(debtorId)).toBe(0),
+                    );
+                }
             });
 
-            function expectAllDebtorsShareToHaveBeenSettledIn(
-                expense: Expense,
-            ): void {
-                debtorIds.forEach((debtorId) =>
-                    expect(expense.getShareOf(debtorId)).toBe(0),
-                );
-            }
+            describe('actor is debtor and settles their own share', () => {
+                const dummyExpense = createRandomDebitExpenseFor(dummyGroup);
+
+                it("should have settled expense actor's share", async () => {
+                    await expenseRepo.empty();
+                    await expenseRepo.insert(dummyExpense);
+
+                    const groupId = dummyGroup.getId();
+                    const expenseId = dummyExpense.getId();
+
+                    await request(httpServer)
+                        .put(
+                            `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                        )
+                        .send({ debtorIds: [] });
+
+                    const updatedExpense = await expenseRepo.get(expenseId);
+                    expect(updatedExpense.getShareOf(actorId)).toBe(0);
+                });
+
+                function createRandomDebitExpenseFor(
+                    group: Group,
+                ): GroupExpense {
+                    const metadata = generateRandomMetadata();
+                    const payment: GroupPayment = {
+                        balance: generateRandomBalance(),
+                        creditor: generateRandomMember(),
+                    };
+                    return new GroupExpense(metadata, group, payment);
+                }
+            });
         });
     });
 
