@@ -8,6 +8,7 @@ export class PaybackGroupExpenseCommand implements ICommand {
     constructor(
         readonly payload: {
             actorId: string;
+            groupId: string;
             expenseId: string;
             debtorIds: Array<string>;
         },
@@ -24,10 +25,11 @@ export class PaybackGroupExpenseHandler
     ) {}
 
     async execute(command: PaybackGroupExpenseCommand): Promise<void> {
-        const { actorId, expenseId } = command.payload;
+        const { actorId, groupId, expenseId } = command.payload;
 
-        const expense = await this.expenseRepository.getActorExpenseById(
+        const expense = await this.expenseRepository.getActorGroupExpenseById(
             actorId,
+            groupId,
             expenseId,
         );
         if (!expense) throw new ExpenseNotFoundError(expenseId);

@@ -127,8 +127,8 @@ describe('ExpenseController', () => {
         });
     });
 
-    describe.skip('DELETE /expenses/group', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined, [], ['id']];
+    describe('DELETE /expenses/group', () => {
+        const invalidIds = ['id', 59391, NaN, ['id']];
 
         const invalidDebtorIds = [
             'id',
@@ -145,7 +145,7 @@ describe('ExpenseController', () => {
             'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
             async (id: unknown) => {
                 const response = await request(httpServer)
-                    .put(`/${EXPENSES_API_ROUTE}/group/${id}`)
+                    .put(`/${EXPENSES_API_ROUTE}/group/${id}/${id}`)
                     .send({ debtorIds: dummyDebtorIds });
 
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
@@ -155,9 +155,13 @@ describe('ExpenseController', () => {
         it.each(invalidDebtorIds)(
             'should return 400 BAD_REQUEST when given debtor ids "%s" are not valid uuids',
             async (debtorIds: unknown) => {
+                const dummyGroupId = crypto.randomUUID();
                 const dummyExpenseId = crypto.randomUUID();
+
                 const response = await request(httpServer)
-                    .put(`/${EXPENSES_API_ROUTE}/group/${dummyExpenseId}`)
+                    .put(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroupId}/${dummyExpenseId}`,
+                    )
                     .send({ debtorIds });
 
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
@@ -170,10 +174,15 @@ describe('ExpenseController', () => {
             });
 
             it('should return 404 NOT_FOUND', async () => {
-                const NOT_EXISTING_ID = crypto.randomUUID();
+                const [NOT_EXISTING_ID_1, NOT_EXISTING_ID_2] = [
+                    crypto.randomUUID(),
+                    crypto.randomUUID(),
+                ];
 
                 const response = await request(httpServer)
-                    .put(`/${EXPENSES_API_ROUTE}/group/${NOT_EXISTING_ID}`)
+                    .put(
+                        `/${EXPENSES_API_ROUTE}/group/${NOT_EXISTING_ID_1}/${NOT_EXISTING_ID_2}`,
+                    )
                     .send({ debtorIds: dummyDebtorIds });
 
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);

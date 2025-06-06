@@ -214,6 +214,23 @@ export class ExpenseController {
     //     return this.commandBus.execute(command);
     // }
 
+    @Put('group/:groupId/:expenseId')
+    async paybackGroupExpense(
+        @ActorId() actorId: string,
+        @GroupId() groupId: string,
+        @ExpenseId() expenseId: string,
+        @Body() payback: PaybackGroupExpenseDTO,
+    ): Promise<void> {
+        const { debtorIds } = payback;
+        const command = new PaybackGroupExpenseCommand({
+            actorId,
+            expenseId,
+            groupId,
+            debtorIds,
+        });
+        return this.commandBus.execute(command);
+    }
+
     @Put('pair/:contactId/:expenseId')
     paybackPairExpense(
         @ActorId() actorId: string,
