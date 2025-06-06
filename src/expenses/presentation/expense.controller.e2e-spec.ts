@@ -310,7 +310,7 @@ describe('ExpenseController', () => {
             it('should return 404 NOT_FOUND', async () => {
                 const dummyExpense = generateDefaultUserPairExpense();
                 await expenseRepo.insert(dummyExpense);
-                await payback(dummyExpense);
+                await paybackPairExpense(dummyExpense);
 
                 const response = await request(httpServer).get(
                     `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
@@ -512,7 +512,7 @@ describe('ExpenseController', () => {
                 );
 
                 await expenseRepo.insert(dummyExpense);
-                await payback(dummyExpense);
+                await paybackPairExpense(dummyExpense);
 
                 const response = await request(httpServer).get(
                     `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
@@ -704,21 +704,52 @@ describe('ExpenseController', () => {
             expect(response.body.emoji).toBe(dummyExpense.getEmoji());
         });
 
-        describe.skip('expense is settled', () => {
-            it('should return 404 NOT_FOUND', async () => {
-                const dummyGroup = generateDefaultUserRandomGroup();
-                const dummyExpense =
-                    generateDefaultUserGroupExpense(dummyGroup);
+        describe('expense is settled', () => {
+            const dummyGroup = generateDefaultUserRandomGroup();
 
-                await expenseRepo.insert(dummyExpense);
-                await payback(dummyExpense);
+            describe('actor is creditor', () => {
+                const dummyExpense = createRandomCreditExpenseFor(dummyGroup);
 
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
-                );
+                it('should return 404 NOT_FOUND', async () => {
+                    await expenseRepo.insert(dummyExpense);
+                    await paybackGroupExpense(dummyExpense);
 
-                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                    );
+
+                    expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                });
             });
+
+            describe('actor is debtor', () => {
+                const dummyExpense = createRandomDebitExpenseFor(dummyGroup);
+
+                it('should return 404 NOT_FOUND', async () => {
+                    await expenseRepo.insert(dummyExpense);
+                    await paybackGroupExpense(dummyExpense);
+
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                    );
+
+                    expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                });
+            });
+
+            async function paybackGroupExpense(
+                expense: Expense,
+            ): Promise<void> {
+                const debtorIds = expense
+                    .getCounterpartiesOf(actorId)
+                    .map((counterparty) => counterparty.getId());
+
+                await request(httpServer)
+                    .put(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/${expense.getId()}`,
+                    )
+                    .send({ debtorIds });
+            }
         });
 
         describe('actor is the expense creditor', () => {
@@ -1091,17 +1122,6 @@ describe('ExpenseController', () => {
                     expectAllDebtorsShareToHaveBeenSettledIn(updatedExpense);
                 });
 
-                function createRandomCreditExpenseFor(
-                    group: Group,
-                ): GroupExpense {
-                    const metadata = generateRandomMetadata();
-                    const payment: GroupPayment = {
-                        balance: generateRandomBalance(),
-                        creditor: Member.fromUser(DEFAULT_USER),
-                    };
-                    return new GroupExpense(metadata, group, payment);
-                }
-
                 function expectAllDebtorsShareToHaveBeenSettledIn(
                     expense: Expense,
                 ): void {
@@ -1130,17 +1150,6 @@ describe('ExpenseController', () => {
                     const updatedExpense = await expenseRepo.get(expenseId);
                     expect(updatedExpense.getShareOf(actorId)).toBe(0);
                 });
-
-                function createRandomDebitExpenseFor(
-                    group: Group,
-                ): GroupExpense {
-                    const metadata = generateRandomMetadata();
-                    const payment: GroupPayment = {
-                        balance: generateRandomBalance(),
-                        creditor: generateRandomMember(),
-                    };
-                    return new GroupExpense(metadata, group, payment);
-                }
             });
         });
     });
@@ -1229,12 +1238,30 @@ describe('ExpenseController', () => {
             expenses.every((expense) => expense.getId() !== dto.id);
     }
 
-    async function payback(expense: Expense): Promise<void> {
+    async function paybackPairExpense(expense: Expense): Promise<void> {
         const [counterparty] = expense.getCounterpartiesOf(actorId);
         const contactId = counterparty.getId();
 
         await request(httpServer).put(
             `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expense.getId()}`,
         );
+    }
+
+    function createRandomDebitExpenseFor(group: Group): GroupExpense {
+        const metadata = generateRandomMetadata();
+        const payment: GroupPayment = {
+            balance: generateRandomBalance(),
+            creditor: generateRandomMember(),
+        };
+        return new GroupExpense(metadata, group, payment);
+    }
+
+    function createRandomCreditExpenseFor(group: Group): GroupExpense {
+        const metadata = generateRandomMetadata();
+        const payment: GroupPayment = {
+            balance: generateRandomBalance(),
+            creditor: Member.fromUser(DEFAULT_USER),
+        };
+        return new GroupExpense(metadata, group, payment);
     }
 });
