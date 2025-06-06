@@ -18,10 +18,12 @@ describe('PaybackPairExpenseHandler', () => {
     let expenseRepo: ExpenseRepositorySpy;
 
     const dummyActorId = DEFAULT_USER.getId();
+    const dummyContactId = crypto.randomUUID();
     const dummyExpenseId = crypto.randomUUID();
 
     const dummyCommand = new PaybackPairExpenseCommand({
         actorId: dummyActorId,
+        contactId: dummyContactId,
         expenseId: dummyExpenseId,
     });
 
@@ -29,22 +31,21 @@ describe('PaybackPairExpenseHandler', () => {
 
     beforeEach(() => {
         initSut();
-        expenseRepo.stub('getActorExpenseById', dummyExpense);
+        expenseRepo.stub('getActorContactExpenseById', dummyExpense);
     });
 
     it("should retrieve the actor's expense", async () => {
         await sut.execute(dummyCommand);
 
-        expect(expenseRepo.calls.getActorExpenseById.count).toBe(1);
-        expect(expenseRepo.calls.getActorExpenseById.history).toContainEqual([
-            dummyActorId,
-            dummyExpenseId,
-        ]);
+        expect(expenseRepo.calls.getActorContactExpenseById.count).toBe(1);
+        expect(
+            expenseRepo.calls.getActorContactExpenseById.history,
+        ).toContainEqual([dummyActorId, dummyContactId, dummyExpenseId]);
     });
 
     describe('expense does not exist', () => {
         beforeEach(() => {
-            expenseRepo.stub('getActorExpenseById', null);
+            expenseRepo.stub('getActorContactExpenseById', null);
         });
 
         it('should throw an error', async () => {
@@ -58,7 +59,7 @@ describe('PaybackPairExpenseHandler', () => {
         describe('actor is debtor', () => {
             it("should settle actor's share", async () => {
                 const dummyExpense = generateRandomDebitExpense();
-                expenseRepo.stub('getActorExpenseById', dummyExpense);
+                expenseRepo.stub('getActorContactExpenseById', dummyExpense);
 
                 await sut.execute(dummyCommand);
 
@@ -83,7 +84,7 @@ describe('PaybackPairExpenseHandler', () => {
         describe('actor is creditor', () => {
             it("should settle counterparty's share", async () => {
                 const dummyExpense = generateRandomCreditExpense();
-                expenseRepo.stub('getActorExpenseById', dummyExpense);
+                expenseRepo.stub('getActorContactExpenseById', dummyExpense);
 
                 await sut.execute(dummyCommand);
 

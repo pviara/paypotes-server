@@ -8,6 +8,7 @@ export class PaybackPairExpenseCommand implements ICommand {
     constructor(
         readonly payload: {
             actorId: string;
+            contactId: string;
             expenseId: string;
         },
     ) {}
@@ -23,10 +24,11 @@ export class PaybackPairExpenseHandler
     ) {}
 
     async execute(command: PaybackPairExpenseCommand): Promise<void> {
-        const { actorId, expenseId } = command.payload;
+        const { actorId, contactId, expenseId } = command.payload;
 
-        const expense = await this.expenseRepository.getActorExpenseById(
+        const expense = await this.expenseRepository.getActorContactExpenseById(
             actorId,
+            contactId,
             expenseId,
         );
         if (!expense) throw new ExpenseNotFoundError(expenseId);
