@@ -199,27 +199,32 @@ export class ExpenseController {
         );
     }
 
-    @Delete('group/:expenseId')
-    paybackGroupExpense(
-        @ActorId() actorId: string,
-        @ExpenseId() expenseId: string,
-        @Body() payback: PaybackGroupExpenseDTO,
-    ): Promise<void> {
-        const { debtorIds } = payback;
-        const command = new PaybackGroupExpenseCommand({
-            actorId,
-            expenseId,
-            debtorIds,
-        });
-        return this.commandBus.execute(command);
-    }
+    // @Delete('group/:expenseId')
+    // paybackGroupExpense(
+    //     @ActorId() actorId: string,
+    //     @ExpenseId() expenseId: string,
+    //     @Body() payback: PaybackGroupExpenseDTO,
+    // ): Promise<void> {
+    //     const { debtorIds } = payback;
+    //     const command = new PaybackGroupExpenseCommand({
+    //         actorId,
+    //         expenseId,
+    //         debtorIds,
+    //     });
+    //     return this.commandBus.execute(command);
+    // }
 
-    @Delete(':expenseId')
+    @Delete(':contactId/:expenseId')
     paybackPairExpense(
         @ActorId() actorId: string,
+        @ContactId() contactId: string,
         @ExpenseId() expenseId: string,
     ): Promise<void> {
-        const command = new PaybackPairExpenseCommand({ actorId, expenseId });
+        const command = new PaybackPairExpenseCommand({
+            actorId,
+            contactId,
+            expenseId,
+        });
         return this.commandBus.execute(command);
     }
 }

@@ -14,10 +14,11 @@ export class ExpenseInMemoryTestingRepository extends ExpenseInMemoryRepository 
         this.expenses.push(...expenses);
     }
 
-    async get(expenseId: string): Promise<Expense | null> {
-        return (
-            this.expenses.find((expense) => expense.getId() === expenseId) ??
-            null
+    async get(expenseId: string): Promise<Expense> {
+        const expense = this.expenses.find(
+            (expense) => expense.getId() === expenseId,
         );
+        if (expense) return expense;
+        throw new Error('Cannot find expense, thus tests cannot work');
     }
 }
