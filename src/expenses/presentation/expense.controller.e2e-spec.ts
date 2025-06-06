@@ -57,168 +57,6 @@ describe('ExpenseController', () => {
 
     afterEach(shutdown(runner));
 
-    describe('DELETE /expenses/:contactId/:expenseId', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
-            async (id: unknown) => {
-                const response = await request(httpServer).put(
-                    `/${EXPENSES_API_ROUTE}/pair/${id}/${id}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor expense does not exist', () => {
-            beforeEach(async () => {
-                await expenseRepo.empty();
-            });
-
-            it('should return 404 NOT_FOUND', async () => {
-                const [NOT_EXISTING_ID_1, NOT_EXISTING_ID_2] = [
-                    crypto.randomUUID(),
-                    crypto.randomUUID(),
-                ];
-
-                const response = await request(httpServer).put(
-                    `/${EXPENSES_API_ROUTE}/${NOT_EXISTING_ID_1}/${NOT_EXISTING_ID_2}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.NOT_FOUND);
-            });
-        });
-
-        describe('actor expense exists', () => {
-            const dummyExpense = generateDefaultUserPairExpense();
-
-            beforeEach(async () => {
-                await expenseRepo.empty();
-                await expenseRepo.insert(dummyExpense);
-            });
-
-            it('should have settled the right expense', async () => {
-                const expenseId = dummyExpense.getId();
-
-                const [counterparty] =
-                    dummyExpense.getCounterpartiesOf(actorId);
-                const contactId = counterparty.getId();
-
-                await request(httpServer).put(
-                    `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expenseId}`,
-                );
-
-                const updatedExpense = await expenseRepo.get(expenseId);
-                const debtorId = getDummyExpenseDebtorId();
-
-                expect(updatedExpense.getShareOf(debtorId)).toBe(0);
-            });
-
-            function getDummyExpenseDebtorId(): string {
-                if (dummyExpense.hasCreditor(actorId)) {
-                    const [counterparty] =
-                        dummyExpense.getCounterpartiesOf(actorId);
-
-                    return counterparty.getId();
-                }
-                return actorId;
-            }
-        });
-    });
-
-    describe('DELETE /expenses/group', () => {
-        const invalidIds = ['id', 59391, NaN, ['id']];
-
-        const invalidDebtorIds = [
-            'id',
-            null,
-            59391,
-            NaN,
-            undefined,
-            [],
-            ['id'],
-        ];
-        const dummyDebtorIds = [crypto.randomUUID(), crypto.randomUUID()];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
-            async (id: unknown) => {
-                const response = await request(httpServer)
-                    .put(`/${EXPENSES_API_ROUTE}/group/${id}/${id}`)
-                    .send({ debtorIds: dummyDebtorIds });
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        it.each(invalidDebtorIds)(
-            'should return 400 BAD_REQUEST when given debtor ids "%s" are not valid uuids',
-            async (debtorIds: unknown) => {
-                const dummyGroupId = crypto.randomUUID();
-                const dummyExpenseId = crypto.randomUUID();
-
-                const response = await request(httpServer)
-                    .put(
-                        `/${EXPENSES_API_ROUTE}/group/${dummyGroupId}/${dummyExpenseId}`,
-                    )
-                    .send({ debtorIds });
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor expense does not exist', () => {
-            beforeEach(async () => {
-                await expenseRepo.empty();
-            });
-
-            it('should return 404 NOT_FOUND', async () => {
-                const [NOT_EXISTING_ID_1, NOT_EXISTING_ID_2] = [
-                    crypto.randomUUID(),
-                    crypto.randomUUID(),
-                ];
-
-                const response = await request(httpServer)
-                    .put(
-                        `/${EXPENSES_API_ROUTE}/group/${NOT_EXISTING_ID_1}/${NOT_EXISTING_ID_2}`,
-                    )
-                    .send({ debtorIds: dummyDebtorIds });
-
-                expect(response.status).toBe(HttpStatus.NOT_FOUND);
-            });
-        });
-
-        // describe('actor expense exists', () => {
-        //     const dummyGroup = generateDefaultUserRandomGroup();
-        //     const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
-
-        //     beforeEach(async () => {
-        //         await groupRepo.empty();
-        //         await groupRepo.insert(dummyGroup);
-
-        //         await expenseRepo.empty();
-        //         await expenseRepo.insert(dummyExpense);
-        //     });
-
-        //     it('should have settled the right expense', async () => {
-        //         const expenseId = dummyExpense.getId();
-        //         const expense = await expenseRepo.getActorExpenseById(
-        //             actorId,
-        //             expenseId,
-        //         );
-        //         expect(expense).toBeDefined();
-
-        //         await request(httpServer).put(
-        //             `/${EXPENSES_API_ROUTE}/group/${expenseId}`,
-        //         );
-
-        //         const updatedExpense = await expenseRepo.get(expenseId);
-        //         expect(updatedExpense?.getShareOf(actorId)).toBe(0);
-        //     });
-        // });
-    });
-
     describe('GET /balance', () => {
         describe('actor has no expense at all', () => {
             it('should return default balance "0,00"', async () => {
@@ -1163,6 +1001,164 @@ describe('ExpenseController', () => {
 
                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
             });
+        });
+    });
+
+    describe('PUT /expenses/group/:groupId/:expenseId', () => {
+        const invalidIds = ['id', 59391, NaN, ['id']];
+
+        const invalidDebtorIds = [
+            'id',
+            null,
+            59391,
+            NaN,
+            undefined,
+            [],
+            ['id'],
+        ];
+        const dummyDebtorIds = [crypto.randomUUID(), crypto.randomUUID()];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
+            async (id: unknown) => {
+                const response = await request(httpServer)
+                    .put(`/${EXPENSES_API_ROUTE}/group/${id}/${id}`)
+                    .send({ debtorIds: dummyDebtorIds });
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        it.each(invalidDebtorIds)(
+            'should return 400 BAD_REQUEST when given debtor ids "%s" are not valid uuids',
+            async (debtorIds: unknown) => {
+                const dummyGroupId = crypto.randomUUID();
+                const dummyExpenseId = crypto.randomUUID();
+
+                const response = await request(httpServer)
+                    .put(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroupId}/${dummyExpenseId}`,
+                    )
+                    .send({ debtorIds });
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor expense does not exist', () => {
+            beforeEach(async () => {
+                await expenseRepo.empty();
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const [NOT_EXISTING_ID_1, NOT_EXISTING_ID_2] = [
+                    crypto.randomUUID(),
+                    crypto.randomUUID(),
+                ];
+
+                const response = await request(httpServer)
+                    .put(
+                        `/${EXPENSES_API_ROUTE}/group/${NOT_EXISTING_ID_1}/${NOT_EXISTING_ID_2}`,
+                    )
+                    .send({ debtorIds: dummyDebtorIds });
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+
+        describe('actor expense exists', () => {
+            const dummyGroup = generateDefaultUserRandomGroup();
+            const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
+
+            beforeEach(async () => {
+                await groupRepo.empty();
+                await groupRepo.insert(dummyGroup);
+
+                await expenseRepo.empty();
+                await expenseRepo.insert(dummyExpense);
+            });
+
+            it('should have settled the right expense', async () => {
+                const groupId = dummyGroup.getId();
+                const expenseId = dummyExpense.getId();
+
+                await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/group/${groupId}${expenseId}`,
+                );
+
+                const updatedExpense = await expenseRepo.get(expenseId);
+                expect(updatedExpense?.getShareOf(actorId)).toBe(0);
+            });
+        });
+    });
+
+    describe('PUT /expenses/pair/:contactId/:expenseId', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
+            async (id: unknown) => {
+                const response = await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/pair/${id}/${id}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor expense does not exist', () => {
+            beforeEach(async () => {
+                await expenseRepo.empty();
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const [NOT_EXISTING_ID_1, NOT_EXISTING_ID_2] = [
+                    crypto.randomUUID(),
+                    crypto.randomUUID(),
+                ];
+
+                const response = await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/${NOT_EXISTING_ID_1}/${NOT_EXISTING_ID_2}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+
+        describe('actor expense exists', () => {
+            const dummyExpense = generateDefaultUserPairExpense();
+
+            beforeEach(async () => {
+                await expenseRepo.empty();
+                await expenseRepo.insert(dummyExpense);
+            });
+
+            it('should have settled the right expense', async () => {
+                const expenseId = dummyExpense.getId();
+
+                const [counterparty] =
+                    dummyExpense.getCounterpartiesOf(actorId);
+                const contactId = counterparty.getId();
+
+                await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expenseId}`,
+                );
+
+                const updatedExpense = await expenseRepo.get(expenseId);
+                const debtorId = getDummyExpenseDebtorId();
+
+                expect(updatedExpense.getShareOf(debtorId)).toBe(0);
+            });
+
+            function getDummyExpenseDebtorId(): string {
+                if (dummyExpense.hasCreditor(actorId)) {
+                    const [counterparty] =
+                        dummyExpense.getCounterpartiesOf(actorId);
+
+                    return counterparty.getId();
+                }
+                return actorId;
+            }
         });
     });
 
