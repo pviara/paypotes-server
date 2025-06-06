@@ -214,7 +214,7 @@ describe('ExpenseController', () => {
             }
         });
 
-        describe.skip('actor has only settled expenses', () => {
+        describe('actor has only settled expenses', () => {
             let dummyPairExpenses: Array<PairExpense>;
             let dummyGroupExpenses: Array<GroupExpense>;
 
@@ -247,14 +247,11 @@ describe('ExpenseController', () => {
             });
 
             async function paybackAllExpenses(): Promise<void> {
-                for (const expense of [
-                    ...dummyPairExpenses,
-                    ...dummyGroupExpenses,
-                ]) {
-                    await request(httpServer).put(
-                        `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
-                    );
-                }
+                for (const expense of dummyGroupExpenses)
+                    await paybackGroupExpense(expense);
+
+                for (const expense of dummyPairExpenses)
+                    await paybackPairExpense(expense);
             }
         });
     });
@@ -635,10 +632,9 @@ describe('ExpenseController', () => {
 
             beforeEach(async () => {
                 dummyGroup = generateDefaultUserRandomGroup();
-                dummyExpenses = Array.from({ length: 15 }).map(() => {
-                    return generateRandomBoolean()
-                        ? createRandomCreditExpenseFor(dummyGroup)
-                        : createRandomDebitExpenseFor(dummyGroup);
+                dummyExpenses = generateDefaultUserGroupExpenses({
+                    length: 10,
+                    group: dummyGroup,
                 });
 
                 await expenseRepo.empty();
