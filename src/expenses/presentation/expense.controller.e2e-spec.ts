@@ -11,9 +11,9 @@ import {
     generateDefaultUserPairExpense,
     generateDefaultUserGroupExpenses,
     generateDefaultUserGroupExpense,
-    generateRandomBoolean,
     generateRandomMetadata,
     generateRandomBalance,
+    generateRandomBoolean,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
@@ -629,20 +629,23 @@ describe('ExpenseController', () => {
             }
         });
 
-        describe.skip('actor has only settled expenses', () => {
+        describe('actor has only settled expenses', () => {
             let dummyGroup: Group;
             let dummyExpenses: Array<GroupExpense>;
 
             beforeEach(async () => {
                 dummyGroup = generateDefaultUserRandomGroup();
-                dummyExpenses = generateDefaultUserGroupExpenses({
-                    length: 10,
-                    group: dummyGroup,
+                dummyExpenses = Array.from({ length: 15 }).map(() => {
+                    return generateRandomBoolean()
+                        ? createRandomCreditExpenseFor(dummyGroup)
+                        : createRandomDebitExpenseFor(dummyGroup);
                 });
 
                 await expenseRepo.empty();
                 await expenseRepo.insert(...dummyExpenses);
-                await paybackAllExpenses();
+
+                for (const expense of dummyExpenses)
+                    await paybackGroupExpense(expense);
             });
 
             it('should return no expense', async () => {
@@ -652,14 +655,6 @@ describe('ExpenseController', () => {
 
                 expect(response.body.length).toBe(0);
             });
-
-            async function paybackAllExpenses(): Promise<void> {
-                for (const expense of dummyExpenses) {
-                    await request(httpServer).put(
-                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/${expense.getId()}`,
-                    );
-                }
-            }
         });
     });
 
@@ -736,20 +731,6 @@ describe('ExpenseController', () => {
                     expect(response.status).toBe(HttpStatus.NOT_FOUND);
                 });
             });
-
-            async function paybackGroupExpense(
-                expense: Expense,
-            ): Promise<void> {
-                const debtorIds = expense
-                    .getCounterpartiesOf(actorId)
-                    .map((counterparty) => counterparty.getId());
-
-                await request(httpServer)
-                    .put(
-                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/${expense.getId()}`,
-                    )
-                    .send({ debtorIds });
-            }
         });
 
         describe('actor is the expense creditor', () => {
@@ -1238,13 +1219,25 @@ describe('ExpenseController', () => {
             expenses.every((expense) => expense.getId() !== dto.id);
     }
 
-    async function paybackPairExpense(expense: Expense): Promise<void> {
+    async function paybackPairExpense(expense: PairExpense): Promise<void> {
         const [counterparty] = expense.getCounterpartiesOf(actorId);
         const contactId = counterparty.getId();
 
         await request(httpServer).put(
             `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expense.getId()}`,
         );
+    }
+
+    async function paybackGroupExpense(expense: GroupExpense): Promise<void> {
+        const debtorIds = expense
+            .getCounterpartiesOf(actorId)
+            .map((counterparty) => counterparty.getId());
+
+        await request(httpServer)
+            .put(
+                `/${EXPENSES_API_ROUTE}/group/${expense.getGroup().getId()}/${expense.getId()}`,
+            )
+            .send({ debtorIds });
     }
 
     function createRandomDebitExpenseFor(group: Group): GroupExpense {
