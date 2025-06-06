@@ -1070,6 +1070,9 @@ describe('ExpenseController', () => {
             const dummyGroup = generateDefaultUserRandomGroup();
             const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
 
+            const counterparties = dummyExpense.getCounterpartiesOf(actorId);
+            const debtorIds = counterparties.map((c) => c.getId());
+
             beforeEach(async () => {
                 await groupRepo.empty();
                 await groupRepo.insert(dummyGroup);
@@ -1082,13 +1085,21 @@ describe('ExpenseController', () => {
                 const groupId = dummyGroup.getId();
                 const expenseId = dummyExpense.getId();
 
-                await request(httpServer).put(
-                    `/${EXPENSES_API_ROUTE}/group/${groupId}${expenseId}`,
-                );
+                await request(httpServer)
+                    .put(`/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`)
+                    .send({ debtorIds });
 
                 const updatedExpense = await expenseRepo.get(expenseId);
-                expect(updatedExpense?.getShareOf(actorId)).toBe(0);
+                expectAllDebtorsShareToHaveBeenSettledIn(updatedExpense);
             });
+
+            function expectAllDebtorsShareToHaveBeenSettledIn(
+                expense: Expense,
+            ): void {
+                debtorIds.forEach((debtorId) =>
+                    expect(expense.getShareOf(debtorId)).toBe(0),
+                );
+            }
         });
     });
 

@@ -25,7 +25,7 @@ export class PaybackGroupExpenseHandler
     ) {}
 
     async execute(command: PaybackGroupExpenseCommand): Promise<void> {
-        const { actorId, groupId, expenseId } = command.payload;
+        const { actorId, groupId, expenseId, debtorIds } = command.payload;
 
         const expense = await this.expenseRepository.getActorGroupExpenseById(
             actorId,
@@ -33,5 +33,12 @@ export class PaybackGroupExpenseHandler
             expenseId,
         );
         if (!expense) throw new ExpenseNotFoundError(expenseId);
+
+        if (expense.hasCreditor(actorId)) {
+            return debtorIds.forEach((debtorId) =>
+                expense.settleShareOf(debtorId),
+            );
+        }
+        return expense.settleShareOf(actorId);
     }
 }
