@@ -33,10 +33,8 @@ export class PaybackPairExpenseHandler
         );
         if (!expense) throw new ExpenseNotFoundError(expenseId);
 
-        if (expense.hasCreditor(actorId)) {
-            const [counterparty] = expense.getCounterpartiesOf(actorId);
-            return expense.settleShareOf(counterparty.getId());
-        }
-        return expense.settleShareOf(actorId);
+        return expense.hasCreditor(actorId)
+            ? expense.settleCounterpartyShareOf(actorId)
+            : expense.settleShareOf(actorId);
     }
 }

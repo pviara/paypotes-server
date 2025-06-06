@@ -34,11 +34,8 @@ export class PaybackGroupExpenseHandler
         );
         if (!expense) throw new ExpenseNotFoundError(expenseId);
 
-        if (expense.hasCreditor(actorId)) {
-            return debtorIds.forEach((debtorId) =>
-                expense.settleShareOf(debtorId),
-            );
-        }
-        return expense.settleShareOf(actorId);
+        return expense.hasCreditor(actorId)
+            ? expense.settleSharesOf(...debtorIds)
+            : expense.settleShareOf(actorId);
     }
 }

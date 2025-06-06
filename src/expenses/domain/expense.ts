@@ -67,7 +67,7 @@ export abstract class Expense {
         return this.payment.balance;
     }
 
-    private getStakeholderUsing(stakeholderId: string): Stakeholder {
+    protected getStakeholderUsing(stakeholderId: string): Stakeholder {
         const stakeholder = this.getStakeholders().find(
             (stakeholder) => stakeholder.getId() === stakeholderId,
         );
