@@ -26,6 +26,11 @@ export class PairExpense extends Expense {
         });
     }
 
+    settleCounterpartyShareOf(stakeholderId: string): void {
+        const [counterparty] = this.getCounterpartiesOf(stakeholderId);
+        return counterparty.settle();
+    }
+
     private mapStakeholdersFromUsers(): Array<Stakeholder> {
         const { balance, creditor, debtor } = this.payment;
         const users = [creditor, debtor];

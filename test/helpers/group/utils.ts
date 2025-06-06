@@ -32,6 +32,13 @@ const getDefaultUserAsMember = (): Member => {
     return Member.fromUser(DEFAULT_USER);
 };
 
+export const generateRandomMember = (): Member =>
+    new Member({
+        id: crypto.randomUUID(),
+        firstname: `Firstname`,
+        lastname: `Lastname`,
+    });
+
 export const generateRandomMembers = (
     options?: RandomArrayGenerationOptions,
 ): Array<Member> => {

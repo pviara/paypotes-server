@@ -11,13 +11,15 @@ import {
     generateDefaultUserPairExpense,
     generateDefaultUserGroupExpenses,
     generateDefaultUserGroupExpense,
-    generateRandomBoolean,
     generateRandomMetadata,
+    generateRandomBalance,
+    generateRandomBoolean,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
     generateDefaultUserRandomGroup,
     generateDefaultUserRandomGroups,
+    generateRandomMember,
 } from '@test/helpers/group/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
@@ -44,6 +46,8 @@ describe('ExpenseController', () => {
     let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
 
+    const actorId = DEFAULT_USER.getId();
+
     beforeEach(async () => {
         await runner.bootstrap();
 
@@ -54,69 +58,6 @@ describe('ExpenseController', () => {
     });
 
     afterEach(shutdown(runner));
-
-    describe('DELETE /expenses/:expenseId', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
-            async (id: unknown) => {
-                const response = await request(httpServer).delete(
-                    `/${EXPENSES_API_ROUTE}/${id}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor expense does not exist', () => {
-            beforeEach(async () => {
-                await expenseRepo.empty();
-            });
-
-            it('should return 404 NOT_FOUND', async () => {
-                const NOT_EXISTING_ID = crypto.randomUUID();
-
-                const response = await request(httpServer).delete(
-                    `/${EXPENSES_API_ROUTE}/${NOT_EXISTING_ID}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.NOT_FOUND);
-            });
-        });
-
-        describe('actor expense exists', () => {
-            const dummyGroup = generateDefaultUserRandomGroup();
-            const dummyExpense = generateRandomBoolean()
-                ? generateDefaultUserPairExpense()
-                : generateDefaultUserGroupExpense(dummyGroup);
-
-            beforeEach(async () => {
-                await groupRepo.empty();
-                await groupRepo.insert(dummyGroup);
-
-                await expenseRepo.empty();
-                await expenseRepo.insert(dummyExpense);
-            });
-
-            it('should have settled the right expense', async () => {
-                const actorId = DEFAULT_USER.getId();
-                const expenseId = dummyExpense.getId();
-                const expense = await expenseRepo.getActorExpenseById(
-                    actorId,
-                    expenseId,
-                );
-                expect(expense).toBeDefined();
-
-                await request(httpServer).delete(
-                    `/${EXPENSES_API_ROUTE}/${expenseId}`,
-                );
-
-                const updatedExpense = await expenseRepo.get(expenseId);
-                expect(updatedExpense?.getShareOf(actorId)).toBe(0);
-            });
-        });
-    });
 
     describe('GET /balance', () => {
         describe('actor has no expense at all', () => {
@@ -306,14 +247,11 @@ describe('ExpenseController', () => {
             });
 
             async function paybackAllExpenses(): Promise<void> {
-                for (const expense of [
-                    ...dummyPairExpenses,
-                    ...dummyGroupExpenses,
-                ]) {
-                    await request(httpServer).delete(
-                        `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
-                    );
-                }
+                for (const expense of dummyGroupExpenses)
+                    await paybackGroupExpense(expense);
+
+                for (const expense of dummyPairExpenses)
+                    await paybackPairExpense(expense);
             }
         });
     });
@@ -369,7 +307,7 @@ describe('ExpenseController', () => {
             it('should return 404 NOT_FOUND', async () => {
                 const dummyExpense = generateDefaultUserPairExpense();
                 await expenseRepo.insert(dummyExpense);
-                await payback(dummyExpense);
+                await paybackPairExpense(dummyExpense);
 
                 const response = await request(httpServer).get(
                     `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
@@ -508,8 +446,8 @@ describe('ExpenseController', () => {
 
             async function paybackAllExpenses(): Promise<void> {
                 for (const expense of dummyExpenses) {
-                    await request(httpServer).delete(
-                        `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
+                    await request(httpServer).put(
+                        `/${EXPENSES_API_ROUTE}/pair/${dummyContact.getId()}/${expense.getId()}`,
                     );
                 }
             }
@@ -571,7 +509,7 @@ describe('ExpenseController', () => {
                 );
 
                 await expenseRepo.insert(dummyExpense);
-                await payback(dummyExpense);
+                await paybackPairExpense(dummyExpense);
 
                 const response = await request(httpServer).get(
                     `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
@@ -701,7 +639,9 @@ describe('ExpenseController', () => {
 
                 await expenseRepo.empty();
                 await expenseRepo.insert(...dummyExpenses);
-                await paybackAllExpenses();
+
+                for (const expense of dummyExpenses)
+                    await paybackGroupExpense(expense);
             });
 
             it('should return no expense', async () => {
@@ -711,14 +651,6 @@ describe('ExpenseController', () => {
 
                 expect(response.body.length).toBe(0);
             });
-
-            async function paybackAllExpenses(): Promise<void> {
-                for (const expense of dummyExpenses) {
-                    await request(httpServer).delete(
-                        `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
-                    );
-                }
-            }
         });
     });
 
@@ -764,19 +696,36 @@ describe('ExpenseController', () => {
         });
 
         describe('expense is settled', () => {
-            it('should return 404 NOT_FOUND', async () => {
-                const dummyGroup = generateDefaultUserRandomGroup();
-                const dummyExpense =
-                    generateDefaultUserGroupExpense(dummyGroup);
+            const dummyGroup = generateDefaultUserRandomGroup();
 
-                await expenseRepo.insert(dummyExpense);
-                await payback(dummyExpense);
+            describe('actor is creditor', () => {
+                const dummyExpense = createRandomCreditExpenseFor(dummyGroup);
 
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
-                );
+                it('should return 404 NOT_FOUND', async () => {
+                    await expenseRepo.insert(dummyExpense);
+                    await paybackGroupExpense(dummyExpense);
 
-                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                    );
+
+                    expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                });
+            });
+
+            describe('actor is debtor', () => {
+                const dummyExpense = createRandomDebitExpenseFor(dummyGroup);
+
+                it('should return 404 NOT_FOUND', async () => {
+                    await expenseRepo.insert(dummyExpense);
+                    await paybackGroupExpense(dummyExpense);
+
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                    );
+
+                    expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                });
             });
         });
 
@@ -1065,6 +1014,193 @@ describe('ExpenseController', () => {
         });
     });
 
+    describe('PUT /expenses/group/:groupId/:expenseId', () => {
+        const invalidIds = ['id', 59391, NaN, ['id']];
+
+        const invalidDebtorIds = ['id', null, 59391, NaN, undefined, ['id']];
+        const dummyDebtorIds = [crypto.randomUUID(), crypto.randomUUID()];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
+            async (id: unknown) => {
+                const response = await request(httpServer)
+                    .put(`/${EXPENSES_API_ROUTE}/group/${id}/${id}`)
+                    .send({ debtorIds: dummyDebtorIds });
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        it.each(invalidDebtorIds)(
+            'should return 400 BAD_REQUEST when given debtor ids "%s" are not valid uuids',
+            async (debtorIds: unknown) => {
+                const dummyGroupId = crypto.randomUUID();
+                const dummyExpenseId = crypto.randomUUID();
+
+                const response = await request(httpServer)
+                    .put(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyGroupId}/${dummyExpenseId}`,
+                    )
+                    .send({ debtorIds });
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor expense does not exist', () => {
+            beforeEach(async () => {
+                await expenseRepo.empty();
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const [NOT_EXISTING_ID_1, NOT_EXISTING_ID_2] = [
+                    crypto.randomUUID(),
+                    crypto.randomUUID(),
+                ];
+
+                const response = await request(httpServer)
+                    .put(
+                        `/${EXPENSES_API_ROUTE}/group/${NOT_EXISTING_ID_1}/${NOT_EXISTING_ID_2}`,
+                    )
+                    .send({ debtorIds: dummyDebtorIds });
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+
+        describe('actor expense exists', () => {
+            const dummyGroup = generateDefaultUserRandomGroup();
+
+            beforeEach(async () => {
+                await groupRepo.empty();
+                await groupRepo.insert(dummyGroup);
+            });
+
+            describe('actor is creditor and settles shares for given debtor ids', () => {
+                const dummyExpense = createRandomCreditExpenseFor(dummyGroup);
+                const debtorIds = dummyExpense
+                    .getCounterpartiesOf(actorId)
+                    .map((counterparty) => counterparty.getId());
+
+                it('should have settled all expense counterparties', async () => {
+                    await expenseRepo.empty();
+                    await expenseRepo.insert(dummyExpense);
+
+                    const groupId = dummyGroup.getId();
+                    const expenseId = dummyExpense.getId();
+
+                    await request(httpServer)
+                        .put(
+                            `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                        )
+                        .send({ debtorIds });
+
+                    const updatedExpense = await expenseRepo.get(expenseId);
+                    expectAllDebtorsShareToHaveBeenSettledIn(updatedExpense);
+                });
+
+                function expectAllDebtorsShareToHaveBeenSettledIn(
+                    expense: Expense,
+                ): void {
+                    debtorIds.forEach((debtorId) =>
+                        expect(expense.getShareOf(debtorId)).toBe(0),
+                    );
+                }
+            });
+
+            describe('actor is debtor and settles their own share', () => {
+                const dummyExpense = createRandomDebitExpenseFor(dummyGroup);
+
+                it("should have settled expense actor's share", async () => {
+                    await expenseRepo.empty();
+                    await expenseRepo.insert(dummyExpense);
+
+                    const groupId = dummyGroup.getId();
+                    const expenseId = dummyExpense.getId();
+
+                    await request(httpServer)
+                        .put(
+                            `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                        )
+                        .send({ debtorIds: [] });
+
+                    const updatedExpense = await expenseRepo.get(expenseId);
+                    expect(updatedExpense.getShareOf(actorId)).toBe(0);
+                });
+            });
+        });
+    });
+
+    describe('PUT /expenses/pair/:contactId/:expenseId', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
+
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
+            async (id: unknown) => {
+                const response = await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/pair/${id}/${id}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
+
+        describe('actor expense does not exist', () => {
+            beforeEach(async () => {
+                await expenseRepo.empty();
+            });
+
+            it('should return 404 NOT_FOUND', async () => {
+                const [NOT_EXISTING_ID_1, NOT_EXISTING_ID_2] = [
+                    crypto.randomUUID(),
+                    crypto.randomUUID(),
+                ];
+
+                const response = await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/${NOT_EXISTING_ID_1}/${NOT_EXISTING_ID_2}`,
+                );
+
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+
+        describe('actor expense exists', () => {
+            const dummyExpense = generateDefaultUserPairExpense();
+
+            beforeEach(async () => {
+                await expenseRepo.empty();
+                await expenseRepo.insert(dummyExpense);
+            });
+
+            it('should have settled the right expense', async () => {
+                const expenseId = dummyExpense.getId();
+
+                const [counterparty] =
+                    dummyExpense.getCounterpartiesOf(actorId);
+                const contactId = counterparty.getId();
+
+                await request(httpServer).put(
+                    `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expenseId}`,
+                );
+
+                const updatedExpense = await expenseRepo.get(expenseId);
+                const debtorId = getDummyExpenseDebtorId();
+
+                expect(updatedExpense.getShareOf(debtorId)).toBe(0);
+            });
+
+            function getDummyExpenseDebtorId(): string {
+                if (dummyExpense.hasCreditor(actorId)) {
+                    const [counterparty] =
+                        dummyExpense.getCounterpartiesOf(actorId);
+
+                    return counterparty.getId();
+                }
+                return actorId;
+            }
+        });
+    });
+
     function dtoIsIn(
         expenses: Array<Expense>,
     ): (dto: PairExpenseDTO) => boolean {
@@ -1079,9 +1215,42 @@ describe('ExpenseController', () => {
             expenses.every((expense) => expense.getId() !== dto.id);
     }
 
-    async function payback(expense: Expense): Promise<void> {
-        await request(httpServer).delete(
-            `/${EXPENSES_API_ROUTE}/${expense.getId()}`,
+    async function paybackPairExpense(expense: PairExpense): Promise<void> {
+        const [counterparty] = expense.getCounterpartiesOf(actorId);
+        const contactId = counterparty.getId();
+
+        await request(httpServer).put(
+            `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expense.getId()}`,
         );
+    }
+
+    async function paybackGroupExpense(expense: GroupExpense): Promise<void> {
+        const debtorIds = expense
+            .getCounterpartiesOf(actorId)
+            .map((counterparty) => counterparty.getId());
+
+        await request(httpServer)
+            .put(
+                `/${EXPENSES_API_ROUTE}/group/${expense.getGroup().getId()}/${expense.getId()}`,
+            )
+            .send({ debtorIds });
+    }
+
+    function createRandomDebitExpenseFor(group: Group): GroupExpense {
+        const metadata = generateRandomMetadata();
+        const payment: GroupPayment = {
+            balance: generateRandomBalance(),
+            creditor: generateRandomMember(),
+        };
+        return new GroupExpense(metadata, group, payment);
+    }
+
+    function createRandomCreditExpenseFor(group: Group): GroupExpense {
+        const metadata = generateRandomMetadata();
+        const payment: GroupPayment = {
+            balance: generateRandomBalance(),
+            creditor: Member.fromUser(DEFAULT_USER),
+        };
+        return new GroupExpense(metadata, group, payment);
     }
 });
