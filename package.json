@@ -106,7 +106,7 @@
                 "jest-junit",
                 {
                     "outputDirectory": "test/reports",
-                    "outputName": "report.xml"
+                    "outputName": "report-unit.xml"
                 }
             ]
         ]
