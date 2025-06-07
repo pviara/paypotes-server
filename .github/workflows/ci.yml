@@ -54,8 +54,8 @@ jobs:
         uses: test-summary/action@v2
         with:
           paths: |
-            'test/reports/report-unit.xml'
-            'test/reports/report-e2e.xml'
+            test/reports/report-unit.xml
+            test/reports/report-e2e.xml
         if: always()
 
       - name: 🐳 Stop containers
