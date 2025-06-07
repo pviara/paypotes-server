@@ -56,14 +56,6 @@ jobs:
           paths: |
             test/reports/report-unit.xml
             test/reports/report-e2e.xml
-          output: "test/reports/summary.md"
-        if: always()
-
-      - name: 📩 Send test summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-summary
-          path: test/reports/summary.md
         if: always()
 
       - name: 🐳 Stop containers
