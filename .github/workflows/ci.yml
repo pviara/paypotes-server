@@ -50,10 +50,12 @@ jobs:
           RABBITMQ_DEFAULT_PASS: 'test_access'
           CONTACT_TASKS_QUEUE: 'test_contact_tasks'
 
-      - name: 🗒️ Test summary
+      - name: 📝 Test summary
         uses: test-summary/action@v2
         with:
-          paths: 'test/reports/report-unit.xml'
+          paths: |
+            'test/reports/report-unit.xml'
+            'test/reports/report-e2e.xml'
         if: always()
 
       - name: 🐳 Stop containers

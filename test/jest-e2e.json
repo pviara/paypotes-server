@@ -21,5 +21,15 @@
         "@infra/(.*)": "<rootDir>/../src/infrastructure/$1",
         "@test/(.*)": "<rootDir>/../test/$1",
         "@users/(.*)": "<rootDir>/../src/users/$1"
-    }
+    },
+    "reporters": [
+        "default",
+        [
+            "jest-junit",
+            {
+                "outputDirectory": "test/reports",
+                "outputName": "report-e2e.xml"
+            }
+        ]
+    ]
 }
