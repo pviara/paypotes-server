@@ -59,6 +59,13 @@ jobs:
           output: "test/reports/summary.md"
         if: always()
 
+      - name: 📩 Send test summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-summary
+          path: test/reports/summary.md
+        if: always()
+
       - name: 🐳 Stop containers
         run: |
           docker compose -f docker-compose.test.yml down
