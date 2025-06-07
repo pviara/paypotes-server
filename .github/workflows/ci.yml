@@ -101,7 +101,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
-          path: dist/
+          paths: |
+            test/reports/report-unit.xml
+            test/reports/report-e2e.xml
 
       - name: 📝 Write test summary
         uses: test-summary/action@v2
