@@ -10,7 +10,6 @@ concurrency:
 
 jobs:
   setup:
-    name: ⚙️ setup
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +26,6 @@ jobs:
         run: yarn install
         
   build:
-    name: 👷 build
     needs: setup
     runs-on: ubuntu-latest
 
@@ -48,7 +46,6 @@ jobs:
         run: yarn build
 
   test:
-    name: 🧑‍🔬 test
     needs: build
     runs-on: ubuntu-latest
 
@@ -87,7 +84,25 @@ jobs:
           RABBITMQ_DEFAULT_PASS: 'test_access'
           CONTACT_TASKS_QUEUE: 'test_contact_tasks'
 
-      - name: 📝 Test summary
+      - name: 📤 Upload test report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            test/reports/
+  
+  test-summary:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Download test report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+
+      - name: 📝 Write test summary
         uses: test-summary/action@v2
         with:
           paths: |
