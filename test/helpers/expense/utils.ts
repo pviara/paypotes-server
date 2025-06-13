@@ -72,6 +72,7 @@ export const generateRandomStakeholder = (): Stakeholder => {
         id: crypto.randomUUID(),
         firstname: 'Firstname',
         lastname: 'Lastname',
+        avatarUrl: 'http://localhost:port/avatar_url',
         share: 0,
     });
 };
@@ -85,6 +86,7 @@ export const generateRandomStakeholders = ({
                 id: crypto.randomUUID(),
                 firstname: `f_${index}`,
                 lastname: `l_${index}`,
+                avatarUrl: 'http://localhost:port/avatar_url',
                 share: 0,
             }),
     );
