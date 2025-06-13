@@ -37,6 +37,7 @@ export const generateRandomMember = (): Member =>
         id: crypto.randomUUID(),
         firstname: `Firstname`,
         lastname: `Lastname`,
+        avatarUrl: 'http://localhost:port/avatar_url',
     });
 
 export const generateRandomMembers = (
@@ -48,6 +49,7 @@ export const generateRandomMembers = (
                 id: crypto.randomUUID(),
                 firstname: `firstname_${index}`,
                 lastname: `lastname_${index}`,
+                avatarUrl: 'http://localhost:port/avatar_url',
             }),
     );
 };
