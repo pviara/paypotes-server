@@ -21,7 +21,7 @@ export const generateRandomUser = (): User => {
         firstname: 'Firstname',
         lastname: 'Lastname',
         email: 'email@test.com',
-        phone: '0603497712',
+        avatarUrl: 'http://localhost:port/avatar_url',
     });
 };
 
@@ -35,7 +35,7 @@ export const generateRandomUsers = (
                 firstname: `firstname_${index}`,
                 lastname: `lastname_${index}`,
                 email: 'email@test.com',
-                phone: '078452168344',
+                avatarUrl: 'http://localhost:port/avatar_url',
             }),
     );
 };
@@ -46,6 +46,6 @@ export const mapUserFrom = (contact: Contact): User => {
         firstname: contact.getFirstname(),
         lastname: contact.getLastname(),
         email: 'email@test.com',
-        phone: '0673182944',
+        avatarUrl: 'http://localhost:port/avatar_url',
     });
 };

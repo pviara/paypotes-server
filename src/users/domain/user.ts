@@ -5,8 +5,13 @@ export class User {
             firstname: string;
             lastname: string;
             email: string;
+            avatarUrl: string;
         },
     ) {}
+
+    getAvatarUrl(): string {
+        return this.data.avatarUrl;
+    }
 
     getId(): string {
         return this.data.id;
