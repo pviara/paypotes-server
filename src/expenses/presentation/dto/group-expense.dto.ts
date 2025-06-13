@@ -3,7 +3,7 @@ import { GroupExpense } from '@expenses/domain/group-expense';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
 
 export class GroupExpenseDTO {
-    constructor(
+    private constructor(
         readonly id: string,
         readonly label: string,
         readonly emoji: string,
@@ -13,12 +13,12 @@ export class GroupExpenseDTO {
 
     static from(expense: GroupExpense): GroupExpenseDTO {
         const balance = BalanceDTO.from(+expense.getBalance());
-        return {
-            id: expense.getId(),
-            label: expense.getLabel(),
-            emoji: expense.getEmoji(),
-            balance: balance.getValue(),
-            group: GroupDTO.from(expense.getGroup()),
-        };
+        return new GroupExpenseDTO(
+            expense.getId(),
+            expense.getLabel(),
+            expense.getEmoji(),
+            balance.getValue(),
+            GroupDTO.from(expense.getGroup()),
+        );
     }
 }

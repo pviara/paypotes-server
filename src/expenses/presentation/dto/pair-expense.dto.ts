@@ -11,11 +11,11 @@ export class PairExpenseDTO {
 
     static from(expense: PairExpense): PairExpenseDTO {
         const balance = BalanceDTO.from(+expense.getBalance());
-        return {
-            id: expense.getId(),
-            label: expense.getLabel(),
-            emoji: expense.getEmoji(),
-            balance: balance.getValue(),
-        };
+        return new PairExpenseDTO(
+            expense.getId(),
+            expense.getLabel(),
+            expense.getEmoji(),
+            balance.getValue(),
+        );
     }
 }

@@ -1,7 +1,7 @@
 import { Contact } from '@contacts/domain/contact';
 
 export class ContactDTO {
-    constructor(
+    private constructor(
         readonly id: string,
         readonly firstname: string,
         readonly lastname: string,

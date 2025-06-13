@@ -4,7 +4,7 @@ import { Member } from '@groups/domain/member';
 import { MemberDTO } from '@groups/presentation/dto/member.dto';
 
 export class GroupWithBalanceDTO {
-    constructor(
+    private constructor(
         readonly id: string,
         readonly name: string,
         readonly emoji: string,
