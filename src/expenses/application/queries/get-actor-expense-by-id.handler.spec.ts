@@ -10,7 +10,7 @@ import {
     generateDefaultUserPairExpense,
 } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
-import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
 
 describe('GetActorExpenseByIdHandler', () => {
@@ -61,7 +61,7 @@ describe('GetActorExpenseByIdHandler', () => {
 
             const result = await sut.execute(dummyQuery);
             expect(result).toStrictEqual(
-                GroupExpensePerspectiveView.from(dummyExpense, dummyActorId),
+                GroupExpenseSnapshot.from(dummyExpense, dummyActorId),
             );
         });
     });

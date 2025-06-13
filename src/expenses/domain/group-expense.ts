@@ -35,6 +35,10 @@ export class GroupExpense extends Expense {
         return this.group;
     }
 
+    getPayment(): GroupPayment {
+        return this.payment;
+    }
+
     settleSharesOf(...stakeholderIds: Array<string>): void {
         return stakeholderIds
             .map((stakeholderId) => this.getStakeholderUsing(stakeholderId))

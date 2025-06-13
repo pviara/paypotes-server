@@ -2,7 +2,7 @@ import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PairExpense } from '@expenses/domain/pair-expense';
@@ -27,7 +27,9 @@ export class GetActorExpensesHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    async execute(query: GetActorExpensesQuery): Promise<Expense[]> {
+    async execute(
+        query: GetActorExpensesQuery,
+    ): Promise<(Expense | GroupExpenseSnapshot)[]> {
         const { actorId, pageIndex, search } = query.payload;
         const expenses = await this.expenseRepository.getActorExpenses(
             actorId,
@@ -40,12 +42,12 @@ export class GetActorExpensesHandler
     private mapToPerspectiveView(
         expenses: Array<Expense>,
         actorId: string,
-    ): Array<Expense> {
+    ): Array<Expense | GroupExpenseSnapshot> {
         return expenses.map((expense) => {
             if (expense instanceof PairExpense)
                 return PairExpensePerspectiveView.from(expense, actorId);
             if (expense instanceof GroupExpense)
-                return GroupExpensePerspectiveView.from(expense, actorId);
+                return GroupExpenseSnapshot.from(expense, actorId);
 
             throw new Error('Expense is neither pair or group expense');
         });

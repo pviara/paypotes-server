@@ -8,7 +8,7 @@ import {
 } from '@expenses/application/queries/get-actor-expenses.handler';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
@@ -69,10 +69,7 @@ describe('GetActorExpensesHandler', () => {
                         dummyActorId,
                     );
                 if (expense instanceof GroupExpense)
-                    return GroupExpensePerspectiveView.from(
-                        expense,
-                        dummyActorId,
-                    );
+                    return GroupExpenseSnapshot.from(expense, dummyActorId);
             }),
         );
     });

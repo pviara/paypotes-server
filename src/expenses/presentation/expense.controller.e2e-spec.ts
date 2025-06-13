@@ -37,6 +37,7 @@ import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspe
 import { User } from '@app/users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { BalanceDTO } from '@app/shared/dto/balance.dto';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -693,6 +694,9 @@ describe('ExpenseController', () => {
             expect(response.body.id).toBe(dummyExpense.getId());
             expect(response.body.label).toBe(dummyExpense.getLabel());
             expect(response.body.emoji).toBe(dummyExpense.getEmoji());
+            expect(response.body.payment.balance).toBe(
+                BalanceDTO.from(dummyExpense.getPayment().balance).getValue(),
+            );
         });
 
         describe('expense is settled', () => {

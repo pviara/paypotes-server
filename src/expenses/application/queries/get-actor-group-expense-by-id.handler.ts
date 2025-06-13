@@ -1,7 +1,6 @@
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
@@ -24,7 +23,9 @@ export class GetActorGroupExpenseByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    async execute(query: GetActorGroupExpenseByIdQuery): Promise<GroupExpense> {
+    async execute(
+        query: GetActorGroupExpenseByIdQuery,
+    ): Promise<GroupExpenseSnapshot> {
         const { actorId, groupId, expenseId } = query.payload;
         const expense = await this.expenseRepository.getActorGroupExpenseById(
             actorId,
@@ -32,7 +33,7 @@ export class GetActorGroupExpenseByIdHandler
             expenseId,
         );
 
-        if (expense) return GroupExpensePerspectiveView.from(expense, actorId);
+        if (expense) return GroupExpenseSnapshot.from(expense, actorId);
         throw new GroupExpenseNotFoundError(groupId, expenseId);
     }
 }

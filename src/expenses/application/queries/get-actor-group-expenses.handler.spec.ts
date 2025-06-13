@@ -7,7 +7,7 @@ import {
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { Member } from '@groups/domain/member';
 
 describe('GetActorGroupExpensesHandler', () => {
@@ -61,7 +61,7 @@ describe('GetActorGroupExpensesHandler', () => {
         const result = await sut.execute(dummyQuery);
         expect(result).toStrictEqual(
             dummyExpenses.map((expense) =>
-                GroupExpensePerspectiveView.from(expense, dummyActorId),
+                GroupExpenseSnapshot.from(expense, dummyActorId),
             ),
         );
     });

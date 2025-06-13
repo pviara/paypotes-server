@@ -1,7 +1,9 @@
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
+import {
+    GroupExpenseSnapshot,
+    GroupExpenseSnapshots,
+} from '@app/expenses/domain/group-expense-snapshot';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
@@ -25,7 +27,9 @@ export class GetActorGroupExpensesHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    async execute(query: GetActorGroupExpensesQuery): Promise<GroupExpense[]> {
+    async execute(
+        query: GetActorGroupExpensesQuery,
+    ): Promise<GroupExpenseSnapshot[]> {
         const { actorId, groupId, pageIndex, search } = query.payload;
         const expenses = await this.expenseRepository.getActorGroupExpenses(
             actorId,
@@ -33,15 +37,6 @@ export class GetActorGroupExpensesHandler
             pageIndex,
             search,
         );
-        return this.mapToPerspectiveView(expenses, actorId);
-    }
-
-    private mapToPerspectiveView(
-        expenses: Array<GroupExpense>,
-        actorId: string,
-    ): Array<GroupExpense> {
-        return expenses.map((expense) =>
-            GroupExpensePerspectiveView.from(expense, actorId),
-        );
+        return GroupExpenseSnapshots.from(expenses, actorId);
     }
 }

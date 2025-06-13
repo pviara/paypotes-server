@@ -1,5 +1,5 @@
 import { GroupExpense } from '@app/expenses/domain/group-expense';
-import { GroupExpensePerspectiveView } from '@app/expenses/domain/group-expense-perspective-view';
+import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { PairExpense } from '@app/expenses/domain/pair-expense';
 import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
 import { Expense } from '@expenses/domain/expense';
@@ -26,7 +26,9 @@ export class GetActorExpenseByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    async execute(query: GetActorExpenseByIdQuery): Promise<Expense> {
+    async execute(
+        query: GetActorExpenseByIdQuery,
+    ): Promise<Expense | GroupExpenseSnapshot> {
         const { actorId, expenseId } = query.payload;
         const expense = await this.expenseRepository.getActorExpenseById(
             actorId,
@@ -37,11 +39,14 @@ export class GetActorExpenseByIdHandler
         return this.mapToPerspectiveView(expense, actorId);
     }
 
-    private mapToPerspectiveView(expense: Expense, actorId: string): Expense {
+    private mapToPerspectiveView(
+        expense: Expense,
+        actorId: string,
+    ): Expense | GroupExpenseSnapshot {
         if (expense instanceof PairExpense)
             return PairExpensePerspectiveView.from(expense, actorId);
         if (expense instanceof GroupExpense)
-            return GroupExpensePerspectiveView.from(expense, actorId);
+            return GroupExpenseSnapshot.from(expense, actorId);
 
         throw new Error('Expense is neither pair or group expense');
     }
