@@ -5,7 +5,6 @@ export class User {
             firstname: string;
             lastname: string;
             email: string;
-            phone: string;
         },
     ) {}
 
@@ -23,9 +22,5 @@ export class User {
 
     getLastname(): string {
         return this.data.lastname;
-    }
-
-    getPhone() {
-        return this.data.phone;
     }
 }

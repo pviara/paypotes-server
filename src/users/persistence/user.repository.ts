@@ -5,7 +5,6 @@ export interface UserRepository {
     get(...userIds: Array<string>): Promise<User[]>;
     getByEmail(email: string): Promise<User | null>;
     getByName(name: string): Promise<User | null>;
-    getByPhone(phone: string): Promise<User | null>;
 }
 
 export class UserInMemoryRepository implements UserRepository {
@@ -28,11 +27,6 @@ export class UserInMemoryRepository implements UserRepository {
     async getByName(name: string): Promise<User | null> {
         const lowercasedName = name.toLowerCase();
         const user = this.users.find(this.nameMatches(lowercasedName));
-        return user ?? null;
-    }
-
-    async getByPhone(phone: string): Promise<User | null> {
-        const user = this.users.find((user) => user.getPhone() === phone);
         return user ?? null;
     }
 
