@@ -20,11 +20,15 @@ export class ContactRepositorySpy
             count: 0,
             history: [] as Array<User[]>,
         },
+        addRelationshipsBetween: {
+            count: 0,
+            history: [] as Array<User[]>,
+        },
     };
 
     async addRelationshipsBetween(users: Array<User>): Promise<void> {
-        this.saveCall('addRelationshipBetween', users);
-        return this.getStubOrDefault('addRelationshipBetween', undefined);
+        this.saveCall('addRelationshipsBetween', users);
+        return this.getStubOrDefault('addRelationshipsBetween', undefined);
     }
 
     async getActorContactById(

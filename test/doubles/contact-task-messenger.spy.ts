@@ -1,6 +1,5 @@
 import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { Spy } from '@test/helpers/spy';
-import { User } from '@users/domain/user';
 
 export class ContactTaskMessengerSpy
     extends Spy<ContactTaskMessenger>
