@@ -246,6 +246,9 @@ describe('ContactController', () => {
                     dummyContact.getFirstname(),
                 );
                 expect(response.body.lastname).toBe(dummyContact.getLastname());
+                expect(response.body.avatarUrl).toBe(
+                    dummyContact.getAvatarUrl(),
+                );
                 expect(response.body.balance).toBe('0,00');
             });
         });

@@ -5,11 +5,12 @@ import { Expense } from '@expenses/domain/expense';
 export class ContactWithBalance extends Contact {
     private balance: number = 0;
 
-    constructor(
+    private constructor(
         protected data: {
             id: string;
             firstname: string;
             lastname: string;
+            avatarUrl: string;
             expenses: Array<Expense>;
             perspectiveId: string;
         },
@@ -18,6 +19,7 @@ export class ContactWithBalance extends Contact {
             id: data.id,
             firstname: data.firstname,
             lastname: data.lastname,
+            avatarUrl: data.avatarUrl,
         });
         this.balance = this.calcBalanceFor(data.perspectiveId);
     }
@@ -31,6 +33,7 @@ export class ContactWithBalance extends Contact {
             id: data.contact.getId(),
             firstname: data.contact.getFirstname(),
             lastname: data.contact.getLastname(),
+            avatarUrl: data.contact.getAvatarUrl(),
             expenses: data.expenses,
             perspectiveId: data.perspectiveId,
         });

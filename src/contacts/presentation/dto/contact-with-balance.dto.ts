@@ -6,6 +6,7 @@ export class ContactWithBalanceDTO {
         readonly id: string,
         readonly firstname: string,
         readonly lastname: string,
+        readonly avatarUrl: string,
         readonly balance: string,
     ) {}
 
@@ -15,6 +16,7 @@ export class ContactWithBalanceDTO {
             contact.getId(),
             contact.getFirstname(),
             contact.getLastname(),
+            contact.getAvatarUrl(),
             balance.getValue(),
         );
     }

@@ -5,6 +5,7 @@ export class ContactDTO {
         readonly id: string,
         readonly firstname: string,
         readonly lastname: string,
+        readonly avatarUrl: string,
     ) {}
 
     static from(contact: Contact): ContactDTO {
@@ -12,6 +13,7 @@ export class ContactDTO {
             contact.getId(),
             contact.getFirstname(),
             contact.getLastname(),
+            contact.getAvatarUrl(),
         );
     }
 }

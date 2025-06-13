@@ -27,6 +27,7 @@ const getDefaultUserAsContact = (): Contact => {
         id: DEFAULT_USER.getId(),
         firstname: DEFAULT_USER.getFirstname(),
         lastname: DEFAULT_USER.getLastname(),
+        avatarUrl: DEFAULT_USER.getAvatarUrl(),
     });
 };
 
@@ -51,6 +52,7 @@ export const generateRandomContact = (): Contact => {
         id: crypto.randomUUID(),
         firstname: 'Firstname',
         lastname: 'Lastname',
+        avatarUrl: 'http://localhost:port/avatar_url',
     });
 };
 
@@ -63,6 +65,7 @@ export const generateRandomContacts = (
                 id: crypto.randomUUID(),
                 firstname: `firstname_${index}`,
                 lastname: `lastname_${index}`,
+                avatarUrl: 'http://localhost:port/avatar_url',
             }),
     );
 };
