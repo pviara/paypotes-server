@@ -16,10 +16,6 @@ export class ContactRepositorySpy
             count: 0,
             history: [] as Array<[string, number, string]>,
         },
-        addRelationshipBetween: {
-            count: 0,
-            history: [] as Array<User[]>,
-        },
         addRelationshipsBetween: {
             count: 0,
             history: [] as Array<User[]>,

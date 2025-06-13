@@ -47,11 +47,11 @@ describe('AddRelationshipBetweenUsersHandler', () => {
     it('should save the relationship between the two users', async () => {
         await sut.execute(dummyCommand);
 
-        expect(contactRepo.calls.addRelationshipBetween.count).toBe(1);
+        expect(contactRepo.calls.addRelationshipsBetween.count).toBe(1);
 
-        expect(contactRepo.calls.addRelationshipBetween.history).toContainEqual(
-            dummyUsers,
-        );
+        expect(
+            contactRepo.calls.addRelationshipsBetween.history,
+        ).toContainEqual(dummyUsers);
     });
 
     function initSut(): void {
