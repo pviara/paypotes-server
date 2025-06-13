@@ -36,10 +36,10 @@ export class GetActorExpenseByIdHandler
         );
 
         if (!expense) throw new ExpenseNotFoundError(expenseId);
-        return this.mapToPerspectiveView(expense, actorId);
+        return this.mapToExpenseSnapshot(expense, actorId);
     }
 
-    private mapToPerspectiveView(
+    private mapToExpenseSnapshot(
         expense: Expense,
         actorId: string,
     ): GroupExpenseSnapshot | PairExpenseSnapshot {

@@ -36,10 +36,10 @@ export class GetActorExpensesHandler
             pageIndex,
             search,
         );
-        return this.mapToPerspectiveView(expenses, actorId);
+        return this.mapToExpenseSnapshots(expenses, actorId);
     }
 
-    private mapToPerspectiveView(
+    private mapToExpenseSnapshots(
         expenses: Array<Expense>,
         actorId: string,
     ): Array<GroupExpenseSnapshot | PairExpenseSnapshot> {
