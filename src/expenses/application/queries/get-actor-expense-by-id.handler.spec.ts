@@ -11,7 +11,7 @@ import {
 } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
-import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
 
 describe('GetActorExpenseByIdHandler', () => {
     let sut: GetActorExpenseByIdHandler;
@@ -47,7 +47,7 @@ describe('GetActorExpenseByIdHandler', () => {
         it('should return the expense that was retrieved', async () => {
             const result = await sut.execute(dummyQuery);
             expect(result).toStrictEqual(
-                PairExpensePerspectiveView.from(dummyExpense, dummyActorId),
+                PairExpenseSnapshot.from(dummyExpense, dummyActorId),
             );
         });
     });

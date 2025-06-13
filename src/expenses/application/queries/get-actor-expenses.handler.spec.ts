@@ -11,7 +11,7 @@ import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
-import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
 
 describe('GetActorExpensesHandler', () => {
     let sut: GetActorExpensesHandler;
@@ -64,10 +64,7 @@ describe('GetActorExpensesHandler', () => {
         expect(result).toStrictEqual(
             dummyExpenses.map((expense) => {
                 if (expense instanceof PairExpense)
-                    return PairExpensePerspectiveView.from(
-                        expense,
-                        dummyActorId,
-                    );
+                    return PairExpenseSnapshot.from(expense, dummyActorId);
                 if (expense instanceof GroupExpense)
                     return GroupExpenseSnapshot.from(expense, dummyActorId);
             }),

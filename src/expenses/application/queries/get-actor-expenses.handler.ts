@@ -6,7 +6,7 @@ import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapsho
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PairExpense } from '@expenses/domain/pair-expense';
-import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
 
 export class GetActorExpensesQuery implements IQuery {
     constructor(
@@ -29,7 +29,7 @@ export class GetActorExpensesHandler
 
     async execute(
         query: GetActorExpensesQuery,
-    ): Promise<(Expense | GroupExpenseSnapshot)[]> {
+    ): Promise<(GroupExpenseSnapshot | PairExpenseSnapshot)[]> {
         const { actorId, pageIndex, search } = query.payload;
         const expenses = await this.expenseRepository.getActorExpenses(
             actorId,
@@ -42,10 +42,10 @@ export class GetActorExpensesHandler
     private mapToPerspectiveView(
         expenses: Array<Expense>,
         actorId: string,
-    ): Array<Expense | GroupExpenseSnapshot> {
+    ): Array<GroupExpenseSnapshot | PairExpenseSnapshot> {
         return expenses.map((expense) => {
             if (expense instanceof PairExpense)
-                return PairExpensePerspectiveView.from(expense, actorId);
+                return PairExpenseSnapshot.from(expense, actorId);
             if (expense instanceof GroupExpense)
                 return GroupExpenseSnapshot.from(expense, actorId);
 

@@ -2,8 +2,10 @@ import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PairExpense } from '@expenses/domain/pair-expense';
-import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
+import {
+    PairExpenseSnapshot,
+    PairExpenseSnapshots,
+} from '@app/expenses/domain/pair-expense-snapshot';
 
 export class GetActorContactExpensesQuery implements IQuery {
     constructor(
@@ -25,7 +27,9 @@ export class GetActorContactExpensesHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    async execute(query: GetActorContactExpensesQuery): Promise<PairExpense[]> {
+    async execute(
+        query: GetActorContactExpensesQuery,
+    ): Promise<PairExpenseSnapshot[]> {
         const { actorId, contactId, pageIndex, search } = query.payload;
         const expenses = await this.expenseRepository.getActorContactExpenses(
             actorId,
@@ -33,15 +37,6 @@ export class GetActorContactExpensesHandler
             pageIndex,
             search,
         );
-        return this.mapToPerspectiveView(expenses, actorId);
-    }
-
-    private mapToPerspectiveView(
-        expenses: Array<PairExpense>,
-        actorId: string,
-    ): Array<PairExpense> {
-        return expenses.map((expense) =>
-            PairExpensePerspectiveView.from(expense, actorId),
-        );
+        return PairExpenseSnapshots.from(expenses, actorId);
     }
 }

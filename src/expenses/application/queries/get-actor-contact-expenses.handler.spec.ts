@@ -5,7 +5,7 @@ import {
     GetActorContactExpensesHandler,
     GetActorContactExpensesQuery,
 } from '@expenses/application/queries/get-actor-contact-expenses.handler';
-import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
+import { PairExpenseSnapshots } from '@app/expenses/domain/pair-expense-snapshot';
 
 describe('GetActorContactExpensesHandler', () => {
     let sut: GetActorContactExpensesHandler;
@@ -49,9 +49,7 @@ describe('GetActorContactExpensesHandler', () => {
         const result = await sut.execute(dummyQuery);
 
         expect(result).toStrictEqual(
-            dummyExpenses.map((expense) =>
-                PairExpensePerspectiveView.from(expense, dummyActorId),
-            ),
+            PairExpenseSnapshots.from(dummyExpenses, dummyActorId),
         );
     });
 });

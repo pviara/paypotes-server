@@ -1,7 +1,7 @@
 import { GroupExpense } from '@app/expenses/domain/group-expense';
 import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { PairExpense } from '@app/expenses/domain/pair-expense';
-import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
@@ -28,7 +28,7 @@ export class GetActorExpenseByIdHandler
 
     async execute(
         query: GetActorExpenseByIdQuery,
-    ): Promise<Expense | GroupExpenseSnapshot> {
+    ): Promise<GroupExpenseSnapshot | PairExpenseSnapshot> {
         const { actorId, expenseId } = query.payload;
         const expense = await this.expenseRepository.getActorExpenseById(
             actorId,
@@ -42,9 +42,9 @@ export class GetActorExpenseByIdHandler
     private mapToPerspectiveView(
         expense: Expense,
         actorId: string,
-    ): Expense | GroupExpenseSnapshot {
+    ): GroupExpenseSnapshot | PairExpenseSnapshot {
         if (expense instanceof PairExpense)
-            return PairExpensePerspectiveView.from(expense, actorId);
+            return PairExpenseSnapshot.from(expense, actorId);
         if (expense instanceof GroupExpense)
             return GroupExpenseSnapshot.from(expense, actorId);
 
