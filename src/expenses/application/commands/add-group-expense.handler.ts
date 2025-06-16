@@ -8,6 +8,7 @@ import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { Metadata } from '@expenses/domain/expense';
+import { DateService } from '@app/shared/date/date.service';
 
 export class AddGroupExpenseCommand implements ICommand {
     constructor(
@@ -33,6 +34,8 @@ export class AddGroupExpenseHandler
 
         @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
+
+        private dateService: DateService,
     ) {}
 
     async execute(command: AddGroupExpenseCommand): Promise<void> {
@@ -53,7 +56,8 @@ export class AddGroupExpenseHandler
 
     private extractMetadataFrom(command: AddGroupExpenseCommand): Metadata {
         const { id, label, emoji } = command.payload;
-        return { id, label, emoji };
+        const createdAt = this.dateService.getCurrentDate();
+        return { id, label, emoji, createdAt };
     }
 
     private extractPaymentFrom(

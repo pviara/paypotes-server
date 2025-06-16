@@ -106,7 +106,7 @@ describe('CreateGroupHandler', () => {
                     firstname: `F_${index}`,
                     lastname: `L_${index}`,
                     email: 'email@test.com',
-                    phone: '0754235460',
+                    avatarUrl: 'http://localhost:port/avatar_url',
                 }),
         );
     }

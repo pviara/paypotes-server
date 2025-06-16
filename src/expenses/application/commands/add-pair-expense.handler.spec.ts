@@ -3,6 +3,8 @@ import {
     AddPairExpenseHandler,
     ExpenseUserNotFoundError,
 } from '@expenses/application/commands/add-pair-expense.handler';
+import { ContactTaskMessengerSpy } from '@test/doubles/contact-task-messenger.spy';
+import { DateServiceSpy } from '@test/doubles/date-service.spy';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import {
@@ -11,16 +13,15 @@ import {
 } from '@test/helpers/expense/utils';
 import { Metadata } from '@expenses/domain/expense';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
 import { User } from '@users/domain/user';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
-import { ContactTaskMessengerSpy } from '@test/doubles/contact-task-messenger.spy';
 
 describe('AddPairExpenseHandler', () => {
     let sut: AddPairExpenseHandler;
 
     let expenseRepo: ExpenseRepositorySpy;
     let userRepo: UserRepositorySpy;
+    let dateService: DateServiceSpy;
     let messenger: ContactTaskMessengerSpy;
 
     const dummyActor = DEFAULT_USER;
@@ -44,12 +45,15 @@ describe('AddPairExpenseHandler', () => {
         firstname: 'Peter',
         lastname: 'Parker',
         email: 'email@test.com',
-        phone: '06457246852',
+        avatarUrl: 'http://localhost:300',
     });
+
+    const dummyDate = new Date('1999-01-12');
 
     beforeEach(() => {
         initSut();
         userRepo.stub('get', [dummyUser]);
+        dateService.stub('getCurrentDate', dummyDate);
     });
 
     it('should check that expense user exists', async () => {
@@ -78,6 +82,7 @@ describe('AddPairExpenseHandler', () => {
                 id: dummyCommand.payload.id,
                 label: dummyCommand.payload.label,
                 emoji: dummyCommand.payload.emoji,
+                createdAt: dummyDate,
             };
             const dummyPayment: PairPayment = {
                 balance: dummyCommand.payload.balance,
@@ -111,12 +116,18 @@ describe('AddPairExpenseHandler', () => {
 
     function initSut(): void {
         initDependencies();
-        sut = new AddPairExpenseHandler(expenseRepo, userRepo, messenger);
+        sut = new AddPairExpenseHandler(
+            expenseRepo,
+            userRepo,
+            dateService,
+            messenger,
+        );
     }
 
     function initDependencies(): void {
         expenseRepo = new ExpenseRepositorySpy();
         userRepo = new UserRepositorySpy();
+        dateService = new DateServiceSpy();
         messenger = new ContactTaskMessengerSpy();
     }
 });

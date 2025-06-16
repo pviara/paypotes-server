@@ -6,6 +6,7 @@ export type Metadata = {
     id: string;
     label: string;
     emoji: string;
+    createdAt: Date;
 };
 
 export abstract class Expense {

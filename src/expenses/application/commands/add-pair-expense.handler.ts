@@ -6,10 +6,10 @@ import { expenseRepositoryToken } from '@expenses/persistence/expense.repository
 import { Inject } from '@nestjs/common';
 import { Metadata } from '@expenses/domain/expense';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { DateService } from '@app/shared/date/date.service';
 
 export class AddPairExpenseCommand implements ICommand {
     constructor(
@@ -36,6 +36,8 @@ export class AddPairExpenseHandler
         @Inject(userRepositoryToken)
         private userRepository: UserRepository,
 
+        private dateService: DateService,
+
         @Inject(contactTaskMessengerToken)
         private messenger: ContactTaskMessenger,
     ) {}
@@ -59,7 +61,13 @@ export class AddPairExpenseHandler
 
     private extractMetadataFrom(command: AddPairExpenseCommand): Metadata {
         const { id, label, emoji } = command.payload;
-        return { id, label, emoji };
+        const createdAt = this.dateService.getCurrentDate();
+        return {
+            id,
+            label,
+            emoji,
+            createdAt,
+        };
     }
 
     private extractPaymentFrom(
