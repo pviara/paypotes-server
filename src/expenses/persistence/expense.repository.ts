@@ -182,7 +182,9 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     }
 
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {
-        return this.expenses.filter(this.isExpenseOf(actorId));
+        return this.expenses
+            .filter(this.isExpenseOf(actorId))
+            .filter(this.hasActiveStakeholder(actorId));
     }
 
     async getAllActorGroupExpenses(
@@ -247,7 +249,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): (expense: Expense) => boolean {
         return (expense) => {
             if (expense.hasCreditor(actorId)) {
-                const [counterparty] = expense.getCounterpartiesOf(actorId);
+                const [counterparty] = expense.getCounterpartiesOf(actorId); // -> throws error when counterparty <=> actor
                 return counterparty.getShare() > 0;
             }
             return expense.getShareOf(actorId) > 0;
