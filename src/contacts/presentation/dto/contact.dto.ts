@@ -1,3 +1,4 @@
+import { Stakeholder } from '@app/expenses/domain/stakeholder';
 import { Contact } from '@contacts/domain/contact';
 
 export class ContactDTO {
@@ -8,7 +9,7 @@ export class ContactDTO {
         readonly avatarUrl: string,
     ) {}
 
-    static from(contact: Contact): ContactDTO {
+    static from(contact: Contact | Stakeholder): ContactDTO {
         return new ContactDTO(
             contact.getId(),
             contact.getFirstname(),

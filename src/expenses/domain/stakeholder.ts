@@ -33,6 +33,14 @@ export class Stakeholder {
         return this.data.id;
     }
 
+    getFirstname(): string {
+        return this.data.firstname;
+    }
+
+    getLastname(): string {
+        return this.data.lastname;
+    }
+
     getShare(): number {
         return this.data.share;
     }
