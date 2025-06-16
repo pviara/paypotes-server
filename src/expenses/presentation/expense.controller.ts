@@ -25,15 +25,15 @@ import { GetActorExpensesQuery } from '@expenses/application/queries/get-actor-e
 import { GetActorGroupExpenseByIdQuery } from '@expenses/application/queries/get-actor-group-expense-by-id.handler';
 import { GetActorGroupExpensesQuery } from '@expenses/application/queries/get-actor-group-expenses.handler';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
+import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
 import { PaybackGroupExpenseCommand } from '@expenses/application/commands/payback-group-expense.handler';
 import { PaybackGroupExpenseDTO } from '@expenses/presentation/dto/payback-group-expense.dto';
 import { PaybackPairExpenseCommand } from '@app/expenses/application/commands/payback-pair-expense.handler';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
-import { GroupExpenseSnapshot } from '../domain/group-expense-snapshot';
-import { PairExpenseSnapshot } from '../domain/pair-expense-snapshot';
 
 export const EXPENSES_API_ROUTE = 'expenses';
 

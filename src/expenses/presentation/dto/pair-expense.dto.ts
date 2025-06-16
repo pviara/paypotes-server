@@ -6,6 +6,7 @@ export class PairExpenseDTO {
         readonly id: string,
         readonly label: string,
         readonly emoji: string,
+        readonly createdAt: string,
         readonly balance: string,
     ) {}
 
@@ -16,6 +17,7 @@ export class PairExpenseDTO {
             expense.getId(),
             expense.getLabel(),
             expense.getEmoji(),
+            expense.getCreatedAt(),
             balance.getValue(),
         );
     }

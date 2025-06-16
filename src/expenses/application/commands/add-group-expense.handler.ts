@@ -1,4 +1,6 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
+import { DateService } from '@app/shared/date/date.service';
+import { dateServiceProviderToken } from '@app/shared/date/date.service.provider';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
@@ -8,7 +10,6 @@ import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { Metadata } from '@expenses/domain/expense';
-import { DateService } from '@app/shared/date/date.service';
 
 export class AddGroupExpenseCommand implements ICommand {
     constructor(
@@ -35,6 +36,7 @@ export class AddGroupExpenseHandler
         @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
 
+        @Inject(dateServiceProviderToken)
         private dateService: DateService,
     ) {}
 

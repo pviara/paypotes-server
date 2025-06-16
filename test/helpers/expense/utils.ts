@@ -153,6 +153,7 @@ export function generateRandomMetadata(
         id: crypto.randomUUID(),
         emoji: '📦',
         label: options?.label ?? 'Label',
+        createdAt: generateRandomPastDate(),
     };
 }
 
@@ -172,6 +173,12 @@ export const calculateExpectedBalanceFor = (
         const balance = calculateBalanceBasedOn(next, isDefaultUserCreditor);
         return prev + (isDefaultUserCreditor ? balance : -balance);
     }, 0);
+};
+
+const generateRandomPastDate = (): Date => {
+    return new Date(
+        Date.now() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000),
+    );
 };
 
 const calculateBalanceBasedOn = (

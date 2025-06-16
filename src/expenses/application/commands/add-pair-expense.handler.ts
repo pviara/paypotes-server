@@ -1,6 +1,8 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.task-messenger.provider';
+import { DateService } from '@app/shared/date/date.service';
+import { dateServiceProviderToken } from '@app/shared/date/date.service.provider';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
@@ -9,7 +11,6 @@ import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
-import { DateService } from '@app/shared/date/date.service';
 
 export class AddPairExpenseCommand implements ICommand {
     constructor(
@@ -36,6 +37,7 @@ export class AddPairExpenseHandler
         @Inject(userRepositoryToken)
         private userRepository: UserRepository,
 
+        @Inject(dateServiceProviderToken)
         private dateService: DateService,
 
         @Inject(contactTaskMessengerToken)

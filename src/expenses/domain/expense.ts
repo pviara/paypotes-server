@@ -21,6 +21,10 @@ export abstract class Expense {
         return `${this.payment.balance}`;
     }
 
+    getCreatedAt(): string {
+        return this.metadata.createdAt.toISOString();
+    }
+
     getEmoji(): string {
         return this.metadata.emoji;
     }

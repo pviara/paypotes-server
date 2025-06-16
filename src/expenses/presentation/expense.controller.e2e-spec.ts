@@ -693,6 +693,7 @@ describe('ExpenseController', () => {
             expect(response.body.id).toBe(dummyExpense.getId());
             expect(response.body.label).toBe(dummyExpense.getLabel());
             expect(response.body.emoji).toBe(dummyExpense.getEmoji());
+            expect(response.body.createdAt).toBeDefined();
             expect(response.body.payment.balance).toBe(
                 BalanceDTO.from(dummyExpense.getPayment().balance).getValue(),
             );
