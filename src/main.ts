@@ -34,21 +34,21 @@ async function createSampleUsersInLocalMode(
                 firstname: 'Peter',
                 lastname: 'Parker',
                 email: 'peter.parker@test.com',
-                phone: '0647859630',
+                avatarUrl: 'http://localhost:port/avatar_url',
             }),
             new User({
                 id: 'b6c614d7-7ac1-4822-b8e1-71c4b71051e1',
                 firstname: 'Bruce',
                 lastname: 'Wayne',
                 email: 'bruce.wayne@test.com',
-                phone: '0712345678',
+                avatarUrl: 'http://localhost:port/avatar_url',
             }),
             new User({
                 id: DEFAULT_USER.getId(),
                 firstname: 'Clark',
                 lastname: 'Kent',
                 email: 'clark.kent@test.com',
-                phone: '0698765432',
+                avatarUrl: 'http://localhost:port/avatar_url',
             }),
         ];
         const userRepo = app.get<UserRepository>(userRepositoryToken);

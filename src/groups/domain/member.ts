@@ -6,6 +6,7 @@ export class Member {
             id: string; // <=> userId
             firstname: string;
             lastname: string;
+            avatarUrl: string;
         },
     ) {}
 
@@ -14,7 +15,12 @@ export class Member {
             id: user.getId(),
             firstname: user.getFirstname(),
             lastname: user.getLastname(),
+            avatarUrl: user.getAvatarUrl(),
         });
+    }
+
+    getAvatarUrl(): string {
+        return this.data.avatarUrl;
     }
 
     getId(): string {

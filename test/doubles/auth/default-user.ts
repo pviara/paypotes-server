@@ -5,5 +5,5 @@ export const DEFAULT_USER = new User({
     firstname: 'Pierre',
     lastname: 'Viara',
     email: 'pierre.viara@test.com',
-    phone: '0647854322',
+    avatarUrl: 'http://localhost:port/avatar_url',
 });

@@ -24,11 +24,11 @@ import { GetActorExpenseByIdQuery } from '@expenses/application/queries/get-acto
 import { GetActorExpensesQuery } from '@expenses/application/queries/get-actor-expenses.handler';
 import { GetActorGroupExpenseByIdQuery } from '@expenses/application/queries/get-actor-group-expense-by-id.handler';
 import { GetActorGroupExpensesQuery } from '@expenses/application/queries/get-actor-group-expenses.handler';
-import { GroupExpense } from '@expenses/domain/group-expense';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
+import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
-import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
 import { PaybackGroupExpenseCommand } from '@expenses/application/commands/payback-group-expense.handler';
 import { PaybackGroupExpenseDTO } from '@expenses/presentation/dto/payback-group-expense.dto';
 import { PaybackPairExpenseCommand } from '@app/expenses/application/commands/payback-pair-expense.handler';
@@ -121,7 +121,7 @@ export class ExpenseController {
             search,
         });
         const expenses = await this.queryBus.execute(query);
-        return expenses.map((expense: PairExpense) =>
+        return expenses.map((expense: PairExpenseSnapshot) =>
             PairExpenseDTO.from(expense),
         );
     }
@@ -136,9 +136,9 @@ export class ExpenseController {
             expenseId,
         });
         const expense = await this.queryBus.execute(query);
-        if (expense instanceof PairExpense) {
+        if (expense instanceof PairExpenseSnapshot) {
             return PairExpenseDTO.from(expense);
-        } else if (expense instanceof GroupExpense) {
+        } else if (expense instanceof GroupExpenseSnapshot) {
             return GroupExpenseDTO.from(expense);
         }
         throw new Error(); // todo -> change this
@@ -157,9 +157,9 @@ export class ExpenseController {
         });
         const expenses = await this.queryBus.execute(query);
         return expenses.map((expense: Expense) => {
-            if (expense instanceof PairExpense) {
+            if (expense instanceof PairExpenseSnapshot) {
                 return PairExpenseDTO.from(expense);
-            } else if (expense instanceof GroupExpense) {
+            } else if (expense instanceof GroupExpenseSnapshot) {
                 return GroupExpenseDTO.from(expense);
             }
         });
@@ -194,7 +194,7 @@ export class ExpenseController {
             search,
         });
         const expenses = await this.queryBus.execute(query);
-        return expenses.map((expense: GroupExpense) =>
+        return expenses.map((expense: GroupExpenseSnapshot) =>
             GroupExpenseDTO.from(expense),
         );
     }

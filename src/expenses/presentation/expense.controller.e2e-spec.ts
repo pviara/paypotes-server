@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { Calculator } from '@expenses/domain/calculator';
 import { convertCents, raw, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
@@ -13,7 +14,6 @@ import {
     generateDefaultUserGroupExpense,
     generateRandomMetadata,
     generateRandomBalance,
-    generateRandomBoolean,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
@@ -33,7 +33,7 @@ import { initRunnerWith } from '@test/helpers/application-runner/utils';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
 import { User } from '@app/users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
@@ -294,7 +294,7 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
             );
 
-            const expenseView = PairExpensePerspectiveView.from(
+            const expenseView = PairExpenseSnapshot.from(
                 dummyExpense,
                 DEFAULT_USER.getId(),
             );
@@ -492,7 +492,7 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
             );
 
-            const expenseView = PairExpensePerspectiveView.from(
+            const expenseView = PairExpenseSnapshot.from(
                 dummyExpense,
                 DEFAULT_USER.getId(),
             );
@@ -693,6 +693,10 @@ describe('ExpenseController', () => {
             expect(response.body.id).toBe(dummyExpense.getId());
             expect(response.body.label).toBe(dummyExpense.getLabel());
             expect(response.body.emoji).toBe(dummyExpense.getEmoji());
+            expect(response.body.createdAt).toBeDefined();
+            expect(response.body.payment.balance).toBe(
+                BalanceDTO.from(dummyExpense.getPayment().balance).getValue(),
+            );
         });
 
         describe('expense is settled', () => {

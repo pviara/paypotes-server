@@ -1,7 +1,7 @@
 export class BalanceDTO {
     private static ZERO = 0;
 
-    constructor(private balance: string) {}
+    private constructor(private balance: string) {}
 
     static from(balance: number): BalanceDTO {
         const formatted = this.format(balance);

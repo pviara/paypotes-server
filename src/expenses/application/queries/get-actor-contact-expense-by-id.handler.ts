@@ -1,9 +1,8 @@
-import { PairExpensePerspectiveView } from '@app/expenses/domain/pair-expense-perspective-view';
-import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
 
 export class GetActorContactExpenseByIdQuery implements IQuery {
     constructor(
@@ -24,7 +23,9 @@ export class GetActorContactExpenseByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    async execute(query: GetActorContactExpenseByIdQuery): Promise<Expense> {
+    async execute(
+        query: GetActorContactExpenseByIdQuery,
+    ): Promise<PairExpenseSnapshot> {
         const { actorId, contactId, expenseId } = query.payload;
         const expense = await this.expenseRepository.getActorContactExpenseById(
             actorId,
@@ -32,7 +33,7 @@ export class GetActorContactExpenseByIdHandler
             expenseId,
         );
 
-        if (expense) return PairExpensePerspectiveView.from(expense, actorId);
+        if (expense) return PairExpenseSnapshot.from(expense, actorId);
         throw new ContactExpenseNotFoundError(contactId, expenseId);
     }
 }

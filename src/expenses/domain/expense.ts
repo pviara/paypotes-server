@@ -6,6 +6,7 @@ export type Metadata = {
     id: string;
     label: string;
     emoji: string;
+    createdAt: Date;
 };
 
 export abstract class Expense {
@@ -18,6 +19,10 @@ export abstract class Expense {
 
     getBalance(): string {
         return `${this.payment.balance}`;
+    }
+
+    getCreatedAt(): string {
+        return this.metadata.createdAt.toISOString();
     }
 
     getEmoji(): string {

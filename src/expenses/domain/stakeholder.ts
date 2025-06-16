@@ -10,6 +10,7 @@ export class Stakeholder {
             id: string; // <=> userId
             firstname: string;
             lastname: string;
+            avatarUrl: string;
             share: number;
         },
     ) {}
@@ -19,8 +20,13 @@ export class Stakeholder {
             id: person.getId(),
             firstname: person.getFirstname(),
             lastname: person.getLastname(),
+            avatarUrl: person.getAvatarUrl(),
             share,
         });
+    }
+
+    getAvatarUrl(): string {
+        return this.data.avatarUrl;
     }
 
     getId(): string {

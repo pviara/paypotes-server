@@ -1,10 +1,11 @@
 import { Contact } from '@contacts/domain/contact';
 
 export class ContactDTO {
-    constructor(
+    private constructor(
         readonly id: string,
         readonly firstname: string,
         readonly lastname: string,
+        readonly avatarUrl: string,
     ) {}
 
     static from(contact: Contact): ContactDTO {
@@ -12,6 +13,7 @@ export class ContactDTO {
             contact.getId(),
             contact.getFirstname(),
             contact.getLastname(),
+            contact.getAvatarUrl(),
         );
     }
 }

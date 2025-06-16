@@ -1,21 +1,24 @@
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
-import { PairExpense } from '@expenses/domain/pair-expense';
 
 export class PairExpenseDTO {
     constructor(
         readonly id: string,
         readonly label: string,
         readonly emoji: string,
+        readonly createdAt: string,
         readonly balance: string,
     ) {}
 
-    static from(expense: PairExpense): PairExpenseDTO {
-        const balance = BalanceDTO.from(+expense.getBalance());
-        return {
-            id: expense.getId(),
-            label: expense.getLabel(),
-            emoji: expense.getEmoji(),
-            balance: balance.getValue(),
-        };
+    static from(snapshot: PairExpenseSnapshot): PairExpenseDTO {
+        const expense = snapshot.getExpense();
+        const balance = BalanceDTO.from(snapshot.getPerspectiveBalance());
+        return new PairExpenseDTO(
+            expense.getId(),
+            expense.getLabel(),
+            expense.getEmoji(),
+            expense.getCreatedAt(),
+            balance.getValue(),
+        );
     }
 }

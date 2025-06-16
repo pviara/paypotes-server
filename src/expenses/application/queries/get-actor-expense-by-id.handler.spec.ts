@@ -10,8 +10,8 @@ import {
     generateDefaultUserPairExpense,
 } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
-import { GroupExpensePerspectiveView } from '@expenses/domain/group-expense-perspective-view';
-import { PairExpensePerspectiveView } from '@expenses/domain/pair-expense-perspective-view';
+import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
 
 describe('GetActorExpenseByIdHandler', () => {
     let sut: GetActorExpenseByIdHandler;
@@ -47,7 +47,7 @@ describe('GetActorExpenseByIdHandler', () => {
         it('should return the expense that was retrieved', async () => {
             const result = await sut.execute(dummyQuery);
             expect(result).toStrictEqual(
-                PairExpensePerspectiveView.from(dummyExpense, dummyActorId),
+                PairExpenseSnapshot.from(dummyExpense, dummyActorId),
             );
         });
     });
@@ -61,7 +61,7 @@ describe('GetActorExpenseByIdHandler', () => {
 
             const result = await sut.execute(dummyQuery);
             expect(result).toStrictEqual(
-                GroupExpensePerspectiveView.from(dummyExpense, dummyActorId),
+                GroupExpenseSnapshot.from(dummyExpense, dummyActorId),
             );
         });
     });

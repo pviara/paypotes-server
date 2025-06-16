@@ -29,6 +29,7 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
         id: dummyContactId,
         firstname: 'Peter',
         lastname: 'Parker',
+        avatarUrl: 'http://localhost:port/avatar_url',
     });
 
     const dummyUser = new User({
@@ -36,7 +37,7 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
         firstname: 'Eric',
         lastname: 'Evans',
         email: 'eric.evans@test.com',
-        phone: '0738192004',
+        avatarUrl: 'http://localhost:port/avatar_url',
     });
 
     beforeEach(() => {

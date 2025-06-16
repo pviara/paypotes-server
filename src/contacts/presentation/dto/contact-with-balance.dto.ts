@@ -2,10 +2,11 @@ import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 
 export class ContactWithBalanceDTO {
-    constructor(
+    private constructor(
         readonly id: string,
         readonly firstname: string,
         readonly lastname: string,
+        readonly avatarUrl: string,
         readonly balance: string,
     ) {}
 
@@ -15,6 +16,7 @@ export class ContactWithBalanceDTO {
             contact.getId(),
             contact.getFirstname(),
             contact.getLastname(),
+            contact.getAvatarUrl(),
             balance.getValue(),
         );
     }

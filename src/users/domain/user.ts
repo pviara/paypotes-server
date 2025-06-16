@@ -5,9 +5,13 @@ export class User {
             firstname: string;
             lastname: string;
             email: string;
-            phone: string;
+            avatarUrl: string;
         },
     ) {}
+
+    getAvatarUrl(): string {
+        return this.data.avatarUrl;
+    }
 
     getId(): string {
         return this.data.id;
@@ -23,9 +27,5 @@ export class User {
 
     getLastname(): string {
         return this.data.lastname;
-    }
-
-    getPhone() {
-        return this.data.phone;
     }
 }

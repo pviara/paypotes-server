@@ -45,7 +45,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
                 firstname: profile.name.givenName,
                 lastname: profile.name.familyName,
                 email: profile.email,
-                phone: '',
+                avatarUrl: '',
             });
             await this.userRepository.create(userToAdd);
             return this.getOrCreateUserFrom(profile);

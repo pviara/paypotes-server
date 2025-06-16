@@ -23,10 +23,6 @@ export class UserRepositorySpy
             count: 0,
             history: [] as Array<string>,
         },
-        getByPhone: {
-            count: 0,
-            history: [] as Array<string>,
-        },
     };
 
     async create(user: User): Promise<void> {
@@ -47,10 +43,5 @@ export class UserRepositorySpy
     async getByName(name: string): Promise<User | null> {
         this.saveCall('getByName', name);
         return this.getStubOrDefault('getByName', null);
-    }
-
-    async getByPhone(phone: string): Promise<User | null> {
-        this.saveCall('getByPhone', phone);
-        return this.getStubOrDefault('getByPhone', null);
     }
 }

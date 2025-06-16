@@ -3,6 +3,7 @@ import { AddPairExpenseHandler } from '@expenses/application/commands/add-pair-e
 import { ComputeActorBalanceHandler } from '@expenses/application/queries/compute-actor-balance.handler';
 import { ContactTaskManagerModule } from '@infra/contact-task-managers/contact.task-manager.module';
 import { CqrsModule } from '@nestjs/cqrs';
+import { DateModule } from '@app/shared/date/date.module';
 import { ExpenseController } from '@expenses/presentation/expense.controller';
 import { ExpenseRepositoryModule } from '@expenses/persistence/expense.repository-module';
 import { GetActorContactExpenseByIdHandler } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
@@ -22,6 +23,7 @@ import { UserRepositoryModule } from '@users/persistence/user.repository-module'
     imports: [
         ContactTaskManagerModule,
         CqrsModule,
+        DateModule,
         ExpenseRepositoryModule,
         GroupRepositoryModule,
         UserRepositoryModule,

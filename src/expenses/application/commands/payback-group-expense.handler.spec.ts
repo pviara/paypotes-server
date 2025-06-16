@@ -3,21 +3,18 @@ import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-ex
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import {
     generateDefaultUserGroupExpense,
-    generateDefaultUserPairExpense,
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
+import {
+    generateDefaultUserRandomGroup,
+    generateRandomMember,
+} from '@test/helpers/group/utils';
+import { GroupExpense, GroupPayment } from '@app/expenses/domain/group-expense';
+import { Member } from '@app/groups/domain/member';
 import {
     PaybackGroupExpenseCommand,
     PaybackGroupExpenseHandler,
 } from '@expenses/application/commands/payback-group-expense.handler';
-import {
-    generateDefaultUserRandomGroup,
-    generateRandomMember,
-    generateRandomMembers,
-} from '@test/helpers/group/utils';
-import { GroupExpense, GroupPayment } from '@app/expenses/domain/group-expense';
-import { generateRandomUser } from '@test/helpers/user/utils';
-import { Member } from '@app/groups/domain/member';
 
 describe('PaybackGroupExpenseHandler', () => {
     let sut: PaybackGroupExpenseHandler;

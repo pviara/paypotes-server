@@ -2,6 +2,7 @@ import {
     AddGroupExpenseCommand,
     AddGroupExpenseHandler,
 } from '@expenses/application/commands/add-group-expense.handler';
+import { DateServiceSpy } from '@test/doubles/date-service.spy';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomBalance } from '@test/helpers/expense/utils';
 import { generateRandomMembers } from '@test/helpers/group/utils';
@@ -17,6 +18,7 @@ describe('AddGroupExpenseHandler', () => {
 
     let expenseRepo: ExpenseRepositorySpy;
     let groupRepo: GroupRepositorySpy;
+    let dateService: DateServiceSpy;
 
     const dummyActorId = crypto.randomUUID();
     const dummyExpenseId = crypto.randomUUID();
@@ -39,6 +41,7 @@ describe('AddGroupExpenseHandler', () => {
         id: dummyExpenseMemberId,
         firstname: 'James',
         lastname: 'Potter',
+        avatarUrl: 'http://localhost:port/avatar_url',
     });
 
     const dummyGroup = new Group({
@@ -48,9 +51,12 @@ describe('AddGroupExpenseHandler', () => {
         members: [dummyMember, ...generateRandomMembers()],
     });
 
+    const dummyDate = new Date('1999-12-04');
+
     beforeEach(() => {
         initSut();
         groupRepo.stub('getActorGroupById', dummyGroup);
+        dateService.stub('getCurrentDate', dummyDate);
     });
 
     it('should check that expense group exists', async () => {
@@ -100,6 +106,7 @@ describe('AddGroupExpenseHandler', () => {
             id: dummyCommand.payload.id,
             label: dummyCommand.payload.label,
             emoji: dummyCommand.payload.emoji,
+            createdAt: dummyDate,
         };
         const payment: GroupPayment = {
             balance: dummyCommand.payload.balance,
@@ -113,11 +120,12 @@ describe('AddGroupExpenseHandler', () => {
 
     function initSut(): void {
         initDependencies();
-        sut = new AddGroupExpenseHandler(expenseRepo, groupRepo);
+        sut = new AddGroupExpenseHandler(expenseRepo, groupRepo, dateService);
     }
 
     function initDependencies(): void {
         expenseRepo = new ExpenseRepositorySpy();
         groupRepo = new GroupRepositorySpy();
+        dateService = new DateServiceSpy();
     }
 });

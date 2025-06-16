@@ -1,10 +1,11 @@
 import { Member } from '@groups/domain/member';
 
 export class MemberDTO {
-    constructor(
+    private constructor(
         readonly id: string,
         readonly firstname: string,
         readonly lastname: string,
+        readonly avatarUrl: string,
     ) {}
 
     static from(member: Member): MemberDTO {
@@ -12,6 +13,7 @@ export class MemberDTO {
             member.getId(),
             member.getFirstname(),
             member.getLastname(),
+            member.getAvatarUrl(),
         );
     }
 }
