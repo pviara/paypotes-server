@@ -11,6 +11,7 @@ import {
 } from '@test/helpers/user/utils';
 import { USERS_API_ROUTE } from '@users/presentation/user.controller';
 import * as request from 'supertest';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 describe('UserController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -49,6 +50,18 @@ describe('UserController', () => {
 
             expect(response.status).toBe(HttpStatus.OK);
             expect(response.body).toContainEqual(raw(UserDTO.from(dummyUser)));
+        });
+
+        describe('actor tries to fetch theirself', () => {
+            it('should not return current actor in the list', async () => {
+                await userRepo.insert(DEFAULT_USER);
+
+                const response = await request(httpServer).get(
+                    `/${USERS_API_ROUTE}?name=${DEFAULT_USER.getFirstname()}`,
+                );
+
+                expect(response.body.length).toBe(0);
+            });
         });
     });
 });

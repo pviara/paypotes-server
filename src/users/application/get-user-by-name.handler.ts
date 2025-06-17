@@ -1,11 +1,13 @@
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Users } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export class GetUserByNameQuery implements IQuery {
     constructor(
         readonly payload: {
+            actorId: string;
             name: string;
         },
     ) {}
@@ -18,8 +20,9 @@ export class GetUserByNameHandler implements IQueryHandler<GetUserByNameQuery> {
         private userRepository: UserRepository,
     ) {}
 
-    async execute(query: GetUserByNameQuery): Promise<any> {
-        const { name } = query.payload;
-        return this.userRepository.getByName(name);
+    async execute(query: GetUserByNameQuery): Promise<Users> {
+        const { actorId, name } = query.payload;
+        const users = await this.userRepository.getByName(name);
+        return users.filter((user) => user.getId() !== actorId);
     }
 }

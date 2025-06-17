@@ -5,6 +5,7 @@ import { ParseNamePipe } from '@users/presentation/pipes/parse-name.pipe';
 import { QueryBus } from '@nestjs/cqrs';
 import { User } from '@users/domain/user';
 import { UserDTO } from '@users/presentation/dto/user.dto';
+import { ActorId } from '@test/doubles/auth/actor.decorator';
 
 export const USERS_API_ROUTE = 'users';
 
@@ -16,8 +17,11 @@ export class UserController {
     constructor(private queryBus: QueryBus) {}
 
     @Get()
-    async getByName(@Name() name: string): Promise<UserDTO> {
-        const query = new GetUserByNameQuery({ name });
+    async getByName(
+        @ActorId() actorId: string,
+        @Name() name: string,
+    ): Promise<UserDTO> {
+        const query = new GetUserByNameQuery({ actorId, name });
         const users = await this.queryBus.execute(query);
         return users.map((user: User) => UserDTO.from(user));
     }
