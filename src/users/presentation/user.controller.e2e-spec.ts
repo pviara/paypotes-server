@@ -33,7 +33,7 @@ describe('UserController', () => {
             'should return 400 BAD_REQUEST when given name param "%s" is not valid',
             async (name: unknown) => {
                 const response = await request(httpServer).get(
-                    `/${USERS_API_ROUTE}/${name}`,
+                    `/${USERS_API_ROUTE}?name=${name}`,
                 );
                 expect(response.status).toBe(HttpStatus.BAD_REQUEST);
             },
@@ -44,11 +44,11 @@ describe('UserController', () => {
             await userRepo.insert(dummyUser);
 
             const response = await request(httpServer).get(
-                `/${USERS_API_ROUTE}/${dummyUser.getFirstname()}`,
+                `/${USERS_API_ROUTE}?name=${dummyUser.getFirstname()}`,
             );
 
             expect(response.status).toBe(HttpStatus.OK);
-            expect(response.body).toStrictEqual(raw(UserDTO.from(dummyUser)));
+            expect(response.body).toContainEqual(raw(UserDTO.from(dummyUser)));
         });
     });
 });

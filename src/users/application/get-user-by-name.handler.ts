@@ -20,15 +20,6 @@ export class GetUserByNameHandler implements IQueryHandler<GetUserByNameQuery> {
 
     async execute(query: GetUserByNameQuery): Promise<any> {
         const { name } = query.payload;
-        const user = await this.userRepository.getByName(name);
-
-        if (user) return user;
-        throw new UserNotFoundWithNameError(name);
-    }
-}
-
-export class UserNotFoundWithNameError extends Error {
-    constructor(name: string) {
-        super(`User with name "${name}" could not be found`);
+        return this.userRepository.getByName(name);
     }
 }

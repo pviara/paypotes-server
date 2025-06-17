@@ -1,6 +1,6 @@
-import { GroupPayment } from '@app/expenses/domain/group-expense';
-import { MemberDTO } from '@app/groups/presentation/dto/member.dto';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
+import { GroupPayment } from '@expenses/domain/group-expense';
+import { MemberDTO } from '@groups/presentation/dto/member.dto';
 
 export class GroupPaymentDTO {
     private constructor(

@@ -1,10 +1,10 @@
-import { User } from '@users/domain/user';
+import { User, Users } from '@users/domain/user';
 
 export interface UserRepository {
     create(user: User): Promise<void>;
-    get(...userIds: Array<string>): Promise<User[]>;
+    get(...userIds: Array<string>): Promise<Users>;
     getByEmail(email: string): Promise<User | null>;
-    getByName(name: string): Promise<User | null>;
+    getByName(name: string): Promise<Users>;
 }
 
 export class UserInMemoryRepository implements UserRepository {
@@ -24,10 +24,9 @@ export class UserInMemoryRepository implements UserRepository {
         return user ?? null;
     }
 
-    async getByName(name: string): Promise<User | null> {
+    async getByName(name: string): Promise<Users> {
         const lowercasedName = name.toLowerCase();
-        const user = this.users.find(this.nameMatches(lowercasedName));
-        return user ?? null;
+        return this.users.filter(this.nameMatches(lowercasedName));
     }
 
     private userIdFiguresIn(userIds: Array<string>): (user: User) => boolean {
