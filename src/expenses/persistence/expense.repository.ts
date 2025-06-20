@@ -249,19 +249,26 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): (expense: Expense) => boolean {
         return (expense) => {
             if (expense.hasCreditor(actorId)) {
-                if (expense instanceof PairExpense) {
-                    const [counterparty] = expense.getCounterpartiesOf(actorId);
-                    return counterparty.getShare() > 0;
-                } else if (expense instanceof GroupExpense) {
-                    const counterparties = expense.getCounterpartiesOf(actorId);
-                    return counterparties.some(
-                        (counterparty) => counterparty.getShare() > 0,
-                    );
-                }
-                throw new Error('Expense is neither pair or group expense');
+                return this.hasActiveStakeholderForCreditor(expense, actorId);
             }
             return expense.getShareOf(actorId) > 0;
         };
+    }
+
+    private hasActiveStakeholderForCreditor(
+        expense: Expense,
+        actorId: string,
+    ): boolean {
+        if (expense instanceof PairExpense) {
+            const [counterparty] = expense.getCounterpartiesOf(actorId);
+            return counterparty.getShare() > 0;
+        } else if (expense instanceof GroupExpense) {
+            const counterparties = expense.getCounterpartiesOf(actorId);
+            return counterparties.some(
+                (counterparty) => counterparty.getShare() > 0,
+            );
+        }
+        throw new Error('Expense is neither pair or group expense');
     }
 
     private isGroupExpense(): (value: Expense) => value is GroupExpense {
