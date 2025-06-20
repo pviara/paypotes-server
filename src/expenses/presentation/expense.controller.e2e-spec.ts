@@ -1075,36 +1075,100 @@ describe('ExpenseController', () => {
         describe('actor expense exists', () => {
             const dummyGroup = generateDefaultUserRandomGroup();
 
-            beforeEach(async () => {
-                await groupRepo.empty();
-                await groupRepo.insert(dummyGroup);
-            });
-
-            describe('actor is creditor and settles shares for given debtor ids', () => {
-                const dummyExpense = createRandomCreditExpenseFor(dummyGroup);
-                const debtorIds = dummyExpense
-                    .getCounterpartiesOf(actorId)
-                    .map((counterparty) => counterparty.getId());
-
-                it('should have settled all expense counterparties', async () => {
-                    await expenseRepo.empty();
-                    await expenseRepo.insert(dummyExpense);
-
+            describe('actor is creditor', () => {
+                describe('actor settles all debtors share', () => {
+                    const dummyExpense =
+                        createRandomCreditExpenseFor(dummyGroup);
                     const groupId = dummyGroup.getId();
                     const expenseId = dummyExpense.getId();
 
-                    await request(httpServer)
-                        .put(
-                            `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
-                        )
-                        .send({ debtorIds });
+                    beforeEach(async () => {
+                        await expenseRepo.empty();
+                        await expenseRepo.insert(dummyExpense);
+                    });
 
-                    const updatedExpense = await expenseRepo.get(expenseId);
-                    expectAllDebtorsShareToHaveBeenSettledIn(updatedExpense);
+                    const debtorIds = dummyExpense
+                        .getCounterpartiesOf(actorId)
+                        .map((counterparty) => counterparty.getId());
+
+                    it('should have settled all expense counterparties', async () => {
+                        await request(httpServer)
+                            .put(
+                                `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                            )
+                            .send({ debtorIds });
+
+                        const updatedExpense = await expenseRepo.get(expenseId);
+                        expectDebtorsShareToHaveBeenSettledIn(
+                            updatedExpense,
+                            debtorIds,
+                        );
+                    });
+
+                    it('should not retrieve fully settled expense', async () => {
+                        await request(httpServer)
+                            .put(
+                                `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                            )
+                            .send({ debtorIds });
+
+                        const response = await request(httpServer).get(
+                            `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                        );
+
+                        expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                    });
                 });
 
-                function expectAllDebtorsShareToHaveBeenSettledIn(
+                describe('actor settles not all debtors share', () => {
+                    const dummyExpense =
+                        createRandomCreditExpenseFor(dummyGroup);
+                    const groupId = dummyGroup.getId();
+                    const expenseId = dummyExpense.getId();
+
+                    beforeEach(async () => {
+                        await expenseRepo.empty();
+                        await expenseRepo.insert(dummyExpense);
+                    });
+
+                    const debtorIds = [
+                        dummyExpense
+                            .getCounterpartiesOf(actorId)
+                            .map((counterparty) => counterparty.getId())[0],
+                    ];
+
+                    it('should have settled all expense counterparties', async () => {
+                        await request(httpServer)
+                            .put(
+                                `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                            )
+                            .send({ debtorIds });
+
+                        const updatedExpense = await expenseRepo.get(expenseId);
+                        expectDebtorsShareToHaveBeenSettledIn(
+                            updatedExpense,
+                            debtorIds,
+                        );
+                    });
+
+                    it('should return not fully settled expense', async () => {
+                        await request(httpServer)
+                            .put(
+                                `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                            )
+                            .send({ debtorIds });
+
+                        const response = await request(httpServer).get(
+                            `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                        );
+
+                        expect(response.status).not.toBe(HttpStatus.NOT_FOUND);
+                    });
+                });
+
+                function expectDebtorsShareToHaveBeenSettledIn(
                     expense: Expense,
+                    debtorIds: Array<string>,
                 ): void {
                     debtorIds.forEach((debtorId) =>
                         expect(expense.getShareOf(debtorId)).toBe(0),
