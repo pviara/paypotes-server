@@ -37,6 +37,7 @@ import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot'
 import { User } from '@app/users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { StakeholderDTO } from './dto/stakeholder.dto';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -738,9 +739,12 @@ describe('ExpenseController', () => {
             const dummyGroup = generateDefaultUserRandomGroup();
             const dummyExpense = generateGroupExpenseAsCreditor();
 
-            it("should return an expense that exposes the right actor's share", async () => {
+            beforeEach(async () => {
+                await expenseRepo.empty();
                 await expenseRepo.insert(dummyExpense);
+            });
 
+            it("should return an expense that exposes the right actor's share", async () => {
                 const response = await request(httpServer).get(
                     `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
                 );
@@ -751,6 +755,17 @@ describe('ExpenseController', () => {
 
                 const expected = `${convertCents(balance)}`.replace('.', ',');
                 expect(response.body.balance).toBe(expected);
+            });
+
+            it('should return an expense with stakeholders and their share', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                );
+
+                const expectedStakeholders = mapDummyExpenseStakeholderDTOs();
+                expect(response.body.stakeholders).toStrictEqual(
+                    expectedStakeholders,
+                );
             });
 
             function generateGroupExpenseAsCreditor(): GroupExpense {
@@ -765,6 +780,14 @@ describe('ExpenseController', () => {
                     dummyGroup,
                     dummyPayment,
                 );
+            }
+
+            function mapDummyExpenseStakeholderDTOs(): unknown {
+                return dummyExpense
+                    .getStakeholders()
+                    .map((stakeholder) =>
+                        raw(StakeholderDTO.from(stakeholder)),
+                    );
             }
         });
     });
