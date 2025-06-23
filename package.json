@@ -8,8 +8,8 @@
     "scripts": {
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-        "setup:docker": "docker compose down; docker compose -f ./docker-compose.yml up -d",
-        "setup:docker:e2e": "docker compose down; docker compose -f ./docker-compose.test.yml up -d",
+        "setup:docker": "docker compose -f ./docker-compose.yml down; docker compose -f ./docker-compose.yml up -d",
+        "setup:docker:e2e": "docker compose -f ./docker-compose.test.yml down; docker compose -f ./docker-compose.test.yml up -d",
         "start": "yarn setup:docker; sleep 5; nest start",
         "start:dev": "nest start --watch",
         "start:debug": "nest start --debug --watch",

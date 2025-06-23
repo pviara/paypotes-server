@@ -753,7 +753,10 @@ describe('ExpenseController', () => {
                 const creditedMembers = members - 1;
                 const balance = (dummyBalance / members) * creditedMembers;
 
-                const expected = `${convertCents(balance)}`.replace('.', ',');
+                const expected = `${convertCents(balance).toFixed(2)}`.replace(
+                    '.',
+                    ',',
+                );
                 expect(response.body.balance).toBe(expected);
             });
 
