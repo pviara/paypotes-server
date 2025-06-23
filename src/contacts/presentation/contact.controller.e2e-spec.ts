@@ -24,6 +24,7 @@ import { mapUserFrom } from '@test/helpers/user/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { User } from '@users/domain/user';
 import * as request from 'supertest';
+import { EXPENSES_API_ROUTE } from '@app/expenses/presentation/expense.controller';
 
 describe('ContactController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -274,6 +275,27 @@ describe('ContactController', () => {
                 const expected = `${convertCents(balance)}`.replace('.', ',');
 
                 expect(response.body.balance).toBe(expected);
+            });
+
+            describe('actor expenses have all been settled', () => {
+                beforeEach(async () => {
+                    await paybackAllExpenses();
+                });
+
+                it('should return nil balance', async () => {
+                    const response = await request(httpServer).get(
+                        `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}`,
+                    );
+                    expect(response.body.balance).toBe('0,00');
+                });
+
+                async function paybackAllExpenses(): Promise<void> {
+                    for (const expense of dummyContactExpenses) {
+                        const res = await request(httpServer).put(
+                            `/${EXPENSES_API_ROUTE}/pair/${dummyContact.getId()}/${expense.getId()}`,
+                        );
+                    }
+                }
             });
 
             function computeActorDummyContactBalance(): number {

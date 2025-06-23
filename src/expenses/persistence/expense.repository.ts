@@ -165,7 +165,8 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): Promise<PairExpense[]> {
         return this.expenses
             .filter(this.isPairExpense())
-            .filter(this.isPairExpenseOf(actorId, contactId));
+            .filter(this.isPairExpenseOf(actorId, contactId))
+            .filter(this.hasActiveStakeholder(actorId));
     }
 
     async getAllActorContactsExpenses(
