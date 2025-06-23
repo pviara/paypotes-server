@@ -1,6 +1,4 @@
 export class BalanceDTO {
-    private static ZERO = 0;
-
     private constructor(private balance: string) {}
 
     static from(balance: number): BalanceDTO {
@@ -13,13 +11,8 @@ export class BalanceDTO {
     }
 
     private static format(balance: number): string {
-        return balance === this.ZERO
-            ? this.formatZero(balance)
-            : `${this.convertCents(balance)}`.replace('.', ',');
-    }
-
-    private static formatZero(balance: number): string {
-        return `${balance.toFixed(2)}`.replace('.', ',');
+        const value = this.convertCents(balance).toFixed(2);
+        return value.replace('.', ',');
     }
 
     private static convertCents(balance: number): number {

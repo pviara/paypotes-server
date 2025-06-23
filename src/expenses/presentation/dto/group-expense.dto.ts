@@ -2,6 +2,10 @@ import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
 import { GroupPaymentDTO } from '@expenses/presentation/dto/group-payment.dto';
+import {
+    StakeholderDTO,
+    StakeholderDTOs,
+} from '@expenses/presentation/dto/stakeholder.dto';
 
 export class GroupExpenseDTO {
     private constructor(
@@ -12,6 +16,7 @@ export class GroupExpenseDTO {
         readonly balance: string,
         readonly group: GroupDTO,
         readonly payment: GroupPaymentDTO,
+        readonly stakeholders: StakeholderDTOs,
     ) {}
 
     static from(snapshot: GroupExpenseSnapshot): GroupExpenseDTO {
@@ -20,6 +25,10 @@ export class GroupExpenseDTO {
         const balance = BalanceDTO.from(snapshot.getPerspectiveBalance());
         const group = GroupDTO.from(expense.getGroup());
         const payment = GroupPaymentDTO.from(expense.getPayment());
+        const stakeholders = snapshot
+            .getExpense()
+            .getStakeholders()
+            .map((stakeholder) => StakeholderDTO.from(stakeholder));
 
         return new GroupExpenseDTO(
             expense.getId(),
@@ -29,6 +38,7 @@ export class GroupExpenseDTO {
             balance.getValue(),
             group,
             payment,
+            stakeholders,
         );
     }
 }

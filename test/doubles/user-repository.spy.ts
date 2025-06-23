@@ -1,5 +1,5 @@
 import { Spy } from '@test/helpers/spy';
-import { User } from '@users/domain/user';
+import { User, Users } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 
 export class UserRepositorySpy
@@ -40,8 +40,8 @@ export class UserRepositorySpy
         return this.getStubOrDefault('getByEmail', null);
     }
 
-    async getByName(name: string): Promise<User | null> {
+    async getByName(name: string): Promise<Users> {
         this.saveCall('getByName', name);
-        return this.getStubOrDefault('getByName', null);
+        return this.getStubOrDefault('getByName', []);
     }
 }

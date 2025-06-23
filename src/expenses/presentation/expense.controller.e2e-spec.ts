@@ -37,6 +37,7 @@ import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot'
 import { User } from '@app/users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
+import { StakeholderDTO } from './dto/stakeholder.dto';
 
 describe('ExpenseController', () => {
     const runner = initRunnerWith(modules, providers);
@@ -738,9 +739,12 @@ describe('ExpenseController', () => {
             const dummyGroup = generateDefaultUserRandomGroup();
             const dummyExpense = generateGroupExpenseAsCreditor();
 
-            it("should return an expense that exposes the right actor's share", async () => {
+            beforeEach(async () => {
+                await expenseRepo.empty();
                 await expenseRepo.insert(dummyExpense);
+            });
 
+            it("should return an expense that exposes the right actor's share", async () => {
                 const response = await request(httpServer).get(
                     `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
                 );
@@ -749,8 +753,22 @@ describe('ExpenseController', () => {
                 const creditedMembers = members - 1;
                 const balance = (dummyBalance / members) * creditedMembers;
 
-                const expected = `${convertCents(balance)}`.replace('.', ',');
+                const expected = `${convertCents(balance).toFixed(2)}`.replace(
+                    '.',
+                    ',',
+                );
                 expect(response.body.balance).toBe(expected);
+            });
+
+            it('should return an expense with stakeholders and their share', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                );
+
+                const expectedStakeholders = mapDummyExpenseStakeholderDTOs();
+                expect(response.body.stakeholders).toStrictEqual(
+                    expectedStakeholders,
+                );
             });
 
             function generateGroupExpenseAsCreditor(): GroupExpense {
@@ -765,6 +783,14 @@ describe('ExpenseController', () => {
                     dummyGroup,
                     dummyPayment,
                 );
+            }
+
+            function mapDummyExpenseStakeholderDTOs(): unknown {
+                return dummyExpense
+                    .getStakeholders()
+                    .map((stakeholder) =>
+                        raw(StakeholderDTO.from(stakeholder)),
+                    );
             }
         });
     });
@@ -1075,36 +1101,100 @@ describe('ExpenseController', () => {
         describe('actor expense exists', () => {
             const dummyGroup = generateDefaultUserRandomGroup();
 
-            beforeEach(async () => {
-                await groupRepo.empty();
-                await groupRepo.insert(dummyGroup);
-            });
-
-            describe('actor is creditor and settles shares for given debtor ids', () => {
-                const dummyExpense = createRandomCreditExpenseFor(dummyGroup);
-                const debtorIds = dummyExpense
-                    .getCounterpartiesOf(actorId)
-                    .map((counterparty) => counterparty.getId());
-
-                it('should have settled all expense counterparties', async () => {
-                    await expenseRepo.empty();
-                    await expenseRepo.insert(dummyExpense);
-
+            describe('actor is creditor', () => {
+                describe('actor settles all debtors share', () => {
+                    const dummyExpense =
+                        createRandomCreditExpenseFor(dummyGroup);
                     const groupId = dummyGroup.getId();
                     const expenseId = dummyExpense.getId();
 
-                    await request(httpServer)
-                        .put(
-                            `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
-                        )
-                        .send({ debtorIds });
+                    beforeEach(async () => {
+                        await expenseRepo.empty();
+                        await expenseRepo.insert(dummyExpense);
+                    });
 
-                    const updatedExpense = await expenseRepo.get(expenseId);
-                    expectAllDebtorsShareToHaveBeenSettledIn(updatedExpense);
+                    const debtorIds = dummyExpense
+                        .getCounterpartiesOf(actorId)
+                        .map((counterparty) => counterparty.getId());
+
+                    it('should have settled all expense counterparties', async () => {
+                        await request(httpServer)
+                            .put(
+                                `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                            )
+                            .send({ debtorIds });
+
+                        const updatedExpense = await expenseRepo.get(expenseId);
+                        expectDebtorsShareToHaveBeenSettledIn(
+                            updatedExpense,
+                            debtorIds,
+                        );
+                    });
+
+                    it('should not retrieve fully settled expense', async () => {
+                        await request(httpServer)
+                            .put(
+                                `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                            )
+                            .send({ debtorIds });
+
+                        const response = await request(httpServer).get(
+                            `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                        );
+
+                        expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                    });
                 });
 
-                function expectAllDebtorsShareToHaveBeenSettledIn(
+                describe('actor settles not all debtors share', () => {
+                    const dummyExpense =
+                        createRandomCreditExpenseFor(dummyGroup);
+                    const groupId = dummyGroup.getId();
+                    const expenseId = dummyExpense.getId();
+
+                    beforeEach(async () => {
+                        await expenseRepo.empty();
+                        await expenseRepo.insert(dummyExpense);
+                    });
+
+                    const debtorIds = [
+                        dummyExpense
+                            .getCounterpartiesOf(actorId)
+                            .map((counterparty) => counterparty.getId())[0],
+                    ];
+
+                    it('should have settled all expense counterparties', async () => {
+                        await request(httpServer)
+                            .put(
+                                `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                            )
+                            .send({ debtorIds });
+
+                        const updatedExpense = await expenseRepo.get(expenseId);
+                        expectDebtorsShareToHaveBeenSettledIn(
+                            updatedExpense,
+                            debtorIds,
+                        );
+                    });
+
+                    it('should return not fully settled expense', async () => {
+                        await request(httpServer)
+                            .put(
+                                `/${EXPENSES_API_ROUTE}/group/${groupId}/${expenseId}`,
+                            )
+                            .send({ debtorIds });
+
+                        const response = await request(httpServer).get(
+                            `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
+                        );
+
+                        expect(response.status).not.toBe(HttpStatus.NOT_FOUND);
+                    });
+                });
+
+                function expectDebtorsShareToHaveBeenSettledIn(
                     expense: Expense,
+                    debtorIds: Array<string>,
                 ): void {
                     debtorIds.forEach((debtorId) =>
                         expect(expense.getShareOf(debtorId)).toBe(0),

@@ -165,7 +165,8 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): Promise<PairExpense[]> {
         return this.expenses
             .filter(this.isPairExpense())
-            .filter(this.isPairExpenseOf(actorId, contactId));
+            .filter(this.isPairExpenseOf(actorId, contactId))
+            .filter(this.hasActiveStakeholder(actorId));
     }
 
     async getAllActorContactsExpenses(
@@ -182,7 +183,9 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     }
 
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {
-        return this.expenses.filter(this.isExpenseOf(actorId));
+        return this.expenses
+            .filter(this.isExpenseOf(actorId))
+            .filter(this.hasActiveStakeholder(actorId));
     }
 
     async getAllActorGroupExpenses(
@@ -247,11 +250,26 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): (expense: Expense) => boolean {
         return (expense) => {
             if (expense.hasCreditor(actorId)) {
-                const [counterparty] = expense.getCounterpartiesOf(actorId);
-                return counterparty.getShare() > 0;
+                return this.hasActiveStakeholderForCreditor(expense, actorId);
             }
             return expense.getShareOf(actorId) > 0;
         };
+    }
+
+    private hasActiveStakeholderForCreditor(
+        expense: Expense,
+        actorId: string,
+    ): boolean {
+        if (expense instanceof PairExpense) {
+            const [counterparty] = expense.getCounterpartiesOf(actorId);
+            return counterparty.getShare() > 0;
+        } else if (expense instanceof GroupExpense) {
+            const counterparties = expense.getCounterpartiesOf(actorId);
+            return counterparties.some(
+                (counterparty) => counterparty.getShare() > 0,
+            );
+        }
+        throw new Error('Expense is neither pair or group expense');
     }
 
     private isGroupExpense(): (value: Expense) => value is GroupExpense {

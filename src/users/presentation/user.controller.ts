@@ -1,23 +1,28 @@
 import { AuthGuard } from '@auth/auth-guard.decorator';
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { GetUserByNameQuery } from '@users/application/get-user-by-name.handler';
 import { ParseNamePipe } from '@users/presentation/pipes/parse-name.pipe';
 import { QueryBus } from '@nestjs/cqrs';
+import { User } from '@users/domain/user';
 import { UserDTO } from '@users/presentation/dto/user.dto';
+import { ActorId } from '@test/doubles/auth/actor.decorator';
 
 export const USERS_API_ROUTE = 'users';
 
-const Name = () => Param('name', ParseNamePipe);
+const Name = () => Query('name', ParseNamePipe);
 
 @AuthGuard()
 @Controller(USERS_API_ROUTE)
 export class UserController {
     constructor(private queryBus: QueryBus) {}
 
-    @Get(':name')
-    async getByName(@Name() name: string): Promise<UserDTO> {
-        const query = new GetUserByNameQuery({ name });
-        const user = await this.queryBus.execute(query);
-        return UserDTO.from(user);
+    @Get()
+    async getByName(
+        @ActorId() actorId: string,
+        @Name() name: string,
+    ): Promise<UserDTO> {
+        const query = new GetUserByNameQuery({ actorId, name });
+        const users = await this.queryBus.execute(query);
+        return users.map((user: User) => UserDTO.from(user));
     }
 }

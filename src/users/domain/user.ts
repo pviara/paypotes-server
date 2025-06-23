@@ -29,3 +29,5 @@ export class User {
         return this.data.lastname;
     }
 }
+
+export type Users = Array<User>;
