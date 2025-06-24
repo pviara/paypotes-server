@@ -272,7 +272,10 @@ describe('ContactController', () => {
                 );
 
                 const balance = computeActorDummyContactBalance();
-                const expected = `${convertCents(balance)}`.replace('.', ',');
+                const expected = `${convertCents(balance).toFixed(2)}`.replace(
+                    '.',
+                    ',',
+                );
 
                 expect(response.body.balance).toBe(expected);
             });

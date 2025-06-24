@@ -104,10 +104,11 @@ describe('ExpenseController', () => {
                 );
 
                 const totalBalance = computeTotalBalance();
-                const expected = `${convertCents(totalBalance)}`.replace(
-                    '.',
-                    ',',
-                );
+                const expected =
+                    `${convertCents(totalBalance).toFixed(2)}`.replace(
+                        '.',
+                        ',',
+                    );
 
                 expect(response.text).toBe(expected);
             });
