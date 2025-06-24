@@ -2,18 +2,18 @@ import { App } from 'supertest/types';
 import { ConfigService } from '@nestjs/config';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
-import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
-import {
-    isClassProvider,
-    isValueProvider,
-} from '@test/helpers/application/model/overriding-provider';
-import { Modules } from '@test/helpers/application/model/module';
-import { Nullable } from '@test/helpers/application/model/nullable';
 import { ErrorFilter } from '@app/error-filter';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import {
+    isClassProvider,
+    isValueProvider,
+} from '@test/helpers/application/utils';
+import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
+import { Modules } from '@test/helpers/application/model/module';
+import { Nullable } from '@test/helpers/application/model/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
