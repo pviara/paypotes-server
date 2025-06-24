@@ -14,7 +14,7 @@ import { Providers } from '@test/helpers/application/application';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
-import { User } from '@app/users/domain/user';
+import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 

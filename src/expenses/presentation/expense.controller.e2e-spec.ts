@@ -33,14 +33,14 @@ import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
-import { User } from '@app/users/domain/user';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
+import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 import { StakeholderDTO } from './dto/stakeholder.dto';
 
 describe('ExpenseController', () => {
-    const runner = initApplicationWith(modules, providers);
+    const application = initApplicationWith(modules, providers);
 
     let expenseRepo: ExpenseInMemoryTestingRepository;
     let groupRepo: GroupInMemoryTestingRepository;
@@ -50,15 +50,15 @@ describe('ExpenseController', () => {
     const actorId = DEFAULT_USER.getId();
 
     beforeEach(async () => {
-        await runner.bootstrap();
+        await application.bootstrap();
 
-        expenseRepo = runner.getRepository('expense');
-        groupRepo = runner.getRepository('group');
-        userRepo = runner.getRepository('user');
-        httpServer = runner.getHttpServer();
+        expenseRepo = application.getRepository('expense');
+        groupRepo = application.getRepository('group');
+        userRepo = application.getRepository('user');
+        httpServer = application.getHttpServer();
     });
 
-    afterEach(shutdown(runner));
+    afterEach(shutdown(application));
 
     describe('GET /balance', () => {
         describe('actor has no expense at all', () => {

@@ -6,13 +6,13 @@ import { INestApplication } from '@nestjs/common';
 import { User } from '@users/domain/user';
 
 export const bootstrap = (
-    runner: Application,
+    application: Application,
 ): AsyncCallback<INestApplication> => {
-    return async (): Promise<INestApplication> => await runner.bootstrap();
+    return async (): Promise<INestApplication> => await application.bootstrap();
 };
 
-export const shutdown = (runner: Application): AsyncCallback<void> => {
-    return async (): Promise<void> => await runner.shutdown();
+export const shutdown = (application: Application): AsyncCallback<void> => {
+    return async (): Promise<void> => await application.shutdown();
 };
 
 export const mapIdsFrom = (

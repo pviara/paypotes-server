@@ -28,7 +28,7 @@ import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-r
 import * as request from 'supertest';
 
 describe('GroupController', () => {
-    const runner = initApplicationWith(modules, providers);
+    const application = initApplicationWith(modules, providers);
 
     let groupRepo: GroupInMemoryTestingRepository;
     let expenseRepo: ExpenseInMemoryTestingRepository;
@@ -36,15 +36,15 @@ describe('GroupController', () => {
     let httpServer: App;
 
     beforeEach(async () => {
-        await runner.bootstrap();
+        await application.bootstrap();
 
-        groupRepo = runner.getRepository('group');
-        expenseRepo = runner.getRepository('expense');
-        userRepo = runner.getRepository('user');
-        httpServer = runner.getHttpServer();
+        groupRepo = application.getRepository('group');
+        expenseRepo = application.getRepository('expense');
+        userRepo = application.getRepository('user');
+        httpServer = application.getHttpServer();
     });
 
-    afterEach(shutdown(runner));
+    afterEach(shutdown(application));
 
     describe('GET /groups', () => {
         describe('actor has no groups', () => {

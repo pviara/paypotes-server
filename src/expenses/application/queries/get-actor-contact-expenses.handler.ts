@@ -5,7 +5,7 @@ import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import {
     PairExpenseSnapshot,
     PairExpenseSnapshots,
-} from '@app/expenses/domain/pair-expense-snapshot';
+} from '@expenses/domain/pair-expense-snapshot';
 
 export class GetActorContactExpensesQuery implements IQuery {
     constructor(

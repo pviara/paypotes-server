@@ -9,8 +9,7 @@ import {
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import { User } from '@app/users/domain/user';
+import { User } from '@users/domain/user';
 
 describe('GetActorContactWithBalanceByIdHandler', () => {
     let sut: GetActorContactWithBalanceByIdHandler;

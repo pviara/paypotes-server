@@ -17,7 +17,7 @@ import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-r
 import * as request from 'supertest';
 
 describe('contact application tasks', () => {
-    const runner = initMessagingApplicationWith(modules, providers);
+    const application = initMessagingApplicationWith(modules, providers);
 
     let contactRepo: ContactRepository;
     let userRepo: UserInMemoryTestingRepository;
@@ -36,17 +36,17 @@ describe('contact application tasks', () => {
     const userIds = mapIdsFrom(dummyGroupMembers);
 
     beforeEach(async () => {
-        await runner.bootstrap();
+        await application.bootstrap();
 
-        contactRepo = runner.getRepository('contact');
-        userRepo = runner.getRepository('user');
-        httpServer = runner.getHttpServer();
+        contactRepo = application.getRepository('contact');
+        userRepo = application.getRepository('user');
+        httpServer = application.getHttpServer();
 
         await userRepo.empty();
         await userRepo.insert(...dummyGroupMembers);
     });
 
-    afterEach(shutdown(runner));
+    afterEach(shutdown(application));
 
     it('should add a relationship between pair expense users', async () => {
         const dummyUser = generateRandomUser();

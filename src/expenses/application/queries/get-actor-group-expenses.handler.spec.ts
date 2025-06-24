@@ -7,7 +7,7 @@ import {
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
+import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
 import { Member } from '@groups/domain/member';
 
 describe('GetActorGroupExpensesHandler', () => {

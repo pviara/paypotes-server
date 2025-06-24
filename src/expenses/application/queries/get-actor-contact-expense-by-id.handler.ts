@@ -2,7 +2,7 @@ import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
 
 export class GetActorContactExpenseByIdQuery implements IQuery {
     constructor(

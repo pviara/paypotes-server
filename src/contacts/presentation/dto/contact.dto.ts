@@ -1,4 +1,4 @@
-import { Stakeholder } from '@app/expenses/domain/stakeholder';
+import { Stakeholder } from '@expenses/domain/stakeholder';
 import { Contact } from '@contacts/domain/contact';
 
 export class ContactDTO {

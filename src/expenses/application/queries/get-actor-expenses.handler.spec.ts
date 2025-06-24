@@ -8,10 +8,10 @@ import {
 } from '@expenses/application/queries/get-actor-expenses.handler';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpenseSnapshot } from '@app/expenses/domain/group-expense-snapshot';
+import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
-import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
 
 describe('GetActorExpensesHandler', () => {
     let sut: GetActorExpensesHandler;

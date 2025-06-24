@@ -20,7 +20,7 @@ import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
-type ApplicationRunnerResources = {
+type ApplicationResources = {
     modules: Modules;
     providers?: Providers;
 };
@@ -43,7 +43,7 @@ export type Providers = Array<Provider>;
 export class Application {
     private application: Nullable<INestApplication> = null;
 
-    constructor(private resources: ApplicationRunnerResources) {}
+    constructor(private resources: ApplicationResources) {}
 
     async bootstrap(): Promise<INestApplication> {
         const moduleBuilder = this.createModuleBuilderUsingProviders();
