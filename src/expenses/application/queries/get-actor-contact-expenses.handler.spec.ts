@@ -5,7 +5,7 @@ import {
     GetActorContactExpensesHandler,
     GetActorContactExpensesQuery,
 } from '@expenses/application/queries/get-actor-contact-expenses.handler';
-import { PairExpenseSnapshots } from '@app/expenses/domain/pair-expense-snapshot';
+import { PairExpenseSnapshots } from '@expenses/domain/pair-expense-snapshot';
 
 describe('GetActorContactExpensesHandler', () => {
     let sut: GetActorContactExpensesHandler;

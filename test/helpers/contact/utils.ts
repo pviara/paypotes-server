@@ -6,13 +6,13 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseModule } from '@expenses/expense.module';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { Modules } from '@test/helpers/application-runner/model/module';
-import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { Modules } from '@test/helpers/application/model/module';
+import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Relationship } from '@contacts/persistence/relationship';
 
 export const contactSpecModules: Modules = [ContactModule, ExpenseModule];
-export const contactSpecProviders: OverridingProviders = [
+export const contactSpecProviders: Providers = [
     {
         provide: contactRepositoryToken,
         useClass: ContactInMemoryTestingRepository,

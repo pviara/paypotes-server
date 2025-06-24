@@ -14,34 +14,34 @@ import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
 import { convertCents, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
     generateDefaultUserPairExpenses,
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
 import { HttpStatus } from '@nestjs/common';
-import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { initApplicationWith } from '@test/helpers/application/utils';
 import { mapUserFrom } from '@test/helpers/user/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { User } from '@users/domain/user';
 import * as request from 'supertest';
-import { EXPENSES_API_ROUTE } from '@app/expenses/presentation/expense.controller';
 
 describe('ContactController', () => {
-    const runner = initRunnerWith(modules, providers);
+    const application = initApplicationWith(modules, providers);
 
     let contactRepo: ContactInMemoryTestingRepository;
     let expenseRepo: ExpenseInMemoryTestingRepository;
     let httpServer: App;
 
     beforeEach(async () => {
-        await runner.bootstrap();
+        await application.bootstrap();
 
-        contactRepo = runner.getRepository('contact');
-        expenseRepo = runner.getRepository('expense');
-        httpServer = runner.getHttpServer();
+        contactRepo = application.getRepository('contact');
+        expenseRepo = application.getRepository('expense');
+        httpServer = application.getHttpServer();
     });
 
-    afterEach(shutdown(runner));
+    afterEach(shutdown(application));
 
     describe('GET /contacts', () => {
         describe('actor has no contact', () => {
@@ -272,7 +272,10 @@ describe('ContactController', () => {
                 );
 
                 const balance = computeActorDummyContactBalance();
-                const expected = `${convertCents(balance)}`.replace('.', ',');
+                const expected = `${convertCents(balance).toFixed(2)}`.replace(
+                    '.',
+                    ',',
+                );
 
                 expect(response.body.balance).toBe(expected);
             });

@@ -22,13 +22,13 @@ import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testin
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
-import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
-    const runner = initRunnerWith(modules, providers);
+    const application = initApplicationWith(modules, providers);
 
     let groupRepo: GroupInMemoryTestingRepository;
     let expenseRepo: ExpenseInMemoryTestingRepository;
@@ -36,15 +36,15 @@ describe('GroupController', () => {
     let httpServer: App;
 
     beforeEach(async () => {
-        await runner.bootstrap();
+        await application.bootstrap();
 
-        groupRepo = runner.getRepository('group');
-        expenseRepo = runner.getRepository('expense');
-        userRepo = runner.getRepository('user');
-        httpServer = runner.getHttpServer();
+        groupRepo = application.getRepository('group');
+        expenseRepo = application.getRepository('expense');
+        userRepo = application.getRepository('user');
+        httpServer = application.getHttpServer();
     });
 
-    afterEach(shutdown(runner));
+    afterEach(shutdown(application));
 
     describe('GET /groups', () => {
         describe('actor has no groups', () => {

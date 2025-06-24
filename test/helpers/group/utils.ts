@@ -6,14 +6,14 @@ import { GroupModule } from '@groups/group.module';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { Member } from '@groups/domain/member';
-import { Modules } from '@test/helpers/application-runner/model/module';
-import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { Modules } from '@test/helpers/application/model/module';
+import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const groupSpecModules: Modules = [GroupModule];
-export const groupSpecProviders: OverridingProviders = [
+export const groupSpecProviders: Providers = [
     {
         provide: userRepositoryToken,
         useClass: UserInMemoryTestingRepository,

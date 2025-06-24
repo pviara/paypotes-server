@@ -1,21 +1,16 @@
 import {
     ApplicationNotBootstrappedError,
-    ApplicationRunner,
-} from '@test/helpers/application-runner/application-runner';
+    Application,
+    Providers,
+} from '@test/helpers/application/application';
 import { Channel } from 'amqplib';
 import { ConfigServiceStub } from '@test/doubles/config-service.stub';
-import {
-    OverridingClassProvider,
-    OverridingProvider,
-    OverridingProviders,
-    OverridingValueProvider,
-} from '@test/helpers/application-runner/model/overriding-provider';
-import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { Type } from '@nestjs/common';
+import { ClassProvider, Provider, Type, ValueProvider } from '@nestjs/common';
 import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
+import { Test, TestingModuleBuilder } from '@nestjs/testing';
 
-describe('ApplicationRunner', () => {
-    let sut: ApplicationRunner;
+describe('Application', () => {
+    let sut: Application;
 
     let modules: Type<DummyModule>[];
 
@@ -36,7 +31,7 @@ describe('ApplicationRunner', () => {
         mockNestTestingTools();
 
         modules = [DummyModule];
-        sut = new ApplicationRunner({ modules });
+        sut = new Application({ modules });
     });
 
     describe('bootstrap', () => {
@@ -71,13 +66,13 @@ describe('ApplicationRunner', () => {
 
         describe('overriding providers have been given', () => {
             it('should override given provider using a class', async () => {
-                const overridingProvider: OverridingProvider = {
+                const overridingProvider: Provider = {
                     provide: 'dummy_token',
-                    useClass: DummyProviderClass,
+                    useClass: class DummyProviderClass {},
                 };
-                const providers: OverridingProviders = [overridingProvider];
+                const providers: Providers = [overridingProvider];
 
-                sut = new ApplicationRunner({ modules, providers });
+                sut = new Application({ modules, providers });
                 await sut.bootstrap();
 
                 expectClassProviderToHaveBeenOverriddenUsing(
@@ -86,13 +81,13 @@ describe('ApplicationRunner', () => {
             });
 
             it('should override given provider using a value', async () => {
-                const overridingProvider: OverridingProvider = {
+                const overridingProvider: Provider = {
                     provide: 'dummy_token',
                     useValue: { prop: 'value' },
                 };
-                const providers: OverridingProviders = [overridingProvider];
+                const providers: Providers = [overridingProvider];
 
-                sut = new ApplicationRunner({ modules, providers });
+                sut = new Application({ modules, providers });
                 await sut.bootstrap();
 
                 expectValueProviderToHaveBeenOverriddenUsing(
@@ -100,17 +95,15 @@ describe('ApplicationRunner', () => {
                 );
             });
 
-            class DummyProviderClass {}
-
             function expectClassProviderToHaveBeenOverriddenUsing(
-                provider: OverridingClassProvider,
+                provider: ClassProvider,
             ): void {
                 expect(overrideProvider).toHaveBeenCalledWith(provider.provide);
                 expect(useClass).toHaveBeenCalledWith(provider.useClass);
             }
 
             function expectValueProviderToHaveBeenOverriddenUsing(
-                provider: OverridingValueProvider,
+                provider: ValueProvider,
             ): void {
                 expect(overrideProvider).toHaveBeenCalledWith(provider.provide);
                 expect(useValue).toHaveBeenCalledWith(provider.useValue);
@@ -125,7 +118,7 @@ describe('ApplicationRunner', () => {
             );
         });
 
-        it('should retrieve runner application', async () => {
+        it('should retrieve application', async () => {
             await sut.bootstrap();
 
             const application = sut.getApplication();

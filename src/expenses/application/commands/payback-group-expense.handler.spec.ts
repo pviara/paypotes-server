@@ -9,8 +9,8 @@ import {
     generateDefaultUserRandomGroup,
     generateRandomMember,
 } from '@test/helpers/group/utils';
-import { GroupExpense, GroupPayment } from '@app/expenses/domain/group-expense';
-import { Member } from '@app/groups/domain/member';
+import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import { Member } from '@groups/domain/member';
 import {
     PaybackGroupExpenseCommand,
     PaybackGroupExpenseHandler,

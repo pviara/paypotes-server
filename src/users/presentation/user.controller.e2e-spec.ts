@@ -1,6 +1,7 @@
 import { App } from 'supertest/types';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { HttpStatus } from '@nestjs/common';
-import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { initApplicationWith } from '@test/helpers/application/utils';
 import { raw, shutdown } from '@test/helpers/utils';
 import { UserDTO } from '@users/presentation/dto/user.dto';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
@@ -11,21 +12,20 @@ import {
 } from '@test/helpers/user/utils';
 import { USERS_API_ROUTE } from '@users/presentation/user.controller';
 import * as request from 'supertest';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 describe('UserController', () => {
-    const runner = initRunnerWith(modules, providers);
+    const application = initApplicationWith(modules, providers);
 
     let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
 
     beforeEach(async () => {
-        await runner.bootstrap();
-        userRepo = runner.getRepository('user');
-        httpServer = runner.getHttpServer();
+        await application.bootstrap();
+        userRepo = application.getRepository('user');
+        httpServer = application.getHttpServer();
     });
 
-    afterEach(shutdown(runner));
+    afterEach(shutdown(application));
 
     describe('GET /user/:name', () => {
         const invalidStrings = ['580940', 'test3104', '@', '___'];

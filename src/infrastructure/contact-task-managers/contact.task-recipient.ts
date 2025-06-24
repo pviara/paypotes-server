@@ -4,7 +4,7 @@ import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-ha
 import { contactTaskHandlerToken } from '@infra/contact-task-handlers/contact.task-handler.provider';
 import { Inject, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageContent } from '@infra/contact-task-managers/message-content';
-import { Nullable } from '@test/helpers/application-runner/model/nullable';
+import { Nullable } from '@test/helpers/application/model/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 

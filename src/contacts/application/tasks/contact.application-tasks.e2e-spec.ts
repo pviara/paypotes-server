@@ -9,7 +9,7 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { generateRandomUser } from '@test/helpers/user/utils';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
-import { initMessagingRunnerWith } from '@test/helpers/application-runner/utils';
+import { initMessagingApplicationWith } from '@test/helpers/application/utils';
 import { mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { setTimeout } from 'node:timers/promises';
 import { User } from '@users/domain/user';
@@ -17,7 +17,7 @@ import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-r
 import * as request from 'supertest';
 
 describe('contact application tasks', () => {
-    const runner = initMessagingRunnerWith(modules, providers);
+    const application = initMessagingApplicationWith(modules, providers);
 
     let contactRepo: ContactRepository;
     let userRepo: UserInMemoryTestingRepository;
@@ -36,17 +36,17 @@ describe('contact application tasks', () => {
     const userIds = mapIdsFrom(dummyGroupMembers);
 
     beforeEach(async () => {
-        await runner.bootstrap();
+        await application.bootstrap();
 
-        contactRepo = runner.getRepository('contact');
-        userRepo = runner.getRepository('user');
-        httpServer = runner.getHttpServer();
+        contactRepo = application.getRepository('contact');
+        userRepo = application.getRepository('user');
+        httpServer = application.getHttpServer();
 
         await userRepo.empty();
         await userRepo.insert(...dummyGroupMembers);
     });
 
-    afterEach(shutdown(runner));
+    afterEach(shutdown(application));
 
     it('should add a relationship between pair expense users', async () => {
         const dummyUser = generateRandomUser();

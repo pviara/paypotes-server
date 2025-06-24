@@ -31,7 +31,7 @@ import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
 import { PaybackGroupExpenseCommand } from '@expenses/application/commands/payback-group-expense.handler';
 import { PaybackGroupExpenseDTO } from '@expenses/presentation/dto/payback-group-expense.dto';
-import { PaybackPairExpenseCommand } from '@app/expenses/application/commands/payback-pair-expense.handler';
+import { PaybackPairExpenseCommand } from '@expenses/application/commands/payback-pair-expense.handler';
 import { Search } from '@app/shared/decorators/search.query-decorator';
 import { User } from '@users/domain/user';
 

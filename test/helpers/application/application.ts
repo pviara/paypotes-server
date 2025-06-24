@@ -2,29 +2,27 @@ import { App } from 'supertest/types';
 import { ConfigService } from '@nestjs/config';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import {
-    isClassProvider,
-    isValueProvider,
-    OverridingProvider,
-    OverridingProviders,
-} from '@test/helpers/application-runner/model/overriding-provider';
-import { Modules } from '@test/helpers/application-runner/model/module';
-import { Nullable } from '@test/helpers/application-runner/model/nullable';
 import { ErrorFilter } from '@app/error-filter';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import {
+    isClassProvider,
+    isValueProvider,
+} from '@test/helpers/application/utils';
+import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
+import { Modules } from '@test/helpers/application/model/module';
+import { Nullable } from '@test/helpers/application/model/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
-type ApplicationRunnerResources = {
+type ApplicationResources = {
     modules: Modules;
-    providers?: OverridingProviders;
+    providers?: Providers;
 };
 
 type RepositoryType = 'contact' | 'expense' | 'group' | 'user';
@@ -40,10 +38,12 @@ type Repository = {
               : never;
 };
 
-export class ApplicationRunner {
+export type Providers = Array<Provider>;
+
+export class Application {
     private application: Nullable<INestApplication> = null;
 
-    constructor(private resources: ApplicationRunnerResources) {}
+    constructor(private resources: ApplicationResources) {}
 
     async bootstrap(): Promise<INestApplication> {
         const moduleBuilder = this.createModuleBuilderUsingProviders();
@@ -102,8 +102,8 @@ export class ApplicationRunner {
 
     private overrideProviderIn(
         moduleBuilder: TestingModuleBuilder,
-    ): (provider: OverridingProvider) => void {
-        return (provider: OverridingProvider) => {
+    ): (provider: Provider) => void {
+        return (provider: Provider) => {
             if (isClassProvider(provider)) {
                 moduleBuilder
                     .overrideProvider(provider.provide)
