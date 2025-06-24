@@ -10,7 +10,7 @@ import { groupRepositoryToken } from '@groups/persistence/group.repository-provi
 import { Member } from '@groups/domain/member';
 import { Expense, Metadata } from '@expenses/domain/expense';
 import { Modules } from '@test/helpers/application-runner/model/module';
-import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { Providers } from '@test/helpers/application-runner/model/overriding-provider';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';
@@ -19,7 +19,7 @@ import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-r
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
-export const expenseSpecProviders: OverridingProviders = [
+export const expenseSpecProviders: Providers = [
     {
         provide: expenseRepositoryToken,
         useClass: ExpenseInMemoryTestingRepository,

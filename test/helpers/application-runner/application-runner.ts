@@ -2,12 +2,10 @@ import { App } from 'supertest/types';
 import { ConfigService } from '@nestjs/config';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
 import {
     isClassProvider,
     isValueProvider,
-    OverridingProvider,
-    OverridingProviders,
 } from '@test/helpers/application-runner/model/overriding-provider';
 import { Modules } from '@test/helpers/application-runner/model/module';
 import { Nullable } from '@test/helpers/application-runner/model/nullable';
@@ -24,7 +22,7 @@ import { userRepositoryToken } from '@users/persistence/user.repository-provider
 
 type ApplicationRunnerResources = {
     modules: Modules;
-    providers?: OverridingProviders;
+    providers?: Providers;
 };
 
 type RepositoryType = 'contact' | 'expense' | 'group' | 'user';
@@ -39,6 +37,8 @@ type Repository = {
               ? UserInMemoryTestingRepository
               : never;
 };
+
+export type Providers = Array<Provider>;
 
 export class ApplicationRunner {
     private application: Nullable<INestApplication> = null;
@@ -102,8 +102,8 @@ export class ApplicationRunner {
 
     private overrideProviderIn(
         moduleBuilder: TestingModuleBuilder,
-    ): (provider: OverridingProvider) => void {
-        return (provider: OverridingProvider) => {
+    ): (provider: Provider) => void {
+        return (provider: Provider) => {
             if (isClassProvider(provider)) {
                 moduleBuilder
                     .overrideProvider(provider.provide)

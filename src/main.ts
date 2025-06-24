@@ -1,5 +1,6 @@
 import { AppModule } from '@app/app.module';
 import { ConfigService } from '@nestjs/config';
+import { ConsoleLogger } from '@nestjs/common';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
@@ -11,7 +12,7 @@ import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 async function bootstrap(): Promise<void> {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, { logger: new ConsoleLogger({ colors: false }) });
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalFilters(new ErrorFilter());
     app.enableShutdownHooks();

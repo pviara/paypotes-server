@@ -1,30 +1,9 @@
-import { InjectionToken, Type } from '@nestjs/common';
+import { ClassProvider, Provider, ValueProvider } from '@nestjs/common';
 
-type OverriddenToken = {
-    provide: InjectionToken;
-};
-
-export type OverridingClassProvider = OverriddenToken & {
-    useClass: Type;
-};
-
-export type OverridingValueProvider = OverriddenToken & {
-    useValue: Record<string, any>;
-};
-
-export type OverridingProvider =
-    | OverridingClassProvider
-    | OverridingValueProvider;
-export type OverridingProviders = OverridingProvider[];
-
-export function isClassProvider(
-    provider: OverridingProvider,
-): provider is OverridingClassProvider {
+export function isClassProvider(provider: Provider): provider is ClassProvider {
     return provider.hasOwnProperty('useClass');
 }
 
-export function isValueProvider(
-    provider: OverridingProvider,
-): provider is OverridingValueProvider {
+export function isValueProvider(provider: Provider): provider is ValueProvider {
     return provider.hasOwnProperty('useValue');
 }

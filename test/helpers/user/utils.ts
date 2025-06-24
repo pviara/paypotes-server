@@ -1,6 +1,6 @@
 import { Contact } from '@contacts/domain/contact';
 import { Modules } from '@test/helpers/application-runner/model/module';
-import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { Providers } from '@test/helpers/application-runner/model/overriding-provider';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from './user.testing-repository';
@@ -8,7 +8,7 @@ import { UserModule } from '@users/user.module';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const userSpecModules: Modules = [UserModule];
-export const userSpecProviders: OverridingProviders = [
+export const userSpecProviders: Providers = [
     {
         provide: userRepositoryToken,
         useClass: UserInMemoryTestingRepository,

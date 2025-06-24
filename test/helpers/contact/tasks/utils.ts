@@ -4,7 +4,7 @@ import { ExpenseModule } from '@expenses/expense.module';
 import { GroupModule } from '@groups/group.module';
 import { InfrastructureModule } from '@infra/infrastructure.module';
 import { Modules } from '@test/helpers/application-runner/model/module';
-import { OverridingProviders } from '@test/helpers/application-runner/model/overriding-provider';
+import { Providers } from '@test/helpers/application-runner/model/overriding-provider';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { UserModule } from '@users/user.module';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
@@ -17,7 +17,7 @@ export const contactTasksSpecModules: Modules = [
     InfrastructureModule,
     UserModule,
 ];
-export const contactTasksSpecProviders: OverridingProviders = [
+export const contactTasksSpecProviders: Providers = [
     {
         provide: userRepositoryToken,
         useClass: UserInMemoryTestingRepository,
