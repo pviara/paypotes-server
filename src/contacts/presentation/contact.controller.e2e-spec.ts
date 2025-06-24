@@ -19,7 +19,7 @@ import {
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
 import { HttpStatus } from '@nestjs/common';
-import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { initApplicationWith } from '@test/helpers/application/utils';
 import { mapUserFrom } from '@test/helpers/user/utils';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { User } from '@users/domain/user';
@@ -27,7 +27,7 @@ import * as request from 'supertest';
 import { EXPENSES_API_ROUTE } from '@app/expenses/presentation/expense.controller';
 
 describe('ContactController', () => {
-    const runner = initRunnerWith(modules, providers);
+    const runner = initApplicationWith(modules, providers);
 
     let contactRepo: ContactInMemoryTestingRepository;
     let expenseRepo: ExpenseInMemoryTestingRepository;

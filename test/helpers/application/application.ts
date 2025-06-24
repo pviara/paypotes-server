@@ -6,9 +6,9 @@ import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
 import {
     isClassProvider,
     isValueProvider,
-} from '@test/helpers/application-runner/model/overriding-provider';
-import { Modules } from '@test/helpers/application-runner/model/module';
-import { Nullable } from '@test/helpers/application-runner/model/nullable';
+} from '@test/helpers/application/model/overriding-provider';
+import { Modules } from '@test/helpers/application/model/module';
+import { Nullable } from '@test/helpers/application/model/nullable';
 import { ErrorFilter } from '@app/error-filter';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
@@ -40,7 +40,7 @@ type Repository = {
 
 export type Providers = Array<Provider>;
 
-export class ApplicationRunner {
+export class Application {
     private application: Nullable<INestApplication> = null;
 
     constructor(private resources: ApplicationRunnerResources) {}

@@ -29,7 +29,7 @@ import {
     generateRandomUsers,
 } from '@test/helpers/user/utils';
 import { HttpStatus } from '@nestjs/common';
-import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
@@ -40,7 +40,7 @@ import * as request from 'supertest';
 import { StakeholderDTO } from './dto/stakeholder.dto';
 
 describe('ExpenseController', () => {
-    const runner = initRunnerWith(modules, providers);
+    const runner = initApplicationWith(modules, providers);
 
     let expenseRepo: ExpenseInMemoryTestingRepository;
     let groupRepo: GroupInMemoryTestingRepository;

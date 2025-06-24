@@ -9,8 +9,8 @@ import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testin
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Member } from '@groups/domain/member';
 import { Expense, Metadata } from '@expenses/domain/expense';
-import { Modules } from '@test/helpers/application-runner/model/module';
-import { Providers } from '@test/helpers/application-runner/model/overriding-provider';
+import { Modules } from '@test/helpers/application/model/module';
+import { Providers } from '@test/helpers/application/application';
 import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder';

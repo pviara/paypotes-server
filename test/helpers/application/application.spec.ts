@@ -1,16 +1,16 @@
 import {
     ApplicationNotBootstrappedError,
-    ApplicationRunner,
+    Application,
     Providers,
-} from '@test/helpers/application-runner/application-runner';
+} from '@test/helpers/application/application';
 import { Channel } from 'amqplib';
 import { ConfigServiceStub } from '@test/doubles/config-service.stub';
 import { ClassProvider, Provider, Type, ValueProvider } from '@nestjs/common';
 import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 
-describe('ApplicationRunner', () => {
-    let sut: ApplicationRunner;
+describe('Application', () => {
+    let sut: Application;
 
     let modules: Type<DummyModule>[];
 
@@ -31,7 +31,7 @@ describe('ApplicationRunner', () => {
         mockNestTestingTools();
 
         modules = [DummyModule];
-        sut = new ApplicationRunner({ modules });
+        sut = new Application({ modules });
     });
 
     describe('bootstrap', () => {
@@ -72,7 +72,7 @@ describe('ApplicationRunner', () => {
                 };
                 const providers: Providers = [overridingProvider];
 
-                sut = new ApplicationRunner({ modules, providers });
+                sut = new Application({ modules, providers });
                 await sut.bootstrap();
 
                 expectClassProviderToHaveBeenOverriddenUsing(
@@ -87,7 +87,7 @@ describe('ApplicationRunner', () => {
                 };
                 const providers: Providers = [overridingProvider];
 
-                sut = new ApplicationRunner({ modules, providers });
+                sut = new Application({ modules, providers });
                 await sut.bootstrap();
 
                 expectValueProviderToHaveBeenOverriddenUsing(
@@ -118,7 +118,7 @@ describe('ApplicationRunner', () => {
             );
         });
 
-        it('should retrieve runner application', async () => {
+        it('should retrieve application', async () => {
             await sut.bootstrap();
 
             const application = sut.getApplication();

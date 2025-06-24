@@ -1,6 +1,6 @@
 import { App } from 'supertest/types';
 import { HttpStatus } from '@nestjs/common';
-import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { initApplicationWith } from '@test/helpers/application/utils';
 import { raw, shutdown } from '@test/helpers/utils';
 import { UserDTO } from '@users/presentation/dto/user.dto';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
@@ -14,7 +14,7 @@ import * as request from 'supertest';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 describe('UserController', () => {
-    const runner = initRunnerWith(modules, providers);
+    const runner = initApplicationWith(modules, providers);
 
     let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;

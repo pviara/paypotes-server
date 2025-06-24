@@ -1,6 +1,6 @@
 import { Contact } from '@contacts/domain/contact';
-import { Modules } from '@test/helpers/application-runner/model/module';
-import { Providers } from '@test/helpers/application-runner/model/overriding-provider';
+import { Modules } from '@test/helpers/application/model/module';
+import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from './user.testing-repository';

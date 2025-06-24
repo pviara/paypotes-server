@@ -22,13 +22,13 @@ import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testin
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
-import { initRunnerWith } from '@test/helpers/application-runner/utils';
+import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
-    const runner = initRunnerWith(modules, providers);
+    const runner = initApplicationWith(modules, providers);
 
     let groupRepo: GroupInMemoryTestingRepository;
     let expenseRepo: ExpenseInMemoryTestingRepository;

@@ -1,16 +1,15 @@
-import { ApplicationRunner } from '@test/helpers/application-runner/application-runner';
+import { Application, Providers } from '@test/helpers/application/application';
 import { AuthFakeModule } from '@test/doubles/auth/auth.fake-module';
 import { InfrastructureModule } from '@infra/infrastructure.module';
-import { Modules } from '@test/helpers/application-runner/model/module';
-import { Providers } from '@test/helpers/application-runner/model/overriding-provider';
+import { Modules } from '@test/helpers/application/model/module';
 import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 
-export const initRunnerWith = (
+export const initApplicationWith = (
     modules: Modules,
     providers: Providers,
-): ApplicationRunner => {
-    return new ApplicationRunner({
+): Application => {
+    return new Application({
         modules: [AuthFakeModule, InfrastructureModule, ...modules],
         providers: [
             ...providers,
@@ -22,11 +21,11 @@ export const initRunnerWith = (
     });
 };
 
-export const initMessagingRunnerWith = (
+export const initMessagingApplicationWith = (
     modules: Modules,
     providers: Providers,
-): ApplicationRunner => {
-    return new ApplicationRunner({
+): Application => {
+    return new Application({
         modules: [AuthFakeModule, InfrastructureModule, ...modules],
         providers,
     });
