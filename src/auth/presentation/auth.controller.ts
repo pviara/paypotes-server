@@ -1,3 +1,4 @@
+import { AuthService } from '@auth/application/auth.service';
 import { ConfigService } from '@nestjs/config';
 import {
     Controller,
@@ -9,22 +10,33 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { GoogleAuthGuard } from '@auth/presentation/guards/google.auth-guard';
-import { Request } from 'express';
+import { JwtAuthGuard } from './guards/jwt.auth-guard';
+import { SignedInRequest } from './model/signed-in-request';
+import { User } from '@app/users/domain/user';
 
 const AUTH_API_ROUTE = 'auth';
 
 @Controller(AUTH_API_ROUTE)
 export class AuthController {
-    constructor(private configService: ConfigService) {}
+    constructor(
+        private authService: AuthService,
+        private configService: ConfigService,
+    ) {}
 
     @UseGuards(GoogleAuthGuard)
     @Redirect()
     @Get('google-redirect')
     async catchGoogleRedirect(
-        @Req() req: Request,
+        @Req() req: SignedInRequest,
     ): Promise<HttpRedirectResponse> {
-        console.log('authenticated user', req['user']);
-        return this.redirectToClientApp('token');
+        const { token } = this.authService.signIn(req.user);
+        return this.redirectToClientApp(token);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get()
+    async getUserFromToken(@Req() req: SignedInRequest): Promise<User> {
+        return req.user;
     }
 
     @UseGuards(GoogleAuthGuard)

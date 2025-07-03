@@ -40,18 +40,22 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
     private async getOrCreateUserFrom(profile: GoogleProfile): Promise<User> {
         const user = await this.userRepository.getByEmail(profile.email);
+        console.log('user found', user);
         if (!user) {
-            const [{ value: avatarUrl }] = profile.photos;
             const userToAdd = new User({
                 id: crypto.randomUUID(),
                 firstname: profile.name.givenName,
                 lastname: profile.name.familyName,
                 email: profile.email,
-                avatarUrl,
+                avatarUrl: this.getAvatarUrlFrom(profile),
             });
             await this.userRepository.create(userToAdd);
             return this.getOrCreateUserFrom(profile);
         }
         return user;
+    }
+
+    private getAvatarUrlFrom(profile: GoogleProfile): string {
+        return profile.photos[0].value;
     }
 }

@@ -1,7 +1,9 @@
 import { AuthController } from '@auth/presentation/auth.controller';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthService } from '@auth/application/auth.service';
+import { ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from '@auth/strategies/google-strategy';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from '@app/auth/strategies/jwt.strategy';
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { UserRepositoryModule } from '@users/persistence/user.repository-module';
@@ -13,7 +15,7 @@ import { UserRepositoryModule } from '@users/persistence/user.repository-module'
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
                 return {
-                    secret: configService.get('JWT_SECRET'),
+                    secret: configService.getOrThrow('JWT_SECRET'),
                     signOptions: { expiresIn: '2 days' },
                 };
             },
@@ -21,6 +23,6 @@ import { UserRepositoryModule } from '@users/persistence/user.repository-module'
         PassportModule,
         UserRepositoryModule,
     ],
-    providers: [GoogleStrategy],
+    providers: [AuthService, GoogleStrategy, JwtStrategy],
 })
 export class AuthModule {}
