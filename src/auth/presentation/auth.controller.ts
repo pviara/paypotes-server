@@ -10,8 +10,8 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { GoogleAuthGuard } from '@auth/presentation/guards/google.auth-guard';
-import { JwtAuthGuard } from './guards/jwt.auth-guard';
-import { SignedInRequest } from './model/signed-in-request';
+import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
+import { SignedInRequest } from '@auth/presentation/model/signed-in-request';
 import { User } from '@app/users/domain/user';
 
 const AUTH_API_ROUTE = 'auth';

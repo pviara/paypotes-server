@@ -7,7 +7,7 @@ export class AuthFakeGuard implements CanActivate {
 
     canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest();
-        request.actor = this.authenticatedUser;
+        request.user = this.authenticatedUser;
         return true;
     }
 

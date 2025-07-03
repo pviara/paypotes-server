@@ -5,7 +5,7 @@ import {
 } from '@users/application/get-user-by-name.handler';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { Users } from '../domain/user';
+import { Users } from '@users/domain/user';
 
 describe('GetUserByNameHandler', () => {
     let sut: GetUserByNameHandler;
