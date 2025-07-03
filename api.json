@@ -1,752 +1,749 @@
 {
-  "name": "💰 Paypot",
-  "version": "1",
-  "items": [
-    {
-      "type": "folder",
-      "name": "contact",
-      "filename": "contact",
-      "items": [
-        {
-          "type": "http",
-          "name": "getActorContacts",
-          "filename": "getActorContacts.bru",
-          "seq": 1,
-          "request": {
-            "url": "{{host}}/contacts/without-balance",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorContactsWithBalance",
-          "filename": "getActorContactsWithBalance.bru",
-          "seq": 3,
-          "request": {
-            "url": "{{host}}/contacts",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorContactWithBalanceById",
-          "filename": "getActorContactWithBalanceById.bru",
-          "seq": 2,
-          "request": {
-            "url": "{{host}}/contacts/{{contactId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "type": "folder",
-      "name": "group",
-      "filename": "group",
-      "items": [
-        {
-          "type": "http",
-          "name": "create",
-          "filename": "create.bru",
-          "seq": 1,
-          "request": {
-            "url": "{{host}}/groups",
-            "method": "POST",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "json",
-              "json": "{\n  \"id\": \"{{groupId}}\",\n  \"name\": \"Vacaciones\",\n  \"emoji\": \"🏖️\",\n  \"userIds\": [\"{{actorId}}\", \"{{contactId}}\", \"b6c614d7-7ac1-4822-b8e1-71c4b71051e1\"]\n}",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorGroups",
-          "filename": "getActorGroups.bru",
-          "seq": 2,
-          "request": {
-            "url": "{{host}}/groups/without-balance",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorGroupsWithBalance",
-          "filename": "getActorGroupsWithBalance.bru",
-          "seq": 4,
-          "request": {
-            "url": "{{host}}/groups",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorGroupWithBalanceById",
-          "filename": "getActorGroupWithBalanceById.bru",
-          "seq": 3,
-          "request": {
-            "url": "{{host}}/groups/{{groupId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "type": "folder",
-      "name": "user",
-      "filename": "user",
-      "items": [
-        {
-          "type": "http",
-          "name": "getByName",
-          "filename": "getByName.bru",
-          "seq": 1,
-          "request": {
-            "url": "{{host}}/users?name=username",
-            "method": "GET",
-            "headers": [],
-            "params": [
-              {
-                "name": "name",
-                "value": "username",
-                "type": "query",
-                "enabled": true
-              }
-            ],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "type": "folder",
-      "name": "expense",
-      "filename": "expense",
-      "items": [
-        {
-          "type": "http",
-          "name": "addPairExpense",
-          "filename": "addPairExpense.bru",
-          "seq": 2,
-          "request": {
-            "url": "{{host}}/expenses/pair",
-            "method": "POST",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "json",
-              "json": "{\n  \"id\": \"{{pairExpenseId}}\",\n  \"label\": \"Domac\",\n  \"emoji\": \"🍟\",\n  \"balance\": \"32,50\",\n  \"isCurrentPayer\": false,\n  \"userId\": \"{{contactId}}\"\n}",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "addGroupExpense",
-          "filename": "addGroupExpense.bru",
-          "seq": 1,
-          "request": {
-            "url": "{{host}}/expenses/group",
-            "method": "POST",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "json",
-              "json": "{\n  \"id\": \"{{groupExpenseId}}\",\n  \"label\": \"Burgers\",\n  \"emoji\": \"🍔\",\n  \"balance\": \"10,00\",\n  \"groupId\": \"{{groupId}}\",\n  \"memberId\": \"{{contactId}}\"\n}",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "computeActorBalance",
-          "filename": "computeActorBalance.bru",
-          "seq": 3,
-          "request": {
-            "url": "{{host}}/expenses/balance",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorContactExpenseById",
-          "filename": "getActorContactExpenseById.bru",
-          "seq": 4,
-          "request": {
-            "url": "{{host}}/expenses/contact/{{contactId}}/expense/{{pairExpenseId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorContactExpenses",
-          "filename": "getActorContactExpenses.bru",
-          "seq": 5,
-          "request": {
-            "url": "{{host}}/expenses/contact/{{contactId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorExpenseById",
-          "filename": "getActorExpenseById.bru",
-          "seq": 6,
-          "request": {
-            "url": "{{host}}/expenses/{{pairExpenseId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorExpenses",
-          "filename": "getActorExpenses.bru",
-          "seq": 7,
-          "request": {
-            "url": "{{host}}/expenses",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorGroupExpenseById",
-          "filename": "getActorGroupExpenseById.bru",
-          "seq": 8,
-          "request": {
-            "url": "{{host}}/expenses/group/{{groupId}}/expense/{{groupExpenseId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "getActorGroupExpenses",
-          "filename": "getActorGroupExpenses.bru",
-          "seq": 9,
-          "request": {
-            "url": "{{host}}/expenses/group/{{groupId}}",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "paybackGroupExpense",
-          "filename": "paybackGroupExpense.bru",
-          "seq": 10,
-          "request": {
-            "url": "{{host}}/expenses/group/{{groupId}}/{{groupExpenseId}}",
-            "method": "PUT",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "json",
-              "json": "{\n  \"debtorIds\": []\n}",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        },
-        {
-          "type": "http",
-          "name": "paybackPairExpense",
-          "filename": "paybackPairExpense.bru",
-          "seq": 11,
-          "request": {
-            "url": "{{host}}/expenses/pair/{{contactId}}/{{pairExpenseId}}",
-            "method": "PUT",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "type": "folder",
-      "name": "auth",
-      "filename": "auth",
-      "root": {
-        "meta": {
-          "name": "auth"
-        }
-      },
-      "items": [
-        {
-          "type": "http",
-          "name": "getUserFromToken",
-          "filename": "getUserFromToken.bru",
-          "seq": 1,
-          "request": {
-            "url": "{{host}}/auth",
-            "method": "GET",
-            "headers": [],
-            "params": [],
-            "body": {
-              "mode": "none",
-              "formUrlEncoded": [],
-              "multipartForm": [],
-              "file": []
-            },
-            "script": {},
-            "vars": {},
-            "assertions": [],
-            "tests": "",
-            "docs": "",
-            "auth": {
-              "mode": "bearer",
-              "bearer": {
-                "token": "{{bearer}}"
-              }
-            }
-          }
-        }
-      ]
-    }
-  ],
-  "activeEnvironmentUid": "pAnIlR6misTiiA77XLNH4",
-  "environments": [
-    {
-      "variables": [
-        {
-          "name": "host",
-          "value": "http://localhost:5001",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "contactId",
-          "value": "6852eafd-5179-46f2-9425-b4938b9eb3c0",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "groupId",
-          "value": "c8761390-f0fb-4ff8-bc85-4d9f3f93ca40",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "actorId",
-          "value": "da22aa36-48a8-4961-9268-36f8c8b2108d",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "pairExpenseId",
-          "value": "d3343dfd-e94c-4cbb-9577-454a271770f8",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "groupExpenseId",
-          "value": "6a541ccf-ab1c-48a5-865e-9353ed80e4fe",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "bearer",
-          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRhMjJhYTM2LTQ4YTgtNDk2MS05MjY4LTM2ZjhjOGIyMTA4ZCIsImVtYWlsIjoicGllcnJlLnZpYXJhQG91dGxvb2suY29tIiwiaWF0IjoxNzUxNTc5OTc4LCJleHAiOjE3NTE3NTI3Nzh9.yRK46NFU6Sx4y6TSIq9Pa9JKPazzA3bjR09zS16b1C8",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        }
-      ],
-      "name": "localhost"
-    },
-    {
-      "variables": [
-        {
-          "name": "host",
-          "value": "https://paypot-api.pviara.dev",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "contactId",
-          "value": "6852eafd-5179-46f2-9425-b4938b9eb3c0",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "groupId",
-          "value": "c8761390-f0fb-4ff8-bc85-4d9f3f93ca40",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "actorId",
-          "value": "b714106e-7691-49f9-94c9-86eaea845642",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "pairExpenseId",
-          "value": "d3343dfd-e94c-4cbb-9577-454a271770f8",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        },
-        {
-          "name": "groupExpenseId",
-          "value": "6a541ccf-ab1c-48a5-865e-9353ed80e4fe",
-          "enabled": true,
-          "secret": false,
-          "type": "text"
-        }
-      ],
-      "name": "staging"
-    }
-  ],
-  "brunoConfig": {
-    "version": "1",
     "name": "💰 Paypot",
-    "type": "collection",
-    "ignore": [
-      "node_modules",
-      ".git"
+    "version": "1",
+    "items": [
+        {
+            "type": "folder",
+            "name": "contact",
+            "filename": "contact",
+            "items": [
+                {
+                    "type": "http",
+                    "name": "getActorContacts",
+                    "filename": "getActorContacts.bru",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/contacts/without-balance",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorContactsWithBalance",
+                    "filename": "getActorContactsWithBalance.bru",
+                    "seq": 3,
+                    "request": {
+                        "url": "{{host}}/contacts",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorContactWithBalanceById",
+                    "filename": "getActorContactWithBalanceById.bru",
+                    "seq": 2,
+                    "request": {
+                        "url": "{{host}}/contacts/{{contactId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "auth",
+            "filename": "auth",
+            "root": {
+                "meta": {
+                    "name": "auth"
+                }
+            },
+            "items": [
+                {
+                    "type": "http",
+                    "name": "getUserFromToken",
+                    "filename": "getUserFromToken.bru",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/auth",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "expense",
+            "filename": "expense",
+            "items": [
+                {
+                    "type": "http",
+                    "name": "addGroupExpense",
+                    "filename": "addGroupExpense.bru",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/expenses/group",
+                        "method": "POST",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "json",
+                            "json": "{\n  \"id\": \"{{groupExpenseId}}\",\n  \"label\": \"Burgers\",\n  \"emoji\": \"🍔\",\n  \"balance\": \"10,00\",\n  \"groupId\": \"{{groupId}}\",\n  \"memberId\": \"{{contactId}}\"\n}",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "addPairExpense",
+                    "filename": "addPairExpense.bru",
+                    "seq": 2,
+                    "request": {
+                        "url": "{{host}}/expenses/pair",
+                        "method": "POST",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "json",
+                            "json": "{\n  \"id\": \"{{pairExpenseId}}\",\n  \"label\": \"Domac\",\n  \"emoji\": \"🍟\",\n  \"balance\": \"32,50\",\n  \"isCurrentPayer\": false,\n  \"userId\": \"{{contactId}}\"\n}",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "computeActorBalance",
+                    "filename": "computeActorBalance.bru",
+                    "seq": 3,
+                    "request": {
+                        "url": "{{host}}/expenses/balance",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorContactExpenseById",
+                    "filename": "getActorContactExpenseById.bru",
+                    "seq": 4,
+                    "request": {
+                        "url": "{{host}}/expenses/contact/{{contactId}}/expense/{{pairExpenseId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorContactExpenses",
+                    "filename": "getActorContactExpenses.bru",
+                    "seq": 5,
+                    "request": {
+                        "url": "{{host}}/expenses/contact/{{contactId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorExpenseById",
+                    "filename": "getActorExpenseById.bru",
+                    "seq": 6,
+                    "request": {
+                        "url": "{{host}}/expenses/{{pairExpenseId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorExpenses",
+                    "filename": "getActorExpenses.bru",
+                    "seq": 7,
+                    "request": {
+                        "url": "{{host}}/expenses",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroupExpenseById",
+                    "filename": "getActorGroupExpenseById.bru",
+                    "seq": 8,
+                    "request": {
+                        "url": "{{host}}/expenses/group/{{groupId}}/expense/{{groupExpenseId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroupExpenses",
+                    "filename": "getActorGroupExpenses.bru",
+                    "seq": 9,
+                    "request": {
+                        "url": "{{host}}/expenses/group/{{groupId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "paybackGroupExpense",
+                    "filename": "paybackGroupExpense.bru",
+                    "seq": 10,
+                    "request": {
+                        "url": "{{host}}/expenses/group/{{groupId}}/{{groupExpenseId}}",
+                        "method": "PUT",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "json",
+                            "json": "{\n  \"debtorIds\": []\n}",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "paybackPairExpense",
+                    "filename": "paybackPairExpense.bru",
+                    "seq": 11,
+                    "request": {
+                        "url": "{{host}}/expenses/pair/{{contactId}}/{{pairExpenseId}}",
+                        "method": "PUT",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "group",
+            "filename": "group",
+            "items": [
+                {
+                    "type": "http",
+                    "name": "create",
+                    "filename": "create.bru",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/groups",
+                        "method": "POST",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "json",
+                            "json": "{\n  \"id\": \"{{groupId}}\",\n  \"name\": \"Vacaciones\",\n  \"emoji\": \"🏖️\",\n  \"userIds\": [\"{{actorId}}\", \"{{contactId}}\", \"b6c614d7-7ac1-4822-b8e1-71c4b71051e1\"]\n}",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroups",
+                    "filename": "getActorGroups.bru",
+                    "seq": 2,
+                    "request": {
+                        "url": "{{host}}/groups/without-balance",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroupsWithBalance",
+                    "filename": "getActorGroupsWithBalance.bru",
+                    "seq": 4,
+                    "request": {
+                        "url": "{{host}}/groups",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "http",
+                    "name": "getActorGroupWithBalanceById",
+                    "filename": "getActorGroupWithBalanceById.bru",
+                    "seq": 3,
+                    "request": {
+                        "url": "{{host}}/groups/{{groupId}}",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "user",
+            "filename": "user",
+            "items": [
+                {
+                    "type": "http",
+                    "name": "getByName",
+                    "filename": "getByName.bru",
+                    "seq": 1,
+                    "request": {
+                        "url": "{{host}}/users?name=username",
+                        "method": "GET",
+                        "headers": [],
+                        "params": [
+                            {
+                                "name": "name",
+                                "value": "username",
+                                "type": "query",
+                                "enabled": true
+                            }
+                        ],
+                        "body": {
+                            "mode": "none",
+                            "formUrlEncoded": [],
+                            "multipartForm": [],
+                            "file": []
+                        },
+                        "script": {},
+                        "vars": {},
+                        "assertions": [],
+                        "tests": "",
+                        "docs": "",
+                        "auth": {
+                            "mode": "bearer",
+                            "bearer": {
+                                "token": "{{bearer}}"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
     ],
-    "size": 0.0032548904418945312,
-    "filesCount": 19
-  }
+    "activeEnvironmentUid": "JvwpXdDOFXvAVFSuuNyNj",
+    "environments": [
+        {
+            "variables": [
+                {
+                    "name": "host",
+                    "value": "http://localhost:5001",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "contactId",
+                    "value": "6852eafd-5179-46f2-9425-b4938b9eb3c0",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "groupId",
+                    "value": "c8761390-f0fb-4ff8-bc85-4d9f3f93ca40",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "actorId",
+                    "value": "b714106e-7691-49f9-94c9-86eaea845642",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "pairExpenseId",
+                    "value": "d3343dfd-e94c-4cbb-9577-454a271770f8",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "groupExpenseId",
+                    "value": "6a541ccf-ab1c-48a5-865e-9353ed80e4fe",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "bearer",
+                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg0Y2VmZmUxLTMwMjEtNDZkYS05ZTc3LTIxZGY1MDgxMjM1NiIsImVtYWlsIjoicGllcnJlLnZpYXJhQG91dGxvb2suY29tIiwiaWF0IjoxNzUxNTgwNDQxLCJleHAiOjE3NTE3NTMyNDF9.z7css4jpIJsXkvRO1MJQPi7aQO10pA5KeKfqikcwgyY",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                }
+            ],
+            "name": "localhost"
+        },
+        {
+            "variables": [
+                {
+                    "name": "host",
+                    "value": "https://paypot-api.pviara.dev",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "contactId",
+                    "value": "6852eafd-5179-46f2-9425-b4938b9eb3c0",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "groupId",
+                    "value": "c8761390-f0fb-4ff8-bc85-4d9f3f93ca40",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "actorId",
+                    "value": "b714106e-7691-49f9-94c9-86eaea845642",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "pairExpenseId",
+                    "value": "d3343dfd-e94c-4cbb-9577-454a271770f8",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                },
+                {
+                    "name": "groupExpenseId",
+                    "value": "6a541ccf-ab1c-48a5-865e-9353ed80e4fe",
+                    "enabled": true,
+                    "secret": false,
+                    "type": "text"
+                }
+            ],
+            "name": "staging"
+        }
+    ],
+    "brunoConfig": {
+        "version": "1",
+        "name": "💰 Paypot",
+        "type": "collection",
+        "ignore": ["node_modules", ".git"],
+        "size": 0.004733085632324219,
+        "filesCount": 24
+    }
 }
