@@ -22,9 +22,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         private userRepository: UserRepository,
     ) {
         super({
-            clientID: configService.get('OAUTH_CLIENT', ''),
-            clientSecret: configService.get('OAUTH_SECRET', ''),
-            callbackURL: configService.get('OAUTH_REDIRECT_URL', ''),
+            clientID: configService.getOrThrow('OAUTH_CLIENT'),
+            clientSecret: configService.getOrThrow('OAUTH_SECRET'),
+            callbackURL: configService.getOrThrow('OAUTH_REDIRECT_URL'),
             scope: ['email', 'profile'],
         });
     }
@@ -56,7 +56,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     }
 
     private getAppLocalUserId(): Nullable<string> {
-        return this.configService.get('APP_ENVIRONMENT') === 'local'
+        return this.configService.getOrThrow('APP_ENVIRONMENT') === 'local'
             ? 'b714106e-7691-49f9-94c9-86eaea845642'
             : null;
     }

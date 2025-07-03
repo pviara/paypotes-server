@@ -44,7 +44,7 @@ export class AuthController {
     async signInWithGoogle(): Promise<void> {}
 
     private redirectToClientApp(token: string): HttpRedirectResponse {
-        const redirectionUrl = this.configService.get('ALLOWED_ORIGIN');
+        const redirectionUrl = this.configService.getOrThrow('ALLOWED_ORIGIN');
 
         return {
             url: `${redirectionUrl}?token=${token}`,

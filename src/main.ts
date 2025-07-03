@@ -20,7 +20,7 @@ async function bootstrap(): Promise<void> {
     await createSampleUsersInLocalMode(app);
 
     const configService = app.get(ConfigService);
-    const port = configService.get('APP_PORT');
+    const port = configService.getOrThrow('APP_PORT');
     await app.listen(port, logListeningOn(port));
 }
 bootstrap();
@@ -29,7 +29,7 @@ async function createSampleUsersInLocalMode(
     app: INestApplication,
 ): Promise<void> {
     const configService = app.get(ConfigService);
-    const environment = configService.get('APP_ENVIRONMENT');
+    const environment = configService.getOrThrow('APP_ENVIRONMENT');
 
     if (environment === 'local') {
         const users = [

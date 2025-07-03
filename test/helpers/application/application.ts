@@ -143,7 +143,7 @@ export class Application {
                     rabbitMQServiceToken,
                 );
 
-            const queue = configService.get('CONTACT_TASKS_QUEUE', '');
+            const queue = configService.getOrThrow('CONTACT_TASKS_QUEUE');
             await rabbitmqService.getConsumer().deleteQueue(queue);
         } catch (error: unknown) {}
     }
