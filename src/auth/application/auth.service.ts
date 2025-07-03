@@ -9,7 +9,10 @@ export class AuthService {
 
     signIn(user: User): SignedInUser {
         return {
-            token: this.jwtService.sign({ email: user.getEmail() }),
+            token: this.jwtService.sign({
+                id: user.getId(),
+                email: user.getEmail(),
+            }),
             user,
         };
     }
