@@ -9,6 +9,7 @@ import { userRepositoryToken } from '@users/persistence/user.repository-provider
 type GoogleProfile = {
     email: string;
     name: { givenName: string; familyName: string };
+    photos: Array<{ value: string }>;
 };
 
 @Injectable()
@@ -40,12 +41,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     private async getOrCreateUserFrom(profile: GoogleProfile): Promise<User> {
         const user = await this.userRepository.getByEmail(profile.email);
         if (!user) {
+            const [{ value: avatarUrl }] = profile.photos;
             const userToAdd = new User({
                 id: crypto.randomUUID(),
                 firstname: profile.name.givenName,
                 lastname: profile.name.familyName,
                 email: profile.email,
-                avatarUrl: '',
+                avatarUrl,
             });
             await this.userRepository.create(userToAdd);
             return this.getOrCreateUserFrom(profile);
