@@ -3,9 +3,11 @@ import {
     Application,
     Providers,
 } from '@test/helpers/application/application';
+import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
 import { Channel } from 'amqplib';
 import { ConfigServiceStub } from '@test/doubles/config-service.stub';
 import { ClassProvider, Provider, Type, ValueProvider } from '@nestjs/common';
+import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 
@@ -19,6 +21,7 @@ describe('Application', () => {
     let createNestApplication: jest.Mock;
     let init: jest.Mock;
     let get: jest.Mock;
+    let overrideGuard: jest.Mock;
     let overrideProvider: jest.Mock;
     let useClass: jest.Mock;
     let useGlobalFilters: jest.Mock;
@@ -62,6 +65,13 @@ describe('Application', () => {
             const application = await sut.bootstrap();
             expect(init).toHaveBeenCalledTimes(1);
             expect(application).toStrictEqual(dummyApplication);
+        });
+
+        it('should override jwt authentication guard by default', async () => {
+            sut = new Application({ modules });
+            await sut.bootstrap();
+
+            expectJwtAuthGuardToHaveBeenOverridden();
         });
 
         describe('overriding providers have been given', () => {
@@ -109,6 +119,11 @@ describe('Application', () => {
                 expect(useValue).toHaveBeenCalledWith(provider.useValue);
             }
         });
+
+        function expectJwtAuthGuardToHaveBeenOverridden(): void {
+            expect(overrideGuard).toHaveBeenCalledWith(JwtAuthGuard);
+            expect(useClass).toHaveBeenCalledWith(AuthFakeGuard);
+        }
     });
 
     describe('getApplication', () => {
@@ -192,9 +207,11 @@ describe('Application', () => {
         useClass = jest.fn();
         useValue = jest.fn();
 
+        overrideGuard = jest.fn().mockReturnValue({ useClass, useValue });
         overrideProvider = jest.fn().mockReturnValue({ useClass, useValue });
         jest.spyOn(Test, 'createTestingModule').mockReturnValue({
             compile,
+            overrideGuard,
             overrideProvider,
         } as unknown as TestingModuleBuilder);
     };

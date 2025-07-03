@@ -1,6 +1,5 @@
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-
 import { CanActivate, ExecutionContext } from '@nestjs/common';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { User } from '@users/domain/user';
 
 export class AuthFakeGuard implements CanActivate {
