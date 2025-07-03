@@ -539,7 +539,7 @@
             "variables": [
                 {
                     "name": "host",
-                    "value": "http://localhost:5000",
+                    "value": "http://localhost:5001",
                     "enabled": true,
                     "secret": false,
                     "type": "text"
