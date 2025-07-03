@@ -1,5 +1,5 @@
 import { Expense } from '@expenses/domain/expense';
-import { ShareCalculator } from './share-calculator';
+import { ShareCalculator } from '@expenses/domain/share-calculator';
 
 export class Calculator {
     private readonly ZERO = 0;

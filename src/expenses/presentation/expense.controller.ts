@@ -1,4 +1,4 @@
-import { Actor, ActorId } from '@test/doubles/auth/actor.decorator';
+import { Actor, ActorId } from '@auth/presentation/model/actor.decorator';
 import { AddGroupExpenseCommand } from '@expenses/application/commands/add-group-expense.handler';
 import { AddGroupExpenseDTO } from '@expenses/presentation/dto/add-group-expense.dto';
 import { AddPairExpenseCommand } from '@expenses/application/commands/add-pair-expense.handler';

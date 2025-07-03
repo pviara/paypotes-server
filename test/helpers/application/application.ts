@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
 import { ConfigService } from '@nestjs/config';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
@@ -12,6 +13,7 @@ import {
     isValueProvider,
 } from '@test/helpers/application/utils';
 import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
+import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { Modules } from '@test/helpers/application/model/module';
 import { Nullable } from '@test/helpers/application/model/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
@@ -89,9 +91,14 @@ export class Application {
         const moduleBuilder = Test.createTestingModule({
             imports: this.resources.modules,
         });
+        this.overrideAuthGuardIn(moduleBuilder);
         this.overrideProvidersIn(moduleBuilder);
 
         return moduleBuilder;
+    }
+
+    private overrideAuthGuardIn(moduleBuilder: TestingModuleBuilder): void {
+        moduleBuilder.overrideGuard(JwtAuthGuard).useClass(AuthFakeGuard);
     }
 
     private overrideProvidersIn(moduleBuilder: TestingModuleBuilder): void {
@@ -136,7 +143,7 @@ export class Application {
                     rabbitMQServiceToken,
                 );
 
-            const queue = configService.get('CONTACT_TASKS_QUEUE', '');
+            const queue = configService.getOrThrow('CONTACT_TASKS_QUEUE');
             await rabbitmqService.getConsumer().deleteQueue(queue);
         } catch (error: unknown) {}
     }

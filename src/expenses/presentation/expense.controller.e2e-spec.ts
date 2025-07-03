@@ -34,10 +34,10 @@ import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
+import { StakeholderDTO } from '@expenses/presentation/dto/stakeholder.dto';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import * as request from 'supertest';
-import { StakeholderDTO } from './dto/stakeholder.dto';
 
 describe('ExpenseController', () => {
     const application = initApplicationWith(modules, providers);

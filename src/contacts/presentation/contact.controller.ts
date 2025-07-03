@@ -1,7 +1,7 @@
-import { ActorId } from '@test/doubles/auth/actor.decorator';
+import { ActorId } from '@auth/presentation/model/actor.decorator';
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import { Contact } from '@contacts/domain/contact';
-import { ContactDTO } from './dto/contact.dto';
+import { ContactDTO } from '@contacts/presentation/dto/contact.dto';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';

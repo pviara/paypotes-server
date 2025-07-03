@@ -1,9 +1,6 @@
 import { AppModule } from '@app/app.module';
 import { ConfigService } from '@nestjs/config';
 import { ConsoleLogger } from '@nestjs/common';
-import { ContactRepository } from '@contacts/persistence/contact.repository';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ErrorFilter } from '@app/error-filter';
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -12,7 +9,9 @@ import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 async function bootstrap(): Promise<void> {
-    const app = await NestFactory.create(AppModule, { logger: new ConsoleLogger({ colors: false }) });
+    const app = await NestFactory.create(AppModule, {
+        logger: new ConsoleLogger({ colors: false }),
+    });
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalFilters(new ErrorFilter());
     app.enableShutdownHooks();
@@ -21,7 +20,7 @@ async function bootstrap(): Promise<void> {
     await createSampleUsersInLocalMode(app);
 
     const configService = app.get(ConfigService);
-    const port = configService.get('APP_PORT');
+    const port = configService.getOrThrow('APP_PORT');
     await app.listen(port, logListeningOn(port));
 }
 bootstrap();
@@ -30,7 +29,7 @@ async function createSampleUsersInLocalMode(
     app: INestApplication,
 ): Promise<void> {
     const configService = app.get(ConfigService);
-    const environment = configService.get('APP_ENVIRONMENT');
+    const environment = configService.getOrThrow('APP_ENVIRONMENT');
 
     if (environment === 'local') {
         const users = [
@@ -50,20 +49,9 @@ async function createSampleUsersInLocalMode(
                 avatarUrl:
                     'https://gravatar.com/avatar/6d47aeeb1c5ea9a4f9f7ea7ecc36a721?s=800&d=mp&r=x',
             }),
-            new User({
-                id: DEFAULT_USER.getId(),
-                firstname: 'Clark',
-                lastname: 'Kent',
-                email: 'clark.kent@test.com',
-                avatarUrl:
-                    'https://gravatar.com/avatar/6d47aeeb1c5ea9a4f9f7ea7ecc36a721?s=800&d=mp&r=x',
-            }),
         ];
         const userRepo = app.get<UserRepository>(userRepositoryToken);
         for (const user of users) await userRepo?.create(user);
-
-        const contactRepo = app.get<ContactRepository>(contactRepositoryToken);
-        await contactRepo.addRelationshipsBetween([DEFAULT_USER, users[0]]);
     }
 }
 

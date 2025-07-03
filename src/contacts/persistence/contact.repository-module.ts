@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import {
     contactRepositoryProvider,
     contactRepositoryToken,
-} from './contact.repository-provider';
+} from '@contacts/persistence/contact.repository-provider';
 
 @Module({
     exports: [contactRepositoryToken],

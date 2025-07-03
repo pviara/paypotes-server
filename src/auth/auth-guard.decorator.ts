@@ -1,4 +1,4 @@
-import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
+import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { UseGuards } from '@nestjs/common';
 
-export const AuthGuard = () => UseGuards(AuthFakeGuard);
+export const AuthGuard = () => UseGuards(JwtAuthGuard);

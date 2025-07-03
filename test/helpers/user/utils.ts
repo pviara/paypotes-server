@@ -3,7 +3,7 @@ import { Modules } from '@test/helpers/application/model/module';
 import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { User } from '@users/domain/user';
-import { UserInMemoryTestingRepository } from './user.testing-repository';
+import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { UserModule } from '@users/user.module';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
