@@ -3,7 +3,7 @@ import { AuthService } from '@auth/application/auth.service';
 import { ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from '@auth/strategies/google-strategy';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from '@app/auth/strategies/jwt.strategy';
+import { JwtStrategy } from '@auth/strategies/jwt.strategy';
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { UserRepositoryModule } from '@users/persistence/user.repository-module';

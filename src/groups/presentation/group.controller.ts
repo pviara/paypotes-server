@@ -1,4 +1,4 @@
-import { ActorId } from '@test/doubles/auth/actor.decorator';
+import { ActorId } from '@auth/presentation/model/actor.decorator';
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import {
     Body,

@@ -40,7 +40,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
     private async getOrCreateUserFrom(profile: GoogleProfile): Promise<User> {
         const user = await this.userRepository.getByEmail(profile.email);
-        console.log('user found', user);
         if (!user) {
             const userToAdd = new User({
                 id: crypto.randomUUID(),
