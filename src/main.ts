@@ -38,16 +38,14 @@ async function createSampleUsersInLocalMode(
                 firstname: 'Peter',
                 lastname: 'Parker',
                 email: 'peter.parker@test.com',
-                avatarUrl:
-                    'https://gravatar.com/avatar/6d47aeeb1c5ea9a4f9f7ea7ecc36a721?s=800&d=mp&r=x',
+                avatarUrl: 'https://ui-avatars.com/api/?name=Peter+Parker',
             }),
             new User({
                 id: 'b6c614d7-7ac1-4822-b8e1-71c4b71051e1',
                 firstname: 'Bruce',
                 lastname: 'Wayne',
                 email: 'bruce.wayne@test.com',
-                avatarUrl:
-                    'https://gravatar.com/avatar/6d47aeeb1c5ea9a4f9f7ea7ecc36a721?s=800&d=mp&r=x',
+                avatarUrl: 'https://ui-avatars.com/api/?name=Bruce+Wayne',
             }),
         ];
         const userRepo = app.get<UserRepository>(userRepositoryToken);

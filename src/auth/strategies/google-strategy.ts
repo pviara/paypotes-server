@@ -13,6 +13,13 @@ type GoogleProfile = {
     photos: Array<{ value: string }>;
 };
 
+type UserProfile = {
+    firstname: string;
+    lastname: string;
+    email: string;
+    avatarUrl: string;
+};
+
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     constructor(
@@ -42,17 +49,29 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     private async getOrCreateUserFrom(profile: GoogleProfile): Promise<User> {
         const user = await this.userRepository.getByEmail(profile.email);
         if (!user) {
+            const { firstname, lastname, email, avatarUrl } =
+                this.extractUserProfileFrom(profile);
             const userToAdd = new User({
                 id: this.getAppLocalUserId() ?? crypto.randomUUID(),
-                firstname: profile.name.givenName,
-                lastname: profile.name.familyName,
-                email: profile.email,
-                avatarUrl: this.getAvatarUrlFrom(profile),
+                firstname,
+                lastname,
+                email,
+                avatarUrl,
             });
             await this.userRepository.create(userToAdd);
             return this.getOrCreateUserFrom(profile);
         }
         return user;
+    }
+
+    extractUserProfileFrom(profile: GoogleProfile): UserProfile {
+        const { givenName: firstname, familyName: lastname } = profile.name;
+        return {
+            firstname,
+            lastname,
+            email: profile.email,
+            avatarUrl: this.getAvatarUrlFrom(firstname, lastname),
+        };
     }
 
     private getAppLocalUserId(): Nullable<string> {
@@ -61,7 +80,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             : null;
     }
 
-    private getAvatarUrlFrom(profile: GoogleProfile): string {
-        return profile.photos[0].value;
+    private getAvatarUrlFrom(firstname: string, lastname: string): string {
+        return `https://ui-avatars.com/api/?name=${firstname}+${lastname}`;
     }
 }
