@@ -13,6 +13,7 @@
         "incremental": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
+        "isolatedModules": true,
         "paths": {
             "@app/*": ["src/*"],
             "@auth/*": ["src/auth/*"],
