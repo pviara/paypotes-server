@@ -1,11 +1,11 @@
-import { Expense } from '@expenses/domain/expense';
+import { Expense } from '@expenses/domain/expense/expense';
 import {
     ExpenseRepository,
     ExpensesByContact,
     ExpensesByGroup,
 } from '@expenses/persistence/expense.repository';
-import { GroupExpense } from '@expenses/domain/group-expense';
-import { PairExpense } from '@expenses/domain/pair-expense';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { Spy } from '@test/helpers/spy';
 
 export class ExpenseRepositorySpy

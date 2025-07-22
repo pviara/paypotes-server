@@ -1,6 +1,6 @@
 import { generateRandomMembers } from '@test/helpers/group/utils';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Stakeholders } from '@expenses/domain/stakeholders';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
+import { Stakeholders } from '@expenses/domain/stakeholder/stakeholders';
 
 describe('Stakeholders', () => {
     it('should return 0 for each when given balance is 0', () => {
@@ -70,7 +70,7 @@ describe('Stakeholders', () => {
         stakeholders: Array<Stakeholder>,
     ): void {
         const eachStakeholderShareEqualsZero = stakeholders.every(
-            (stakeholder) => stakeholder.shareEquals(share),
+            (stakeholder) => stakeholder.getShare() === share,
         );
         expect(eachStakeholderShareEqualsZero).toBe(true);
     }

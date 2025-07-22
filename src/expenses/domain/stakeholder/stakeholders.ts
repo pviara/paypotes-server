@@ -1,4 +1,4 @@
-import { Person, Stakeholder } from '@expenses/domain/stakeholder';
+import { Person, Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 
 type PersonWithTheirShare = {
     person: Person;
@@ -8,14 +8,14 @@ type PersonWithTheirShare = {
 export class Stakeholders {
     private stakeholders = this.mapStakeholdersWithTheirShare();
 
-    getValue(): Array<Stakeholder> {
-        return this.stakeholders;
-    }
-
     constructor(
         private persons: Array<Person>,
         private balance: number,
     ) {}
+
+    getValue(): Array<Stakeholder> {
+        return this.stakeholders;
+    }
 
     private mapStakeholdersWithTheirShare(): Array<Stakeholder> {
         const shares = this.calculateShares();

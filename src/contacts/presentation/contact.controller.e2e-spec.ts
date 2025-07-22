@@ -1,5 +1,5 @@
 import { App } from 'supertest/types';
-import { Calculator } from '@expenses/domain/calculator';
+import { Balance } from '@expenses/domain/balance/balance';
 import { Contact } from '@contacts/domain/contact';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
@@ -22,7 +22,10 @@ import {
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { mapUserFrom } from '@test/helpers/user/utils';
-import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import {
+    PairExpense,
+    PairPayment,
+} from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import * as request from 'supertest';
 
@@ -302,7 +305,7 @@ describe('ContactController', () => {
             });
 
             function computeActorDummyContactBalance(): number {
-                return new Calculator(dummyContactExpenses).calculateFor(
+                return new Balance(...dummyContactExpenses).calculateFor(
                     DEFAULT_USER.getId(),
                 );
             }

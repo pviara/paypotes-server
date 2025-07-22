@@ -1,4 +1,4 @@
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
 
 export class StakeholderDTO {

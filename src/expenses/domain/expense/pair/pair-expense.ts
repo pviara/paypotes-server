@@ -1,7 +1,7 @@
+import { Expense, Metadata } from '@expenses/domain/expense/expense';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
+import { Stakeholders } from '@expenses/domain/stakeholder/stakeholders';
 import { User } from '@users/domain/user';
-import { Expense, Metadata } from '@expenses/domain/expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Stakeholders } from '@expenses/domain/stakeholders';
 
 export type PairPayment = {
     balance: number;
@@ -19,11 +19,11 @@ export class PairExpense extends Expense {
         super(metadata, payment);
     }
 
-    cloneUsing(balance: number): PairExpense {
-        return new PairExpense(this.metadata, {
-            ...this.payment,
-            balance,
-        });
+    getCounterpartyOf(stakeholderId: string): Stakeholder {
+        const { creditor, debtor } = this.payment;
+        return creditor.getId() === stakeholderId
+            ? this.getMatchingStakeholder(debtor)
+            : this.getMatchingStakeholder(creditor);
     }
 
     settleCounterpartyShareOf(stakeholderId: string): void {
@@ -46,13 +46,5 @@ export class PairExpense extends Expense {
         throw new Error(
             'No stakeholder could be found for debtor with id ${debtor.getId()}',
         );
-    }
-
-    //todo -> delete this because it's used only in tests
-    getCounterpartyOf(stakeholderId: string): Stakeholder {
-        const { creditor, debtor } = this.payment;
-        return creditor.getId() === stakeholderId
-            ? this.getMatchingStakeholder(debtor)
-            : this.getMatchingStakeholder(creditor);
     }
 }

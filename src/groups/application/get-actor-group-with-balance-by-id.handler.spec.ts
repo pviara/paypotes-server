@@ -7,7 +7,10 @@ import {
     GroupNotFoundError,
 } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { Group } from '@groups/domain/group';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import {
+    GroupExpense,
+    GroupPayment,
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { generateRandomMembers } from '@test/helpers/group/utils';
 import { Member } from '@groups/domain/member';

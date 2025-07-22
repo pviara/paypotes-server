@@ -4,16 +4,22 @@ import { ExpenseModule } from '@expenses/expense.module';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { generateRandomUser } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import {
+    GroupExpense,
+    GroupPayment,
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Member } from '@groups/domain/member';
-import { Expense, Metadata } from '@expenses/domain/expense';
+import { Expense, Metadata } from '@expenses/domain/expense/expense';
 import { Modules } from '@test/helpers/application/model/module';
 import { Providers } from '@test/helpers/application/application';
-import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import {
+    PairExpense,
+    PairPayment,
+} from '@expenses/domain/expense/pair/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';

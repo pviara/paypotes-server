@@ -1,5 +1,5 @@
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
-import { GroupPayment } from '@expenses/domain/group-expense';
+import { GroupPayment } from '@expenses/domain/expense/group/group-expense';
 import { MemberDTO } from '@groups/presentation/dto/member.dto';
 
 export class GroupPaymentDTO {

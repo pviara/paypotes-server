@@ -1,8 +1,8 @@
-import { Expense, Metadata } from '@expenses/domain/expense';
+import { Expense, Metadata } from '@expenses/domain/expense/expense';
 import { Group } from '@groups/domain/group';
 import { Member } from '@groups/domain/member';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Stakeholders } from '@expenses/domain/stakeholders';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
+import { Stakeholders } from '@expenses/domain/stakeholder/stakeholders';
 
 export type GroupPayment = {
     balance: number;
@@ -22,13 +22,6 @@ export class GroupExpense extends Expense {
 
     belongsTo(groupId: string): boolean {
         return this.group.getId() === groupId;
-    }
-
-    cloneUsing(balance: number): GroupExpense {
-        return new GroupExpense(this.metadata, this.group, {
-            ...this.payment,
-            balance,
-        });
     }
 
     getGroup(): Group {

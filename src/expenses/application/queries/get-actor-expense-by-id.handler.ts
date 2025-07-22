@@ -1,8 +1,8 @@
-import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
-import { PairExpense } from '@expenses/domain/pair-expense';
-import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
-import { Expense } from '@expenses/domain/expense';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
+import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
+import { Expense } from '@expenses/domain/expense/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';

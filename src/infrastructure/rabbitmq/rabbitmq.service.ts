@@ -1,7 +1,7 @@
 import { Channel, ChannelModel, connect } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
 import { Logger, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
-import { Nullable } from '@test/helpers/application/model/nullable';
+import { Nullable } from '@app/shared/nullable';
 
 export interface RabbitMQService {
     getConsumer(): Channel;

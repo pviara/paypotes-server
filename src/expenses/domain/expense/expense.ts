@@ -1,6 +1,6 @@
-import { GroupPayment } from '@expenses/domain/group-expense';
-import { PairPayment } from '@expenses/domain/pair-expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { GroupPayment } from '@expenses/domain/expense/group/group-expense';
+import { PairPayment } from '@expenses/domain/expense/pair/pair-expense';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 
 export type Metadata = {
     id: string;
@@ -9,12 +9,14 @@ export type Metadata = {
     createdAt: Date;
 };
 
+type Payment = GroupPayment | PairPayment;
+
 export abstract class Expense {
     protected abstract stakeholders: Array<Stakeholder>;
 
     constructor(
         protected metadata: Metadata,
-        protected payment: GroupPayment | PairPayment,
+        protected payment: Payment,
     ) {}
 
     getBalance(): string {
