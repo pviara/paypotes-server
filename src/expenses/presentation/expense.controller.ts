@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ComputeActorBalanceQuery } from '@expenses/application/queries/compute-actor-balance.handler';
-import { Expense } from '@expenses/domain/expense';
+import { Expense } from '@expenses/domain/expense/expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { GetActorContactExpenseByIdQuery } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
 import { GetActorContactExpensesQuery } from '@expenses/application/queries/get-actor-contact-expenses.handler';
@@ -25,10 +25,10 @@ import { GetActorExpensesQuery } from '@expenses/application/queries/get-actor-e
 import { GetActorGroupExpenseByIdQuery } from '@expenses/application/queries/get-actor-group-expense-by-id.handler';
 import { GetActorGroupExpensesQuery } from '@expenses/application/queries/get-actor-group-expenses.handler';
 import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
-import { GroupExpenseSnapshot } from '@expenses/domain/group-expense/group-expense-snapshot';
+import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
 import { PageIndex } from '@app/shared/decorators/page-index.query-decorator';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { PairExpenseSnapshot } from '@expenses/domain/pair-expense/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 import { PaybackGroupExpenseCommand } from '@expenses/application/commands/payback-group-expense.handler';
 import { PaybackGroupExpenseDTO } from '@expenses/presentation/dto/payback-group-expense.dto';
 import { PaybackPairExpenseCommand } from '@expenses/application/commands/payback-pair-expense.handler';

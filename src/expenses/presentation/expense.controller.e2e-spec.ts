@@ -1,9 +1,9 @@
 import { App } from 'supertest/types';
-import { Balance } from '@app/expenses/domain/balance/balance';
+import { Balance } from '@expenses/domain/balance/balance';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { convertCents, raw, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { Expense } from '@expenses/domain/expense';
+import { Expense } from '@expenses/domain/expense/expense';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     expenseSpecModules as modules,
@@ -25,7 +25,7 @@ import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
     GroupPayment,
-} from '@expenses/domain/group-expense/group-expense';
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import {
     generateRandomUser,
@@ -34,9 +34,9 @@ import {
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
-import { PairExpense } from '@expenses/domain/pair-expense/pair-expense';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { PairExpenseSnapshot } from '@expenses/domain/pair-expense/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 import { StakeholderDTO } from '@expenses/presentation/dto/stakeholder.dto';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';

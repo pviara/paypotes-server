@@ -1,5 +1,5 @@
 import { App } from 'supertest/types';
-import { Balance } from '@app/expenses/domain/balance/balance';
+import { Balance } from '@expenses/domain/balance/balance';
 import {
     calculateExpectedBalanceFor,
     generateDefaultUserGroupExpenses,
@@ -20,7 +20,7 @@ import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import {
     GroupExpense,
     GroupPayment,
-} from '@expenses/domain/group-expense/group-expense';
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';

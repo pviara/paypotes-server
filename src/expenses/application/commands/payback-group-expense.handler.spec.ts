@@ -12,7 +12,7 @@ import {
 import {
     GroupExpense,
     GroupPayment,
-} from '@expenses/domain/group-expense/group-expense';
+} from '@expenses/domain/expense/group/group-expense';
 import { Member } from '@groups/domain/member';
 import {
     PaybackGroupExpenseCommand,

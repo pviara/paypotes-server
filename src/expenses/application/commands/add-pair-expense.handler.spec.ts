@@ -11,11 +11,11 @@ import {
     generateRandomBalance,
     generateRandomBoolean,
 } from '@test/helpers/expense/utils';
-import { Metadata } from '@expenses/domain/expense';
+import { Metadata } from '@expenses/domain/expense/expense';
 import {
     PairExpense,
     PairPayment,
-} from '@expenses/domain/pair-expense/pair-expense';
+} from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
 

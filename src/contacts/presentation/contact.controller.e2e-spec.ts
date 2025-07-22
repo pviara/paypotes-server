@@ -1,5 +1,5 @@
 import { App } from 'supertest/types';
-import { Balance } from '@app/expenses/domain/balance/balance';
+import { Balance } from '@expenses/domain/balance/balance';
 import { Contact } from '@contacts/domain/contact';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
@@ -25,7 +25,7 @@ import { mapUserFrom } from '@test/helpers/user/utils';
 import {
     PairExpense,
     PairPayment,
-} from '@expenses/domain/pair-expense/pair-expense';
+} from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import * as request from 'supertest';
 

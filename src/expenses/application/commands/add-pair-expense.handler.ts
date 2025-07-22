@@ -6,11 +6,11 @@ import { dateServiceProviderToken } from '@app/shared/date/date.service.provider
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
-import { Metadata } from '@expenses/domain/expense';
+import { Metadata } from '@expenses/domain/expense/expense';
 import {
     PairExpense,
     PairPayment,
-} from '@expenses/domain/pair-expense/pair-expense';
+} from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';

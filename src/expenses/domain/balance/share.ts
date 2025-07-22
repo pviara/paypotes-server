@@ -1,5 +1,5 @@
-import { Expense } from '@expenses/domain/expense';
-import { GroupExpense } from '@expenses/domain/group-expense/group-expense';
+import { Expense } from '@expenses/domain/expense/expense';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 
 export class Share {
     constructor(private expense: Expense) {}

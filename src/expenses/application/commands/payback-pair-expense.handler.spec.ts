@@ -10,7 +10,7 @@ import { generateRandomUser } from '@test/helpers/user/utils';
 import {
     PairExpense,
     PairPayment,
-} from '@expenses/domain/pair-expense/pair-expense';
+} from '@expenses/domain/expense/pair/pair-expense';
 import {
     PaybackPairExpenseCommand,
     PaybackPairExpenseHandler,

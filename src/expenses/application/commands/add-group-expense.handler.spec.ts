@@ -10,11 +10,11 @@ import { Group, MemberNotInGroupError } from '@groups/domain/group';
 import {
     GroupExpense,
     GroupPayment,
-} from '@expenses/domain/group-expense/group-expense';
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { Member } from '@groups/domain/member';
-import { Metadata } from '@expenses/domain/expense';
+import { Metadata } from '@expenses/domain/expense/expense';
 
 describe('AddGroupExpenseHandler', () => {
     let sut: AddGroupExpenseHandler;

@@ -1,5 +1,5 @@
-import { Balance } from '@app/expenses/domain/balance/balance';
-import { GroupExpense } from '@expenses/domain/group-expense/group-expense';
+import { Balance } from '@expenses/domain/balance/balance';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 
 export class GroupExpenseSnapshot {
     private perspectiveBalance = this.calculatePerspectiveBalance();

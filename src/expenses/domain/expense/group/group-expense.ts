@@ -1,4 +1,4 @@
-import { Expense, Metadata } from '@expenses/domain/expense';
+import { Expense, Metadata } from '@expenses/domain/expense/expense';
 import { Group } from '@groups/domain/group';
 import { Member } from '@groups/domain/member';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';

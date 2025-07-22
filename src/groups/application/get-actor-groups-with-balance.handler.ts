@@ -1,4 +1,4 @@
-import { Expense } from '@expenses/domain/expense';
+import { Expense } from '@expenses/domain/expense/expense';
 import {
     ExpenseRepository,
     ExpensesByGroup,

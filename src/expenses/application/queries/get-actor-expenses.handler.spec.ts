@@ -7,11 +7,11 @@ import {
     GetActorExpensesQuery,
 } from '@expenses/application/queries/get-actor-expenses.handler';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
-import { GroupExpense } from '@expenses/domain/group-expense/group-expense';
-import { GroupExpenseSnapshot } from '@expenses/domain/group-expense/group-expense-snapshot';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
 import { Member } from '@groups/domain/member';
-import { PairExpense } from '@expenses/domain/pair-expense/pair-expense';
-import { PairExpenseSnapshot } from '@expenses/domain/pair-expense/pair-expense-snapshot';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
+import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 
 describe('GetActorExpensesHandler', () => {
     let sut: GetActorExpensesHandler;

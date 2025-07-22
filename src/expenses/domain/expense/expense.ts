@@ -1,5 +1,5 @@
-import { GroupPayment } from '@expenses/domain/group-expense/group-expense';
-import { PairPayment } from '@expenses/domain/pair-expense/pair-expense';
+import { GroupPayment } from '@expenses/domain/expense/group/group-expense';
+import { PairPayment } from '@expenses/domain/expense/pair/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 
 export type Metadata = {

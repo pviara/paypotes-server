@@ -14,7 +14,7 @@ import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
     GroupPayment,
-} from '@expenses/domain/group-expense/group-expense';
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { mapIdsFrom } from '@test/helpers/utils';
 import { Member } from '@groups/domain/member';

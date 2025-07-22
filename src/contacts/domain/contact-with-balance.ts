@@ -1,6 +1,6 @@
-import { Balance } from '@app/expenses/domain/balance/balance';
+import { Balance } from '@expenses/domain/balance/balance';
 import { Contact } from '@contacts/domain/contact';
-import { Expense } from '@expenses/domain/expense';
+import { Expense } from '@expenses/domain/expense/expense';
 
 export class ContactWithBalance extends Contact {
     private balance: number = 0;

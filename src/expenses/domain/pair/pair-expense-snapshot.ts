@@ -1,5 +1,5 @@
-import { Balance } from '@app/expenses/domain/balance/balance';
-import { PairExpense } from '@expenses/domain/pair-expense/pair-expense';
+import { Balance } from '@expenses/domain/balance/balance';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 
 export class PairExpenseSnapshot {

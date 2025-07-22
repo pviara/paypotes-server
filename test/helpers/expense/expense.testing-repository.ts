@@ -1,4 +1,4 @@
-import { Expense } from '@expenses/domain/expense';
+import { Expense } from '@expenses/domain/expense/expense';
 import { ExpenseInMemoryRepository } from '@expenses/persistence/expense.repository';
 
 export class ExpenseInMemoryTestingRepository extends ExpenseInMemoryRepository {
