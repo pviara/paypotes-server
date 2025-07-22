@@ -15,7 +15,7 @@ import {
 import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { Modules } from '@test/helpers/application/model/module';
-import { Nullable } from '@test/helpers/application/model/nullable';
+import { Nullable } from '@app/shared/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';

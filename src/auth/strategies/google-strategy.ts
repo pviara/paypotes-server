@@ -5,7 +5,7 @@ import { Strategy, VerifyCallback } from 'passport-google-oauth2';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
-import { Nullable } from '@test/helpers/application/model/nullable';
+import { Nullable } from '@app/shared/nullable';
 
 type GoogleProfile = {
     email: string;
