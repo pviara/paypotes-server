@@ -9,12 +9,14 @@ export type Metadata = {
     createdAt: Date;
 };
 
+type Payment = GroupPayment | PairPayment;
+
 export abstract class Expense {
     protected abstract stakeholders: Array<Stakeholder>;
 
     constructor(
         protected metadata: Metadata,
-        protected payment: GroupPayment | PairPayment,
+        protected payment: Payment,
     ) {}
 
     getBalance(): string {

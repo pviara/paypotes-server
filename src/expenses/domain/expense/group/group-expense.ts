@@ -24,13 +24,6 @@ export class GroupExpense extends Expense {
         return this.group.getId() === groupId;
     }
 
-    cloneUsing(balance: number): GroupExpense {
-        return new GroupExpense(this.metadata, this.group, {
-            ...this.payment,
-            balance,
-        });
-    }
-
     getGroup(): Group {
         return this.group;
     }

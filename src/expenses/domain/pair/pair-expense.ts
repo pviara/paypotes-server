@@ -19,13 +19,6 @@ export class PairExpense extends Expense {
         super(metadata, payment);
     }
 
-    cloneUsing(balance: number): PairExpense {
-        return new PairExpense(this.metadata, {
-            ...this.payment,
-            balance,
-        });
-    }
-
     settleCounterpartyShareOf(stakeholderId: string): void {
         const [counterparty] = this.getCounterpartiesOf(stakeholderId);
         return counterparty.settle();
