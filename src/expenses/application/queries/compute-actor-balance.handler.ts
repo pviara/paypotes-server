@@ -1,4 +1,4 @@
-import { Calculator } from '@expenses/domain/calculator';
+import { Balance } from '@expenses/domain/balance';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
@@ -25,6 +25,6 @@ export class ComputeActorBalanceHandler
         const { actorId } = query.payload;
         const expenses = await this.repository.getAllActorExpenses(actorId);
 
-        return new Calculator(expenses).calculateFor(actorId);
+        return new Balance(...expenses).calculateFor(actorId);
     }
 }

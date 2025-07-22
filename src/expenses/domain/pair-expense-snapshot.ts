@@ -1,6 +1,7 @@
 import { PairExpense } from '@expenses/domain/pair-expense';
-import { ShareCalculator } from '@expenses/domain/share-calculator';
+import { Share } from '@app/expenses/domain/share';
 import { Stakeholder } from '@expenses/domain/stakeholder';
+import { Balance } from './balance';
 
 export class PairExpenseSnapshot {
     private counterparty = this.getExpense().getCounterpartyOf(
@@ -33,9 +34,7 @@ export class PairExpenseSnapshot {
     }
 
     private calculatePerspectiveBalance(): number {
-        return new ShareCalculator(this.expense).calculateFor(
-            this.perspectiveId,
-        );
+        return new Balance(this.expense).calculateFor(this.perspectiveId);
     }
 }
 

@@ -1,4 +1,4 @@
-import { Calculator } from '@expenses/domain/calculator';
+import { Balance } from '@expenses/domain/balance';
 import { Expense } from '@expenses/domain/expense';
 import { Group } from '@groups/domain/group';
 import { Member } from '@groups/domain/member';
@@ -46,7 +46,7 @@ export class GroupWithBalance extends Group {
 
     private calcBalanceFor(stakeholderId: string): number {
         const expenses = this.getExpenses();
-        return new Calculator(expenses).calculateFor(stakeholderId);
+        return new Balance(...expenses).calculateFor(stakeholderId);
     }
 
     private getExpenses(): Array<Expense> {

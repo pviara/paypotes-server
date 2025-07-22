@@ -1,5 +1,6 @@
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { ShareCalculator } from '@expenses/domain/share-calculator';
+import { Share } from '@app/expenses/domain/share';
+import { Balance } from './balance';
 
 export class GroupExpenseSnapshot {
     private perspectiveBalance = this.calculatePerspectiveBalance();
@@ -25,9 +26,7 @@ export class GroupExpenseSnapshot {
     }
 
     private calculatePerspectiveBalance(): number {
-        return new ShareCalculator(this.expense).calculateFor(
-            this.perspectiveId,
-        );
+        return new Balance(this.expense).calculateFor(this.perspectiveId);
     }
 }
 

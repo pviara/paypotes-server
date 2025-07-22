@@ -1,4 +1,4 @@
-import { Calculator } from '@expenses/domain/calculator';
+import { Balance } from '@expenses/domain/balance';
 import { Contact } from '@contacts/domain/contact';
 import { Expense } from '@expenses/domain/expense';
 
@@ -45,7 +45,7 @@ export class ContactWithBalance extends Contact {
 
     private calcBalanceFor(stakeholderId: string): number {
         const expenses = this.getExpenses();
-        return new Calculator(expenses).calculateFor(stakeholderId);
+        return new Balance(...expenses).calculateFor(stakeholderId);
     }
 
     private getExpenses(): Array<Expense> {

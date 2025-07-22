@@ -1,10 +1,13 @@
 import { Expense } from '@expenses/domain/expense';
-import { ShareCalculator } from '@expenses/domain/share-calculator';
+import { Share } from '@app/expenses/domain/share';
 
-export class Calculator {
+export class Balance {
     private readonly ZERO = 0;
+    private readonly expenses: Array<Expense>;
 
-    constructor(private expenses: Array<Expense>) {}
+    constructor(...expenses: Array<Expense>) {
+        this.expenses = expenses;
+    }
 
     calculateFor(actorId: string): number {
         return this.expenses.reduce(
@@ -17,9 +20,9 @@ export class Calculator {
         actorId: string,
     ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {
-            const actorExpenseBalance = new ShareCalculator(
-                expense,
-            ).calculateFor(actorId);
+            const actorExpenseBalance = new Share(expense).calculateFor(
+                actorId,
+            );
             return balance + actorExpenseBalance;
         };
     }

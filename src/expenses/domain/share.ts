@@ -1,7 +1,7 @@
 import { Expense } from '@expenses/domain/expense';
 import { GroupExpense } from '@expenses/domain/group-expense';
 
-export class ShareCalculator {
+export class Share {
     constructor(private expense: Expense) {}
 
     calculateFor(actorId: string): number {

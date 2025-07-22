@@ -1,10 +1,10 @@
 import { App } from 'supertest/types';
+import { Balance } from '@expenses/domain/balance';
 import {
     calculateExpectedBalanceFor,
     generateDefaultUserGroupExpenses,
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
-import { Calculator } from '@expenses/domain/calculator';
 import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -284,13 +284,16 @@ describe('GroupController', () => {
                 );
 
                 const balance = computeActorDummyGroupBalance();
-                const expected = `${convertCents(balance)}`.replace('.', ',');
+                const expected = `${convertCents(balance).toFixed(2)}`.replace(
+                    '.',
+                    ',',
+                );
 
                 expect(response.body.balance).toBe(expected);
             });
 
             function computeActorDummyGroupBalance(): number {
-                return new Calculator(dummyGroupExpenses).calculateFor(
+                return new Balance(...dummyGroupExpenses).calculateFor(
                     DEFAULT_USER.getId(),
                 );
             }

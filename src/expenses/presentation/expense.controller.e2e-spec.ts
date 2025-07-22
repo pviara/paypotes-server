@@ -1,6 +1,6 @@
 import { App } from 'supertest/types';
+import { Balance } from '@expenses/domain/balance';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
-import { Calculator } from '@expenses/domain/calculator';
 import { convertCents, raw, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense';
@@ -123,14 +123,14 @@ describe('ExpenseController', () => {
 
             function computeActorAllDummyContactsBalance(): number {
                 const flattenContactExpenses = allDummyContactExpenses.flat();
-                return new Calculator(flattenContactExpenses).calculateFor(
+                return new Balance(...flattenContactExpenses).calculateFor(
                     DEFAULT_USER.getId(),
                 );
             }
 
             function computeActorAllDummyGroupsBalance(): number {
                 const flattenContactExpenses = allDummyGroupExpenses.flat();
-                return new Calculator(flattenContactExpenses).calculateFor(
+                return new Balance(...flattenContactExpenses).calculateFor(
                     DEFAULT_USER.getId(),
                 );
             }
