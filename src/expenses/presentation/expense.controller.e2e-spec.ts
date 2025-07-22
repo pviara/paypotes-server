@@ -22,7 +22,10 @@ import {
     generateRandomMember,
 } from '@test/helpers/group/utils';
 import { Group } from '@groups/domain/group';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import {
+    GroupExpense,
+    GroupPayment,
+} from '@expenses/domain/group-expense/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import {
     generateRandomUser,
@@ -31,9 +34,9 @@ import {
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
-import { PairExpense } from '@expenses/domain/pair-expense';
+import { PairExpense } from '@app/expenses/domain/pair-expense/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense/pair-expense-snapshot';
 import { StakeholderDTO } from '@expenses/presentation/dto/stakeholder.dto';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';

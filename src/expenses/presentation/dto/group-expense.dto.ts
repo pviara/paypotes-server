@@ -1,6 +1,6 @@
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
-import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
+import { GroupExpenseSnapshot } from '@expenses/domain/group-expense/group-expense-snapshot';
 import { GroupPaymentDTO } from '@expenses/presentation/dto/group-payment.dto';
 import {
     StakeholderDTO,

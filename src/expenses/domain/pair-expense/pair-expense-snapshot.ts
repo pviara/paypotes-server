@@ -1,7 +1,6 @@
-import { PairExpense } from '@expenses/domain/pair-expense';
-import { Share } from '@expenses/domain/share';
+import { Balance } from '@expenses/domain/balance';
+import { PairExpense } from '@app/expenses/domain/pair-expense/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Balance } from './balance';
 
 export class PairExpenseSnapshot {
     private counterparty = this.getExpense().getCounterpartyOf(

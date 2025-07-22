@@ -11,9 +11,12 @@ import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMembers } from '@test/helpers/group/utils';
 import { Group } from '@groups/domain/group';
-import { GroupExpense } from '@expenses/domain/group-expense';
+import { GroupExpense } from '@expenses/domain/group-expense/group-expense';
 import { Member } from '@groups/domain/member';
-import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import {
+    PairExpense,
+    PairPayment,
+} from '@app/expenses/domain/pair-expense/pair-expense';
 import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('ComputeActorBalanceHandler', () => {

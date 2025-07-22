@@ -1,7 +1,7 @@
-import { User } from '@users/domain/user';
 import { Expense, Metadata } from '@expenses/domain/expense';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import { Stakeholders } from '@expenses/domain/stakeholders';
+import { User } from '@users/domain/user';
 
 export type PairPayment = {
     balance: number;

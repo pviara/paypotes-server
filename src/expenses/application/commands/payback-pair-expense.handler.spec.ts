@@ -7,7 +7,10 @@ import {
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
 import { generateRandomUser } from '@test/helpers/user/utils';
-import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import {
+    PairExpense,
+    PairPayment,
+} from '@app/expenses/domain/pair-expense/pair-expense';
 import {
     PaybackPairExpenseCommand,
     PaybackPairExpenseHandler,

@@ -1,7 +1,7 @@
-import { GroupExpense } from '@expenses/domain/group-expense';
-import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
-import { PairExpense } from '@expenses/domain/pair-expense';
-import { PairExpenseSnapshot } from '@expenses/domain/pair-expense-snapshot';
+import { GroupExpense } from '@expenses/domain/group-expense/group-expense';
+import { GroupExpenseSnapshot } from '@expenses/domain/group-expense/group-expense-snapshot';
+import { PairExpense } from '@app/expenses/domain/pair-expense/pair-expense';
+import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense/pair-expense-snapshot';
 import { Expense } from '@expenses/domain/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';

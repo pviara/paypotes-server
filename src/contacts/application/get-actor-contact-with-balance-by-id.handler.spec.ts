@@ -8,7 +8,10 @@ import {
 } from '@contacts/application/get-actor-contact-with-balance-by-id.handler';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
-import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import {
+    PairExpense,
+    PairPayment,
+} from '@app/expenses/domain/pair-expense/pair-expense';
 import { User } from '@users/domain/user';
 
 describe('GetActorContactWithBalanceByIdHandler', () => {

@@ -4,7 +4,10 @@ import { dateServiceProviderToken } from '@app/shared/date/date.service.provider
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import {
+    GroupExpense,
+    GroupPayment,
+} from '@expenses/domain/group-expense/group-expense';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';

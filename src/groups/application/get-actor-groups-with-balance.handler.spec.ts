@@ -11,7 +11,10 @@ import {
     GetActorGroupsWithBalanceQuery,
 } from '@groups/application/get-actor-groups-with-balance.handler';
 import { Group } from '@groups/domain/group';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import {
+    GroupExpense,
+    GroupPayment,
+} from '@expenses/domain/group-expense/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { mapIdsFrom } from '@test/helpers/utils';
 import { Member } from '@groups/domain/member';

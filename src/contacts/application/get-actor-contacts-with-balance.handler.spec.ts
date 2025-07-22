@@ -10,7 +10,10 @@ import {
 } from '@contacts/application/get-actor-contacts-with-balance.handler';
 import { mapIdsFrom } from '@test/helpers/utils';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
-import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import {
+    PairExpense,
+    PairPayment,
+} from '@app/expenses/domain/pair-expense/pair-expense';
 import { User } from '@users/domain/user';
 import { mapUserFrom } from '@test/helpers/user/utils';
 

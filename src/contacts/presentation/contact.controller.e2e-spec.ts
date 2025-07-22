@@ -22,7 +22,10 @@ import {
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { mapUserFrom } from '@test/helpers/user/utils';
-import { PairExpense, PairPayment } from '@expenses/domain/pair-expense';
+import {
+    PairExpense,
+    PairPayment,
+} from '@app/expenses/domain/pair-expense/pair-expense';
 import { User } from '@users/domain/user';
 import * as request from 'supertest';
 

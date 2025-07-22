@@ -17,7 +17,10 @@ import {
 import { generateRandomUsers } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
-import { GroupExpense, GroupPayment } from '@expenses/domain/group-expense';
+import {
+    GroupExpense,
+    GroupPayment,
+} from '@expenses/domain/group-expense/group-expense';
 import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';

@@ -3,7 +3,7 @@ import { expenseRepositoryToken } from '@expenses/persistence/expense.repository
 import {
     GroupExpenseSnapshot,
     GroupExpenseSnapshots,
-} from '@expenses/domain/group-expense-snapshot';
+} from '@expenses/domain/group-expense/group-expense-snapshot';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 

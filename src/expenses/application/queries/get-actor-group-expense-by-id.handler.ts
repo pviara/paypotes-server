@@ -1,6 +1,6 @@
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
+import { GroupExpenseSnapshot } from '@expenses/domain/group-expense/group-expense-snapshot';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 

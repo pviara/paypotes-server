@@ -1,6 +1,6 @@
 import { Expense } from '@expenses/domain/expense';
-import { GroupExpense } from '@expenses/domain/group-expense';
-import { PairExpense } from '@expenses/domain/pair-expense';
+import { GroupExpense } from '@expenses/domain/group-expense/group-expense';
+import { PairExpense } from '@app/expenses/domain/pair-expense/pair-expense';
 import { setTimeout } from 'timers/promises';
 
 export type ExpensesByContact = {

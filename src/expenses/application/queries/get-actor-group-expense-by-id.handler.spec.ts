@@ -1,4 +1,4 @@
-import { GroupExpenseSnapshot } from '@expenses/domain/group-expense-snapshot';
+import { GroupExpenseSnapshot } from '@expenses/domain/group-expense/group-expense-snapshot';
 import {
     GroupExpenseNotFoundError,
     GetActorGroupExpenseByIdHandler,
