@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { MessageType } from '@infra/contact-task-managers/message-content';
 import { Producer } from '@infra/rabbitmq/rabbitmq.producer';
 import { rabbitMQProducerToken } from '@infra/rabbitmq/rabbitmq.producer.provider';
-import { User } from '@users/domain/user';
 
 export interface ContactTaskMessenger {
     sendRelationshipMustBeCreatedBetween(
