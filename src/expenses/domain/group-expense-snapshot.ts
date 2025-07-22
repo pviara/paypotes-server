@@ -1,5 +1,5 @@
 import { GroupExpense } from '@expenses/domain/group-expense';
-import { Share } from '@app/expenses/domain/share';
+import { Share } from '@expenses/domain/share';
 import { Balance } from './balance';
 
 export class GroupExpenseSnapshot {

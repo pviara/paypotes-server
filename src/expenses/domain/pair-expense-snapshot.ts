@@ -1,5 +1,5 @@
 import { PairExpense } from '@expenses/domain/pair-expense';
-import { Share } from '@app/expenses/domain/share';
+import { Share } from '@expenses/domain/share';
 import { Stakeholder } from '@expenses/domain/stakeholder';
 import { Balance } from './balance';
 

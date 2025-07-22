@@ -1,5 +1,5 @@
 import { Expense } from '@expenses/domain/expense';
-import { Share } from '@app/expenses/domain/share';
+import { Share } from '@expenses/domain/share';
 
 export class Balance {
     private readonly ZERO = 0;
