@@ -1,4 +1,4 @@
-import { Balance } from '@expenses/domain/balance';
+import { Balance } from '@app/expenses/domain/balance/balance';
 import { GroupExpense } from '@expenses/domain/group-expense/group-expense';
 
 export class GroupExpenseSnapshot {

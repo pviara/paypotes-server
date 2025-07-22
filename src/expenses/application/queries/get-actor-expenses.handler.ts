@@ -5,8 +5,8 @@ import { GroupExpense } from '@expenses/domain/group-expense/group-expense';
 import { GroupExpenseSnapshot } from '@expenses/domain/group-expense/group-expense-snapshot';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PairExpense } from '@app/expenses/domain/pair-expense/pair-expense';
-import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense/pair-expense-snapshot';
+import { PairExpense } from '@expenses/domain/pair-expense/pair-expense';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense/pair-expense-snapshot';
 
 export class GetActorExpensesQuery implements IQuery {
     constructor(

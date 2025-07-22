@@ -13,7 +13,7 @@ import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import {
     PairExpense,
     PairPayment,
-} from '@app/expenses/domain/pair-expense/pair-expense';
+} from '@expenses/domain/pair-expense/pair-expense';
 import { User } from '@users/domain/user';
 import { mapUserFrom } from '@test/helpers/user/utils';
 

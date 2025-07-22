@@ -1,4 +1,4 @@
-import { Person, Stakeholder } from '@expenses/domain/stakeholder';
+import { Person, Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 
 type PersonWithTheirShare = {
     person: Person;

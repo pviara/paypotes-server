@@ -1,5 +1,5 @@
 import { App } from 'supertest/types';
-import { Balance } from '@expenses/domain/balance';
+import { Balance } from '@app/expenses/domain/balance/balance';
 import {
     calculateExpectedBalanceFor,
     generateDefaultUserGroupExpenses,

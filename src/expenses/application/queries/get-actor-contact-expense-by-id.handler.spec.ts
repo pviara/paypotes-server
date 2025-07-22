@@ -6,7 +6,7 @@ import {
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
-import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense/pair-expense-snapshot';
 
 describe('GetActorContactExpenseByIdHandler', () => {
     let sut: GetActorContactExpenseByIdHandler;

@@ -15,7 +15,7 @@ import { Metadata } from '@expenses/domain/expense';
 import {
     PairExpense,
     PairPayment,
-} from '@app/expenses/domain/pair-expense/pair-expense';
+} from '@expenses/domain/pair-expense/pair-expense';
 import { User } from '@users/domain/user';
 import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
 

@@ -1,5 +1,5 @@
 import { App } from 'supertest/types';
-import { Balance } from '@expenses/domain/balance';
+import { Balance } from '@app/expenses/domain/balance/balance';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { convertCents, raw, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
@@ -34,9 +34,9 @@ import {
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
-import { PairExpense } from '@app/expenses/domain/pair-expense/pair-expense';
+import { PairExpense } from '@expenses/domain/pair-expense/pair-expense';
 import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense/pair-expense-snapshot';
 import { StakeholderDTO } from '@expenses/presentation/dto/stakeholder.dto';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';

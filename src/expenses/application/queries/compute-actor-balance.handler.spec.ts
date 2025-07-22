@@ -16,7 +16,7 @@ import { Member } from '@groups/domain/member';
 import {
     PairExpense,
     PairPayment,
-} from '@app/expenses/domain/pair-expense/pair-expense';
+} from '@expenses/domain/pair-expense/pair-expense';
 import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('ComputeActorBalanceHandler', () => {

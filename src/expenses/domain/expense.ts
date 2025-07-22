@@ -1,6 +1,6 @@
 import { GroupPayment } from '@expenses/domain/group-expense/group-expense';
-import { PairPayment } from '@app/expenses/domain/pair-expense/pair-expense';
-import { Stakeholder } from '@expenses/domain/stakeholder';
+import { PairPayment } from '@expenses/domain/pair-expense/pair-expense';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 
 export type Metadata = {
     id: string;

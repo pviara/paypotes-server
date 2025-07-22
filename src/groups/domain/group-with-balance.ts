@@ -1,4 +1,4 @@
-import { Balance } from '@expenses/domain/balance';
+import { Balance } from '@app/expenses/domain/balance/balance';
 import { Expense } from '@expenses/domain/expense';
 import { Group } from '@groups/domain/group';
 import { Member } from '@groups/domain/member';

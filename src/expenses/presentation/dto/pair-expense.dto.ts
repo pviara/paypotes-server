@@ -1,6 +1,6 @@
 import { ContactDTO } from '@contacts/presentation/dto/contact.dto';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
-import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense/pair-expense-snapshot';
 
 export class PairExpenseDTO {
     constructor(

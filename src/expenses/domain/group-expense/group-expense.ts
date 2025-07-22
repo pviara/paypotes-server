@@ -1,8 +1,8 @@
 import { Expense, Metadata } from '@expenses/domain/expense';
 import { Group } from '@groups/domain/group';
 import { Member } from '@groups/domain/member';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Stakeholders } from '@expenses/domain/stakeholders';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
+import { Stakeholders } from '@expenses/domain/stakeholder/stakeholders';
 
 export type GroupPayment = {
     balance: number;

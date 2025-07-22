@@ -11,7 +11,7 @@ import {
 } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 import { GroupExpenseSnapshot } from '@expenses/domain/group-expense/group-expense-snapshot';
-import { PairExpenseSnapshot } from '@app/expenses/domain/pair-expense/pair-expense-snapshot';
+import { PairExpenseSnapshot } from '@expenses/domain/pair-expense/pair-expense-snapshot';
 
 describe('GetActorExpenseByIdHandler', () => {
     let sut: GetActorExpenseByIdHandler;

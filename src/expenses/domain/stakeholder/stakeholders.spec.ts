@@ -1,6 +1,6 @@
 import { generateRandomMembers } from '@test/helpers/group/utils';
-import { Stakeholder } from '@expenses/domain/stakeholder';
-import { Stakeholders } from '@expenses/domain/stakeholders';
+import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
+import { Stakeholders } from '@expenses/domain/stakeholder/stakeholders';
 
 describe('Stakeholders', () => {
     it('should return 0 for each when given balance is 0', () => {

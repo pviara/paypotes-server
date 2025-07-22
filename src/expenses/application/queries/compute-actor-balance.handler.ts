@@ -1,4 +1,4 @@
-import { Balance } from '@expenses/domain/balance';
+import { Balance } from '@app/expenses/domain/balance/balance';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
