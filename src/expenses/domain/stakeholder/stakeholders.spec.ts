@@ -70,7 +70,7 @@ describe('Stakeholders', () => {
         stakeholders: Array<Stakeholder>,
     ): void {
         const eachStakeholderShareEqualsZero = stakeholders.every(
-            (stakeholder) => stakeholder.shareEquals(share),
+            (stakeholder) => stakeholder.getShare() === share,
         );
         expect(eachStakeholderShareEqualsZero).toBe(true);
     }

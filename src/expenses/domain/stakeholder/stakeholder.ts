@@ -48,8 +48,4 @@ export class Stakeholder {
     settle(): void {
         this.data.share = 0;
     }
-
-    shareEquals(number: number): boolean {
-        return this.getShare() === number;
-    }
 }
