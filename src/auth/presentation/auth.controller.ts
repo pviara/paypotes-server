@@ -1,20 +1,25 @@
 import { AuthService } from '@auth/application/auth.service';
-import { ConfigService } from '@nestjs/config';
 import {
+    Body,
     Controller,
     Get,
     HttpRedirectResponse,
     HttpStatus,
+    Post,
     Redirect,
     Req,
     UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { GoogleAuthGuard } from '@auth/presentation/guards/google.auth-guard';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { SignedInRequest } from '@auth/presentation/model/signed-in-request';
-import { User } from '@app/users/domain/user';
+import { User } from '@users/domain/user';
+import { SignedInUser } from '../domain/signed-in-user';
 
 const AUTH_API_ROUTE = 'auth';
+
+const IdToken = () => Body('idToken');
 
 @Controller(AUTH_API_ROUTE)
 export class AuthController {
@@ -23,13 +28,18 @@ export class AuthController {
         private configService: ConfigService,
     ) {}
 
+    @Post()
+    async signInWithIdtoken(@IdToken() idToken: string): Promise<SignedInUser> {
+        return this.authService.signInGoogle(idToken);
+    }
+
     @UseGuards(GoogleAuthGuard)
     @Redirect()
     @Get('google-redirect')
     async catchGoogleRedirect(
         @Req() req: SignedInRequest,
     ): Promise<HttpRedirectResponse> {
-        const { token } = this.authService.signIn(req.user);
+        const { token } = this.authService.signInStandard(req.user);
         return this.redirectToClientApp(token);
     }
 
