@@ -36,7 +36,7 @@ export class AuthService {
         private userRepository: UserRepository,
     ) {}
 
-    async signInGoogle(idToken: string): Promise<string> {
+    async signInGoogle(idToken: string): Promise<SignedInUser> {
         const response = await this.googleClient.verifyIdToken({
             idToken,
             audience: this.configService.getOrThrow('OAUTH_IOS_CLIENT'),
@@ -47,8 +47,7 @@ export class AuthService {
         const profile = this.extractGoogleProfileFrom(payload);
         const user = await this.getOrCreateUserFrom(profile);
 
-        const { token } = this.signInStandard(user);
-        return token;
+        return this.signInStandard(user);
     }
 
     signInStandard(user: User): SignedInUser {
