@@ -1,23 +1,30 @@
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
+import { DefaultPostgresService } from './postgres.service';
+import { KnexModule } from 'nestjs-knex';
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
     imports: [
-        TypeOrmModule.forRootAsync({
-            imports: [ConfigModule],
+        KnexModule.forRootAsync({
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
-                return {
-                    type: 'postgres',
+                const options = {
                     host: configService.getOrThrow('POSTGRES_HOST'),
                     port: configService.getOrThrow('POSTGRES_PORT'),
                     database: configService.getOrThrow('POSTGRES_DB'),
                     user: configService.getOrThrow('POSTGRES_USER'),
                     password: configService.getOrThrow('POSTGRES_PASSWORD'),
                 };
+
+                return {
+                    config: {
+                        client: 'postgres',
+                        connection: options,
+                    },
+                };
             },
         }),
     ],
+    providers: [DefaultPostgresService],
 })
 export class PostgresModule {}
