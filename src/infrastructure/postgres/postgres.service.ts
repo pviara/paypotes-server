@@ -14,7 +14,7 @@ export class DefaultPostgresService
         return this.knex.destroy(this.logDatabaseConnectionDestroyed());
     }
 
-    async onModuleInit(): Promise<void> {
+    onModuleInit(): Promise<void> {
         this.checkDatabaseConnected();
         this.logConnectedToDatabase();
         return this.knex.migrate.latest({

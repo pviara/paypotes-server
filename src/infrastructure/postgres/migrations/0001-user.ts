@@ -10,6 +10,7 @@ export async function up(knex: Knex): Promise<void> {
             table.string('firstname', 30).notNullable().defaultTo('');
             table.string('lastname', 30).notNullable().defaultTo('');
             table.string('email', 50).notNullable().defaultTo('');
+            table.string('avatar_url', 100).notNullable().defaultTo('');
         });
     }
 }
