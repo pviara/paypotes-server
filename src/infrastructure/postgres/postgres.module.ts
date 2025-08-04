@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { DefaultPostgresService } from './postgres.service';
 import { KnexModule } from 'nestjs-knex';
 import { Module } from '@nestjs/common';
+import * as path from 'path';
 
 @Module({
     imports: [
