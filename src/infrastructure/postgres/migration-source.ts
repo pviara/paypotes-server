@@ -18,9 +18,9 @@ export class MigrationSource implements Knex.MigrationSource<string> {
 
     async getMigrations(): Promise<string[]> {
         const dirents = readdirSync(this.path, { withFileTypes: true });
-        console.log('dirs', dirents);
         return dirents
-            .filter((directory) => directory.isFile())
-            .map((directory) => directory.name);
+            .filter((dirent) => dirent.isFile())
+            .filter((dirent) => dirent.name.endsWith('.js'))
+            .map((dirent) => dirent.name);
     }
 }

@@ -6,10 +6,10 @@ export async function up(knex: Knex): Promise<void> {
     const exists = await knex.schema.hasTable(TABLE_NAME);
     if (!exists) {
         return knex.schema.createTable(TABLE_NAME, (table) => {
-            table.uuid('id', { primaryKey: true });
-            table.string('firstname', 30);
-            table.string('lastname', 30);
-            table.string('email', 50);
+            table.uuid('id', { primaryKey: true }).notNullable();
+            table.string('firstname', 30).notNullable().defaultTo('');
+            table.string('lastname', 30).notNullable().defaultTo('');
+            table.string('email', 50).notNullable().defaultTo('');
         });
     }
 }
