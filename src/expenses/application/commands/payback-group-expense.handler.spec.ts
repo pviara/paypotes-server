@@ -82,7 +82,7 @@ describe('PaybackGroupExpenseHandler', () => {
                     balance: 1000,
                     creditor: generateRandomMember(),
                 };
-                return new GroupExpense(metadata, dummyGroup, payment);
+                return GroupExpense.create(metadata, dummyGroup, payment);
             }
 
             function expectOtherCounterpartiesShareNotToHaveBeenSettled(): void {
@@ -119,7 +119,7 @@ describe('PaybackGroupExpenseHandler', () => {
                     balance: 1000,
                     creditor: Member.fromUser(DEFAULT_USER),
                 };
-                return new GroupExpense(metadata, dummyGroup, payment);
+                return GroupExpense.create(metadata, dummyGroup, payment);
             }
 
             function expectOtherCounterpartiesToHaveTheirShareSettledIn(

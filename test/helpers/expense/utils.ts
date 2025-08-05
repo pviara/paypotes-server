@@ -101,7 +101,7 @@ export const generateRandomStakeholders = ({
 export const generateDefaultUserPairExpense = (): PairExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomPairPaymentWithDefaultUser();
-    return new PairExpense(metadata, payment);
+    return PairExpense.create(metadata, payment);
 };
 
 export const generateDefaultUserPairExpenses = ({
@@ -111,14 +111,14 @@ export const generateDefaultUserPairExpenses = ({
     return Array.from({ length }).map((_, index) => {
         const metadata = generateRandomMetadata({ label: `label_${index}` });
         const payment = generateRandomPairPaymentWithDefaultUser(counterparty);
-        return new PairExpense(metadata, payment);
+        return PairExpense.create(metadata, payment);
     });
 };
 
 export const generateDefaultUserGroupExpense = (group: Group): GroupExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomGroupPaymentWithDefaultUserIn(group);
-    return new GroupExpense(metadata, group, payment);
+    return GroupExpense.create(metadata, group, payment);
 };
 
 export const generateDefaultUserGroupExpenses = ({
@@ -132,7 +132,7 @@ export const generateDefaultUserGroupExpenses = ({
             group,
             counterparty,
         );
-        return new GroupExpense(metadata, group, payment);
+        return GroupExpense.create(metadata, group, payment);
     });
 };
 

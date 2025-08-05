@@ -80,7 +80,7 @@ describe('PaybackPairExpenseHandler', () => {
                     creditor: generateRandomUser(),
                     debtor: DEFAULT_USER,
                 };
-                return new PairExpense(metadata, payment);
+                return PairExpense.create(metadata, payment);
             }
         });
 
@@ -105,7 +105,7 @@ describe('PaybackPairExpenseHandler', () => {
                     creditor: DEFAULT_USER,
                     debtor: generateRandomUser(),
                 };
-                return new PairExpense(metadata, payment);
+                return PairExpense.create(metadata, payment);
             }
         });
     });

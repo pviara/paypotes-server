@@ -73,7 +73,7 @@ describe('ComputeActorBalanceHandler', () => {
         const metadata = generateRandomMetadata();
         const creditor = Member.fromUser(DEFAULT_USER);
 
-        return new GroupExpense(metadata, dummyGroup, {
+        return GroupExpense.create(metadata, dummyGroup, {
             balance,
             creditor,
         });
@@ -88,7 +88,7 @@ describe('ComputeActorBalanceHandler', () => {
             creditor,
             debtor: generateRandomUser(),
         };
-        return new PairExpense(metadata, payment);
+        return PairExpense.create(metadata, payment);
     }
 
     function createRandomDebitPairExpense(balance: number): Expense {
@@ -100,6 +100,6 @@ describe('ComputeActorBalanceHandler', () => {
             creditor,
             debtor: DEFAULT_USER,
         };
-        return new PairExpense(metadata, payment);
+        return PairExpense.create(metadata, payment);
     }
 });

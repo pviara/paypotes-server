@@ -30,11 +30,11 @@ describe('GetActorExpensesHandler', () => {
 
     const otherMembers = dummyGroup.getMembersExcluding(dummyActorId);
     const dummyExpenses = [
-        new GroupExpense(generateRandomMetadata(), dummyGroup, {
+        GroupExpense.create(generateRandomMetadata(), dummyGroup, {
             balance: 1000,
             creditor: getRandomMemberFrom(otherMembers),
         }),
-        new PairExpense(generateRandomMetadata(), {
+        PairExpense.create(generateRandomMetadata(), {
             balance: 2000,
             creditor: generateRandomUser(),
             debtor: DEFAULT_USER,

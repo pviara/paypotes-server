@@ -104,7 +104,7 @@ describe('GetActorGroupsWithBalanceHandler', () => {
             balance,
             creditor: Member.fromUser(DEFAULT_USER),
         };
-        return new GroupExpense(metadata, group, payment);
+        return GroupExpense.create(metadata, group, payment);
     }
 
     function createRandomDebitExpenseFor(
@@ -118,7 +118,7 @@ describe('GetActorGroupsWithBalanceHandler', () => {
                 group.getMembersExcluding(DEFAULT_USER.getId()),
             ),
         };
-        return new GroupExpense(metadata, group, payment);
+        return GroupExpense.create(metadata, group, payment);
     }
 
     function getRandomMemberFrom(members: Array<Member>): Member {

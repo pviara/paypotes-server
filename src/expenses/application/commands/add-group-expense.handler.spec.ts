@@ -115,7 +115,7 @@ describe('AddGroupExpenseHandler', () => {
             balance: dummyCommand.payload.balance,
             creditor: dummyMember,
         };
-        const expense = new GroupExpense(metadata, dummyGroup, payment);
+        const expense = GroupExpense.create(metadata, dummyGroup, payment);
 
         expect(expenseRepo.calls.save.count).toBe(1);
         expect(expenseRepo.calls.save.history).toContainEqual(expense);

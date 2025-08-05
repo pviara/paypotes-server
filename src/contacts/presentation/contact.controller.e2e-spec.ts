@@ -169,7 +169,7 @@ describe('ContactController', () => {
                         creditor: DEFAULT_USER,
                         debtor: user,
                     };
-                    return new PairExpense(metadata, payment);
+                    return PairExpense.create(metadata, payment);
                 }
 
                 function createRandomDebitExpenseFor(
@@ -182,7 +182,7 @@ describe('ContactController', () => {
                         creditor: stakeholder,
                         debtor: DEFAULT_USER,
                     };
-                    return new PairExpense(metadata, payment);
+                    return PairExpense.create(metadata, payment);
                 }
 
                 function expectAllReturnedDtosToHaveRightBalance(

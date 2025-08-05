@@ -782,7 +782,7 @@ describe('ExpenseController', () => {
                     creditor: Member.fromUser(DEFAULT_USER),
                 };
 
-                return new GroupExpense(
+                return GroupExpense.create(
                     dummyMetadata,
                     dummyGroup,
                     dummyPayment,
@@ -1340,7 +1340,7 @@ describe('ExpenseController', () => {
             balance: generateRandomBalance(),
             creditor: generateRandomMember(),
         };
-        return new GroupExpense(metadata, group, payment);
+        return GroupExpense.create(metadata, group, payment);
     }
 
     function createRandomCreditExpenseFor(group: Group): GroupExpense {
@@ -1349,6 +1349,6 @@ describe('ExpenseController', () => {
             balance: generateRandomBalance(),
             creditor: Member.fromUser(DEFAULT_USER),
         };
-        return new GroupExpense(metadata, group, payment);
+        return GroupExpense.create(metadata, group, payment);
     }
 });

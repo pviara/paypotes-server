@@ -10,13 +10,25 @@ export type PairPayment = {
 };
 
 export class PairExpense extends Expense {
-    protected stakeholders = this.mapStakeholdersFromUsers();
-
-    constructor(
+    private constructor(
         metadata: Metadata,
         protected payment: PairPayment,
+        stakeholders: Array<Stakeholder>,
     ) {
-        super(metadata, payment);
+        super(metadata, payment, stakeholders);
+    }
+
+    static create(metadata: Metadata, payment: PairPayment): PairExpense {
+        const stakeholders = this.mapStakeholdersFrom(payment);
+        return new PairExpense(metadata, payment, stakeholders);
+    }
+
+    private static mapStakeholdersFrom(
+        payment: PairPayment,
+    ): Array<Stakeholder> {
+        const { balance, creditor, debtor } = payment;
+        const users = [creditor, debtor];
+        return new Stakeholders(users, balance).getValue();
     }
 
     getCounterpartyOf(stakeholderId: string): Stakeholder {
@@ -29,12 +41,6 @@ export class PairExpense extends Expense {
     settleCounterpartyShareOf(stakeholderId: string): void {
         const [counterparty] = this.getCounterpartiesOf(stakeholderId);
         return counterparty.settle();
-    }
-
-    private mapStakeholdersFromUsers(): Array<Stakeholder> {
-        const { balance, creditor, debtor } = this.payment;
-        const users = [creditor, debtor];
-        return new Stakeholders(users, balance).getValue();
     }
 
     private getMatchingStakeholder(debtor: User): Stakeholder {

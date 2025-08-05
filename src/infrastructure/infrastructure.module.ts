@@ -4,6 +4,6 @@ import { PostgresModule } from '@infra/postgres/postgres.module';
 
 @Module({
     exports: [ConfigModule],
-    imports: [ConfigModule.forRoot({ isGlobal: true }), PostgresModule],
+    imports: [ConfigModule.forRoot({ isGlobal: true })],
 })
 export class InfrastructureModule {}

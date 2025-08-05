@@ -10,14 +10,31 @@ export type GroupPayment = {
 };
 
 export class GroupExpense extends Expense {
-    protected stakeholders = this.mapStakeholdersFromGroupMembers();
-
     constructor(
-        protected metadata: Metadata,
+        metadata: Metadata,
         private group: Group,
         protected payment: GroupPayment,
+        stakeholders: Array<Stakeholder>,
     ) {
-        super(metadata, payment);
+        super(metadata, payment, stakeholders);
+    }
+
+    static create(
+        metadata: Metadata,
+        group: Group,
+        payment: GroupPayment,
+    ): GroupExpense {
+        const stakeholders = this.mapStakeholdersFrom(group, payment);
+        return new GroupExpense(metadata, group, payment, stakeholders);
+    }
+
+    private static mapStakeholdersFrom(
+        group: Group,
+        payment: GroupPayment,
+    ): Array<Stakeholder> {
+        const { balance } = payment;
+        const members = group.getMembers();
+        return new Stakeholders(members, balance).getValue();
     }
 
     belongsTo(groupId: string): boolean {
@@ -36,11 +53,5 @@ export class GroupExpense extends Expense {
         return stakeholderIds
             .map((stakeholderId) => this.getStakeholderUsing(stakeholderId))
             .forEach((stakeholder) => stakeholder.settle());
-    }
-
-    private mapStakeholdersFromGroupMembers(): Array<Stakeholder> {
-        const { balance } = this.payment;
-        const members = this.group.getMembers();
-        return new Stakeholders(members, balance).getValue();
     }
 }
