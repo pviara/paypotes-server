@@ -5,7 +5,7 @@ export async function up(knex: Knex): Promise<void> {
     if (!exists) {
         return knex.schema.createTable('groups', (table) => {
             table.uuid('id', { primaryKey: true }).notNullable();
-            table.string('name', 25).notNullable().defaultTo('');
+            table.string('name', 30).notNullable().defaultTo('');
             table.string('emoji', 1).notNullable().defaultTo('❔');
         });
     }
