@@ -22,6 +22,8 @@ export async function up(knex: Knex): Promise<void> {
         await knex.raw(`
             create index users_full_name_gin_index on users using gin(full_name);
         `);
+
+        await knex('users').insert({ id: process.env.DEFAULT_UUID });
     }
 }
 

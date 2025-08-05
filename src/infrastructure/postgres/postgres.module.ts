@@ -2,7 +2,6 @@ import { ConfigService } from '@nestjs/config';
 import { DefaultPostgresService } from './postgres.service';
 import { KnexModule } from 'nestjs-knex';
 import { Module } from '@nestjs/common';
-import * as path from 'path';
 
 @Module({
     imports: [
@@ -11,7 +10,10 @@ import * as path from 'path';
             useFactory: (configService: ConfigService) => {
                 const options = {
                     host: configService.getOrThrow('POSTGRES_HOST'),
-                    port: configService.getOrThrow('POSTGRES_PORT'),
+                    port:
+                        configService.getOrThrow('APP_ENVIRONMENT') !== 'test'
+                            ? configService.getOrThrow('POSTGRES_PORT')
+                            : configService.getOrThrow('POSTGRES_TEST_PORT'),
                     database: configService.getOrThrow('POSTGRES_DB'),
                     user: configService.getOrThrow('POSTGRES_USER'),
                     password: configService.getOrThrow('POSTGRES_PASSWORD'),

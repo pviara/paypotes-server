@@ -8,8 +8,8 @@ export class MigrationSource implements Knex.MigrationSource<string> {
         '../../infrastructure/postgres/migrations',
     );
 
-    async getMigration(migration: string): Promise<Knex.Migration> {
-        return await import(path.join(this.path, migration));
+    getMigration(migration: string): Promise<Knex.Migration> {
+        return import(path.join(this.path, migration));
     }
 
     getMigrationName(migration: string): string {

@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<void> {
     const exists = await knex.schema.hasTable('relationships');
     if (!exists) {
         return knex.schema.createTable('relationships', (table) => {
-            const [USER_A, USER_B] = ['user_a', 'user_b'];
+            const [USER_A, USER_B] = ['user_a_id', 'user_b_id'];
 
             table.uuid(USER_A).notNullable();
             table.uuid(USER_B).notNullable();
