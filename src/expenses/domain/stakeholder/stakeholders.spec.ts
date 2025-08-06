@@ -59,23 +59,23 @@ describe('Stakeholders', () => {
     });
 
     it('should return the right shares for both creditor and debtors', () => {
-        const dummyBalance = 3000;
+        const dummyBalance = 120;
         const dummyCreditor = generateRandomUser();
-        const dummyDebtors = generateRandomMembers({ length: 3 });
+        const dummyDebtors = generateRandomMembers({ length: 5 });
         const stakeholders = Stakeholders.create({
             balance: dummyBalance,
             creditor: dummyCreditor,
             debtors: dummyDebtors,
         });
 
-        const expectedCreditorShare = 2250;
+        const expectedCreditorShare = 100;
         const creditorStakeholder = getStakeholderProfileFrom(
             stakeholders,
             dummyCreditor,
         );
         expect(creditorStakeholder.getShare()).toBe(expectedCreditorShare);
 
-        const expectedDebtorShare = 750;
+        const expectedDebtorShare = 20;
         const debtorStakeholders = getStakeholderProfilesFrom(
             stakeholders,
             dummyDebtors,

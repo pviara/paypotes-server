@@ -51,7 +51,7 @@ export class GroupExpense extends Expense {
         payment: GroupPayment,
     ): Array<Stakeholder> {
         const { balance, creditor } = payment;
-        const members = group.getMembers();
-        return Stakeholders.create({ balance, creditor, debtors: members });
+        const debtors = group.getMembersExcluding(creditor.getId());
+        return Stakeholders.create({ balance, creditor, debtors });
     }
 }

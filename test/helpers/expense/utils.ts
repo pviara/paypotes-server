@@ -198,12 +198,9 @@ const calculateBalanceBasedOn = (
         const membersTotalOwedShares = (balance / members) * (members - 1);
         const defaultUserShare = expense.getShareOf(DEFAULT_USER.getId());
 
-        const share = isDefaultUserCreditor
+        return isDefaultUserCreditor
             ? membersTotalOwedShares
             : defaultUserShare;
-
-        console.log('group share for balance', balance, share);
-        return share;
     }
     const share = +expense.getBalance() / 2;
     console.log('expense share for balance', expense.getBalance(), share);
