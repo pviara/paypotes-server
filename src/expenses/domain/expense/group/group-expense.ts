@@ -28,15 +28,6 @@ export class GroupExpense extends Expense {
         return new GroupExpense(metadata, group, payment, stakeholders);
     }
 
-    private static mapStakeholdersFrom(
-        group: Group,
-        payment: GroupPayment,
-    ): Array<Stakeholder> {
-        const { balance } = payment;
-        const members = group.getMembers();
-        return new Stakeholders(members, balance).getValue();
-    }
-
     belongsTo(groupId: string): boolean {
         return this.group.getId() === groupId;
     }
@@ -53,5 +44,14 @@ export class GroupExpense extends Expense {
         return stakeholderIds
             .map((stakeholderId) => this.getStakeholderUsing(stakeholderId))
             .forEach((stakeholder) => stakeholder.settle());
+    }
+
+    private static mapStakeholdersFrom(
+        group: Group,
+        payment: GroupPayment,
+    ): Array<Stakeholder> {
+        const { balance } = payment;
+        const members = group.getMembers();
+        return new Stakeholders(members, balance).getValue();
     }
 }

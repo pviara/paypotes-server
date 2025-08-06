@@ -23,14 +23,6 @@ export class PairExpense extends Expense {
         return new PairExpense(metadata, payment, stakeholders);
     }
 
-    private static mapStakeholdersFrom(
-        payment: PairPayment,
-    ): Array<Stakeholder> {
-        const { balance, creditor, debtor } = payment;
-        const users = [creditor, debtor];
-        return new Stakeholders(users, balance).getValue();
-    }
-
     getCounterpartyOf(stakeholderId: string): Stakeholder {
         const { creditor, debtor } = this.payment;
         return creditor.getId() === stakeholderId
@@ -52,5 +44,13 @@ export class PairExpense extends Expense {
         throw new Error(
             'No stakeholder could be found for debtor with id ${debtor.getId()}',
         );
+    }
+
+    private static mapStakeholdersFrom(
+        payment: PairPayment,
+    ): Array<Stakeholder> {
+        const { balance, creditor, debtor } = payment;
+        const users = [creditor, debtor];
+        return new Stakeholders(users, balance).getValue();
     }
 }
