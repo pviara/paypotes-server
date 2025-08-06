@@ -10,6 +10,7 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMembers } from '@test/helpers/group/utils';
+import { generateRandomUser } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { Member } from '@groups/domain/member';
@@ -17,7 +18,6 @@ import {
     PairExpense,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
-import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('ComputeActorBalanceHandler', () => {
     let sut: ComputeActorBalanceHandler;

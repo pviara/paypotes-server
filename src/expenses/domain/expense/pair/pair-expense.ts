@@ -50,7 +50,6 @@ export class PairExpense extends Expense {
         payment: PairPayment,
     ): Array<Stakeholder> {
         const { balance, creditor, debtor } = payment;
-        const users = [creditor, debtor];
-        return new Stakeholders(users, balance).getValue();
+        return Stakeholders.create({ balance, creditor, debtors: [debtor] });
     }
 }

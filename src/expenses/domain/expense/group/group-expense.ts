@@ -50,8 +50,8 @@ export class GroupExpense extends Expense {
         group: Group,
         payment: GroupPayment,
     ): Array<Stakeholder> {
-        const { balance } = payment;
+        const { balance, creditor } = payment;
         const members = group.getMembers();
-        return new Stakeholders(members, balance).getValue();
+        return Stakeholders.create({ balance, creditor, debtors: members });
     }
 }

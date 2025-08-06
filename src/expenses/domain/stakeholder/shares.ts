@@ -1,32 +1,44 @@
 import { Person } from '@expenses/domain/stakeholder/stakeholder';
 
 export class Shares {
-    private shares = this.calculate();
+    private constructor(private value: Array<number>) {}
 
-    constructor(
-        private persons: Array<Person>,
-        private balance: number,
-    ) {}
-
-    getValue(): Array<number> {
-        return this.shares;
+    static calculate(data: {
+        balance: number;
+        persons: Array<Person>;
+    }): Array<number> {
+        const shares = this.calculateRoundedSharesFrom(
+            data.balance,
+            data.persons,
+        );
+        const rest = this.calculateRestFrom(data.balance, shares);
+        const fullyDistributedShares = this.redistribute(rest, shares);
+        return new Shares(fullyDistributedShares).value;
     }
 
-    private calculate(): Array<number> {
-        const shares = this.getRoundedShares();
-        const rest = this.calculateRestFrom(shares);
-
-        for (let i = 0; i < rest; i++) shares[i]++;
-        return shares;
+    private static calculateRoundedSharesFrom(
+        balance: number,
+        persons: Array<Person>,
+    ): Array<number> {
+        const roundedShare = Math.floor(balance / persons.length);
+        return Array(persons.length).fill(roundedShare);
     }
 
-    private getRoundedShares(): Array<number> {
-        const roundedShare = Math.floor(this.balance / this.persons.length);
-        return Array(this.persons.length).fill(roundedShare);
-    }
-
-    private calculateRestFrom(shares: Array<number>): number {
+    private static calculateRestFrom(
+        balance: number,
+        shares: Array<number>,
+    ): number {
         const distributed = shares.reduce((prev, next) => prev + next, 0);
-        return this.balance - distributed;
+        return balance - distributed;
+    }
+
+    private static redistribute(
+        rest: number,
+        shares: Array<number>,
+    ): Array<number> {
+        const newShares = Array.from(shares);
+        for (let i = 0; i < rest; i++) newShares[i]++;
+
+        return newShares;
     }
 }

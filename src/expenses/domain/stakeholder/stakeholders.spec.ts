@@ -1,13 +1,17 @@
 import { generateRandomMembers } from '@test/helpers/group/utils';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { Stakeholders } from '@expenses/domain/stakeholder/stakeholders';
+import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('Stakeholders', () => {
     it('should return 0 for each when given balance is 0', () => {
         const dummyMembers = generateRandomMembers();
-        const sut = new Stakeholders(dummyMembers, 0);
+        const stakeholders = Stakeholders.create({
+            balance: 0,
+            creditor: generateRandomUser(),
+            debtors: dummyMembers,
+        });
 
-        const stakeholders = sut.getValue();
         expectAllStakeholdersShareToBe(0, stakeholders);
     });
 
@@ -20,9 +24,12 @@ describe('Stakeholders', () => {
         'should return %d for each stakeholder when given balance is %d and there are %d group members',
         (share, balance, length) => {
             const dummyMembers = generateRandomMembers({ length });
-            const sut = new Stakeholders(dummyMembers, balance);
+            const stakeholders = Stakeholders.create({
+                balance,
+                creditor: generateRandomUser(),
+                debtors: dummyMembers,
+            });
 
-            const stakeholders = sut.getValue();
             expectAllStakeholdersShareToBe(share, stakeholders);
         },
     );
@@ -36,11 +43,15 @@ describe('Stakeholders', () => {
         [11, 3],
     ])('should return integer shares', (balance, length) => {
         const dummyMembers = generateRandomMembers({ length });
-        const sut = new Stakeholders(dummyMembers, balance);
+        const stakeholders = Stakeholders.create({
+            balance,
+            creditor: generateRandomUser(),
+            debtors: dummyMembers,
+        });
 
-        const shares = sut
-            .getValue()
-            .map((stakeholder) => stakeholder.getShare());
+        const shares = stakeholders.map((stakeholder) =>
+            stakeholder.getShare(),
+        );
 
         expectAllSharesToBeIntegers(shares);
     });
@@ -56,11 +67,13 @@ describe('Stakeholders', () => {
         'should return shares that when sumed up equal initial balance',
         (balance, length) => {
             const dummyMembers = generateRandomMembers({ length });
-            const sut = new Stakeholders(dummyMembers, balance);
+            const stakeholders = Stakeholders.create({
+                balance,
+                creditor: generateRandomUser(),
+                debtors: dummyMembers,
+            });
 
-            const stakeholders = sut.getValue();
             const total = calcTotalSharesFrom(stakeholders);
-
             expect(total).toBe(balance);
         },
     );
