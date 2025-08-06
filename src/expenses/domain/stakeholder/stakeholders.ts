@@ -1,12 +1,7 @@
 import { Person, Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
-import { Shares } from './shares';
+import { Shares } from '@expenses/domain/stakeholder/shares';
 
-type PersonWithTheirShare = {
-    person: Person;
-    share: number;
-};
-
-type StakeholdersPayload = {
+type CreateStakeholders = {
     balance: number;
     creditor: Person;
     debtors: Array<Person>;
@@ -15,9 +10,9 @@ type StakeholdersPayload = {
 export class Stakeholders {
     private constructor(private value: Array<Stakeholder>) {}
 
-    static create(data: StakeholdersPayload): Array<Stakeholder> {
-        const { balance } = data;
-        const persons = [data.creditor].concat(data.debtors);
+    static create(data: CreateStakeholders): Array<Stakeholder> {
+        const { balance, creditor, debtors } = data;
+        const persons = [creditor].concat(debtors);
         const shares = Shares.calculate({ balance, persons });
 
         const stakeholders = this.mapStakeholdersFrom(data, shares);
@@ -25,7 +20,7 @@ export class Stakeholders {
     }
 
     private static mapStakeholdersFrom(
-        data: { balance: number; creditor: Person; debtors: Array<Person> },
+        data: CreateStakeholders,
         shares: Array<number>,
     ): Array<Stakeholder> {
         const debtors = this.mapDebtorsFrom(data.debtors, shares);
