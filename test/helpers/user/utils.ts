@@ -3,15 +3,15 @@ import { Modules } from '@test/helpers/application/model/module';
 import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { User } from '@users/domain/user';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { UserModule } from '@users/user.module';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const userSpecModules: Modules = [UserModule];
 export const userSpecProviders: Providers = [
     {
         provide: userRepositoryToken,
-        useClass: UserInMemoryTestingRepository,
+        useClass: UserPostgresTestingRepository,
     },
 ];
 

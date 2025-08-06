@@ -9,14 +9,14 @@ import { Member } from '@groups/domain/member';
 import { Modules } from '@test/helpers/application/model/module';
 import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const groupSpecModules: Modules = [GroupModule];
 export const groupSpecProviders: Providers = [
     {
         provide: userRepositoryToken,
-        useClass: UserInMemoryTestingRepository,
+        useClass: UserPostgresTestingRepository,
     },
     {
         provide: groupRepositoryToken,

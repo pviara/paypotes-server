@@ -36,7 +36,7 @@ describe('ContactController', () => {
     let expenseRepo: ExpenseInMemoryTestingRepository;
     let httpServer: App;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await application.bootstrap();
 
         contactRepo = application.getRepository('contact');
@@ -44,7 +44,12 @@ describe('ContactController', () => {
         httpServer = application.getHttpServer();
     });
 
-    afterEach(shutdown(application));
+    afterAll(shutdown(application));
+
+    beforeEach(async () => {
+        await expenseRepo.empty();
+        await contactRepo.empty();
+    });
 
     describe('GET /contacts', () => {
         describe('actor has no contact', () => {

@@ -21,8 +21,8 @@ import {
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { User } from '@users/domain/user';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { ZERO } from '@app/shared/zero';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
@@ -37,7 +37,7 @@ export const expenseSpecProviders: Providers = [
     },
     {
         provide: userRepositoryToken,
-        useClass: UserInMemoryTestingRepository,
+        useClass: UserPostgresTestingRepository,
     },
 ];
 

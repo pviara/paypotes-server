@@ -3,10 +3,7 @@ import { readdirSync } from 'fs';
 import * as path from 'path';
 
 export class MigrationSource implements Knex.MigrationSource<string> {
-    private path = path.resolve(
-        __dirname,
-        '../../infrastructure/postgres/migrations',
-    );
+    private readonly path = process.env['POSTGRES_MIGRATIONS_PATH'] ?? '';
 
     getMigration(migration: string): Promise<Knex.Migration> {
         return import(path.join(this.path, migration));

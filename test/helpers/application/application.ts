@@ -19,7 +19,7 @@ import { Nullable } from '@app/shared/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { UserPostgresTestingRepository } from '../user/user.postgres-testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type ApplicationResources = {
@@ -36,7 +36,7 @@ type Repository = {
           : key extends 'group'
             ? GroupInMemoryTestingRepository
             : key extends 'user'
-              ? UserInMemoryTestingRepository
+              ? UserPostgresTestingRepository
               : never;
 };
 

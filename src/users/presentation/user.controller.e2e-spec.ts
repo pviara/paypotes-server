@@ -4,7 +4,7 @@ import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { raw, shutdown } from '@test/helpers/utils';
 import { UserDTO } from '@users/presentation/dto/user.dto';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import {
     userSpecModules as modules,
     userSpecProviders as providers,
@@ -16,16 +16,21 @@ import * as request from 'supertest';
 describe('UserController', () => {
     const application = initApplicationWith(modules, providers);
 
-    let userRepo: UserInMemoryTestingRepository;
+    let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await application.bootstrap();
-        userRepo = application.getRepository('user');
         httpServer = application.getHttpServer();
+
+        userRepo = application.getRepository('user');
     });
 
-    afterEach(shutdown(application));
+    afterAll(shutdown(application));
+
+    beforeEach(async () => {
+        await userRepo.empty();
+    });
 
     describe('GET /user/:name', () => {
         const invalidStrings = ['580940', 'test3104', '@', '___'];

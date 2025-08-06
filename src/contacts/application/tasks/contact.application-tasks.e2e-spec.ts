@@ -13,14 +13,15 @@ import { initMessagingApplicationWith } from '@test/helpers/application/utils';
 import { mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { setTimeout } from 'node:timers/promises';
 import { User } from '@users/domain/user';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
 
+// todo some tests here don't work
 describe('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules, providers);
 
     let contactRepo: ContactRepository;
-    let userRepo: UserInMemoryTestingRepository;
+    let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
     const NO_PAGE_INDEX = 0;
@@ -35,7 +36,7 @@ describe('contact application tasks', () => {
     const groupId = crypto.randomUUID();
     const userIds = mapIdsFrom(dummyGroupMembers);
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await application.bootstrap();
 
         contactRepo = application.getRepository('contact');
@@ -46,11 +47,15 @@ describe('contact application tasks', () => {
         await userRepo.insert(...dummyGroupMembers);
     });
 
-    afterEach(shutdown(application));
+    afterAll(shutdown(application));
+
+    beforeEach(async () => {
+        await userRepo.empty();
+    });
 
     it('should add a relationship between pair expense users', async () => {
         const dummyUser = generateRandomUser();
-        await userRepo.insert(DEFAULT_USER, dummyUser);
+        await userRepo.insert(dummyUser);
 
         const expenseId = crypto.randomUUID();
         await request(httpServer).post(`/${EXPENSES_API_ROUTE}/pair`).send({

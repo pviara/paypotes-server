@@ -5,9 +5,9 @@ import { GroupModule } from '@groups/group.module';
 import { InfrastructureModule } from '@infra/infrastructure.module';
 import { Modules } from '@test/helpers/application/model/module';
 import { Providers } from '@test/helpers/application/application';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { UserModule } from '@users/user.module';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 
 export const contactTasksSpecModules: Modules = [
     AuthFakeModule,
@@ -20,6 +20,6 @@ export const contactTasksSpecModules: Modules = [
 export const contactTasksSpecProviders: Providers = [
     {
         provide: userRepositoryToken,
-        useClass: UserInMemoryTestingRepository,
+        useClass: UserPostgresTestingRepository,
     },
 ];

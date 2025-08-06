@@ -27,7 +27,7 @@ import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
@@ -35,10 +35,10 @@ describe('GroupController', () => {
 
     let groupRepo: GroupInMemoryTestingRepository;
     let expenseRepo: ExpenseInMemoryTestingRepository;
-    let userRepo: UserInMemoryTestingRepository;
+    let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await application.bootstrap();
 
         groupRepo = application.getRepository('group');
@@ -47,7 +47,13 @@ describe('GroupController', () => {
         httpServer = application.getHttpServer();
     });
 
-    afterEach(shutdown(application));
+    afterAll(shutdown(application));
+
+    beforeEach(async () => {
+        await expenseRepo.empty();
+        await groupRepo.empty();
+        await userRepo.empty();
+    });
 
     describe('GET /groups', () => {
         describe('actor has no groups', () => {

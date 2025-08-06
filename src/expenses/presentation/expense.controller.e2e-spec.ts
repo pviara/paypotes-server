@@ -39,7 +39,7 @@ import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
 import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 import { StakeholderDTO } from '@expenses/presentation/dto/stakeholder.dto';
 import { User } from '@users/domain/user';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
 
 describe('ExpenseController', () => {
@@ -47,12 +47,12 @@ describe('ExpenseController', () => {
 
     let expenseRepo: ExpenseInMemoryTestingRepository;
     let groupRepo: GroupInMemoryTestingRepository;
-    let userRepo: UserInMemoryTestingRepository;
+    let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
     const actorId = DEFAULT_USER.getId();
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await application.bootstrap();
 
         expenseRepo = application.getRepository('expense');
@@ -61,7 +61,13 @@ describe('ExpenseController', () => {
         httpServer = application.getHttpServer();
     });
 
-    afterEach(shutdown(application));
+    afterAll(shutdown(application));
+
+    beforeEach(async () => {
+        await expenseRepo.empty();
+        await groupRepo.empty();
+        await userRepo.empty();
+    });
 
     describe('GET /balance', () => {
         describe('actor has no expense at all', () => {
