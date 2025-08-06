@@ -1,5 +1,6 @@
 import { Person, Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { Shares } from '@expenses/domain/stakeholder/shares';
+import { ZERO } from '@app/shared/zero';
 
 type CreateStakeholders = {
     balance: number;
@@ -50,6 +51,9 @@ export class Stakeholders {
     private static calculateDistributedSharesFrom(
         debtors: Array<Stakeholder>,
     ): number {
-        return debtors.reduce((prev, current) => prev + current.getShare(), 0);
+        return debtors.reduce(
+            (prev, current) => prev + current.getShare(),
+            ZERO,
+        );
     }
 }

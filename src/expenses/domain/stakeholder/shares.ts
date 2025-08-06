@@ -1,3 +1,4 @@
+import { ZERO } from '@app/shared/zero';
 import { Person } from '@expenses/domain/stakeholder/stakeholder';
 
 type CalculateShares = {
@@ -27,7 +28,10 @@ export class Shares {
         balance: number,
         shares: Array<number>,
     ): number {
-        const distributed = shares.reduce((prev, current) => prev + current, 0);
+        const distributed = shares.reduce(
+            (prev, current) => prev + current,
+            ZERO,
+        );
         return balance - distributed;
     }
 

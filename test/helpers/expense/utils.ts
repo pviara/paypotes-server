@@ -23,6 +23,7 @@ import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { User } from '@users/domain/user';
 import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { ZERO } from '@app/shared/zero';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: Providers = [
@@ -178,7 +179,7 @@ export const calculateExpectedBalanceFor = (
         const isDefaultUserCreditor = current.hasCreditor(DEFAULT_USER.getId());
         const balance = calculateBalanceBasedOn(current, isDefaultUserCreditor);
         return prev + (isDefaultUserCreditor ? balance : -balance);
-    }, 0);
+    }, ZERO);
 };
 
 const generateRandomPastDate = (): Date => {
