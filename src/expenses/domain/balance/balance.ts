@@ -1,25 +1,28 @@
 import { Expense } from '@expenses/domain/expense/expense';
 import { Position } from '@expenses/domain/balance/position';
 
+type CalculateBalance = {
+    expenses: Array<Expense>;
+    stakeholderId: string;
+};
+
 /**
  * Represents the total financial position of a stakeholder across multiple expenses.
  */
 export class Balance {
-    private readonly ZERO = 0;
-    private readonly expenses: Array<Expense>;
+    private static readonly ZERO = 0;
 
-    constructor(expenses: Array<Expense>) {
-        this.expenses = expenses;
-    }
+    private constructor(private value: number) {}
 
-    calculateFor(stakeholderId: string): number {
-        return this.expenses.reduce(
+    static calculate({ expenses, stakeholderId }: CalculateBalance): number {
+        const balance = expenses.reduce(
             this.calculateExpenseBalanceFor(stakeholderId),
             this.ZERO,
         );
+        return new Balance(balance).value;
     }
 
-    private calculateExpenseBalanceFor(
+    private static calculateExpenseBalanceFor(
         stakeholderId: string,
     ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {

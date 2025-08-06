@@ -174,9 +174,9 @@ export function generateRandomBoolean(): boolean {
 export const calculateExpectedBalanceFor = (
     expenses: Array<Expense>,
 ): number => {
-    return expenses.reduce((prev, next) => {
-        const isDefaultUserCreditor = next.hasCreditor(DEFAULT_USER.getId());
-        const balance = calculateBalanceBasedOn(next, isDefaultUserCreditor);
+    return expenses.reduce((prev, current) => {
+        const isDefaultUserCreditor = current.hasCreditor(DEFAULT_USER.getId());
+        const balance = calculateBalanceBasedOn(current, isDefaultUserCreditor);
         return prev + (isDefaultUserCreditor ? balance : -balance);
     }, 0);
 };

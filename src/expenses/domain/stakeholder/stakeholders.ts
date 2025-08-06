@@ -50,9 +50,6 @@ export class Stakeholders {
     private static calculateDistributedSharesFrom(
         debtors: Array<Stakeholder>,
     ): number {
-        return debtors.reduce(
-            (previous, current) => previous + current.getShare(),
-            0,
-        );
+        return debtors.reduce((prev, current) => prev + current.getShare(), 0);
     }
 }

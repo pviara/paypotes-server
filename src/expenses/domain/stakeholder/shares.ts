@@ -27,7 +27,7 @@ export class Shares {
         balance: number,
         shares: Array<number>,
     ): number {
-        const distributed = shares.reduce((prev, next) => prev + next, 0);
+        const distributed = shares.reduce((prev, current) => prev + current, 0);
         return balance - distributed;
     }
 

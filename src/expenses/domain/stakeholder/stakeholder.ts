@@ -15,7 +15,7 @@ export class Stakeholder {
         },
     ) {}
 
-    static from(person: Contact | Member | User, share = 0): Stakeholder {
+    static from(person: Person, share = 0): Stakeholder {
         return new Stakeholder({
             id: person.getId(),
             firstname: person.getFirstname(),

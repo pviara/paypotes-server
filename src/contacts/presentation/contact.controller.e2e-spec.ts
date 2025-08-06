@@ -305,9 +305,10 @@ describe('ContactController', () => {
             });
 
             function computeActorDummyContactBalance(): number {
-                return new Balance(dummyContactExpenses).calculateFor(
-                    DEFAULT_USER.getId(),
-                );
+                return Balance.calculate({
+                    expenses: dummyContactExpenses,
+                    stakeholderId: DEFAULT_USER.getId(),
+                });
             }
         });
     });

@@ -126,16 +126,18 @@ describe('ExpenseController', () => {
 
             function computeActorAllDummyContactsBalance(): number {
                 const flattenContactExpenses = allDummyContactExpenses.flat();
-                return new Balance(flattenContactExpenses).calculateFor(
-                    DEFAULT_USER.getId(),
-                );
+                return Balance.calculate({
+                    expenses: flattenContactExpenses,
+                    stakeholderId: DEFAULT_USER.getId(),
+                });
             }
 
             function computeActorAllDummyGroupsBalance(): number {
                 const flattenContactExpenses = allDummyGroupExpenses.flat();
-                return new Balance(flattenContactExpenses).calculateFor(
-                    DEFAULT_USER.getId(),
-                );
+                return Balance.calculate({
+                    expenses: flattenContactExpenses,
+                    stakeholderId: DEFAULT_USER.getId(),
+                });
             }
         });
     });
