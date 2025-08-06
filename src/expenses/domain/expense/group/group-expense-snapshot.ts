@@ -32,27 +32,24 @@ export class GroupExpenseSnapshot {
     }
 }
 
+type CreateGroupExpenseSnapshots = {
+    expenses: Array<GroupExpense>;
+    perspectiveId: string;
+};
+
 export class GroupExpenseSnapshots {
-    private snapshots = this.mapGroupExpenseSnapshots();
+    private constructor(private value: Array<GroupExpenseSnapshot>) {}
 
-    private constructor(
-        private expenses: Array<GroupExpense>,
-        private perspectiveId: string,
-    ) {}
-
-    static from(
-        expenses: Array<GroupExpense>,
-        perspectiveId: string,
-    ): Array<GroupExpenseSnapshot> {
-        return new GroupExpenseSnapshots(expenses, perspectiveId).snapshots;
-    }
-
-    private mapGroupExpenseSnapshots(): Array<GroupExpenseSnapshot> {
-        return this.expenses.map((expense) =>
+    static create({
+        expenses,
+        perspectiveId,
+    }: CreateGroupExpenseSnapshots): Array<GroupExpenseSnapshot> {
+        const snapshots = expenses.map((expense) =>
             GroupExpenseSnapshot.create({
                 expense,
-                perspectiveId: this.perspectiveId,
+                perspectiveId,
             }),
         );
+        return new GroupExpenseSnapshots(snapshots).value;
     }
 }
