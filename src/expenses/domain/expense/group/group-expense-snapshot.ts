@@ -1,16 +1,21 @@
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { Position } from '@expenses/domain/balance/position';
 
+type CreateGroupExpenseSnapshot = {
+    expense: GroupExpense;
+    perspectiveId: string;
+};
+
 export class GroupExpenseSnapshot {
     private constructor(
         private expense: GroupExpense,
         private perspectiveBalance: number,
     ) {}
 
-    static create(
-        expense: GroupExpense,
-        perspectiveId: string,
-    ): GroupExpenseSnapshot {
+    static create({
+        expense,
+        perspectiveId,
+    }: CreateGroupExpenseSnapshot): GroupExpenseSnapshot {
         const perspectiveBalance = Position.calculate({
             expense,
             stakeholderId: perspectiveId,
@@ -44,7 +49,10 @@ export class GroupExpenseSnapshots {
 
     private mapGroupExpenseSnapshots(): Array<GroupExpenseSnapshot> {
         return this.expenses.map((expense) =>
-            GroupExpenseSnapshot.create(expense, this.perspectiveId),
+            GroupExpenseSnapshot.create({
+                expense,
+                perspectiveId: this.perspectiveId,
+            }),
         );
     }
 }

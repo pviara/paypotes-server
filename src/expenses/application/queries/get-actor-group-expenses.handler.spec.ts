@@ -61,7 +61,10 @@ describe('GetActorGroupExpensesHandler', () => {
         const result = await sut.execute(dummyQuery);
         expect(result).toStrictEqual(
             dummyExpenses.map((expense) =>
-                GroupExpenseSnapshot.create(expense, dummyActorId),
+                GroupExpenseSnapshot.create({
+                    expense,
+                    perspectiveId: dummyActorId,
+                }),
             ),
         );
     });

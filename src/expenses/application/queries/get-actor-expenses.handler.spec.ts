@@ -69,7 +69,10 @@ describe('GetActorExpensesHandler', () => {
                         perspectiveId: dummyActorId,
                     });
                 if (expense instanceof GroupExpense)
-                    return GroupExpenseSnapshot.create(expense, dummyActorId);
+                    return GroupExpenseSnapshot.create({
+                        expense,
+                        perspectiveId: dummyActorId,
+                    });
             }),
         );
     });
