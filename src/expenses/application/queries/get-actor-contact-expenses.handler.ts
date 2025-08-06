@@ -37,6 +37,9 @@ export class GetActorContactExpensesHandler
             pageIndex,
             search,
         );
-        return PairExpenseSnapshots.from(expenses, actorId);
+        return PairExpenseSnapshots.create({
+            expenses,
+            perspectiveId: actorId,
+        });
     }
 }
