@@ -64,9 +64,12 @@ describe('GetActorExpensesHandler', () => {
         expect(result).toStrictEqual(
             dummyExpenses.map((expense) => {
                 if (expense instanceof PairExpense)
-                    return PairExpenseSnapshot.from(expense, dummyActorId);
+                    return PairExpenseSnapshot.create({
+                        expense,
+                        perspectiveId: dummyActorId,
+                    });
                 if (expense instanceof GroupExpense)
-                    return GroupExpenseSnapshot.from(expense, dummyActorId);
+                    return GroupExpenseSnapshot.create(expense, dummyActorId);
             }),
         );
     });

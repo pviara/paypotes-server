@@ -45,7 +45,7 @@ export class ContactWithBalance extends Contact {
 
     private calcBalanceFor(stakeholderId: string): number {
         const expenses = this.getExpenses();
-        return new Balance(...expenses).calculateFor(stakeholderId);
+        return new Balance(expenses).calculateFor(stakeholderId);
     }
 
     private getExpenses(): Array<Expense> {

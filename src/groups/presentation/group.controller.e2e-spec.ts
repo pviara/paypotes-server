@@ -296,7 +296,7 @@ describe('GroupController', () => {
             });
 
             function computeActorDummyGroupBalance(): number {
-                return new Balance(...dummyGroupExpenses).calculateFor(
+                return new Balance(dummyGroupExpenses).calculateFor(
                     DEFAULT_USER.getId(),
                 );
             }

@@ -1,5 +1,9 @@
 import { Expense } from '@expenses/domain/expense/expense';
-import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+
+type CalculatePosition = {
+    expense: Expense;
+    stakeholderId: string;
+};
 
 /**
  * Represents the financial position of a stakeholder in a specific expense.
@@ -13,28 +17,11 @@ import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
  * position is +20, while Bob and Charlie each have a Position of -10.
  */
 export class Position {
-    constructor(private expense: Expense) {}
+    constructor(private value: number) {}
 
-    calculateFor(stakeholderId: string): number {
-        if (this.isGroupExpenseCreditor(stakeholderId)) {
-            return this.calculateTotalOwedSharesTo(stakeholderId);
-        }
-        const share = this.expense.getShareOf(stakeholderId);
-        return this.expense.hasCreditor(stakeholderId) ? share : -share;
-    }
-
-    private isGroupExpenseCreditor(actorId: string): boolean {
-        return (
-            this.expense instanceof GroupExpense &&
-            this.expense.hasCreditor(actorId)
-        );
-    }
-
-    private calculateTotalOwedSharesTo(stakeholderId: string): number {
-        const counterparties = this.expense.getCounterpartiesOf(stakeholderId);
-        const shares = counterparties.map((counterparty) =>
-            counterparty.getShare(),
-        );
-        return shares.reduce((prev, next) => prev + next, 0);
+    static calculate({ expense, stakeholderId }: CalculatePosition): number {
+        const share = expense.getShareOf(stakeholderId);
+        const position = expense.hasCreditor(stakeholderId) ? share : -share;
+        return new Position(position).value;
     }
 }

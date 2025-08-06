@@ -1,19 +1,21 @@
-import { Balance } from '@expenses/domain/balance/balance';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import { Position } from '@expenses/domain/balance/position';
 
 export class GroupExpenseSnapshot {
-    private perspectiveBalance = this.calculatePerspectiveBalance();
-
     private constructor(
         private expense: GroupExpense,
-        private perspectiveId: string,
+        private perspectiveBalance: number,
     ) {}
 
-    static from(
+    static create(
         expense: GroupExpense,
         perspectiveId: string,
     ): GroupExpenseSnapshot {
-        return new GroupExpenseSnapshot(expense, perspectiveId);
+        const perspectiveBalance = Position.calculate({
+            expense,
+            stakeholderId: perspectiveId,
+        });
+        return new GroupExpenseSnapshot(expense, perspectiveBalance);
     }
 
     getExpense(): GroupExpense {
@@ -22,10 +24,6 @@ export class GroupExpenseSnapshot {
 
     getPerspectiveBalance(): number {
         return this.perspectiveBalance;
-    }
-
-    private calculatePerspectiveBalance(): number {
-        return new Balance(this.expense).calculateFor(this.perspectiveId);
     }
 }
 
@@ -46,7 +44,7 @@ export class GroupExpenseSnapshots {
 
     private mapGroupExpenseSnapshots(): Array<GroupExpenseSnapshot> {
         return this.expenses.map((expense) =>
-            GroupExpenseSnapshot.from(expense, this.perspectiveId),
+            GroupExpenseSnapshot.create(expense, this.perspectiveId),
         );
     }
 }

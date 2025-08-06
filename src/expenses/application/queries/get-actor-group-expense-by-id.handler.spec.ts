@@ -46,7 +46,7 @@ describe('GetActorGroupExpenseByIdHandler', () => {
     it('should return the expense that was retrieved', async () => {
         const result = await sut.execute(dummyQuery);
         expect(result).toStrictEqual(
-            GroupExpenseSnapshot.from(dummyExpense, dummyActorId),
+            GroupExpenseSnapshot.create(dummyExpense, dummyActorId),
         );
     });
 

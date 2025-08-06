@@ -305,7 +305,7 @@ describe('ContactController', () => {
             });
 
             function computeActorDummyContactBalance(): number {
-                return new Balance(...dummyContactExpenses).calculateFor(
+                return new Balance(dummyContactExpenses).calculateFor(
                     DEFAULT_USER.getId(),
                 );
             }

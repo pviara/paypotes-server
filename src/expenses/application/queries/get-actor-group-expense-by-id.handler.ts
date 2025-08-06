@@ -33,7 +33,7 @@ export class GetActorGroupExpenseByIdHandler
             expenseId,
         );
 
-        if (expense) return GroupExpenseSnapshot.from(expense, actorId);
+        if (expense) return GroupExpenseSnapshot.create(expense, actorId);
         throw new GroupExpenseNotFoundError(groupId, expenseId);
     }
 }

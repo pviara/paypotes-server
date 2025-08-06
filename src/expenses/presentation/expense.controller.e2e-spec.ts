@@ -126,14 +126,14 @@ describe('ExpenseController', () => {
 
             function computeActorAllDummyContactsBalance(): number {
                 const flattenContactExpenses = allDummyContactExpenses.flat();
-                return new Balance(...flattenContactExpenses).calculateFor(
+                return new Balance(flattenContactExpenses).calculateFor(
                     DEFAULT_USER.getId(),
                 );
             }
 
             function computeActorAllDummyGroupsBalance(): number {
                 const flattenContactExpenses = allDummyGroupExpenses.flat();
-                return new Balance(...flattenContactExpenses).calculateFor(
+                return new Balance(flattenContactExpenses).calculateFor(
                     DEFAULT_USER.getId(),
                 );
             }
@@ -299,10 +299,10 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
             );
 
-            const expenseView = PairExpenseSnapshot.from(
-                dummyExpense,
-                DEFAULT_USER.getId(),
-            );
+            const expenseView = PairExpenseSnapshot.create({
+                expense: dummyExpense,
+                perspectiveId: DEFAULT_USER.getId(),
+            });
             expect(response.body).toStrictEqual(
                 raw(PairExpenseDTO.from(expenseView)),
             );
@@ -497,10 +497,10 @@ describe('ExpenseController', () => {
                 `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
             );
 
-            const expenseView = PairExpenseSnapshot.from(
-                dummyExpense,
-                DEFAULT_USER.getId(),
-            );
+            const expenseView = PairExpenseSnapshot.create({
+                expense: dummyExpense,
+                perspectiveId: DEFAULT_USER.getId(),
+            });
             expect(response.body).toStrictEqual(
                 raw(PairExpenseDTO.from(expenseView)),
             );

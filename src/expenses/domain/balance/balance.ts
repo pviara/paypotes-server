@@ -8,22 +8,22 @@ export class Balance {
     private readonly ZERO = 0;
     private readonly expenses: Array<Expense>;
 
-    constructor(...expenses: Array<Expense>) {
+    constructor(expenses: Array<Expense>) {
         this.expenses = expenses;
     }
 
-    calculateFor(actorId: string): number {
+    calculateFor(stakeholderId: string): number {
         return this.expenses.reduce(
-            this.calculateExpenseBalanceFor(actorId),
+            this.calculateExpenseBalanceFor(stakeholderId),
             this.ZERO,
         );
     }
 
     private calculateExpenseBalanceFor(
-        actorId: string,
+        stakeholderId: string,
     ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {
-            return balance + new Position(expense).calculateFor(actorId);
+            return balance + Position.calculate({ expense, stakeholderId });
         };
     }
 }

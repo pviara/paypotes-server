@@ -1,27 +1,40 @@
-import { Balance } from '@expenses/domain/balance/balance';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
+import { Position } from '@expenses/domain/balance/position';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 
-export class PairExpenseSnapshot {
-    private counterparty = this.getExpense().getCounterpartyOf(
-        this.perspectiveId,
-    );
-    private perspectiveBalance = this.calculatePerspectiveBalance();
+type CreatePairExpenseSnapshot = {
+    expense: PairExpense;
+    perspectiveId: string;
+};
 
+export class PairExpenseSnapshot {
     private constructor(
         private expense: PairExpense,
-        private perspectiveId: string,
+        private perspectiveBalance: number,
+        private perspectiveCounterparty: Stakeholder,
     ) {}
 
-    static from(
-        expense: PairExpense,
-        perspectiveId: string,
-    ): PairExpenseSnapshot {
-        return new PairExpenseSnapshot(expense, perspectiveId);
+    static create({
+        expense,
+        perspectiveId,
+    }: CreatePairExpenseSnapshot): PairExpenseSnapshot {
+        const perspectiveBalance = Position.calculate({
+            expense,
+            stakeholderId: perspectiveId,
+        });
+
+        const perspectiveCounterparty =
+            expense.getCounterpartyOf(perspectiveId);
+
+        return new PairExpenseSnapshot(
+            expense,
+            perspectiveBalance,
+            perspectiveCounterparty,
+        );
     }
 
-    getCounterparty(): Stakeholder {
-        return this.counterparty;
+    getPerspectiveCounterparty(): Stakeholder {
+        return this.perspectiveCounterparty;
     }
 
     getExpense(): PairExpense {
@@ -30,10 +43,6 @@ export class PairExpenseSnapshot {
 
     getPerspectiveBalance(): number {
         return this.perspectiveBalance;
-    }
-
-    private calculatePerspectiveBalance(): number {
-        return new Balance(this.expense).calculateFor(this.perspectiveId);
     }
 }
 
@@ -54,7 +63,10 @@ export class PairExpenseSnapshots {
 
     private mapPairExpenseSnapshots(): Array<PairExpenseSnapshot> {
         return this.expenses.map((expense) =>
-            PairExpenseSnapshot.from(expense, this.perspectiveId),
+            PairExpenseSnapshot.create({
+                expense,
+                perspectiveId: this.perspectiveId,
+            }),
         );
     }
 }
