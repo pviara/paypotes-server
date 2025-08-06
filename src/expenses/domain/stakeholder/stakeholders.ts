@@ -1,4 +1,5 @@
 import { Person, Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
+import { Shares } from './shares';
 
 type PersonWithTheirShare = {
     person: Person;
@@ -18,30 +19,12 @@ export class Stakeholders {
     }
 
     private mapStakeholdersWithTheirShare(): Array<Stakeholder> {
-        const shares = this.calculateShares();
+        const shares = new Shares(this.persons, this.balance).getValue();
         const personsAndTheirShare = this.assignSharesToPersons(shares);
 
         return personsAndTheirShare.map(({ person, share }) =>
             Stakeholder.from(person, share),
         );
-    }
-
-    private calculateShares(): Array<number> {
-        const shares = this.getRoundedShares();
-        const rest = this.calculateRestFrom(shares);
-
-        for (let i = 0; i < rest; i++) shares[i]++;
-        return shares;
-    }
-
-    private getRoundedShares(): Array<number> {
-        const roundedShare = Math.floor(this.balance / this.persons.length);
-        return Array(this.persons.length).fill(roundedShare);
-    }
-
-    private calculateRestFrom(shares: Array<number>): number {
-        const distributed = shares.reduce((prev, next) => prev + next, 0);
-        return this.balance - distributed;
     }
 
     private assignSharesToPersons(
