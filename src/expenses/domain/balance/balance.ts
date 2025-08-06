@@ -1,6 +1,9 @@
 import { Expense } from '@expenses/domain/expense/expense';
-import { Share } from '@expenses/domain/balance/share';
+import { Position } from '@expenses/domain/balance/position';
 
+/**
+ * Represents the total financial position of a stakeholder across multiple expenses.
+ */
 export class Balance {
     private readonly ZERO = 0;
     private readonly expenses: Array<Expense>;
@@ -20,10 +23,7 @@ export class Balance {
         actorId: string,
     ): (balance: number, expense: Expense) => number {
         return (balance, expense) => {
-            const actorExpenseBalance = new Share(expense).calculateFor(
-                actorId,
-            );
-            return balance + actorExpenseBalance;
+            return balance + new Position(expense).calculateFor(actorId);
         };
     }
 }

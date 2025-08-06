@@ -36,7 +36,7 @@ export class Stakeholders {
 
     private getRoundedShares(): Array<number> {
         const roundedShare = Math.floor(this.balance / this.persons.length);
-        return Array<number>(this.persons.length).fill(roundedShare);
+        return Array(this.persons.length).fill(roundedShare);
     }
 
     private calculateRestFrom(shares: Array<number>): number {
