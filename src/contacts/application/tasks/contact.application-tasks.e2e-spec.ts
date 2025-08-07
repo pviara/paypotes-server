@@ -1,6 +1,6 @@
 import { App } from 'supertest/types';
 import { Contact } from '@contacts/domain/contact';
-import { ContactRepository } from '@contacts/persistence/contact.repository';
+import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import {
     contactTasksSpecModules as modules,
     contactTasksSpecProviders as providers,
@@ -16,11 +16,10 @@ import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
 
-// todo some tests here don't work
 describe('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules, providers);
 
-    let contactRepo: ContactRepository;
+    let contactRepo: ContactInMemoryTestingRepository;
     let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
@@ -42,20 +41,18 @@ describe('contact application tasks', () => {
         contactRepo = application.getRepository('contact');
         userRepo = application.getRepository('user');
         httpServer = application.getHttpServer();
+    });
 
+    beforeEach(async () => {
+        await contactRepo.empty();
         await userRepo.empty();
-        await userRepo.insert(...dummyGroupMembers);
     });
 
     afterAll(shutdown(application));
 
-    beforeEach(async () => {
-        await userRepo.empty();
-    });
-
     it('should add a relationship between pair expense users', async () => {
         const dummyUser = generateRandomUser();
-        await userRepo.insert(dummyUser);
+        await userRepo.insert(DEFAULT_USER, dummyUser);
 
         const expenseId = crypto.randomUUID();
         await request(httpServer).post(`/${EXPENSES_API_ROUTE}/pair`).send({
@@ -76,6 +73,8 @@ describe('contact application tasks', () => {
     });
 
     it('should add all relationships between group members', async () => {
+        await userRepo.insert(...dummyGroupMembers);
+
         await request(httpServer).post(`/${GROUPS_API_ROUTE}`).send({
             id: groupId,
             name: 'name',

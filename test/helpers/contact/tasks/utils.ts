@@ -1,5 +1,7 @@
 import { AuthFakeModule } from '@test/doubles/auth/auth.fake-module';
 import { ContactModule } from '@contacts/contact.module';
+import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
+import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ExpenseModule } from '@expenses/expense.module';
 import { GroupModule } from '@groups/group.module';
 import { InfrastructureModule } from '@infra/infrastructure.module';
@@ -21,5 +23,9 @@ export const contactTasksSpecProviders: Providers = [
     {
         provide: userRepositoryToken,
         useClass: UserPostgresTestingRepository,
+    },
+    {
+        provide: contactRepositoryToken,
+        useClass: ContactInMemoryTestingRepository,
     },
 ];

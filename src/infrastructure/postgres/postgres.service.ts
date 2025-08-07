@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Logger, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
@@ -8,7 +9,10 @@ export class DefaultPostgresService
 {
     private logger = new Logger(DefaultPostgresService.name);
 
-    constructor(@InjectKnex() private knex: Knex) {}
+    constructor(
+        private configService: ConfigService,
+        @InjectKnex() private knex: Knex,
+    ) {}
 
     onApplicationShutdown(): void {
         return this.knex.destroy(this.logDatabaseConnectionDestroyed());
@@ -17,8 +21,9 @@ export class DefaultPostgresService
     onModuleInit(): Promise<void> {
         this.checkDatabaseConnected();
         this.logConnectedToDatabase();
+        const path = this.configService.getOrThrow('POSTGRES_MIGRATIONS_PATH');
         return this.knex.migrate.latest({
-            migrationSource: new MigrationSource(),
+            migrationSource: new MigrationSource(path),
             tableName: 'migrations',
         });
     }

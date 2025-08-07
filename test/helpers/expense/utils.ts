@@ -204,7 +204,6 @@ const calculateBalanceBasedOn = (
             : defaultUserShare;
     }
     const share = +expense.getBalance() / 2;
-    console.log('expense share for balance', expense.getBalance(), share);
     return share;
 };
 
