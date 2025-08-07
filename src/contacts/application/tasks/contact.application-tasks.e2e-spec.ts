@@ -1,6 +1,6 @@
 import { App } from 'supertest/types';
 import { Contact } from '@contacts/domain/contact';
-import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
+import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
 import {
     contactTasksSpecModules as modules,
     contactTasksSpecProviders as providers,
@@ -19,7 +19,7 @@ import * as request from 'supertest';
 describe('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules, providers);
 
-    let contactRepo: ContactInMemoryTestingRepository;
+    let contactRepo: ContactPostgresTestingRepository;
     let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
@@ -43,12 +43,17 @@ describe('contact application tasks', () => {
         httpServer = application.getHttpServer();
     });
 
+    afterAll(shutdown(application));
+
     beforeEach(async () => {
         await contactRepo.empty();
         await userRepo.empty();
     });
 
-    afterAll(shutdown(application));
+    afterEach(async () => {
+        await contactRepo.empty();
+        await userRepo.empty();
+    });
 
     it('should add a relationship between pair expense users', async () => {
         const dummyUser = generateRandomUser();

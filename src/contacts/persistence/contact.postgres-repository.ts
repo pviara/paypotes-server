@@ -103,22 +103,21 @@ export class ContactPostgresRepository implements ContactRepository {
         return users.filter((otherUser) => user.getId() !== otherUser.getId());
     }
 
-    private existsBetween(userA: User, userB: User): Promise<boolean> {
-        return this.knex
-            .whereExists((queryBuilder) =>
-                queryBuilder
-                    .where((subQueryBuilder) =>
-                        subQueryBuilder
-                            .where('user_a_id', userA.getId())
-                            .andWhere('user_b_id', userB.getId()),
-                    )
-                    .orWhere((subQueryBuilder) =>
-                        subQueryBuilder
-                            .where('user_a_id', userB.getId())
-                            .andWhere('user_b_id', userA.getId()),
-                    ),
+    private async existsBetween(userA: User, userB: User): Promise<boolean> {
+        const records = await this.knex
+            .select()
+            .from(this.table)
+            .where((subQueryBuilder) =>
+                subQueryBuilder
+                    .where('user_a_id', userA.getId())
+                    .andWhere('user_b_id', userB.getId()),
             )
-            .from(this.table);
+            .orWhere((subQueryBuilder) =>
+                subQueryBuilder
+                    .where('user_a_id', userB.getId())
+                    .andWhere('user_b_id', userA.getId()),
+            );
+        return records.length > 0;
     }
 
     private mapContactsFrom(records: Array<ContactRecord>): Array<Contact> {
