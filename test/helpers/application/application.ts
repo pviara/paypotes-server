@@ -1,7 +1,7 @@
 import { App } from 'supertest/types';
 import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
 import { ConfigService } from '@nestjs/config';
-import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
+import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ErrorFilter } from '@app/error-filter';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -30,7 +30,7 @@ type ApplicationResources = {
 type RepositoryType = 'contact' | 'expense' | 'group' | 'user';
 type Repository = {
     [key in RepositoryType]: key extends 'contact'
-        ? ContactInMemoryTestingRepository
+        ? ContactPostgresTestingRepository
         : key extends 'expense'
           ? ExpenseInMemoryTestingRepository
           : key extends 'group'

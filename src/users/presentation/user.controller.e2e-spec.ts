@@ -32,6 +32,10 @@ describe('UserController', () => {
         await userRepo.empty();
     });
 
+    afterEach(async () => {
+        await userRepo.empty();
+    });
+
     describe('GET /user/:name', () => {
         const invalidStrings = ['580940', 'test3104', '@', '___'];
 

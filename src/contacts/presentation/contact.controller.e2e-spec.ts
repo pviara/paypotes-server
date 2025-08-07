@@ -1,8 +1,7 @@
 import { App } from 'supertest/types';
 import { Balance } from '@expenses/domain/balance/balance';
 import { Contact } from '@contacts/domain/contact';
-import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
-import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
+import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
 import {
     contactSpecModules as modules,
     contactSpecProviders as providers,
@@ -10,6 +9,7 @@ import {
     generateDefaultUserRelationships,
     generateRandomContacts,
 } from '@test/helpers/contact/utils';
+import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
 import { convertCents, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
@@ -27,13 +27,15 @@ import {
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
 
 describe('ContactController', () => {
     const application = initApplicationWith(modules, providers);
 
-    let contactRepo: ContactInMemoryTestingRepository;
+    let contactRepo: ContactPostgresTestingRepository;
     let expenseRepo: ExpenseInMemoryTestingRepository;
+    let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
     beforeAll(async () => {
@@ -41,6 +43,7 @@ describe('ContactController', () => {
 
         contactRepo = application.getRepository('contact');
         expenseRepo = application.getRepository('expense');
+        userRepo = application.getRepository('user');
         httpServer = application.getHttpServer();
     });
 
@@ -49,6 +52,13 @@ describe('ContactController', () => {
     beforeEach(async () => {
         await expenseRepo.empty();
         await contactRepo.empty();
+        await userRepo.empty();
+    });
+
+    afterEach(async () => {
+        await expenseRepo.empty();
+        await contactRepo.empty();
+        await userRepo.empty();
     });
 
     describe('GET /contacts', () => {
@@ -68,12 +78,24 @@ describe('ContactController', () => {
 
             beforeEach(async () => {
                 dummyContacts = generateRandomContacts({ length: 40 });
+                const dummyUsers = [DEFAULT_USER].concat(
+                    dummyContacts.map(
+                        (contact) =>
+                            new User({
+                                id: contact.getId(),
+                                firstname: contact.getFirstname(),
+                                lastname: contact.getLastname(),
+                                email: '',
+                                avatarUrl: contact.getAvatarUrl(),
+                            }),
+                    ),
+                );
 
                 const dummyRelationships = generateDefaultUserRelationships({
                     contacts: dummyContacts,
                 });
 
-                await contactRepo.empty();
+                await userRepo.insert(...dummyUsers);
                 await contactRepo.insert(...dummyRelationships);
             });
 
@@ -227,9 +249,18 @@ describe('ContactController', () => {
 
         beforeEach(async () => {
             const dummyRelationship = generateDefaultUserRelationship();
-            await contactRepo.insert(dummyRelationship);
-
             dummyContact = dummyRelationship.userB;
+
+            const dummyUser = new User({
+                id: dummyContact.getId(),
+                firstname: dummyContact.getFirstname(),
+                lastname: dummyContact.getLastname(),
+                email: '',
+                avatarUrl: dummyContact.getAvatarUrl(),
+            });
+
+            await userRepo.insert(DEFAULT_USER, dummyUser);
+            await contactRepo.insert(dummyRelationship);
         });
 
         const invalidIds = ['id', null, 59391, NaN, undefined];
@@ -335,12 +366,24 @@ describe('ContactController', () => {
 
             beforeEach(async () => {
                 dummyContacts = generateRandomContacts({ length: 40 });
+                const dummyUsers = [DEFAULT_USER].concat(
+                    dummyContacts.map(
+                        (contact) =>
+                            new User({
+                                id: contact.getId(),
+                                firstname: contact.getFirstname(),
+                                lastname: contact.getLastname(),
+                                email: '',
+                                avatarUrl: contact.getAvatarUrl(),
+                            }),
+                    ),
+                );
 
                 const dummyRelationships = generateDefaultUserRelationships({
                     contacts: dummyContacts,
                 });
 
-                await contactRepo.empty();
+                await userRepo.insert(...dummyUsers);
                 await contactRepo.insert(...dummyRelationships);
             });
 

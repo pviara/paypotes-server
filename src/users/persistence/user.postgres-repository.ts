@@ -67,6 +67,10 @@ export class UserPostgresRepository implements UserRepository {
         };
     }
 
+    private mapUsersFrom(records: Array<UserRecord>): Array<User> {
+        return records.map((record) => this.mapUserFrom(record));
+    }
+
     private mapUserFrom(record: UserRecord): User {
         return new User({
             id: record.id,
@@ -75,9 +79,5 @@ export class UserPostgresRepository implements UserRepository {
             email: record.email,
             avatarUrl: record.avatar_url,
         });
-    }
-
-    private mapUsersFrom(records: Array<UserRecord>): Array<User> {
-        return records.map((record) => this.mapUserFrom(record));
     }
 }
