@@ -4,6 +4,8 @@ import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ExpenseModule } from '@expenses/expense.module';
 import { GroupModule } from '@groups/group.module';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { InfrastructureModule } from '@infra/infrastructure.module';
 import { Modules } from '@test/helpers/application/model/module';
 import { Providers } from '@test/helpers/application/application';
@@ -27,5 +29,9 @@ export const contactTasksSpecProviders: Providers = [
     {
         provide: contactRepositoryToken,
         useClass: ContactPostgresTestingRepository,
+    },
+    {
+        provide: groupRepositoryToken,
+        useClass: GroupPostgresTestingRepository,
     },
 ];

@@ -15,11 +15,13 @@ import { setTimeout } from 'node:timers/promises';
 import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 
 describe('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules, providers);
 
     let contactRepo: ContactPostgresTestingRepository;
+    let groupRepo: GroupPostgresTestingRepository;
     let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
@@ -39,6 +41,7 @@ describe('contact application tasks', () => {
         await application.bootstrap();
 
         contactRepo = application.getRepository('contact');
+        groupRepo = application.getRepository('group');
         userRepo = application.getRepository('user');
         httpServer = application.getHttpServer();
     });
@@ -46,11 +49,13 @@ describe('contact application tasks', () => {
     afterAll(shutdown(application));
 
     beforeEach(async () => {
+        await groupRepo.empty();
         await contactRepo.empty();
         await userRepo.empty();
     });
 
     afterEach(async () => {
+        await groupRepo.empty();
         await contactRepo.empty();
         await userRepo.empty();
     });
