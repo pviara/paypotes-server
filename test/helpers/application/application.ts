@@ -6,7 +6,7 @@ import { contactRepositoryToken } from '@contacts/persistence/contact.repository
 import { ErrorFilter } from '@app/error-filter';
 import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import {
     isClassProvider,
@@ -19,7 +19,7 @@ import { Nullable } from '@app/shared/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { UserPostgresTestingRepository } from '../user/user.postgres-testing-repository';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type ApplicationResources = {
@@ -34,7 +34,7 @@ type Repository = {
         : key extends 'expense'
           ? ExpenseInMemoryTestingRepository
           : key extends 'group'
-            ? GroupInMemoryTestingRepository
+            ? GroupPostgresTestingRepository
             : key extends 'user'
               ? UserPostgresTestingRepository
               : never;

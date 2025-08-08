@@ -6,6 +6,7 @@ import { User } from '@users/domain/user';
 import { UserModule } from '@users/user.module';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { Person } from '@app/expenses/domain/stakeholder/stakeholder';
 
 export const userSpecModules: Modules = [UserModule];
 export const userSpecProviders: Providers = [
@@ -40,12 +41,25 @@ export const generateRandomUsers = (
     );
 };
 
-export const mapUserFrom = (contact: Contact): User => {
+export const mapUserFrom = (person: Person): User => {
     return new User({
-        id: contact.getId(),
-        firstname: contact.getFirstname(),
-        lastname: contact.getLastname(),
+        id: person.getId(),
+        firstname: person.getFirstname(),
+        lastname: person.getLastname(),
         email: 'email@test.com',
         avatarUrl: 'http://localhost:port/avatar_url',
     });
+};
+
+export const mapUsersFrom = (persons: Array<Person>): Array<User> => {
+    return persons.map(
+        (person) =>
+            new User({
+                id: person.getId(),
+                firstname: person.getFirstname(),
+                lastname: person.getLastname(),
+                email: 'email@test.com',
+                avatarUrl: 'http://localhost:port/avatar_url',
+            }),
+    );
 };

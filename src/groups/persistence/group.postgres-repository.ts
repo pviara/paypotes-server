@@ -13,6 +13,7 @@ type GroupRecord = {
     id: string;
     name: string;
     emoji: string;
+    created_at: Date;
 };
 
 type MemberDetailedRecord = {
@@ -36,23 +37,28 @@ export class GroupPostgresRepository implements GroupRepository {
         actorId: string,
         groupId: string,
     ): Promise<Group | null> {
-        const [
-            {
-                rows: [record],
-            },
-        ] = await this.knex
+        const groupRecord = await this.knex
             .select('*')
             .from(this.groupTable)
-            .innerJoin(
-                this.memberTable,
-                `${this.memberTable}.group_id`,
-                `${this.groupTable}.id`,
-            )
-            .innerJoin('users', 'users.id', `${this.memberTable}.id`)
-            .where('members.id', actorId)
-            .where('groups.id', groupId);
+            .where('id', groupId)
+            .first();
 
-        return record ? this.mapGroupFrom(record) : null;
+        if (groupRecord) {
+            const memberRecords = await this.knex
+                .select('users.*')
+                .from(this.memberTable)
+                .innerJoin('users', 'users.id', `${this.memberTable}.id`)
+                .where('members.group_id', groupId);
+
+            return this.mapGroupFrom({
+                id: groupRecord.id,
+                name: groupRecord.name,
+                emoji: groupRecord.emoji,
+                members: memberRecords,
+                created_at: groupRecord.created_at,
+            });
+        }
+        return null;
     }
 
     async getActorGroups(
@@ -60,25 +66,38 @@ export class GroupPostgresRepository implements GroupRepository {
         pageIndex: number,
         search: string,
     ): Promise<Group[]> {
-        const records = await this.knex
+        const groupRecords = await this.knex
             .select('*')
-            .from(this.groupTable)
+            .from(this.memberTable)
             .innerJoin(
-                this.memberTable,
-                `${this.memberTable}.group_id`,
+                this.groupTable,
                 `${this.groupTable}.id`,
+                `${this.memberTable}.group_id`,
             )
-            .innerJoin('users', 'users.id', `${this.memberTable}.id`)
             .where('members.id', actorId)
             .modify((queryBuilder) => {
                 if (search) {
                     queryBuilder.whereILike(`${this.groupTable}.name`, search);
                 }
             })
+            .orderBy(`${this.groupTable}.created_at`)
             .offset(pageIndex * 20)
             .limit(20);
 
-        return this.mapGroupsFrom(records);
+        const groupDetailedRecords: Array<GroupDetailedRecord> = [];
+        for (const groupRecord of groupRecords) {
+            const memberRecords = await this.knex
+                .select('users.*')
+                .from(this.memberTable)
+                .innerJoin('users', 'users.id', `${this.memberTable}.id`)
+                .where('members.group_id', groupRecord.id);
+
+            groupDetailedRecords.push({
+                members: memberRecords,
+                ...groupRecord,
+            });
+        }
+        return this.mapGroupsFrom(groupDetailedRecords);
     }
 
     async save(group: Group): Promise<void> {
@@ -86,6 +105,7 @@ export class GroupPostgresRepository implements GroupRepository {
             id: group.getId(),
             name: group.getName(),
             emoji: group.getEmoji(),
+            created_at: new Date(),
         };
 
         const memberRecords: Array<MemberRecord> = group
@@ -108,6 +128,7 @@ export class GroupPostgresRepository implements GroupRepository {
             id: group.id,
             name: group.name,
             emoji: group.emoji,
+            createdAt: group.created_at,
             members: this.mapMembersFrom(members),
         });
     }
@@ -130,5 +151,24 @@ export class GroupPostgresRepository implements GroupRepository {
             lastname: member.lastname,
             avatarUrl: member.avatar_url,
         });
+    }
+
+    protected mapGroupRecordsFrom(groups: Array<Group>): Array<GroupRecord> {
+        return groups.map((group) => ({
+            id: group.getId(),
+            name: group.getName(),
+            emoji: group.getEmoji(),
+            created_at: group.getCreatedAt(),
+        }));
+    }
+
+    protected mapMemberRecordsFrom(
+        members: Array<Member>,
+        groupId: string,
+    ): Array<MemberRecord> {
+        return members.map((member) => ({
+            id: member.getId(),
+            group_id: groupId,
+        }));
     }
 }

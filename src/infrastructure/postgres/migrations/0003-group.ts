@@ -6,7 +6,8 @@ export async function up(knex: Knex): Promise<void> {
         await knex.schema.createTable('groups', (table) => {
             table.uuid('id', { primaryKey: true }).notNullable();
             table.string('name', 30).notNullable().defaultTo('');
-            table.string('emoji', 1).notNullable().defaultTo('');
+            table.string('emoji', 3).notNullable().defaultTo('');
+            table.date('created_at').notNullable().defaultTo('1999-01-01');
         });
 
         await knex('groups').insert({ id: process.env.DEFAULT_UUID });

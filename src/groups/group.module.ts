@@ -1,6 +1,7 @@
 import { ContactTaskManagerModule } from '@infra/contact-task-managers/contact.task-manager.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateGroupHandler } from '@groups/application/create-group.handler';
+import { DateModule } from '@app/shared/date/date.module';
 import { ExpenseRepositoryModule } from '@expenses/persistence/expense.repository-module';
 import { GetActorGroupsHandler } from '@groups/application/get-actor-groups.handler';
 import { GetActorGroupsWithBalanceHandler } from '@groups/application/get-actor-groups-with-balance.handler';
@@ -15,6 +16,7 @@ import { UserRepositoryModule } from '@users/persistence/user.repository-module'
     imports: [
         ContactTaskManagerModule,
         CqrsModule,
+        DateModule,
         ExpenseRepositoryModule,
         GroupRepositoryModule,
         UserRepositoryModule,

@@ -4,7 +4,7 @@ import { expenseRepositoryToken } from '@expenses/persistence/expense.repository
 import { Group } from '@groups/domain/group';
 import { GroupModule } from '@groups/group.module';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
-import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { Member } from '@groups/domain/member';
 import { Modules } from '@test/helpers/application/model/module';
 import { Providers } from '@test/helpers/application/application';
@@ -20,7 +20,7 @@ export const groupSpecProviders: Providers = [
     },
     {
         provide: groupRepositoryToken,
-        useClass: GroupInMemoryTestingRepository,
+        useClass: GroupPostgresTestingRepository,
     },
     {
         provide: expenseRepositoryToken,
@@ -59,6 +59,7 @@ export const generateDefaultUserRandomGroup = (): Group =>
         id: crypto.randomUUID(),
         name: 'Group',
         emoji: '📅',
+        createdAt: new Date(),
         members: [getDefaultUserAsMember(), ...generateRandomMembers()],
     });
 
@@ -71,6 +72,7 @@ export const generateDefaultUserRandomGroups = (
                 id: crypto.randomUUID(),
                 name: `name_${index}`,
                 emoji: '⛺️',
+                createdAt: new Date(),
                 members: [
                     getDefaultUserAsMember(),
                     ...generateRandomMembers({ length: 5 }),

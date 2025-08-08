@@ -21,16 +21,17 @@ import {
     generateDefaultUserRandomGroups,
     generateRandomMember,
 } from '@test/helpers/group/utils';
+import {
+    generateRandomUser,
+    generateRandomUsers,
+    mapUsersFrom,
+} from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
-import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
-import {
-    generateRandomUser,
-    generateRandomUsers,
-} from '@test/helpers/user/utils';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
@@ -46,7 +47,7 @@ describe('ExpenseController', () => {
     const application = initApplicationWith(modules, providers);
 
     let expenseRepo: ExpenseInMemoryTestingRepository;
-    let groupRepo: GroupInMemoryTestingRepository;
+    let groupRepo: GroupPostgresTestingRepository;
     let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 
@@ -894,6 +895,10 @@ describe('ExpenseController', () => {
 
             beforeEach(async () => {
                 await groupRepo.empty();
+                await userRepo.empty();
+
+                const users = mapUsersFrom(dummyGroup.getMembers());
+                await userRepo.insert(...users);
                 await groupRepo.save(dummyGroup);
             });
 
@@ -920,6 +925,10 @@ describe('ExpenseController', () => {
             const dummyMember = getAnyMemberFrom(dummyGroup);
 
             beforeEach(async () => {
+                const users = mapUsersFrom(dummyGroup.getMembers());
+                await userRepo.empty();
+                await userRepo.insert(...users);
+
                 await groupRepo.empty();
                 await groupRepo.save(dummyGroup);
             });

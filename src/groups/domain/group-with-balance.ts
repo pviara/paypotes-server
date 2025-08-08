@@ -11,6 +11,7 @@ export class GroupWithBalance extends Group {
             id: string;
             name: string;
             emoji: string;
+            createdAt: Date;
             members: Array<Member>;
             expenses: Array<Expense>;
             perspectiveId: string;
@@ -20,6 +21,7 @@ export class GroupWithBalance extends Group {
             id: data.id,
             name: data.name,
             emoji: data.emoji,
+            createdAt: data.createdAt,
             members: data.members,
         });
         this.balance = this.calcBalanceFor(data.perspectiveId);
@@ -34,6 +36,7 @@ export class GroupWithBalance extends Group {
             id: data.group.getId(),
             name: data.group.getName(),
             emoji: data.group.getEmoji(),
+            createdAt: data.group.getCreatedAt(),
             members: data.group.getMembers(),
             expenses: data.expenses,
             perspectiveId: data.perspectiveId,

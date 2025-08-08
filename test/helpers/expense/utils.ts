@@ -8,7 +8,7 @@ import {
     GroupExpense,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
-import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Member } from '@groups/domain/member';
 import { Expense, Metadata } from '@expenses/domain/expense/expense';
@@ -33,7 +33,7 @@ export const expenseSpecProviders: Providers = [
     },
     {
         provide: groupRepositoryToken,
-        useClass: GroupInMemoryTestingRepository,
+        useClass: GroupPostgresTestingRepository,
     },
     {
         provide: userRepositoryToken,

@@ -6,9 +6,14 @@ export class Group {
             id: string;
             name: string;
             emoji: string;
+            createdAt: Date;
             members: Array<Member>;
         },
     ) {}
+
+    getCreatedAt(): Date {
+        return this.data.createdAt;
+    }
 
     getEmoji(): string {
         return this.data.emoji;
