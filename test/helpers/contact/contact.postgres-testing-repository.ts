@@ -1,10 +1,10 @@
 import { ContactPostgresRepository } from '@contacts/persistence/contact.postgres-repository';
 import { Relationship } from '@contacts/persistence/relationship';
-import { SQLTable } from '@app/shared/sql-table';
+import { Table } from '@infra/postgres/table';
 
 export class ContactPostgresTestingRepository extends ContactPostgresRepository {
     async empty(): Promise<void> {
-        await this.knex.delete().from(SQLTable.Relationships);
+        await this.knex.delete().from(Table.Relationships);
     }
 
     async insert(...relationships: Array<Relationship>): Promise<void> {
@@ -14,7 +14,7 @@ export class ContactPostgresTestingRepository extends ContactPostgresRepository 
                     user_a_id: relationship.userA.getId(),
                     user_b_id: relationship.userB.getId(),
                 })
-                .into(SQLTable.Relationships);
+                .into(Table.Relationships);
         }
     }
 }

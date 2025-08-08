@@ -1,6 +1,6 @@
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
-import { SQLTable } from '@app/shared/sql-table';
+import { Table } from '@infra/postgres/table';
 import { User, Users } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 
@@ -17,13 +17,13 @@ export class UserPostgresRepository implements UserRepository {
 
     create(user: User): Promise<void> {
         const record = this.mapRecordFrom(user);
-        return this.knex.insert(record).into(SQLTable.Users);
+        return this.knex.insert(record).into(Table.Users);
     }
 
     async get(...userIds: Array<string>): Promise<Users> {
         const records = await this.knex
             .select()
-            .from(SQLTable.Users)
+            .from(Table.Users)
             .whereIn('id', userIds);
 
         return this.mapUsersFrom(records);
@@ -32,7 +32,7 @@ export class UserPostgresRepository implements UserRepository {
     async getByEmail(email: string): Promise<User | null> {
         const record = await this.knex
             .select()
-            .from(SQLTable.Users)
+            .from(Table.Users)
             .where('email', email)
             .first();
 
@@ -42,7 +42,7 @@ export class UserPostgresRepository implements UserRepository {
     async getByName(name: string): Promise<Users> {
         const records = await this.knex
             .select()
-            .from(SQLTable.Users)
+            .from(Table.Users)
             .whereRaw(this.buildTextSearchQueryFor(name))
             .orWhereILike('firstname', name)
             .orWhereILike('lastname', name);

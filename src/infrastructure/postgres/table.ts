@@ -1,4 +1,4 @@
-export enum SQLTable {
+export enum Table {
     Expenses = 'expenses',
     Groups = 'groups',
     Members = 'members',

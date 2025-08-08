@@ -2,7 +2,7 @@ import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { Contact } from '@contacts/domain/contact';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
-import { SQLTable } from '@app/shared/sql-table';
+import { Table } from '@infra/postgres/table';
 import { User } from '@users/domain/user';
 
 type ContactRecord = {
@@ -27,7 +27,7 @@ export class ContactPostgresRepository implements ContactRepository {
                         user_a_id: user.getId(),
                         user_b_id: otherUser.getId(),
                     })
-                    .into(SQLTable.Relationships);
+                    .into(Table.Relationships);
             }
         }
     }
@@ -37,47 +37,44 @@ export class ContactPostgresRepository implements ContactRepository {
         contactId: string,
     ): Promise<Contact | null> {
         const record = await this.knex
-            .select(`${SQLTable.Users}.*`)
-            .from(SQLTable.Relationships)
-            .innerJoin(SQLTable.Users, (join) =>
+            .select(`${Table.Users}.*`)
+            .from(Table.Relationships)
+            .innerJoin(Table.Users, (join) =>
                 join
                     .on(
-                        `${SQLTable.Relationships}.user_a_id`,
+                        `${Table.Relationships}.user_a_id`,
                         '=',
-                        `${SQLTable.Users}.id`,
+                        `${Table.Users}.id`,
                     )
                     .orOn(
-                        `${SQLTable.Relationships}.user_b_id`,
+                        `${Table.Relationships}.user_b_id`,
                         '=',
-                        `${SQLTable.Users}.id`,
+                        `${Table.Users}.id`,
                     ),
             )
             .where((queryBuilder) => {
                 queryBuilder
                     .where((subQueryBuilder) =>
                         subQueryBuilder
-                            .where(
-                                `${SQLTable.Relationships}.user_a_id`,
-                                actorId,
-                            )
+                            .where(`${Table.Relationships}.user_a_id`, actorId)
                             .andWhere(
-                                `${SQLTable.Relationships}.user_b_id`,
+                                `${Table.Relationships}.user_b_id`,
                                 contactId,
                             ),
                     )
                     .orWhere((subQueryBuilder) =>
                         subQueryBuilder
                             .where(
-                                `${SQLTable.Relationships}.user_a_id`,
+                                `${Table.Relationships}.user_a_id`,
                                 contactId,
                             )
                             .andWhere(
-                                `${SQLTable.Relationships}.user_b_id`,
+                                `${Table.Relationships}.user_b_id`,
                                 actorId,
                             ),
                     );
             })
-            .andWhereNot(`${SQLTable.Users}.id`, actorId)
+            .andWhereNot(`${Table.Users}.id`, actorId)
             .first();
 
         return this.mapContactFrom(record);
@@ -89,35 +86,35 @@ export class ContactPostgresRepository implements ContactRepository {
         search: string,
     ): Promise<Contact[]> {
         const records = await this.knex
-            .select(`${SQLTable.Users}.*`)
-            .from(SQLTable.Relationships)
-            .innerJoin(SQLTable.Users, (join) =>
+            .select(`${Table.Users}.*`)
+            .from(Table.Relationships)
+            .innerJoin(Table.Users, (join) =>
                 join
                     .on(
-                        `${SQLTable.Relationships}.user_a_id`,
+                        `${Table.Relationships}.user_a_id`,
                         '=',
-                        `${SQLTable.Users}.id`,
+                        `${Table.Users}.id`,
                     )
                     .orOn(
-                        `${SQLTable.Relationships}.user_b_id`,
+                        `${Table.Relationships}.user_b_id`,
                         '=',
-                        `${SQLTable.Users}.id`,
+                        `${Table.Users}.id`,
                     ),
             )
             .where((queryBuilder) =>
                 queryBuilder
-                    .where(`${SQLTable.Relationships}.user_a_id`, actorId)
-                    .orWhere(`${SQLTable.Relationships}.user_b_id`, actorId),
+                    .where(`${Table.Relationships}.user_a_id`, actorId)
+                    .orWhere(`${Table.Relationships}.user_b_id`, actorId),
             )
-            .andWhereNot(`${SQLTable.Users}.id`, actorId)
+            .andWhereNot(`${Table.Users}.id`, actorId)
             .modify((queryBuilder) => {
                 if (search) {
                     queryBuilder
                         .andWhereRaw(
-                            `${SQLTable.Users}.full_name @@ plainto_tsquery('simple', '${search.toLowerCase()}')`,
+                            `${Table.Users}.full_name @@ plainto_tsquery('simple', '${search.toLowerCase()}')`,
                         )
-                        .orWhereILike(`${SQLTable.Users}.firstname`, search)
-                        .orWhereILike(`${SQLTable.Users}.lastname`, search);
+                        .orWhereILike(`${Table.Users}.firstname`, search)
+                        .orWhereILike(`${Table.Users}.lastname`, search);
                 }
             })
             .offset(pageIndex * 20)
@@ -133,7 +130,7 @@ export class ContactPostgresRepository implements ContactRepository {
     private async existsBetween(userA: User, userB: User): Promise<boolean> {
         const records = await this.knex
             .select()
-            .from(SQLTable.Relationships)
+            .from(Table.Relationships)
             .where((subQueryBuilder) =>
                 subQueryBuilder
                     .where('user_a_id', userA.getId())
