@@ -1,3 +1,4 @@
+import { SQLTable } from '@app/shared/sql-table';
 import { User } from '@users/domain/user';
 import { UserPostgresRepository } from '@users/persistence/user.postgres-repository';
 
@@ -5,12 +6,12 @@ export class UserPostgresTestingRepository extends UserPostgresRepository {
     async empty(): Promise<void> {
         await this.knex
             .delete()
-            .from(this.table)
+            .from(SQLTable.Users)
             .whereNot('id', process.env.DEFAULT_UUID);
     }
 
     insert(...users: Array<User>): Promise<void> {
         const records = this.mapRecordsFrom(users);
-        return this.knex.insert(records).into(this.table);
+        return this.knex.insert(records).into(SQLTable.Users);
     }
 }
