@@ -48,8 +48,8 @@ export class UserPostgresRepository implements UserRepository {
             .whereRaw(
                 `full_name @@ plainto_tsquery('simple', '${name.toLowerCase()}')`,
             )
-            .orWhereLike('firstname', name)
-            .orWhereLike('lastname', name);
+            .orWhereILike('firstname', name)
+            .orWhereILike('lastname', name);
         return this.mapUsersFrom(records);
     }
 

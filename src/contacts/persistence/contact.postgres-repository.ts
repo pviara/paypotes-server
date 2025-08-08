@@ -89,8 +89,8 @@ export class ContactPostgresRepository implements ContactRepository {
                         .andWhereRaw(
                             `users.full_name @@ plainto_tsquery('simple', '${search.toLowerCase()}')`,
                         )
-                        .orWhereLike('users.firstname', search)
-                        .orWhereLike('users.lastname', search);
+                        .orWhereILike('users.firstname', search)
+                        .orWhereILike('users.lastname', search);
                 }
             })
             .offset(pageIndex * 20)
