@@ -72,11 +72,17 @@ export const generateDefaultUserRandomGroups = (
                 id: crypto.randomUUID(),
                 name: `name_${index}`,
                 emoji: '⛺️',
-                createdAt: new Date(),
+                createdAt: new Date(
+                    `2025-08-08T12:12:${mapSecondsFrom(index)}`,
+                ),
                 members: [
                     getDefaultUserAsMember(),
                     ...generateRandomMembers({ length: 5 }),
                 ],
             }),
     );
+};
+
+const mapSecondsFrom = (index: number): string => {
+    return index < 10 ? `0${index}` : `${index}`;
 };

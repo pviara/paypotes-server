@@ -105,7 +105,7 @@ export class GroupPostgresRepository implements GroupRepository {
             id: group.getId(),
             name: group.getName(),
             emoji: group.getEmoji(),
-            created_at: new Date(),
+            created_at: group.getCreatedAt(),
         };
 
         const memberRecords: Array<MemberRecord> = group
@@ -128,7 +128,7 @@ export class GroupPostgresRepository implements GroupRepository {
             id: group.id,
             name: group.name,
             emoji: group.emoji,
-            createdAt: group.created_at,
+            createdAt: new Date(group.created_at),
             members: this.mapMembersFrom(members),
         });
     }

@@ -27,9 +27,9 @@ import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
+import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
-import { User } from '@app/users/domain/user';
 
 describe('GroupController', () => {
     const application = initApplicationWith(modules, providers);
@@ -104,7 +104,7 @@ describe('GroupController', () => {
 
                 const dtos = response.body;
                 expect(dtos.length).toBe(20);
-                expectReturnedDtosToBeTheFirstTwentyGroups(dtos); // todo: fails because results aren't sorted properly
+                expectReturnedDtosToBeTheFirstTwentyGroups(dtos);
             });
 
             describe('page index has been given', () => {
@@ -421,7 +421,7 @@ describe('GroupController', () => {
                 expectReturnedDtosToBeTheFirstTwentyGroups(dtos);
             });
 
-            describe.skip('page index has been given', () => {
+            describe('page index has been given', () => {
                 it('should return the second 20 groups when given index is 1', async () => {
                     const response = await request(httpServer).get(
                         `/${GROUPS_API_ROUTE}/without-balance?pageIndex=1`,
@@ -444,7 +444,7 @@ describe('GroupController', () => {
                 }
             });
 
-            describe.skip('search has been given', () => {
+            describe('search has been given', () => {
                 it('should return the groups that match the search', async () => {
                     const targetGroup = dummyGroups[0];
                     const search = targetGroup.getName();

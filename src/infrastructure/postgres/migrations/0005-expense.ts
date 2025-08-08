@@ -7,7 +7,10 @@ export async function up(knex: Knex): Promise<void> {
             table.uuid('id', { primaryKey: true }).notNullable();
             table.string('label', 30).notNullable().defaultTo('');
             table.string('emoji', 3).notNullable().defaultTo('');
-            table.date('created_at').notNullable().defaultTo('1999-01-01');
+            table
+                .timestamp('created_at')
+                .notNullable()
+                .defaultTo('1999-01-01 00:00:00');
             table.integer('balance').notNullable().defaultTo(0);
             table.uuid('group_id').notNullable();
 
