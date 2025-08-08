@@ -35,29 +35,35 @@ export class GroupPostgresRepository implements GroupRepository {
         actorId: string,
         groupId: string,
     ): Promise<Group | null> {
-        const groupRecord = await this.knex
-            .select()
+        const group = await this.knex
+            .select(`${SQLTable.Groups}.*`)
             .from(SQLTable.Groups)
-            .where('id', groupId)
+            .innerJoin(
+                SQLTable.Members,
+                `${SQLTable.Groups}.id`,
+                `${SQLTable.Members}.group_id`,
+            )
+            .where(`${SQLTable.Groups}.id`, groupId)
+            .andWhere(`${SQLTable.Members}.id`, actorId)
             .first();
 
-        if (groupRecord) {
-            const memberRecords = await this.knex
+        if (group) {
+            const members = await this.knex
                 .select(`${SQLTable.Users}.*`)
                 .from(SQLTable.Members)
                 .innerJoin(
-                    'users',
+                    SQLTable.Users,
                     `${SQLTable.Users}.id`,
                     `${SQLTable.Members}.id`,
                 )
-                .where('members.group_id', groupId);
+                .where(`${SQLTable.Members}.group_id`, groupId);
 
             return this.mapGroupFrom({
-                id: groupRecord.id,
-                name: groupRecord.name,
-                emoji: groupRecord.emoji,
-                members: memberRecords,
-                created_at: groupRecord.created_at,
+                id: group.id,
+                name: group.name,
+                emoji: group.emoji,
+                created_at: group.created_at,
+                members,
             });
         }
         return null;
@@ -76,7 +82,7 @@ export class GroupPostgresRepository implements GroupRepository {
                 `${SQLTable.Groups}.id`,
                 `${SQLTable.Members}.group_id`,
             )
-            .where('members.id', actorId)
+            .where(`${SQLTable.Members}.id`, actorId)
             .modify((queryBuilder) => {
                 if (search) {
                     queryBuilder.whereILike(`${SQLTable.Groups}.name`, search);
@@ -92,11 +98,11 @@ export class GroupPostgresRepository implements GroupRepository {
                     .select(`${SQLTable.Users}.*`)
                     .from(SQLTable.Members)
                     .innerJoin(
-                        'users',
+                        SQLTable.Users,
                         `${SQLTable.Users}.id`,
                         `${SQLTable.Members}.id`,
                     )
-                    .where('members.group_id', group.id);
+                    .where(`${SQLTable.Members}.group_id`, group.id);
 
                 return this.mapGroupFrom({ members, ...group });
             }),
@@ -111,7 +117,7 @@ export class GroupPostgresRepository implements GroupRepository {
             created_at: group.getCreatedAt(),
         };
 
-        const memberRecords: Array<MemberRecord> = group
+        const members: Array<MemberRecord> = group
             .getMembers()
             .map((member) => ({
                 id: member.getId(),
@@ -119,7 +125,7 @@ export class GroupPostgresRepository implements GroupRepository {
             }));
 
         await this.knex.insert(groupRecord).into(SQLTable.Groups);
-        await this.knex.insert(memberRecords).into(SQLTable.Members);
+        await this.knex.insert(members).into(SQLTable.Members);
     }
 
     private mapGroupFrom({ members, ...group }: GroupDetailedRecord): Group {
