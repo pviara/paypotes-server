@@ -3,6 +3,7 @@ import { GroupRepository } from '@groups/persistence/group.repository';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Member } from '@groups/domain/member';
+import { SQLTable } from '@app/shared/sql-table';
 
 type MemberRecord = {
     id: string;
@@ -28,9 +29,6 @@ type GroupDetailedRecord = GroupRecord & {
 };
 
 export class GroupPostgresRepository implements GroupRepository {
-    protected readonly groupTable = 'groups';
-    protected readonly memberTable = 'members';
-
     constructor(@InjectKnex() protected knex: Knex) {}
 
     async getActorGroupById(
@@ -38,16 +36,20 @@ export class GroupPostgresRepository implements GroupRepository {
         groupId: string,
     ): Promise<Group | null> {
         const groupRecord = await this.knex
-            .select('*')
-            .from(this.groupTable)
+            .select()
+            .from(SQLTable.Groups)
             .where('id', groupId)
             .first();
 
         if (groupRecord) {
             const memberRecords = await this.knex
-                .select('users.*')
-                .from(this.memberTable)
-                .innerJoin('users', 'users.id', `${this.memberTable}.id`)
+                .select(`${SQLTable.Users}.*`)
+                .from(SQLTable.Members)
+                .innerJoin(
+                    'users',
+                    `${SQLTable.Users}.id`,
+                    `${SQLTable.Members}.id`,
+                )
                 .where('members.group_id', groupId);
 
             return this.mapGroupFrom({
@@ -66,38 +68,39 @@ export class GroupPostgresRepository implements GroupRepository {
         pageIndex: number,
         search: string,
     ): Promise<Group[]> {
-        const groupRecords = await this.knex
-            .select('*')
-            .from(this.memberTable)
+        const groups: Array<GroupRecord> = await this.knex
+            .select()
+            .from(SQLTable.Members)
             .innerJoin(
-                this.groupTable,
-                `${this.groupTable}.id`,
-                `${this.memberTable}.group_id`,
+                SQLTable.Groups,
+                `${SQLTable.Groups}.id`,
+                `${SQLTable.Members}.group_id`,
             )
             .where('members.id', actorId)
             .modify((queryBuilder) => {
                 if (search) {
-                    queryBuilder.whereILike(`${this.groupTable}.name`, search);
+                    queryBuilder.whereILike(`${SQLTable.Groups}.name`, search);
                 }
             })
-            .orderBy(`${this.groupTable}.created_at`)
+            .orderBy(`${SQLTable.Groups}.created_at`)
             .offset(pageIndex * 20)
             .limit(20);
 
-        const groupDetailedRecords: Array<GroupDetailedRecord> = [];
-        for (const groupRecord of groupRecords) {
-            const memberRecords = await this.knex
-                .select('users.*')
-                .from(this.memberTable)
-                .innerJoin('users', 'users.id', `${this.memberTable}.id`)
-                .where('members.group_id', groupRecord.id);
+        return Promise.all(
+            groups.map(async (group) => {
+                const members: Array<MemberDetailedRecord> = await this.knex
+                    .select(`${SQLTable.Users}.*`)
+                    .from(SQLTable.Members)
+                    .innerJoin(
+                        'users',
+                        `${SQLTable.Users}.id`,
+                        `${SQLTable.Members}.id`,
+                    )
+                    .where('members.group_id', group.id);
 
-            groupDetailedRecords.push({
-                members: memberRecords,
-                ...groupRecord,
-            });
-        }
-        return this.mapGroupsFrom(groupDetailedRecords);
+                return this.mapGroupFrom({ members, ...group });
+            }),
+        );
     }
 
     async save(group: Group): Promise<void> {
@@ -115,12 +118,8 @@ export class GroupPostgresRepository implements GroupRepository {
                 group_id: group.getId(),
             }));
 
-        await this.knex.insert(groupRecord).into(this.groupTable);
-        await this.knex.insert(memberRecords).into(this.memberTable);
-    }
-
-    private mapGroupsFrom(records: Array<GroupDetailedRecord>): Array<Group> {
-        return records.map((record) => this.mapGroupFrom(record));
+        await this.knex.insert(groupRecord).into(SQLTable.Groups);
+        await this.knex.insert(memberRecords).into(SQLTable.Members);
     }
 
     private mapGroupFrom({ members, ...group }: GroupDetailedRecord): Group {
