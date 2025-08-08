@@ -39,7 +39,7 @@ export class ContactPostgresRepository implements ContactRepository {
         const record = await this.knex
             .select(`${SQLTable.Users}.*`)
             .from(SQLTable.Relationships)
-            .innerJoin('users', (join) =>
+            .innerJoin(SQLTable.Users, (join) =>
                 join
                     .on(
                         `${SQLTable.Relationships}.user_a_id`,
@@ -91,7 +91,7 @@ export class ContactPostgresRepository implements ContactRepository {
         const records = await this.knex
             .select(`${SQLTable.Users}.*`)
             .from(SQLTable.Relationships)
-            .innerJoin('users', (join) =>
+            .innerJoin(SQLTable.Users, (join) =>
                 join
                     .on(
                         `${SQLTable.Relationships}.user_a_id`,
@@ -114,7 +114,7 @@ export class ContactPostgresRepository implements ContactRepository {
                 if (search) {
                     queryBuilder
                         .andWhereRaw(
-                            `users.full_name @@ plainto_tsquery('simple', '${search.toLowerCase()}')`,
+                            `${SQLTable.Users}.full_name @@ plainto_tsquery('simple', '${search.toLowerCase()}')`,
                         )
                         .orWhereILike(`${SQLTable.Users}.firstname`, search)
                         .orWhereILike(`${SQLTable.Users}.lastname`, search);
