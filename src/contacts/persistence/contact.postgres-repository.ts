@@ -2,6 +2,7 @@ import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { Contact } from '@contacts/domain/contact';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
+import { SQLTable } from '@app/shared/sql-table';
 import { User } from '@users/domain/user';
 
 type ContactRecord = {
@@ -12,8 +13,6 @@ type ContactRecord = {
 };
 
 export class ContactPostgresRepository implements ContactRepository {
-    protected readonly table = 'relationships';
-
     constructor(@InjectKnex() protected knex: Knex) {}
 
     async addRelationshipsBetween(users: Array<User>): Promise<void> {
@@ -28,7 +27,7 @@ export class ContactPostgresRepository implements ContactRepository {
                         user_a_id: user.getId(),
                         user_b_id: otherUser.getId(),
                     })
-                    .into(this.table);
+                    .into(SQLTable.Relationships);
             }
         }
     }
@@ -38,27 +37,47 @@ export class ContactPostgresRepository implements ContactRepository {
         contactId: string,
     ): Promise<Contact | null> {
         const record = await this.knex
-            .select('users.*')
-            .from(this.table)
+            .select(`${SQLTable.Users}.*`)
+            .from(SQLTable.Relationships)
             .innerJoin('users', (join) =>
                 join
-                    .on(`${this.table}.user_a_id`, '=', 'users.id')
-                    .orOn(`${this.table}.user_b_id`, '=', 'users.id'),
+                    .on(
+                        `${SQLTable.Relationships}.user_a_id`,
+                        '=',
+                        `${SQLTable.Users}.id`,
+                    )
+                    .orOn(
+                        `${SQLTable.Relationships}.user_b_id`,
+                        '=',
+                        `${SQLTable.Users}.id`,
+                    ),
             )
             .where((queryBuilder) => {
                 queryBuilder
                     .where((subQueryBuilder) =>
                         subQueryBuilder
-                            .where(`${this.table}.user_a_id`, actorId)
-                            .andWhere(`${this.table}.user_b_id`, contactId),
+                            .where(
+                                `${SQLTable.Relationships}.user_a_id`,
+                                actorId,
+                            )
+                            .andWhere(
+                                `${SQLTable.Relationships}.user_b_id`,
+                                contactId,
+                            ),
                     )
                     .orWhere((subQueryBuilder) =>
                         subQueryBuilder
-                            .where(`${this.table}.user_a_id`, contactId)
-                            .andWhere(`${this.table}.user_b_id`, actorId),
+                            .where(
+                                `${SQLTable.Relationships}.user_a_id`,
+                                contactId,
+                            )
+                            .andWhere(
+                                `${SQLTable.Relationships}.user_b_id`,
+                                actorId,
+                            ),
                     );
             })
-            .andWhereNot('users.id', actorId)
+            .andWhereNot(`${SQLTable.Users}.id`, actorId)
             .first();
 
         return this.mapContactFrom(record);
@@ -70,27 +89,35 @@ export class ContactPostgresRepository implements ContactRepository {
         search: string,
     ): Promise<Contact[]> {
         const records = await this.knex
-            .select('users.*')
-            .from(this.table)
+            .select(`${SQLTable.Users}.*`)
+            .from(SQLTable.Relationships)
             .innerJoin('users', (join) =>
                 join
-                    .on(`${this.table}.user_a_id`, '=', 'users.id')
-                    .orOn(`${this.table}.user_b_id`, '=', 'users.id'),
+                    .on(
+                        `${SQLTable.Relationships}.user_a_id`,
+                        '=',
+                        `${SQLTable.Users}.id`,
+                    )
+                    .orOn(
+                        `${SQLTable.Relationships}.user_b_id`,
+                        '=',
+                        `${SQLTable.Users}.id`,
+                    ),
             )
             .where((queryBuilder) =>
                 queryBuilder
-                    .where(`${this.table}.user_a_id`, actorId)
-                    .orWhere(`${this.table}.user_b_id`, actorId),
+                    .where(`${SQLTable.Relationships}.user_a_id`, actorId)
+                    .orWhere(`${SQLTable.Relationships}.user_b_id`, actorId),
             )
-            .andWhereNot('users.id', actorId)
+            .andWhereNot(`${SQLTable.Users}.id`, actorId)
             .modify((queryBuilder) => {
                 if (search) {
                     queryBuilder
                         .andWhereRaw(
                             `users.full_name @@ plainto_tsquery('simple', '${search.toLowerCase()}')`,
                         )
-                        .orWhereILike('users.firstname', search)
-                        .orWhereILike('users.lastname', search);
+                        .orWhereILike(`${SQLTable.Users}.firstname`, search)
+                        .orWhereILike(`${SQLTable.Users}.lastname`, search);
                 }
             })
             .offset(pageIndex * 20)
@@ -106,7 +133,7 @@ export class ContactPostgresRepository implements ContactRepository {
     private async existsBetween(userA: User, userB: User): Promise<boolean> {
         const records = await this.knex
             .select()
-            .from(this.table)
+            .from(SQLTable.Relationships)
             .where((subQueryBuilder) =>
                 subQueryBuilder
                     .where('user_a_id', userA.getId())
