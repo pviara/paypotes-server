@@ -16,8 +16,7 @@ export class UserPostgresRepository implements UserRepository {
     constructor(@InjectKnex() protected knex: Knex) {}
 
     create(user: User): Promise<void> {
-        const record = this.mapRecordFrom(user);
-        return this.knex.insert(record).into(Table.Users);
+        return this.knex.insert(this.mapRecordFrom(user)).into(Table.Users);
     }
 
     async get(...userIds: Array<string>): Promise<Users> {
@@ -30,13 +29,13 @@ export class UserPostgresRepository implements UserRepository {
     }
 
     async getByEmail(email: string): Promise<User | null> {
-        const record = await this.knex
+        const user = await this.knex
             .select()
             .from(Table.Users)
             .where('email', email)
             .first();
 
-        return record ? this.mapUserFrom(record) : null;
+        return user ? this.mapUserFrom(user) : null;
     }
 
     async getByName(name: string): Promise<Users> {

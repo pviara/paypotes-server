@@ -36,7 +36,7 @@ export class ContactPostgresRepository implements ContactRepository {
         actorId: string,
         contactId: string,
     ): Promise<Contact | null> {
-        const record = await this.knex
+        const contact = await this.knex
             .select(`${Table.Users}.*`)
             .from(Table.Relationships)
             .innerJoin(Table.Users, (join) =>
@@ -77,7 +77,7 @@ export class ContactPostgresRepository implements ContactRepository {
             .andWhereNot(`${Table.Users}.id`, actorId)
             .first();
 
-        return this.mapContactFrom(record);
+        return this.mapContactFrom(contact);
     }
 
     async getActorContacts(
@@ -85,7 +85,7 @@ export class ContactPostgresRepository implements ContactRepository {
         pageIndex: number,
         search: string,
     ): Promise<Contact[]> {
-        const records = await this.knex
+        const contacts = await this.knex
             .select(`${Table.Users}.*`)
             .from(Table.Relationships)
             .innerJoin(Table.Users, (join) =>
@@ -120,7 +120,7 @@ export class ContactPostgresRepository implements ContactRepository {
             .offset(pageIndex * 20)
             .limit(20);
 
-        return this.mapContactsFrom(records);
+        return this.mapContactsFrom(contacts);
     }
 
     private getOtherUsersThan(user: User, users: Array<User>): Array<User> {
@@ -128,7 +128,7 @@ export class ContactPostgresRepository implements ContactRepository {
     }
 
     private async existsBetween(userA: User, userB: User): Promise<boolean> {
-        const records = await this.knex
+        const relationship = await this.knex
             .select()
             .from(Table.Relationships)
             .where((subQueryBuilder) =>
@@ -141,7 +141,7 @@ export class ContactPostgresRepository implements ContactRepository {
                     .where('user_a_id', userB.getId())
                     .andWhere('user_b_id', userA.getId()),
             );
-        return records.length > 0;
+        return relationship.length > 0;
     }
 
     private mapContactsFrom(records: Array<ContactRecord>): Array<Contact> {
