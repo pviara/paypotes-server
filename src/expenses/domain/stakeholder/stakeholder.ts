@@ -2,7 +2,7 @@ import { Contact } from '@contacts/domain/contact';
 import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
 
-export type Person = Contact | Member | User;
+export type Person = Contact | Member | Stakeholder | User;
 
 export class Stakeholder {
     constructor(

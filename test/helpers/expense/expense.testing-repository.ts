@@ -1,3 +1,4 @@
+import { PairExpense } from '@app/expenses/domain/expense/pair/pair-expense';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpensePostgresRepository } from '@expenses/persistence/expense.postgres-repository';
 import { Table } from '@infra/postgres/table';
@@ -17,13 +18,21 @@ export class ExpensePostgresTestingRepository extends ExpensePostgresRepository 
     }
 
     async insert(...expenses: Array<Expense>): Promise<void> {
-        // todo
-        // // for (const expense of expenses) {
-        // //     const groupId =
-        // //         expense instanceof GroupExpense
-        // //             ? expense.getGroup().getId()
-        // //             : this.configService.getOrThrow('DEFAULT_UUID');
-        // // }
+        const pairExpenses = expenses.filter(
+            (expense) => expense instanceof PairExpense,
+        );
+
+        for (const pairExpense of pairExpenses) {
+            const expense = this.mapPairExpenseRecordFrom(pairExpense);
+            await this.knex.insert(expense).into(Table.Expenses);
+
+            const stakeholders = pairExpense
+                .getStakeholders()
+                .map((stakeholder) =>
+                    this.mapStakeholderRecordFrom(stakeholder, pairExpense),
+                );
+            await this.knex.insert(stakeholders).into(Table.Stakeholders);
+        }
     }
 
     async get(id: string): Promise<Expense> {

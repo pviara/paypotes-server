@@ -38,6 +38,10 @@ export abstract class Expense {
         return this.metadata.label;
     }
 
+    getRawBalance(): number {
+        return this.payment.balance;
+    }
+
     getShareOf(stakeholderId: string): number {
         return this.getStakeholderUsing(stakeholderId).getShare();
     }
@@ -67,10 +71,6 @@ export abstract class Expense {
 
     settleShareOf(stakeholderId: string): void {
         return this.getStakeholderUsing(stakeholderId).settle();
-    }
-
-    protected getRawBalance(): number {
-        return this.payment.balance;
     }
 
     protected getStakeholderUsing(stakeholderId: string): Stakeholder {
