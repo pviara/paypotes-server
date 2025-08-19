@@ -7,7 +7,7 @@ import {
 } from '@test/helpers/expense/utils';
 import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     generateDefaultUserRandomGroup,
     generateDefaultUserRandomGroups,
@@ -35,7 +35,7 @@ describe('GroupController', () => {
     const application = initApplicationWith(modules, providers);
 
     let groupRepo: GroupPostgresTestingRepository;
-    let expenseRepo: ExpenseInMemoryTestingRepository;
+    let expenseRepo: ExpensePostgresTestingRepository;
     let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 

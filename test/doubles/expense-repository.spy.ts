@@ -61,9 +61,13 @@ export class ExpenseRepositorySpy
             count: 0,
             history: [] as Array<[string, string[]]>,
         },
-        save: {
+        saveGroupExpense: {
             count: 0,
-            history: [] as Array<Expense>,
+            history: [] as Array<GroupExpense>,
+        },
+        savePairExpense: {
+            count: 0,
+            history: [] as Array<PairExpense>,
         },
     };
 
@@ -182,8 +186,13 @@ export class ExpenseRepositorySpy
         return this.getStubOrDefault('getAllActorGroupsExpenses', {});
     }
 
-    async save(expense: Expense): Promise<void> {
-        this.saveCall('save', expense);
-        this.getStubOrDefault('save', undefined);
+    async saveGroupExpense(expense: GroupExpense): Promise<void> {
+        this.saveCall('saveGroupExpense', expense);
+        this.getStubOrDefault('saveGroupExpense', undefined);
+    }
+
+    async savePairExpense(expense: PairExpense): Promise<void> {
+        this.saveCall('savePairExpense', expense);
+        this.getStubOrDefault('savePairExpense', undefined);
     }
 }

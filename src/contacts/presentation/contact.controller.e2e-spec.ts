@@ -13,7 +13,7 @@ import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-b
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
 import { convertCents, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
     generateDefaultUserPairExpenses,
@@ -34,7 +34,7 @@ describe('ContactController', () => {
     const application = initApplicationWith(modules, providers);
 
     let contactRepo: ContactPostgresTestingRepository;
-    let expenseRepo: ExpenseInMemoryTestingRepository;
+    let expenseRepo: ExpensePostgresTestingRepository;
     let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 

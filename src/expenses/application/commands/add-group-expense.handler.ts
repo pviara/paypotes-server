@@ -56,7 +56,7 @@ export class AddGroupExpenseHandler
         const payment = this.extractPaymentFrom(command, group);
         const expense = GroupExpense.create(metadata, group, payment);
 
-        return this.expenseRepository.save(expense);
+        return this.expenseRepository.saveGroupExpense(expense);
     }
 
     private extractMetadataFrom(command: AddGroupExpenseCommand): Metadata {

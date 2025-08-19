@@ -57,7 +57,7 @@ export class AddPairExpenseHandler
         const payment = this.extractPaymentFrom(command, stakeholder);
         const expense = PairExpense.create(metadata, payment);
 
-        await this.expenseRepository.save(expense);
+        await this.expenseRepository.savePairExpense(expense);
         return this.messenger.sendRelationshipMustBeCreatedBetween(
             actor.getId(),
             stakeholder.getId(),

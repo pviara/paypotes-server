@@ -1,5 +1,5 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { ExpenseModule } from '@expenses/expense.module';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { generateRandomUser } from '@test/helpers/user/utils';
@@ -29,7 +29,7 @@ export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: Providers = [
     {
         provide: expenseRepositoryToken,
-        useClass: ExpenseInMemoryTestingRepository,
+        useClass: ExpensePostgresTestingRepository,
     },
     {
         provide: groupRepositoryToken,

@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ErrorFilter } from '@app/error-filter';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
@@ -32,7 +32,7 @@ type Repository = {
     [key in RepositoryType]: key extends 'contact'
         ? ContactPostgresTestingRepository
         : key extends 'expense'
-          ? ExpenseInMemoryTestingRepository
+          ? ExpensePostgresTestingRepository
           : key extends 'group'
             ? GroupPostgresTestingRepository
             : key extends 'user'

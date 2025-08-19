@@ -61,7 +61,8 @@ export interface ExpenseRepository {
         actorId: string,
         groupIds: Array<string>,
     ): Promise<ExpensesByGroup>;
-    save(expense: Expense): Promise<void>;
+    saveGroupExpense(expense: GroupExpense): Promise<void>;
+    savePairExpense(expense: PairExpense): Promise<void>;
 }
 
 const MAX_EXPENSES_PER_PAGE = 20;
@@ -213,7 +214,13 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         return expensesByGroup;
     }
 
-    async save(expense: Expense): Promise<void> {
+    async saveGroupExpense(expense: GroupExpense): Promise<void> {
+        const currentExpenses = [...this.expenses];
+        await setTimeout(Math.random() * 10);
+        this.expenses = [...currentExpenses, expense];
+    }
+
+    async savePairExpense(expense: PairExpense): Promise<void> {
         const currentExpenses = [...this.expenses];
         await setTimeout(Math.random() * 10);
         this.expenses = [...currentExpenses, expense];

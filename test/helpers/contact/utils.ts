@@ -4,7 +4,7 @@ import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseModule } from '@expenses/expense.module';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Modules } from '@test/helpers/application/model/module';
 import { Providers } from '@test/helpers/application/application';
@@ -21,7 +21,7 @@ export const contactSpecProviders: Providers = [
     },
     {
         provide: expenseRepositoryToken,
-        useClass: ExpenseInMemoryTestingRepository,
+        useClass: ExpensePostgresTestingRepository,
     },
     {
         provide: userRepositoryToken,

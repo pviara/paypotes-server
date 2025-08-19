@@ -4,7 +4,7 @@ import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { convertCents, raw, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense/expense';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     expenseSpecModules as modules,
     expenseSpecProviders as providers,
@@ -46,7 +46,7 @@ import * as request from 'supertest';
 describe('ExpenseController', () => {
     const application = initApplicationWith(modules, providers);
 
-    let expenseRepo: ExpenseInMemoryTestingRepository;
+    let expenseRepo: ExpensePostgresTestingRepository;
     let groupRepo: GroupPostgresTestingRepository;
     let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
@@ -947,7 +947,7 @@ describe('ExpenseController', () => {
                     });
 
                 expect(response.status).toBe(HttpStatus.CREATED);
-                expect(expenseRepo.expenseSaved(expenseId));
+                expect(await expenseRepo.expenseSaved(expenseId));
             });
 
             function getAnyMemberFrom(group: Group): Member {
@@ -1037,7 +1037,7 @@ describe('ExpenseController', () => {
                     });
 
                 expect(response.status).toBe(HttpStatus.CREATED);
-                expect(expenseRepo.expenseSaved(expenseId)).toBe(true);
+                expect(await expenseRepo.expenseSaved(expenseId)).toBe(true);
             });
         });
 

@@ -8,14 +8,13 @@ import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
+import { Table } from '@infra/postgres/table';
 
 export class ExpensePostgresRepository implements ExpenseRepository {
-    private table = 'expenses';
-
     constructor(@InjectKnex() protected knex: Knex) {}
 
-    delete(expenseId: string): Promise<void> {
-        return this.knex.delete().from(this.table);
+    async delete(expenseId: string): Promise<void> {
+        await this.knex.delete().from(Table.Expenses).where('id', expenseId);
     }
 
     getActorContactExpenseById(
@@ -99,7 +98,11 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         throw new Error('Method not implemented.');
     }
 
-    save(expense: Expense): Promise<void> {
+    saveGroupExpense(expense: GroupExpense): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+
+    savePairExpense(expense: PairExpense): Promise<void> {
         throw new Error('Method not implemented.');
     }
 }

@@ -8,6 +8,7 @@ import {
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { generateRandomUser } from '@test/helpers/user/utils';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { initMessagingApplicationWith } from '@test/helpers/application/utils';
 import { mapIdsFrom, shutdown } from '@test/helpers/utils';
@@ -15,7 +16,6 @@ import { setTimeout } from 'node:timers/promises';
 import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
-import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 
 describe('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules, providers);
@@ -102,7 +102,7 @@ describe('contact application tasks', () => {
     });
 
     async function waitForAnyContactToBeAddedThen(
-        makeAssertionUsing: (...params: any[]) => void,
+        makeAssertionUsing: (...params: Array<any>) => void,
     ): Promise<void> {
         const startTime = Date.now();
         const POLLING_TIMEOUT_MS = 5000;
