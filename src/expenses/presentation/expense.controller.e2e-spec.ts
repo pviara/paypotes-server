@@ -44,7 +44,7 @@ import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-
 import * as request from 'supertest';
 
 describe('ExpenseController', () => {
-    const application = initApplicationWith(modules, providers);
+    const application = initApplicationWith(modules);
 
     let expenseRepo: ExpensePostgresTestingRepository;
     let groupRepo: GroupPostgresTestingRepository;
@@ -56,9 +56,7 @@ describe('ExpenseController', () => {
     beforeAll(async () => {
         await application.bootstrap();
 
-        expenseRepo = application.getRepository('expense');
-        groupRepo = application.getRepository('group');
-        userRepo = application.getRepository('user');
+        ({ expenseRepo, groupRepo, userRepo } = application.getRepositories());
         httpServer = application.getHttpServer();
     });
 
@@ -302,7 +300,7 @@ describe('ExpenseController', () => {
             });
         });
 
-        it.only('should return the right expense for given id', async () => {
+        it('should return the right expense for given id', async () => {
             const dummyExpense = generateDefaultUserPairExpense();
             const users = mapUsersFrom(dummyExpense.getStakeholders());
             await userRepo.insert(...users);
@@ -324,6 +322,8 @@ describe('ExpenseController', () => {
         describe('expense is settled', () => {
             it('should return 404 NOT_FOUND', async () => {
                 const dummyExpense = generateDefaultUserPairExpense();
+                const users = mapUsersFrom(dummyExpense.getStakeholders());
+                await userRepo.insert(...users);
                 await expenseRepo.insert(dummyExpense);
                 await paybackPairExpense(dummyExpense);
 

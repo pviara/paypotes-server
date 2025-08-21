@@ -9,7 +9,7 @@ type CalculatePosition = {
  * Represents the financial position of a stakeholder in a specific expense.
  */
 export class Position {
-    constructor(private value: number) {}
+    private constructor(private value: number) {}
 
     static calculate({ expense, stakeholderId }: CalculatePosition): number {
         const share = expense.getShareOf(stakeholderId);

@@ -40,9 +40,9 @@ describe('contact application tasks', () => {
     beforeAll(async () => {
         await application.bootstrap();
 
-        contactRepo = application.getRepository('contact');
-        groupRepo = application.getRepository('group');
-        userRepo = application.getRepository('user');
+        contactRepo = application.getRepository('contactRepo');
+        groupRepo = application.getRepository('groupRepo');
+        userRepo = application.getRepository('userRepo');
         httpServer = application.getHttpServer();
     });
 

@@ -5,14 +5,13 @@ import {
     generateDefaultUserGroupExpenses,
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
-import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
+import { convertCents, empty, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     generateDefaultUserRandomGroup,
     generateDefaultUserRandomGroups,
     groupSpecModules as modules,
-    groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
 import { generateRandomUsers, mapUsersFrom } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
@@ -32,35 +31,25 @@ import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-
 import * as request from 'supertest';
 
 describe('GroupController', () => {
-    const application = initApplicationWith(modules, providers);
+    const application = initApplicationWith(modules);
 
+    let httpServer: App;
     let groupRepo: GroupPostgresTestingRepository;
     let expenseRepo: ExpensePostgresTestingRepository;
     let userRepo: UserPostgresTestingRepository;
-    let httpServer: App;
 
     beforeAll(async () => {
         await application.bootstrap();
 
-        groupRepo = application.getRepository('group');
-        expenseRepo = application.getRepository('expense');
-        userRepo = application.getRepository('user');
         httpServer = application.getHttpServer();
+        ({ expenseRepo, groupRepo, userRepo } = application.getRepositories());
     });
 
     afterAll(shutdown(application));
 
-    beforeEach(async () => {
-        await expenseRepo.empty();
-        await groupRepo.empty();
-        await userRepo.empty();
-    });
+    beforeEach(empty(application));
 
-    afterEach(async () => {
-        await expenseRepo.empty();
-        await groupRepo.empty();
-        await userRepo.empty();
-    });
+    afterEach(empty(application));
 
     describe('GET /groups', () => {
         describe('actor has no groups', () => {

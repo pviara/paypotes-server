@@ -1,12 +1,9 @@
 import { Application } from '@test/helpers/application/application';
 import { AsyncCallback } from '@test/helpers/types';
-import { INestApplication } from '@nestjs/common';
 import { Person } from '@expenses/domain/stakeholder/stakeholder';
 
-export const bootstrap = (
-    application: Application,
-): AsyncCallback<INestApplication> => {
-    return async (): Promise<INestApplication> => await application.bootstrap();
+export const empty = (application: Application): AsyncCallback<void> => {
+    return async (): Promise<void> => await application.emptyDatabase();
 };
 
 export const shutdown = (application: Application): AsyncCallback<void> => {

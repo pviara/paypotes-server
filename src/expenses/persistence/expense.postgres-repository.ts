@@ -16,6 +16,7 @@ import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { Table } from '@infra/postgres/table';
 import { User } from '@users/domain/user';
 import { Group } from '@app/groups/domain/group';
+import { Nullable } from '@app/shared/nullable';
 
 type StakeholderRecord = {
     id: string;
@@ -92,7 +93,14 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
         if (expense) {
             const stakeholders = await this.knex
-                .select(`${Table.Users}.*, ${Table.Stakeholders}.creditor`)
+                .select(
+                    `${Table.Users}.id`,
+                    `${Table.Users}.firstname`,
+                    `${Table.Users}.lastname`,
+                    `${Table.Users}.avatar_url`,
+                    `${Table.Stakeholders}.creditor`,
+                    `${Table.Stakeholders}.share`,
+                )
                 .from(Table.Stakeholders)
                 .innerJoin(
                     Table.Users,
@@ -114,7 +122,8 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return null;
     }
 
-    private mapExpenseFrom(record: ExpenseDetailedRecord): Expense {
+    // todo: edit to enable group expense ; remove the nullable thing
+    private mapExpenseFrom(record: ExpenseDetailedRecord): Nullable<Expense> {
         const metadata = this.extractMetadataFrom(record);
 
         const isPairExpense = this.isPairExpense(record);
@@ -124,7 +133,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                   this.extractPairPaymentFrom(record),
                   this.mapStakeholdersFrom(record),
               )
-            : GroupExpense.fromState(metadata, new Group({}));
+            : null;
     }
 
     private extractPairPaymentFrom(record: ExpenseDetailedRecord): PairPayment {

@@ -1,3 +1,5 @@
+import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { ExpenseModule } from '@expenses/expense.module';
@@ -27,6 +29,10 @@ import { ZERO } from '@app/shared/zero';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: Providers = [
+    {
+        provide: contactRepositoryToken,
+        useClass: ContactPostgresTestingRepository,
+    },
     {
         provide: expenseRepositoryToken,
         useClass: ExpensePostgresTestingRepository,

@@ -1,40 +1,35 @@
 import { App } from 'supertest/types';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { empty, raw, shutdown } from '@test/helpers/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
-import { raw, shutdown } from '@test/helpers/utils';
 import { UserDTO } from '@users/presentation/dto/user.dto';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import {
     userSpecModules as modules,
-    userSpecProviders as providers,
     generateRandomUser,
 } from '@test/helpers/user/utils';
 import { USERS_API_ROUTE } from '@users/presentation/user.controller';
 import * as request from 'supertest';
 
 describe('UserController', () => {
-    const application = initApplicationWith(modules, providers);
+    const application = initApplicationWith(modules);
 
-    let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
+    let userRepo: UserPostgresTestingRepository;
 
     beforeAll(async () => {
         await application.bootstrap();
-        httpServer = application.getHttpServer();
 
-        userRepo = application.getRepository('user');
+        httpServer = application.getHttpServer();
+        ({ userRepo } = application.getRepositories());
     });
 
     afterAll(shutdown(application));
 
-    beforeEach(async () => {
-        await userRepo.empty();
-    });
+    beforeEach(empty(application));
 
-    afterEach(async () => {
-        await userRepo.empty();
-    });
+    afterEach(empty(application));
 
     describe('GET /user/:name', () => {
         const invalidStrings = ['580940', 'test3104', '@', '___'];

@@ -4,14 +4,13 @@ import { Contact } from '@contacts/domain/contact';
 import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
 import {
     contactSpecModules as modules,
-    contactSpecProviders as providers,
     generateDefaultUserRelationship,
     generateDefaultUserRelationships,
     generateRandomContacts,
 } from '@test/helpers/contact/utils';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
-import { convertCents, shutdown } from '@test/helpers/utils';
+import { convertCents, empty, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
@@ -31,35 +30,26 @@ import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-
 import * as request from 'supertest';
 
 describe('ContactController', () => {
-    const application = initApplicationWith(modules, providers);
+    const application = initApplicationWith(modules);
 
+    let httpServer: App;
     let contactRepo: ContactPostgresTestingRepository;
     let expenseRepo: ExpensePostgresTestingRepository;
     let userRepo: UserPostgresTestingRepository;
-    let httpServer: App;
 
     beforeAll(async () => {
         await application.bootstrap();
 
-        contactRepo = application.getRepository('contact');
-        expenseRepo = application.getRepository('expense');
-        userRepo = application.getRepository('user');
         httpServer = application.getHttpServer();
+        ({ contactRepo, expenseRepo, userRepo } =
+            application.getRepositories());
     });
 
     afterAll(shutdown(application));
 
-    beforeEach(async () => {
-        await expenseRepo.empty();
-        await contactRepo.empty();
-        await userRepo.empty();
-    });
+    beforeEach(empty(application));
 
-    afterEach(async () => {
-        await expenseRepo.empty();
-        await contactRepo.empty();
-        await userRepo.empty();
-    });
+    afterEach(empty(application));
 
     describe('GET /contacts', () => {
         describe('actor has no contact', () => {
