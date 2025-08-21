@@ -24,7 +24,7 @@ type MemberDetailedRecord = {
     avatar_url: string;
 };
 
-type GroupDetailedRecord = GroupRecord & {
+export type GroupDetailedRecord = GroupRecord & {
     members: Array<MemberDetailedRecord>;
 };
 

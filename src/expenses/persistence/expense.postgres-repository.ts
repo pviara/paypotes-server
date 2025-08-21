@@ -8,9 +8,14 @@ import {
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
-import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
+import {
+    PairExpense,
+    PairPayment,
+} from '@expenses/domain/expense/pair/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { Table } from '@infra/postgres/table';
+import { User } from '@users/domain/user';
+import { Group } from '@app/groups/domain/group';
 
 type StakeholderRecord = {
     id: string;
@@ -33,7 +38,9 @@ type StakeholderDetailedRecord = {
     firstname: string;
     lastname: string;
     avatar_url: string;
+    email: string;
     creditor: boolean;
+    share: number;
 };
 
 type ExpenseDetailedRecord = ExpenseRecord & {
@@ -109,9 +116,59 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     private mapExpenseFrom(record: ExpenseDetailedRecord): Expense {
         const metadata = this.extractMetadataFrom(record);
-        const creditor = this.getCreditorFrom(record);
 
         const isPairExpense = this.isPairExpense(record);
+        return isPairExpense
+            ? PairExpense.fromState(
+                  metadata,
+                  this.extractPairPaymentFrom(record),
+                  this.mapStakeholdersFrom(record),
+              )
+            : GroupExpense.fromState(metadata, new Group({}));
+    }
+
+    private extractPairPaymentFrom(record: ExpenseDetailedRecord): PairPayment {
+        const { creditor, debtors } =
+            this.extractCreditorAndDebtorsFrom(record);
+        return {
+            balance: record.balance,
+            creditor: this.mapUserFrom(creditor),
+            debtor: this.mapUserFrom(debtors[0]),
+        };
+    }
+
+    private mapStakeholdersFrom({
+        stakeholders,
+    }: ExpenseDetailedRecord): Array<Stakeholder> {
+        return stakeholders.map(
+            (stakeholder) =>
+                new Stakeholder({
+                    id: stakeholder.id,
+                    firstname: stakeholder.firstname,
+                    lastname: stakeholder.lastname,
+                    avatarUrl: stakeholder.avatar_url,
+                    share: stakeholder.share,
+                }),
+        );
+    }
+
+    private mapUserFrom(creditor: StakeholderDetailedRecord): User {
+        return new User({
+            id: creditor.id,
+            firstname: creditor.firstname,
+            lastname: creditor.lastname,
+            avatarUrl: creditor.avatar_url,
+            email: creditor.email,
+        });
+    }
+
+    private extractCreditorAndDebtorsFrom(record: ExpenseDetailedRecord): {
+        creditor: StakeholderDetailedRecord;
+        debtors: Array<StakeholderDetailedRecord>;
+    } {
+        const creditor = this.getCreditorFrom(record);
+        const debtors = this.getDebtorsFrom(record, creditor);
+        return { creditor, debtors };
     }
 
     private getCreditorFrom(
@@ -122,6 +179,15 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
         if (creditor) return creditor;
         throw new Error(`No creditor was found in record ${record.id}`);
+    }
+
+    private getDebtorsFrom(
+        record: ExpenseDetailedRecord,
+        creditor: StakeholderDetailedRecord,
+    ): Array<StakeholderDetailedRecord> {
+        return record.stakeholders.filter(
+            (stakeholder) => stakeholder.id !== creditor.id,
+        );
     }
 
     private isPairExpense(record: ExpenseDetailedRecord): boolean {

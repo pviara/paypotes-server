@@ -28,6 +28,15 @@ export class GroupExpense extends Expense {
         return new GroupExpense(metadata, group, payment, stakeholders);
     }
 
+    static fromState(
+        metadata: Metadata,
+        group: Group,
+        payment: GroupPayment,
+        stakeholders: Array<Stakeholder>,
+    ): GroupExpense {
+        return new GroupExpense(metadata, group, payment, stakeholders);
+    }
+
     belongsTo(groupId: string): boolean {
         return this.group.getId() === groupId;
     }

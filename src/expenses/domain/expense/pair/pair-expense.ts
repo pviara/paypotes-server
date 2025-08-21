@@ -23,6 +23,14 @@ export class PairExpense extends Expense {
         return new PairExpense(metadata, payment, stakeholders);
     }
 
+    static fromState(
+        metadata: Metadata,
+        payment: PairPayment,
+        stakeholders: Array<Stakeholder>,
+    ): PairExpense {
+        return new PairExpense(metadata, payment, stakeholders);
+    }
+
     getCounterpartyOf(stakeholderId: string): Stakeholder {
         const { creditor, debtor } = this.payment;
         return creditor.getId() === stakeholderId
