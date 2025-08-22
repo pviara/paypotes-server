@@ -59,55 +59,46 @@ describe('PaybackPairExpenseHandler', () => {
     });
 
     describe('expense exists', () => {
-        describe('actor is debtor', () => {
-            it("should settle actor's share", async () => {
-                const dummyExpense = generateRandomDebitExpense();
-                expenseRepo.stub('getActorContactExpenseById', dummyExpense);
+        it('should settle all stakeholders share', async () => {
+            const dummyExpense = generateRandomCreditExpense();
+            expenseRepo.stub('getActorContactExpenseById', dummyExpense);
 
-                await sut.execute(dummyCommand);
+            await sut.execute(dummyCommand);
 
-                expect(dummyExpense.getShareOf(dummyActorId)).toBe(0);
-
-                const counterparty =
-                    dummyExpense.getCounterpartyOf(dummyActorId);
-                expect(counterparty.getShare()).not.toBe(0);
-            });
-
-            function generateRandomDebitExpense(): PairExpense {
-                const metadata = generateRandomMetadata();
-                const payment: PairPayment = {
-                    balance: 1000,
-                    creditor: generateRandomUser(),
-                    debtor: DEFAULT_USER,
-                };
-                return PairExpense.create(metadata, payment);
-            }
+            expectAllStakeholdersShareToBeSettled(dummyExpense);
         });
 
-        describe('actor is creditor', () => {
-            it("should settle counterparty's share", async () => {
-                const dummyExpense = generateRandomCreditExpense();
-                expenseRepo.stub('getActorContactExpenseById', dummyExpense);
+        it('should update expense', async () => {
+            const dummyExpense = generateRandomCreditExpense();
+            expenseRepo.stub('getActorContactExpenseById', dummyExpense);
 
-                await sut.execute(dummyCommand);
+            await sut.execute(dummyCommand);
 
-                const counterparty =
-                    dummyExpense.getCounterpartyOf(dummyActorId);
-                expect(counterparty.getShare()).toBe(0);
-
-                expect(dummyExpense.getShareOf(dummyActorId)).not.toBe(0);
-            });
-
-            function generateRandomCreditExpense(): PairExpense {
-                const metadata = generateRandomMetadata();
-                const payment: PairPayment = {
-                    balance: generateRandomBalance(),
-                    creditor: DEFAULT_USER,
-                    debtor: generateRandomUser(),
-                };
-                return PairExpense.create(metadata, payment);
-            }
+            expect(expenseRepo.calls.updatePairExpense.count).toBe(1);
+            expect(expenseRepo.calls.updatePairExpense.history).toContainEqual(
+                dummyExpense,
+            );
         });
+
+        function generateRandomCreditExpense(): PairExpense {
+            const metadata = generateRandomMetadata();
+            const payment: PairPayment = {
+                balance: generateRandomBalance(),
+                creditor: DEFAULT_USER,
+                debtor: generateRandomUser(),
+            };
+            return PairExpense.create(metadata, payment);
+        }
+
+        function expectAllStakeholdersShareToBeSettled(
+            expense: PairExpense,
+        ): void {
+            const stakeholders = expense.getStakeholders();
+            const allStakeholdersShareSettled = stakeholders.every(
+                (stakeholder) => stakeholder.getShare() === 0,
+            );
+            expect(allStakeholdersShareSettled).toBe(true);
+        }
     });
 
     function initSut(): void {

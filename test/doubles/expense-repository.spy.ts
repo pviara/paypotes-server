@@ -69,6 +69,10 @@ export class ExpenseRepositorySpy
             count: 0,
             history: [] as Array<PairExpense>,
         },
+        updatePairExpense: {
+            count: 0,
+            history: [] as Array<PairExpense>,
+        },
     };
 
     async delete(expenseId: string): Promise<void> {
@@ -194,5 +198,10 @@ export class ExpenseRepositorySpy
     async savePairExpense(expense: PairExpense): Promise<void> {
         this.saveCall('savePairExpense', expense);
         this.getStubOrDefault('savePairExpense', undefined);
+    }
+
+    async updatePairExpense(expense: PairExpense): Promise<void> {
+        this.saveCall('updatePairExpense', expense);
+        this.getStubOrDefault('updatePairExpense', undefined);
     }
 }
