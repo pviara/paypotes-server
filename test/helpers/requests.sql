@@ -17,11 +17,64 @@ insert into stakeholders values ('856b40a4-00d6-43be-864f-4c6a6d4bc069', '42ea96
 
 -- raw select statements to do...
 -- récupérer tous les membres d'un groupe dont l'id est celui donné et dont il existe un des membres qui a l'id de l'acteur donné
-with actor_in_group as (
-    select 1
-    from members
-    where group_id = '042f26d9-36a6-4594-8bd2-48270fe8d40b'
-    and id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0'
-)
+-- with actor_in_group as (
+--     select 1
+--     from members
+--     where group_id = '042f26d9-36a6-4594-8bd2-48270fe8d40b'
+--     and id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0'
+-- )
 
-select 
+-- select ...
+
+-- getActorExpenseById
+with verified_expense as (
+    select *
+    from expenses
+    where id = '7e114cf3-5ba3-493e-b56f-4ab701852bc0'
+), actor_stakeholder as (
+    select
+        id,
+        share
+    from stakeholders
+    where expense_id = '7e114cf3-5ba3-493e-b56f-4ab701852bc0'
+)
+select ve.*
+from verified_expense ve
+inner join actor_stakeholder ac
+    on ac.id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0'
+and share > 0
+and group_id = '46cd3732-f36e-4886-a2f8-1efebcda1ad6';
+
+-- getActorContactExpenseById
+with verified_stakeholders as (
+    select
+        expense_id,
+        count(expense_id) as found_stakeholders
+    from stakeholders
+    where
+        expense_id = '7e114cf3-5ba3-493e-b56f-4ab701852bc0'
+        and id in (
+            'ecd0c12a-9f59-4703-9280-8bc1082986b0',
+            '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd'
+        )
+    group by expense_id
+), verified_expense as (
+    select *
+    from expenses
+    where id = '7e114cf3-5ba3-493e-b56f-4ab701852bc0'
+), actor_stakeholder as (
+    select
+        id,
+        share
+    from stakeholders
+    where expense_id = '7e114cf3-5ba3-493e-b56f-4ab701852bc0'
+)
+select ve.*
+from verified_stakeholders
+inner join verified_expense ve
+    on ve.id = expense_id
+inner join actor_stakeholder ac
+    on ac.id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0'
+where found_stakeholders = 2
+and share > 0
+and group_id = '46cd3732-f36e-4886-a2f8-1efebcda1ad6';
