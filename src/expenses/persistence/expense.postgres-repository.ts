@@ -208,40 +208,36 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         } = await this.knex.raw(`
             with verified_expense as (
                 select *
-                from expenses
+                from ${Table.Expenses}
                 where id = '${expenseId}'
             ), actor_stakeholder as (
                 select
                     id,
                     share
-                from stakeholders
+                from ${Table.Stakeholders}
                 where expense_id = '${expenseId}'
             )
             select ve.*
             from verified_expense ve
             inner join actor_stakeholder ac
                 on ac.id = '${actorId}'
-            and share > 0
-            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';    
+            and share > 0;
         `);
 
         if (expense) {
-            const stakeholders = await this.knex
-                .select(
-                    `${Table.Users}.id`,
-                    `${Table.Users}.firstname`,
-                    `${Table.Users}.lastname`,
-                    `${Table.Users}.avatar_url`,
-                    `${Table.Stakeholders}.creditor`,
-                    `${Table.Stakeholders}.share`,
-                )
-                .from(Table.Stakeholders)
-                .innerJoin(
-                    Table.Users,
-                    `${Table.Users}.id`,
-                    `${Table.Stakeholders}.id`,
-                )
-                .where(`${Table.Stakeholders}.expense_id`, expenseId);
+            const { rows: stakeholders } = await this.knex.raw(`
+                select
+                    ${Table.Users}.id,
+                    ${Table.Users}.firstname,
+                    ${Table.Users}.lastname,
+                    ${Table.Users}.avatar_url,
+                    ${Table.Stakeholders}.creditor,
+                    ${Table.Stakeholders}.share
+                from ${Table.Stakeholders}
+                inner join ${Table.Users}
+                    on ${Table.Users}.id = ${Table.Stakeholders}.id
+                where ${Table.Stakeholders}.expense_id = '${expense.id}'
+            `);
 
             return this.mapExpenseFrom({
                 id: expense.id,
