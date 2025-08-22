@@ -58,12 +58,75 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         await this.knex.delete().from(Table.Expenses).where('id', expenseId);
     }
 
-    getActorContactExpenseById(
+    async getActorContactExpenseById(
         actorId: string,
         contactId: string,
         expenseId: string,
     ): Promise<PairExpense | null> {
-        throw new Error('Method not implemented.');
+        const {
+            rows: [expense],
+        } = await this.knex.raw(`
+            with verified_stakeholders as (
+                select
+                    expense_id,
+                    count(expense_id) as found_stakeholders
+                from ${Table.Stakeholders}
+                where
+                    expense_id = '${expenseId}'
+                    and id in (
+                        '${actorId}',
+                        '${contactId}'
+                    )
+                group by expense_id
+            ), verified_expense as (
+                    select *
+                    from ${Table.Expenses}
+                    where id = '${expenseId}'
+            ), actor_stakeholder as (
+                select
+                    id,
+                    share
+                from ${Table.Stakeholders}
+                where expense_id = '${expenseId}'
+            )
+            select ve.*
+            from verified_stakeholders
+            inner join verified_expense ve
+                on ve.id = expense_id
+            inner join actor_stakeholder ac
+                on ac.id = '${actorId}'
+            where found_stakeholders = 2
+            and share > 0
+            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';
+        `);
+
+        if (expense) {
+            const { rows: stakeholders } = await this.knex.raw(`
+                select
+                    ${Table.Users}.id,
+                    ${Table.Users}.firstname,
+                    ${Table.Users}.lastname,
+                    ${Table.Users}.avatar_url,
+                    ${Table.Stakeholders}.creditor,
+                    ${Table.Stakeholders}.share
+                from ${Table.Stakeholders}
+                inner join ${Table.Users}
+                    on ${Table.Users}.id = ${Table.Stakeholders}.id
+                where ${Table.Stakeholders}.expense_id = '${expenseId}'
+            `);
+
+            return this.mapPairExpenseFrom({
+                id: expense.id,
+                label: expense.label,
+                emoji: expense.emoji,
+                created_at: expense.created_at,
+                balance: expense.balance,
+                group_id: expense.group_id,
+                stakeholders,
+            });
+        }
+
+        return null;
     }
 
     getActorContactExpenses(
@@ -79,17 +142,27 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         actorId: string,
         expenseId: string,
     ): Promise<Expense | null> {
-        const expense = await this.knex
-            .select(`${Table.Expenses}.*`)
-            .from(Table.Expenses)
-            .innerJoin(
-                Table.Stakeholders,
-                `${Table.Expenses}.id`,
-                `${Table.Stakeholders}.expense_id`,
+        const {
+            rows: [expense],
+        } = await this.knex.raw(`
+            with verified_expense as (
+                select *
+                from expenses
+                where id = '${expenseId}'
+            ), actor_stakeholder as (
+                select
+                    id,
+                    share
+                from stakeholders
+                where expense_id = '${expenseId}'
             )
-            .where(`${Table.Expenses}.id`, expenseId)
-            .andWhere(`${Table.Stakeholders}.id`, actorId)
-            .first();
+            select ve.*
+            from verified_expense ve
+            inner join actor_stakeholder ac
+                on ac.id = '${actorId}'
+            and share > 0
+            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';    
+        `);
 
         if (expense) {
             const stakeholders = await this.knex
@@ -127,13 +200,14 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         const metadata = this.extractMetadataFrom(record);
 
         const isPairExpense = this.isPairExpense(record);
-        return isPairExpense
-            ? PairExpense.fromState(
-                  metadata,
-                  this.extractPairPaymentFrom(record),
-                  this.mapStakeholdersFrom(record),
-              )
-            : null;
+        return isPairExpense ? this.mapPairExpenseFrom(record) : null;
+    }
+
+    private mapPairExpenseFrom(record: ExpenseDetailedRecord): PairExpense {
+        const metadata = this.extractMetadataFrom(record);
+        const payment = this.extractPairPaymentFrom(record);
+        const stakeholders = this.mapStakeholdersFrom(record);
+        return PairExpense.fromState(metadata, payment, stakeholders);
     }
 
     private extractPairPaymentFrom(record: ExpenseDetailedRecord): PairPayment {
@@ -300,5 +374,14 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     savePairExpense(expense: PairExpense): Promise<void> {
         throw new Error('Method not implemented.');
+    }
+
+    async updatePairExpense(expense: PairExpense): Promise<void> {
+        for (const stakeholder of expense.getStakeholders()) {
+            await this.knex(Table.Stakeholders)
+                .update({ share: stakeholder.getShare() })
+                .where('expense_id', expense.getId())
+                .andWhere('id', stakeholder.getId());
+        }
     }
 }

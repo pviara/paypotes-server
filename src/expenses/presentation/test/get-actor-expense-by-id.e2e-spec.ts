@@ -80,6 +80,7 @@ describe('getActorExpenseById', () => {
             it('should return 404 NOT_FOUND', async () => {
                 const dummyExpense =
                     await fixture.setupDefaultUserPairExpense();
+
                 await paybackPairExpense(dummyExpense);
 
                 const response = await request(httpServer).get(
