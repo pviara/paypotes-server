@@ -129,13 +129,74 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return null;
     }
 
-    getActorContactExpenses(
+    async getActorContactExpenses(
         actorId: string,
         contactId: string,
         pageIndex: number,
         search: string,
     ): Promise<PairExpense[]> {
-        throw new Error('Method not implemented.');
+        const MAX_EXPENSES_LIMIT = 20;
+        const { rows: expenses } = await this.knex.raw(`
+            with verified_stakeholders as (
+                select
+                    expense_id,
+                    count(expense_id) as found_stakeholders
+                from ${Table.Stakeholders}
+                where id in (
+                    '${actorId}',
+                    '${contactId}'
+                )
+                group by expense_id
+                having count(id) = 2
+            ), actor_stakeholder as (
+                select
+                    id,
+                    expense_id,
+                    share
+                from ${Table.Stakeholders}
+                where id = '${actorId}'
+            )
+            select e.*
+            from ${Table.Expenses} e
+            inner join verified_stakeholders vs
+                on e.id = vs.expense_id
+            inner join actor_stakeholder ac
+                on e.id = ac.expense_id
+            where share > 0
+            and (${`'${search}'` || null} is null or e.label ilike '%${search}%')
+            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}'
+            order by e.created_at desc
+            limit ${MAX_EXPENSES_LIMIT}
+            offset ${pageIndex * MAX_EXPENSES_LIMIT};
+        `);
+
+        return Promise.all(
+            expenses.map(async (expense: ExpenseRecord) => {
+                const { rows: stakeholders } = await this.knex.raw(`
+                    select
+                        ${Table.Users}.id,
+                        ${Table.Users}.firstname,
+                        ${Table.Users}.lastname,
+                        ${Table.Users}.avatar_url,
+                        ${Table.Stakeholders}.creditor,
+                        ${Table.Stakeholders}.share
+                    from ${Table.Stakeholders}
+                    inner join ${Table.Users}
+                        on ${Table.Users}.id = ${Table.Stakeholders}.id
+                    where ${Table.Stakeholders}.expense_id = '${expense.id}'
+                `);
+
+                return this.mapPairExpenseFrom({
+                    id: expense.id,
+                    label: expense.label,
+                    emoji: expense.emoji,
+                    created_at: expense.created_at,
+                    balance: expense.balance,
+                    group_id: expense.group_id,
+                    stakeholders,
+                });
+            }),
+        );
     }
 
     async getActorExpenseById(
@@ -197,8 +258,6 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     // todo: edit to enable group expense ; remove the nullable thing
     private mapExpenseFrom(record: ExpenseDetailedRecord): Nullable<Expense> {
-        const metadata = this.extractMetadataFrom(record);
-
         const isPairExpense = this.isPairExpense(record);
         return isPairExpense ? this.mapPairExpenseFrom(record) : null;
     }
