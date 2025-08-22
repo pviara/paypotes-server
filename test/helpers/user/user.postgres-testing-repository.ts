@@ -10,8 +10,12 @@ export class UserPostgresTestingRepository extends UserPostgresRepository {
             .whereNot('id', process.env.DEFAULT_UUID);
     }
 
-    insert(...users: Array<User>): Promise<void> {
+    async insert(...users: Array<User>): Promise<void> {
         const records = this.mapRecordsFrom(users);
-        return this.knex.insert(records).into(Table.Users);
+        await this.knex
+            .insert(records)
+            .into(Table.Users)
+            .onConflict('id')
+            .ignore();
     }
 }
