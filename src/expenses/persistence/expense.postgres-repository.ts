@@ -48,6 +48,8 @@ type ExpenseDetailedRecord = ExpenseRecord & {
     stakeholders: Array<StakeholderDetailedRecord>;
 };
 
+const MAX_EXPENSES_LIMIT = 20;
+
 export class ExpensePostgresRepository implements ExpenseRepository {
     constructor(
         private configService: ConfigService,
@@ -135,7 +137,6 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         pageIndex: number,
         search: string,
     ): Promise<PairExpense[]> {
-        const MAX_EXPENSES_LIMIT = 20;
         const { rows: expenses } = await this.knex.raw(`
             with verified_stakeholders as (
                 select
@@ -252,6 +253,92 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return null;
     }
 
+    getActorExpenses(
+        actorId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<Expense[]> {
+        throw new Error('Method not implemented.');
+    }
+
+    getActorGroupExpenseById(
+        actorId: string,
+        groupId: string,
+        expenseId: string,
+    ): Promise<GroupExpense | null> {
+        throw new Error('Method not implemented.');
+    }
+
+    getActorGroupExpenses(
+        actorId: string,
+        groupId: string,
+        pageIndex: number,
+        search: string,
+    ): Promise<GroupExpense[]> {
+        throw new Error('Method not implemented.');
+    }
+
+    getAllActorContactExpenses(
+        actorId: string,
+        contactId: string,
+    ): Promise<PairExpense[]> {
+        throw new Error('Method not implemented.');
+    }
+
+    getAllActorContactsExpenses(
+        actorId: string,
+        contactIds: Array<string>,
+    ): Promise<ExpensesByContact> {
+        throw new Error('Method not implemented.');
+    }
+
+    getAllActorExpenses(actorId: string): Promise<Expense[]> {
+        throw new Error('Method not implemented.');
+    }
+
+    getAllActorGroupExpenses(
+        actorId: string,
+        groupId: string,
+    ): Promise<GroupExpense[]> {
+        throw new Error('Method not implemented.');
+    }
+
+    getAllActorGroupsExpenses(
+        actorId: string,
+        groupIds: Array<string>,
+    ): Promise<ExpensesByGroup> {
+        throw new Error('Method not implemented.');
+    }
+
+    saveGroupExpense(expense: GroupExpense): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+
+    savePairExpense(expense: PairExpense): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+
+    async updatePairExpense(expense: PairExpense): Promise<void> {
+        for (const stakeholder of expense.getStakeholders()) {
+            await this.knex(Table.Stakeholders)
+                .update({ share: stakeholder.getShare() })
+                .where('expense_id', expense.getId())
+                .andWhere('id', stakeholder.getId());
+        }
+    }
+
+    protected mapStakeholderRecordFrom(
+        stakeholder: Stakeholder,
+        expense: Expense,
+    ): StakeholderRecord {
+        return {
+            id: stakeholder.getId(),
+            expense_id: expense.getId(),
+            creditor: expense.hasCreditor(stakeholder.getId()),
+            share: stakeholder.getShare(),
+        };
+    }
+
     // todo: edit to enable group expense ; remove the nullable thing
     private mapExpenseFrom(record: ExpenseDetailedRecord): Nullable<Expense> {
         const isPairExpense = this.isPairExpense(record);
@@ -352,91 +439,5 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             balance: expense.getRawBalance(),
             group_id: this.configService.getOrThrow('DEFAULT_UUID'),
         };
-    }
-
-    protected mapStakeholderRecordFrom(
-        stakeholder: Stakeholder,
-        expense: Expense,
-    ): StakeholderRecord {
-        return {
-            id: stakeholder.getId(),
-            expense_id: expense.getId(),
-            creditor: expense.hasCreditor(stakeholder.getId()),
-            share: stakeholder.getShare(),
-        };
-    }
-
-    getActorExpenses(
-        actorId: string,
-        pageIndex: number,
-        search: string,
-    ): Promise<Expense[]> {
-        throw new Error('Method not implemented.');
-    }
-
-    getActorGroupExpenseById(
-        actorId: string,
-        groupId: string,
-        expenseId: string,
-    ): Promise<GroupExpense | null> {
-        throw new Error('Method not implemented.');
-    }
-
-    getActorGroupExpenses(
-        actorId: string,
-        groupId: string,
-        pageIndex: number,
-        search: string,
-    ): Promise<GroupExpense[]> {
-        throw new Error('Method not implemented.');
-    }
-
-    getAllActorContactExpenses(
-        actorId: string,
-        contactId: string,
-    ): Promise<PairExpense[]> {
-        throw new Error('Method not implemented.');
-    }
-
-    getAllActorContactsExpenses(
-        actorId: string,
-        contactIds: Array<string>,
-    ): Promise<ExpensesByContact> {
-        throw new Error('Method not implemented.');
-    }
-
-    getAllActorExpenses(actorId: string): Promise<Expense[]> {
-        throw new Error('Method not implemented.');
-    }
-
-    getAllActorGroupExpenses(
-        actorId: string,
-        groupId: string,
-    ): Promise<GroupExpense[]> {
-        throw new Error('Method not implemented.');
-    }
-
-    getAllActorGroupsExpenses(
-        actorId: string,
-        groupIds: Array<string>,
-    ): Promise<ExpensesByGroup> {
-        throw new Error('Method not implemented.');
-    }
-
-    saveGroupExpense(expense: GroupExpense): Promise<void> {
-        throw new Error('Method not implemented.');
-    }
-
-    savePairExpense(expense: PairExpense): Promise<void> {
-        throw new Error('Method not implemented.');
-    }
-
-    async updatePairExpense(expense: PairExpense): Promise<void> {
-        for (const stakeholder of expense.getStakeholders()) {
-            await this.knex(Table.Stakeholders)
-                .update({ share: stakeholder.getShare() })
-                .where('expense_id', expense.getId())
-                .andWhere('id', stakeholder.getId());
-        }
     }
 }
