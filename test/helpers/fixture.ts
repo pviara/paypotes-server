@@ -1,9 +1,11 @@
 import { Application } from '@test/helpers/application/application';
+import { Contact } from '@contacts/domain/contact';
 import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { generateDefaultUserPairExpense } from '@test/helpers/expense/utils';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
-import { mapUsersFrom } from '@test/helpers/user/utils';
+import { generateRandomUser, mapUsersFrom } from '@test/helpers/user/utils';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
@@ -21,6 +23,15 @@ export class Fixture {
             application.getRepositories();
 
         return new Fixture(contactRepo, expenseRepo, groupRepo, userRepo);
+    }
+
+    async setupDefaultUserContact(): Promise<Contact> {
+        const user = generateRandomUser();
+
+        await this.userRepo.insert(DEFAULT_USER, user);
+        await this.contactRepo.addRelationshipsBetween([DEFAULT_USER, user]);
+
+        return Contact.fromUser(user);
     }
 
     async setupDefaultUserPairExpense(): Promise<PairExpense> {

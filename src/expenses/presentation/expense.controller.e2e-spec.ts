@@ -274,68 +274,6 @@ describe('ExpenseController', () => {
     //     });
     // });
 
-    describe('GET /expenses/:expenseId', () => {
-        const invalidIds = ['id', null, 59391, NaN, undefined];
-
-        it.each(invalidIds)(
-            'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
-            async (id: unknown) => {
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/${id}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-            },
-        );
-
-        describe('actor expense does not exist', () => {
-            it('should return 404 NOT_FOUND', async () => {
-                const NOT_EXISTING_ID = crypto.randomUUID();
-
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/${NOT_EXISTING_ID}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.NOT_FOUND);
-            });
-        });
-
-        it('should return the right expense for given id', async () => {
-            const dummyExpense = generateDefaultUserPairExpense();
-            const users = mapUsersFrom(dummyExpense.getStakeholders());
-            await userRepo.insert(...users);
-            await expenseRepo.insert(dummyExpense);
-
-            const response = await request(httpServer).get(
-                `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
-            );
-
-            const expenseView = PairExpenseSnapshot.create({
-                expense: dummyExpense,
-                perspectiveId: DEFAULT_USER.getId(),
-            });
-            expect(response.body).toStrictEqual(
-                raw(PairExpenseDTO.from(expenseView)),
-            );
-        });
-
-        describe('expense is settled', () => {
-            it('should return 404 NOT_FOUND', async () => {
-                const dummyExpense = generateDefaultUserPairExpense();
-                const users = mapUsersFrom(dummyExpense.getStakeholders());
-                await userRepo.insert(...users);
-                await expenseRepo.insert(dummyExpense);
-                await paybackPairExpense(dummyExpense);
-
-                const response = await request(httpServer).get(
-                    `/${EXPENSES_API_ROUTE}/${dummyExpense.getId()}`,
-                );
-
-                expect(response.status).toBe(HttpStatus.NOT_FOUND);
-            });
-        });
-    });
-
     // describe('GET /expenses/contact/:contactId', () => {
     //     describe('actor has no expense with contact', () => {
     //         it('should return an empty array', async () => {
@@ -472,71 +410,71 @@ describe('ExpenseController', () => {
     //     });
     // });
 
-    // describe('GET /expenses/contact/:contactId/expense/:expenseId', () => {
-    //     const invalidIds = ['id', null, 59391, NaN, undefined];
+    describe('GET /expenses/contact/:contactId/expense/:expenseId', () => {
+        const invalidIds = ['id', null, 59391, NaN, undefined];
 
-    //     it.each(invalidIds)(
-    //         'should return 400 BAD_REQUEST when given contactId "%s" is not a valid uuid',
-    //         async (contactId: unknown) => {
-    //             const validId = crypto.randomUUID();
-    //             const response = await request(httpServer).get(
-    //                 `/${EXPENSES_API_ROUTE}/contact/${contactId}/expense/${validId}`,
-    //             );
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given contactId "%s" is not a valid uuid',
+            async (contactId: unknown) => {
+                const validId = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${contactId}/expense/${validId}`,
+                );
 
-    //             expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-    //         },
-    //     );
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
 
-    //     it.each(invalidIds)(
-    //         'should return 400 BAD_REQUEST when given expenseId "%s" is not a valid uuid',
-    //         async (expenseId: unknown) => {
-    //             const validId = crypto.randomUUID();
-    //             const response = await request(httpServer).get(
-    //                 `/${EXPENSES_API_ROUTE}/contact/${validId}/expense/${expenseId}`,
-    //             );
+        it.each(invalidIds)(
+            'should return 400 BAD_REQUEST when given expenseId "%s" is not a valid uuid',
+            async (expenseId: unknown) => {
+                const validId = crypto.randomUUID();
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${validId}/expense/${expenseId}`,
+                );
 
-    //             expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-    //         },
-    //     );
+                expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+            },
+        );
 
-    //     it('should return the right expense for given contactId and expenseId', async () => {
-    //         const dummyExpense = generateDefaultUserPairExpense();
-    //         await expenseRepo.insert(dummyExpense);
+        it('should return the right expense for given contactId and expenseId', async () => {
+            const dummyExpense = generateDefaultUserPairExpense();
+            await expenseRepo.insert(dummyExpense);
 
-    //         const contact = dummyExpense.getCounterpartyOf(
-    //             DEFAULT_USER.getId(),
-    //         );
-    //         const response = await request(httpServer).get(
-    //             `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
-    //         );
+            const contact = dummyExpense.getCounterpartyOf(
+                DEFAULT_USER.getId(),
+            );
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
+            );
 
-    //         const expenseView = PairExpenseSnapshot.create({
-    //             expense: dummyExpense,
-    //             perspectiveId: DEFAULT_USER.getId(),
-    //         });
-    //         expect(response.body).toStrictEqual(
-    //             raw(PairExpenseDTO.from(expenseView)),
-    //         );
-    //     });
+            const expenseView = PairExpenseSnapshot.create({
+                expense: dummyExpense,
+                perspectiveId: DEFAULT_USER.getId(),
+            });
+            expect(response.body).toStrictEqual(
+                raw(PairExpenseDTO.from(expenseView)),
+            );
+        });
 
-    //     describe('expense is settled', () => {
-    //         it('should return 404 NOT_FOUND', async () => {
-    //             const dummyExpense = generateDefaultUserPairExpense();
-    //             const contact = dummyExpense.getCounterpartyOf(
-    //                 DEFAULT_USER.getId(),
-    //             );
+        describe('expense is settled', () => {
+            it('should return 404 NOT_FOUND', async () => {
+                const dummyExpense = generateDefaultUserPairExpense();
+                const contact = dummyExpense.getCounterpartyOf(
+                    DEFAULT_USER.getId(),
+                );
 
-    //             await expenseRepo.insert(dummyExpense);
-    //             await paybackPairExpense(dummyExpense);
+                await expenseRepo.insert(dummyExpense);
+                await paybackPairExpense(dummyExpense);
 
-    //             const response = await request(httpServer).get(
-    //                 `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
-    //             );
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/contact/${contact.getId()}/expense/${dummyExpense.getId()}`,
+                );
 
-    //             expect(response.status).toBe(HttpStatus.NOT_FOUND);
-    //         });
-    //     });
-    // });
+                expect(response.status).toBe(HttpStatus.NOT_FOUND);
+            });
+        });
+    });
 
     // describe('GET /expenses/group/:groupId', () => {
     //     describe('actor has no expense with group', () => {
