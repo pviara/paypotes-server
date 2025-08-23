@@ -4,14 +4,18 @@ import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
+    generateDefaultUserGroupExpense,
     generateDefaultUserPairExpense,
     generateDefaultUserPairExpenses,
 } from '@test/helpers/expense/utils';
+import { generateDefaultUserRandomGroup } from './group/utils';
 import {
     generateRandomUser,
     mapUserFrom,
     mapUsersFrom,
 } from '@test/helpers/user/utils';
+import { Group } from '@groups/domain/group';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
@@ -41,11 +45,33 @@ export class Fixture {
         return Contact.fromUser(user);
     }
 
+    async setupDefaultUserGroup(): Promise<Group> {
+        const group = generateDefaultUserRandomGroup();
+        const users = this.mapUsersOutOfMembersFrom(group);
+
+        await this.userRepo.insert(...users);
+        await this.groupRepo.insert(group);
+
+        return group;
+    }
+
+    async setupDefaultUserGroupExpense(): Promise<GroupExpense> {
+        const group = generateDefaultUserRandomGroup();
+        const expense = generateDefaultUserGroupExpense(group);
+        const users = this.mapUsersOutOfMembersFrom(group);
+
+        await this.userRepo.insert(...users);
+        await this.groupRepo.insert(group);
+        await this.expenseRepo.insert(expense);
+
+        return expense;
+    }
+
     async setupDefaultUserPairExpense(): Promise<PairExpense> {
         const expense = generateDefaultUserPairExpense();
         const users = this.mapUsersOutOfStakeholdersFrom(expense);
 
-        await this.userRepo.insert(DEFAULT_USER, ...users);
+        await this.userRepo.insert(...users);
         await this.expenseRepo.insert(expense);
 
         return expense;
@@ -79,11 +105,12 @@ export class Fixture {
     }
 
     private mapUsersOutOfStakeholdersFrom(expense: PairExpense): Array<User> {
-        const stakeholders = expense
-            .getStakeholders()
-            .filter(
-                (stakeholder) => stakeholder.getId() !== DEFAULT_USER.getId(),
-            );
+        const stakeholders = expense.getStakeholders();
         return mapUsersFrom(stakeholders);
+    }
+
+    private mapUsersOutOfMembersFrom(group: Group): Array<User> {
+        const members = group.getMembers();
+        return mapUsersFrom(members);
     }
 }
