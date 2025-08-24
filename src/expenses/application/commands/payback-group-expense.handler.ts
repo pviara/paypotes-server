@@ -44,11 +44,19 @@ export class PaybackGroupExpenseHandler
             const allDebtorsPaidBack =
                 debtors.length === expense.getStakeholders().length - 1;
 
-            allDebtorsPaidBack
-                ? expense.settle()
-                : expense.settleSharesOf(...debtorIds);
+            if (allDebtorsPaidBack) expense.settle();
+            else {
+                const initialDebtorShares = debtors
+                    .map((stakeholder) => stakeholder.getShare())
+                    .reduce((previous, current) => previous + current, 0);
+
+                expense.settleSharesOf(...debtorIds);
+                expense.reduceCreditorShareOf(initialDebtorShares);
+            }
         } else {
+            const initialActorShare = expense.getShareOf(actorId);
             expense.settleShareOf(actorId);
+            expense.reduceCreditorShareOf(initialActorShare);
         }
 
         return this.expenseRepository.updateGroupExpense(expense);

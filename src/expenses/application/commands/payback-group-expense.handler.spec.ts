@@ -66,14 +66,29 @@ describe('PaybackGroupExpenseHandler', () => {
 
     describe('expense exists', () => {
         describe('actor is debtor', () => {
-            it("should settle actor's share", async () => {
-                const dummyExpense = generateRandomDebitExpense();
+            const dummyExpense = generateRandomDebitExpense();
+            const { creditor } = dummyExpense.getPayment();
+            const initialActorShare = dummyExpense.getShareOf(
+                DEFAULT_USER.getId(),
+            );
+            const initialCreditorShare = dummyExpense.getShareOf(
+                creditor.getId(),
+            );
+
+            it("should settle actor's share and reduce creditor's", async () => {
                 expenseRepo.stub('getActorGroupExpenseById', dummyExpense);
 
                 await sut.execute(dummyCommand);
 
                 expect(dummyExpense.getShareOf(dummyActorId)).toBe(0);
                 expectOtherCounterpartiesShareNotToHaveBeenSettled();
+
+                const updatedCreditorShare = dummyExpense.getShareOf(
+                    creditor.getId(),
+                );
+                expect(updatedCreditorShare).toBe(
+                    initialCreditorShare - initialActorShare,
+                );
             });
 
             function generateRandomDebitExpense(): GroupExpense {
@@ -100,6 +115,8 @@ describe('PaybackGroupExpenseHandler', () => {
                 .getMembersExcluding(dummyActorId)
                 .map((member) => member.getId());
 
+            const initialCreditorShare = dummyExpense.getShareOf(dummyActorId);
+
             beforeEach(() => {
                 expenseRepo.stub('getActorGroupExpenseById', dummyExpense);
             });
@@ -107,13 +124,23 @@ describe('PaybackGroupExpenseHandler', () => {
             describe('only some debtors have paid back', () => {
                 const dummyDebtorId = allDummyDebtorIds[0];
 
-                it('should settle given only expense debtors', async () => {
+                it("should settle only given debtor's share and reduce creditor's", async () => {
                     dummyCommand.payload.debtorIds = [dummyDebtorId];
+
+                    const initialDebtorShare =
+                        dummyExpense.getShareOf(dummyDebtorId);
 
                     await sut.execute(dummyCommand);
 
                     expectOnlyDummyDebtorToHaveTheirShareSettledIn(
                         dummyExpense,
+                    );
+
+                    const updatedCreditorShare =
+                        dummyExpense.getShareOf(dummyActorId);
+
+                    expect(updatedCreditorShare).toBe(
+                        initialCreditorShare - initialDebtorShare,
                     );
                 });
 

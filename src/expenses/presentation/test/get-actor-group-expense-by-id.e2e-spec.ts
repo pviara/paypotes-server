@@ -92,13 +92,16 @@ describe('getActorGroupExpenseById', () => {
             );
         });
 
-        describe("actor's expense has been settled...", () => {
-            describe('...partially', () => {});
-            describe('...entirely', () => {
-                it('should return 404 NOT_FOUND', async () => {
-                    const dummyExpense =
-                        await fixture.setupDefaultUserCreditGroupExpense();
+        describe('actor is creditor', () => {
+            let dummyExpense: GroupExpense;
 
+            beforeEach(async () => {
+                dummyExpense =
+                    await fixture.setupDefaultUserCreditGroupExpense();
+            });
+
+            describe("actor's expense has been settled entirely", () => {
+                it('should return 404 NOT_FOUND', async () => {
                     await paybackGroupExpenseEntirely(dummyExpense);
 
                     const response = await request(httpServer).get(
@@ -122,120 +125,65 @@ describe('getActorGroupExpenseById', () => {
                         .send({ debtorIds });
                 }
             });
+
+            describe("actor's expense has been settled partially", () => {
+                let dummyDebtorId: string;
+
+                beforeEach(() => {
+                    dummyDebtorId = dummyExpense
+                        .getCounterpartiesOf(actorId)
+                        .map((counterparty) => counterparty.getId())[0];
+                });
+
+                it('should still return the expense for given groupId and expenseId', async () => {
+                    await paybackGroupExpensePartially(dummyExpense);
+
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyExpense.getGroup().getId()}/expense/${dummyExpense.getId()}`,
+                    );
+
+                    expect(response.status).not.toBe(HttpStatus.NOT_FOUND);
+                });
+
+                async function paybackGroupExpensePartially(
+                    expense: GroupExpense,
+                ): Promise<void> {
+                    await request(httpServer)
+                        .put(
+                            `/${EXPENSES_API_ROUTE}/group/${expense.getGroup().getId()}/${expense.getId()}`,
+                        )
+                        .send({ debtorIds: [dummyDebtorId] });
+                }
+            });
+        });
+
+        describe('actor is debtor', () => {
+            let dummyExpense: GroupExpense;
+
+            beforeEach(async () => {
+                dummyExpense =
+                    await fixture.setupDefaultUserDebitGroupExpense();
+            });
+
+            describe("actor's share has already been settled", () => {
+                it('should return 404 NOT_FOUND', async () => {
+                    await paybackGroupExpenseForActor();
+
+                    const response = await request(httpServer).get(
+                        `/${EXPENSES_API_ROUTE}/group/${dummyExpense.getGroup().getId()}/expense/${dummyExpense.getId()}`,
+                    );
+
+                    expect(response.status).toBe(HttpStatus.NOT_FOUND);
+                });
+
+                async function paybackGroupExpenseForActor(): Promise<void> {
+                    await request(httpServer)
+                        .put(
+                            `/${EXPENSES_API_ROUTE}/group/${dummyExpense.getGroup().getId()}/${dummyExpense.getId()}`,
+                        )
+                        .send({ debtorIds: [actorId] });
+                }
+            });
         });
     });
-
-    // describe('GET /expenses/group/:groupId/expense/:expenseId', () => {
-    //     it('should return the right expense for given groupId and expenseId', async () => {
-    //         const dummyGroup = generateDefaultUserRandomGroup();
-    //         const dummyExpense = generateDefaultUserGroupExpense(dummyGroup);
-    //         await expenseRepo.insert(dummyExpense);
-
-    //         const response = await request(httpServer).get(
-    //             `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
-    //         );
-
-    //         expect(response.body.id).toBe(dummyExpense.getId());
-    //         expect(response.body.label).toBe(dummyExpense.getLabel());
-    //         expect(response.body.emoji).toBe(dummyExpense.getEmoji());
-    //         expect(response.body.createdAt).toBeDefined();
-    //         expect(response.body.payment.balance).toBe(
-    //             BalanceDTO.from(dummyExpense.getPayment().balance).getValue(),
-    //         );
-    //     });
-
-    //     describe('expense is settled', () => {
-    //         const dummyGroup = generateDefaultUserRandomGroup();
-
-    //         describe('actor is creditor', () => {
-    //             const dummyExpense = createRandomCreditExpenseFor(dummyGroup);
-
-    //             it('should return 404 NOT_FOUND', async () => {
-    //                 await expenseRepo.insert(dummyExpense);
-    //                 await paybackGroupExpense(dummyExpense);
-
-    //                 const response = await request(httpServer).get(
-    //                     `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
-    //                 );
-
-    //                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
-    //             });
-    //         });
-
-    //         describe('actor is debtor', () => {
-    //             const dummyExpense = createRandomDebitExpenseFor(dummyGroup);
-
-    //             it('should return 404 NOT_FOUND', async () => {
-    //                 await expenseRepo.insert(dummyExpense);
-    //                 await paybackGroupExpense(dummyExpense);
-
-    //                 const response = await request(httpServer).get(
-    //                     `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
-    //                 );
-
-    //                 expect(response.status).toBe(HttpStatus.NOT_FOUND);
-    //             });
-    //         });
-    //     });
-
-    //     describe('actor is the expense creditor', () => {
-    //         const dummyBalance = 1000;
-    //         const dummyGroup = generateDefaultUserRandomGroup();
-    //         const dummyExpense = generateGroupExpenseAsCreditor();
-
-    //         beforeEach(async () => {
-    //             await expenseRepo.empty();
-    //             await expenseRepo.insert(dummyExpense);
-    //         });
-
-    //         it("should return an expense that exposes the right actor's share", async () => {
-    //             const response = await request(httpServer).get(
-    //                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
-    //             );
-
-    //             const members = dummyGroup.getMembers().length;
-    //             const creditedMembers = members - 1;
-    //             const balance = (dummyBalance / members) * creditedMembers;
-
-    //             const expected = `${convertCents(balance).toFixed(2)}`.replace(
-    //                 '.',
-    //                 ',',
-    //             );
-    //             expect(response.body.balance).toBe(expected);
-    //         });
-
-    //         it('should return an expense with stakeholders and their share', async () => {
-    //             const response = await request(httpServer).get(
-    //                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}/expense/${dummyExpense.getId()}`,
-    //             );
-
-    //             const expectedStakeholders = mapDummyExpenseStakeholderDTOs();
-    //             expect(response.body.stakeholders).toStrictEqual(
-    //                 expectedStakeholders,
-    //             );
-    //         });
-
-    //         function generateGroupExpenseAsCreditor(): GroupExpense {
-    //             const dummyMetadata = generateRandomMetadata();
-    //             const dummyPayment: GroupPayment = {
-    //                 balance: dummyBalance,
-    //                 creditor: Member.fromUser(DEFAULT_USER),
-    //             };
-
-    //             return GroupExpense.create(
-    //                 dummyMetadata,
-    //                 dummyGroup,
-    //                 dummyPayment,
-    //             );
-    //         }
-
-    //         function mapDummyExpenseStakeholderDTOs(): unknown {
-    //             return dummyExpense
-    //                 .getStakeholders()
-    //                 .map((stakeholder) =>
-    //                     raw(StakeholderDTO.from(stakeholder)),
-    //                 );
-    //         }
-    //     });
-    // });
 });

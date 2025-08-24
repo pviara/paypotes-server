@@ -73,6 +73,18 @@ export class Fixture {
         return expense;
     }
 
+    async setupDefaultUserDebitGroupExpense(): Promise<GroupExpense> {
+        const group = generateDefaultUserRandomGroup();
+        const expense = this.generateRandomDebitExpenseFor(group);
+        const users = this.mapUsersOutOfMembersFrom(group);
+
+        await this.userRepo.insert(...users);
+        await this.groupRepo.insert(group);
+        await this.expenseRepo.insert(expense);
+
+        return expense;
+    }
+
     async setupDefaultUserGroupExpense(): Promise<GroupExpense> {
         const group = generateDefaultUserRandomGroup();
         const expense = generateDefaultUserGroupExpense(group);
@@ -137,6 +149,15 @@ export class Fixture {
         const payment: GroupPayment = {
             balance: generateRandomBalance(),
             creditor: Member.fromUser(DEFAULT_USER),
+        };
+        return GroupExpense.create(metadata, group, payment);
+    }
+
+    private generateRandomDebitExpenseFor(group: Group): GroupExpense {
+        const metadata = generateRandomMetadata();
+        const payment: GroupPayment = {
+            balance: generateRandomBalance(),
+            creditor: group.getMembersExcluding(DEFAULT_USER.getId())[0],
         };
         return GroupExpense.create(metadata, group, payment);
     }

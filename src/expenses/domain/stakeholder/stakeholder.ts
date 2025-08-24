@@ -45,6 +45,10 @@ export class Stakeholder {
         return this.data.share;
     }
 
+    reduceShare(amount: number) {
+        this.data.share -= amount;
+    }
+
     settle(): void {
         this.data.share = 0;
     }

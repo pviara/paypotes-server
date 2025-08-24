@@ -69,6 +69,11 @@ export abstract class Expense {
         );
     }
 
+    reduceCreditorShareOf(amount: number): void {
+        const { creditor } = this.payment;
+        this.getStakeholderUsing(creditor.getId()).reduceShare(amount);
+    }
+
     settle(): void {
         this.getStakeholders().forEach((stakeholder) => stakeholder.settle());
     }
