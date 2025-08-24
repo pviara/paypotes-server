@@ -69,9 +69,6 @@ describe('PaybackPairExpenseHandler', () => {
         });
 
         it('should update expense', async () => {
-            const dummyExpense = generateRandomCreditExpense();
-            expenseRepo.stub('getActorContactExpenseById', dummyExpense);
-
             await sut.execute(dummyCommand);
 
             expect(expenseRepo.calls.updatePairExpense.count).toBe(1);

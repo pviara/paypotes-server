@@ -122,6 +122,14 @@ export const generateDefaultUserPairExpenses = ({
     });
 };
 
+export const generateDefaultUserCreditGroupExpense = (
+    group: Group,
+): GroupExpense => {
+    const metadata = generateRandomMetadata();
+    const payment = generateRandomGroupPaymentWithDefaultUserIn(group);
+    return GroupExpense.create(metadata, group, payment);
+};
+
 export const generateDefaultUserGroupExpense = (group: Group): GroupExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomGroupPaymentWithDefaultUserIn(group);

@@ -64,6 +64,7 @@ export interface ExpenseRepository {
     saveGroupExpense(expense: GroupExpense): Promise<void>;
     savePairExpense(expense: PairExpense): Promise<void>;
     updatePairExpense(expense: PairExpense): Promise<void>;
+    updateGroupExpense(expense: GroupExpense): Promise<void>;
 }
 
 const MAX_EXPENSES_PER_PAGE = 20;
@@ -225,6 +226,10 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         const currentExpenses = [...this.expenses];
         await setTimeout(Math.random() * 10);
         this.expenses = [...currentExpenses, expense];
+    }
+
+    updateGroupExpense(expense: GroupExpense): Promise<void> {
+        throw new Error('Method not implemented.');
     }
 
     updatePairExpense(expense: PairExpense): Promise<void> {

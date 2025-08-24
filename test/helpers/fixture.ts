@@ -7,6 +7,8 @@ import {
     generateDefaultUserGroupExpense,
     generateDefaultUserPairExpense,
     generateDefaultUserPairExpenses,
+    generateRandomBalance,
+    generateRandomMetadata,
 } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from './group/utils';
 import {
@@ -15,8 +17,12 @@ import {
     mapUsersFrom,
 } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
-import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import {
+    GroupExpense,
+    GroupPayment,
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
+import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
@@ -53,6 +59,18 @@ export class Fixture {
         await this.groupRepo.insert(group);
 
         return group;
+    }
+
+    async setupDefaultUserCreditGroupExpense(): Promise<GroupExpense> {
+        const group = generateDefaultUserRandomGroup();
+        const expense = this.generateRandomCreditExpenseFor(group);
+        const users = this.mapUsersOutOfMembersFrom(group);
+
+        await this.userRepo.insert(...users);
+        await this.groupRepo.insert(group);
+        await this.expenseRepo.insert(expense);
+
+        return expense;
     }
 
     async setupDefaultUserGroupExpense(): Promise<GroupExpense> {
@@ -112,5 +130,14 @@ export class Fixture {
     private mapUsersOutOfMembersFrom(group: Group): Array<User> {
         const members = group.getMembers();
         return mapUsersFrom(members);
+    }
+
+    private generateRandomCreditExpenseFor(group: Group): GroupExpense {
+        const metadata = generateRandomMetadata();
+        const payment: GroupPayment = {
+            balance: generateRandomBalance(),
+            creditor: Member.fromUser(DEFAULT_USER),
+        };
+        return GroupExpense.create(metadata, group, payment);
     }
 }

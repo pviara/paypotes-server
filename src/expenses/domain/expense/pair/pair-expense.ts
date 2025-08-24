@@ -38,10 +38,6 @@ export class PairExpense extends Expense {
             : this.getMatchingStakeholder(creditor);
     }
 
-    settle(): void {
-        this.getStakeholders().forEach((stakeholder) => stakeholder.settle());
-    }
-
     private getMatchingStakeholder(debtor: User): Stakeholder {
         const stakeholder = this.stakeholders.find(
             (stakeholder) => stakeholder.getId() === debtor.getId(),

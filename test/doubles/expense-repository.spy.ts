@@ -69,6 +69,10 @@ export class ExpenseRepositorySpy
             count: 0,
             history: [] as Array<PairExpense>,
         },
+        updateGroupExpense: {
+            count: 0,
+            history: [] as Array<PairExpense>,
+        },
         updatePairExpense: {
             count: 0,
             history: [] as Array<PairExpense>,
@@ -198,6 +202,11 @@ export class ExpenseRepositorySpy
     async savePairExpense(expense: PairExpense): Promise<void> {
         this.saveCall('savePairExpense', expense);
         this.getStubOrDefault('savePairExpense', undefined);
+    }
+
+    async updateGroupExpense(expense: GroupExpense): Promise<void> {
+        this.saveCall('updateGroupExpense', expense);
+        this.getStubOrDefault('updateGroupExpense', undefined);
     }
 
     async updatePairExpense(expense: PairExpense): Promise<void> {

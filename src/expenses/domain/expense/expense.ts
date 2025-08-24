@@ -69,6 +69,10 @@ export abstract class Expense {
         );
     }
 
+    settle(): void {
+        this.getStakeholders().forEach((stakeholder) => stakeholder.settle());
+    }
+
     settleShareOf(stakeholderId: string): void {
         return this.getStakeholderUsing(stakeholderId).settle();
     }

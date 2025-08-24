@@ -5,7 +5,10 @@ import {
     ExpensesByContact,
     ExpensesByGroup,
 } from '@expenses/persistence/expense.repository';
-import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import {
+    GroupExpense,
+    GroupPayment,
+} from '@expenses/domain/expense/group/group-expense';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import {
@@ -17,6 +20,11 @@ import { Table } from '@infra/postgres/table';
 import { User } from '@users/domain/user';
 import { Group } from '@app/groups/domain/group';
 import { Nullable } from '@app/shared/nullable';
+import { GroupDetailedRecord } from '@app/groups/persistence/group.postgres-repository';
+import { GroupRepository } from '@app/groups/persistence/group.repository';
+import { Inject } from '@nestjs/common';
+import { groupRepositoryToken } from '@app/groups/persistence/group.repository-provider';
+import { Member } from '@app/groups/domain/member';
 
 type StakeholderRecord = {
     id: string;
@@ -48,12 +56,21 @@ type ExpenseDetailedRecord = ExpenseRecord & {
     stakeholders: Array<StakeholderDetailedRecord>;
 };
 
+type GroupExpenseDetailedRecord = ExpenseDetailedRecord & {
+    group: Awaited<ReturnType<GroupRepository['getActorGroupById']>>;
+};
+
 const MAX_EXPENSES_LIMIT = 20;
 
 export class ExpensePostgresRepository implements ExpenseRepository {
     constructor(
         private configService: ConfigService,
-        @InjectKnex() protected knex: Knex,
+
+        @Inject(groupRepositoryToken)
+        private groupRepository: GroupRepository,
+
+        @InjectKnex()
+        protected knex: Knex,
     ) {}
 
     async delete(expenseId: string): Promise<void> {
@@ -261,12 +278,71 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         throw new Error('Method not implemented.');
     }
 
-    getActorGroupExpenseById(
+    async getActorGroupExpenseById(
         actorId: string,
         groupId: string,
         expenseId: string,
     ): Promise<GroupExpense | null> {
-        throw new Error('Method not implemented.');
+        const {
+            rows: [expense],
+        } = await this.knex.raw(`
+            with verified_stakeholders as (
+                select
+                    expense_id,
+                    count(expense_id) as found_stakeholders
+                from stakeholders
+                where expense_id = '${expenseId}'
+                group by expense_id
+            ), verified_expense as (
+                select *
+                from expenses
+                where id = '${expenseId}'
+            ), actor_stakeholder as (
+                select
+                    id,
+                    share
+                from stakeholders
+                where expense_id = '${expenseId}'
+            )
+            select ve.*
+            from verified_stakeholders
+            inner join verified_expense ve
+                on ve.id = expense_id
+            inner join actor_stakeholder ac
+                on ac.id = '${actorId}'
+            where found_stakeholders > 2
+            and share > 0
+            and group_id = '${groupId}';
+        `);
+
+        if (expense) {
+            const group = await this.groupRepository.getActorGroupById(
+                actorId,
+                groupId,
+            );
+
+            const { rows: stakeholders } = await this.knex.raw(`
+                select
+                    ${Table.Users}.id,
+                    ${Table.Users}.firstname,
+                    ${Table.Users}.lastname,
+                    ${Table.Users}.avatar_url,
+                    ${Table.Stakeholders}.creditor,
+                    ${Table.Stakeholders}.share
+                from ${Table.Stakeholders}
+                inner join ${Table.Users}
+                    on ${Table.Users}.id = ${Table.Stakeholders}.id
+                where ${Table.Stakeholders}.expense_id = '${expense.id}'
+            `);
+
+            return this.mapGroupExpenseFrom({
+                ...expense,
+                group,
+                stakeholders,
+            });
+        }
+
+        return null;
     }
 
     getActorGroupExpenses(
@@ -318,6 +394,15 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         throw new Error('Method not implemented.');
     }
 
+    async updateGroupExpense(expense: GroupExpense): Promise<void> {
+        for (const stakeholder of expense.getStakeholders()) {
+            await this.knex(Table.Stakeholders)
+                .update({ share: stakeholder.getShare() })
+                .where('expense_id', expense.getId())
+                .andWhere('id', stakeholder.getId());
+        }
+    }
+
     async updatePairExpense(expense: PairExpense): Promise<void> {
         for (const stakeholder of expense.getStakeholders()) {
             await this.knex(Table.Stakeholders)
@@ -345,11 +430,40 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return isPairExpense ? this.mapPairExpenseFrom(record) : null;
     }
 
+    private mapGroupExpenseFrom(
+        record: GroupExpenseDetailedRecord,
+    ): GroupExpense {
+        if (!record.group)
+            throw new Error(
+                'No group was found and thus expense cannot be mapped',
+            );
+
+        const metadata = this.extractMetadataFrom(record);
+        const payment = this.extractGroupPaymentFrom(record);
+        const stakeholders = this.mapStakeholdersFrom(record);
+        return GroupExpense.fromState(
+            metadata,
+            record.group,
+            payment,
+            stakeholders,
+        );
+    }
+
     private mapPairExpenseFrom(record: ExpenseDetailedRecord): PairExpense {
         const metadata = this.extractMetadataFrom(record);
         const payment = this.extractPairPaymentFrom(record);
         const stakeholders = this.mapStakeholdersFrom(record);
         return PairExpense.fromState(metadata, payment, stakeholders);
+    }
+
+    private extractGroupPaymentFrom(
+        record: ExpenseDetailedRecord,
+    ): GroupPayment {
+        const { creditor } = this.extractCreditorAndDebtorsFrom(record);
+        return {
+            balance: record.balance,
+            creditor: this.mapMemberFrom(creditor),
+        };
     }
 
     private extractPairPaymentFrom(record: ExpenseDetailedRecord): PairPayment {
@@ -384,6 +498,15 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             lastname: creditor.lastname,
             avatarUrl: creditor.avatar_url,
             email: creditor.email,
+        });
+    }
+
+    private mapMemberFrom(creditor: StakeholderDetailedRecord): Member {
+        return new Member({
+            id: creditor.id,
+            firstname: creditor.firstname,
+            lastname: creditor.lastname,
+            avatarUrl: creditor.avatar_url,
         });
     }
 
@@ -427,6 +550,17 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             label: record.label,
             emoji: record.emoji,
             createdAt: new Date(record.created_at),
+        };
+    }
+
+    protected mapGroupExpenseRecordFrom(expense: GroupExpense): ExpenseRecord {
+        return {
+            id: expense.getId(),
+            label: expense.getLabel(),
+            emoji: expense.getEmoji(),
+            created_at: expense.getCreatedAt(),
+            balance: expense.getRawBalance(),
+            group_id: expense.getGroup().getId(),
         };
     }
 
