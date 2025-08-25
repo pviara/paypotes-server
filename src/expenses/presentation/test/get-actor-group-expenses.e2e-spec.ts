@@ -1,20 +1,21 @@
 import { App } from 'supertest/types';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { empty, shutdown } from '@test/helpers/utils';
 import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '../expense.controller';
 import { Fixture } from '@test/helpers/fixture';
+import { Group } from '@groups/domain/group';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import * as request from 'supertest';
+import { GroupExpenseDTO } from '../dto/group-expense.dto';
+import { Expense } from '@app/expenses/domain/expense/expense';
 
 describe('getActorGroupExpenses', () => {
     const application = initApplicationWith(modules);
 
     let fixture: Fixture;
     let httpServer: App;
-
-    const actorId = DEFAULT_USER.getId();
 
     beforeAll(async () => {
         await application.bootstrap();
@@ -35,9 +36,6 @@ describe('getActorGroupExpenses', () => {
         it.each(invalidIds)(
             'should return 400 BAD_REQUEST when given groupId "%s" is not a valid uuid',
             async (id: unknown) => {
-                const dummyExpense =
-                    await fixture.setupDefaultUserGroupExpense();
-
                 const response = await request(httpServer).get(
                     `/${EXPENSES_API_ROUTE}/group/${id}`,
                 );
@@ -47,137 +45,128 @@ describe('getActorGroupExpenses', () => {
         );
     });
 
-    // describe('GET /expenses/group/:groupId', () => {
-    //     describe('actor has no expense with group', () => {
-    //         it('should return an empty array', async () => {
-    //             const dummyContactId = crypto.randomUUID();
-    //             const response = await request(httpServer).get(
-    //                 `/${EXPENSES_API_ROUTE}/group/${dummyContactId}`,
-    //             );
+    describe('actor has no expense in group', () => {
+        it('should return an empty array', async () => {
+            const dummyGroup = await fixture.setupDefaultUserGroup();
 
-    //             expect(response.status).toBe(HttpStatus.OK);
-    //             expect(response.body.length).toBe(0);
-    //         });
-    //     });
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
+            );
 
-    //     describe('actor has expenses with group', () => {
-    //         let dummyGroup: Group;
-    //         let dummyExpenses: Array<GroupExpense>;
+            expect(response.status).toBe(HttpStatus.OK);
+            expect(response.body.length).toBe(0);
+        });
+    });
 
-    //         let unrelatedGroup: Group;
-    //         let unrelatedExpenses: Array<GroupExpense>;
+    describe('actor has expenses in group', () => {
+        let dummyGroup: Group;
+        let dummyExpenses: Array<GroupExpense>;
+        let unrelatedExpenses: Array<GroupExpense>;
 
-    //         beforeEach(async () => {
-    //             dummyGroup = generateDefaultUserRandomGroup();
-    //             dummyExpenses = generateDefaultUserGroupExpenses({
-    //                 length: 40,
-    //                 group: dummyGroup,
-    //             });
+        beforeEach(async () => {
+            const { group, expenses } =
+                await fixture.setupDefaultUserUniqueGroupExpenses();
 
-    //             unrelatedGroup = generateDefaultUserRandomGroup();
-    //             unrelatedExpenses = generateDefaultUserGroupExpenses({
-    //                 length: 10,
-    //                 group: unrelatedGroup,
-    //             });
+            dummyGroup = group;
+            dummyExpenses = expenses;
 
-    //             await expenseRepo.insert(
-    //                 ...dummyExpenses.concat(unrelatedExpenses),
-    //             );
-    //         });
+            ({ expenses: unrelatedExpenses } =
+                await fixture.setupDefaultUserUniqueGroupExpenses());
+        });
 
-    //         it('should return the first 20 expenses by default', async () => {
-    //             const response = await request(httpServer).get(
-    //                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
-    //             );
+        it('should return the first 20 expenses by default', async () => {
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
+            );
 
-    //             const dtos = response.body;
-    //             expect(dtos.length).toBe(20);
-    //             expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
-    //             expectReturnedDtosNotToBeUnrelatedExpenses(dtos);
-    //         });
+            const dtos = response.body;
+            expect(dtos.length).toBe(20);
+            expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
+            expectReturnedDtosNotToBeUnrelatedExpenses(dtos);
+        });
 
-    //         describe('page index has been given', () => {
-    //             it('should return the second 20 expenses when given index is 1', async () => {
-    //                 const response = await request(httpServer).get(
-    //                     `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?pageIndex=1`,
-    //                 );
+        describe('page index has been given', () => {
+            it('should return the second 20 expenses when given index is 1', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?pageIndex=1`,
+                );
 
-    //                 const dtos = response.body;
-    //                 expect(dtos.length).toBe(20);
-    //                 expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
-    //             });
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
+            });
 
-    //             function expectReturnedDtosToBeTheSecondTwentyExpenses(
-    //                 dtos: Array<PairExpenseDTO>,
-    //             ): void {
-    //                 const secondTwentyExpenses = dummyExpenses.slice(20, 40);
-    //                 const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
-    //                     dtoIsIn(secondTwentyExpenses),
-    //                 );
+            function expectReturnedDtosToBeTheSecondTwentyExpenses(
+                dtos: Array<GroupExpenseDTO>,
+            ): void {
+                const secondTwentyExpenses = sortByDateDescending(
+                    dummyExpenses,
+                ).slice(20, 40);
+                const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
+                    dtoIsIn(secondTwentyExpenses),
+                );
 
-    //                 expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
-    //             }
-    //         });
+                expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
+            }
+        });
 
-    //         describe('search has been given', () => {
-    //             it('should return the expenses that match the search', async () => {
-    //                 const targetExpense = dummyExpenses[0];
-    //                 const response = await request(httpServer).get(
-    //                     `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?search=${targetExpense.getLabel()}`,
-    //                 );
+        describe('search has been given', () => {
+            it('should return the expenses that match the search', async () => {
+                const targetExpense = dummyExpenses[0];
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}?search=${targetExpense.getLabel()}`,
+                );
 
-    //                 expect(response.body.length).toBe(1);
-    //                 expect(response.body[0].id).toBe(targetExpense.getId());
-    //             });
-    //         });
+                expect(response.body.length).toBe(1);
+                expect(response.body[0].id).toBe(targetExpense.getId());
+            });
+        });
 
-    //         function expectReturnedDtosToBeTheFirstTwentyExpenses(
-    //             dtos: Array<PairExpenseDTO>,
-    //         ): void {
-    //             const firstTwentyExpenses = dummyExpenses.slice(0, 20);
-    //             const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
-    //                 dtoIsIn(firstTwentyExpenses),
-    //             );
+        function expectReturnedDtosToBeTheFirstTwentyExpenses(
+            dtos: Array<GroupExpenseDTO>,
+        ): void {
+            const firstTwentyExpenses = sortByDateDescending(
+                dummyExpenses,
+            ).slice(0, 20);
+            const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
+                dtoIsIn(firstTwentyExpenses),
+            );
 
-    //             expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
-    //         }
+            expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
+        }
 
-    //         function expectReturnedDtosNotToBeUnrelatedExpenses(
-    //             dtos: Array<PairExpenseDTO>,
-    //         ): void {
-    //             const returnedDtosAreNotUnrelatedExpenses = dtos.every(
-    //                 dtoIsNotIn(unrelatedExpenses),
-    //             );
+        function sortByDateDescending(
+            dummyExpenses: Array<GroupExpense>,
+        ): Array<GroupExpense> {
+            return dummyExpenses.sort(
+                (previous, current) =>
+                    new Date(current.getCreatedAt()).getTime() -
+                    new Date(previous.getCreatedAt()).getTime(),
+            );
+        }
 
-    //             expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
-    //         }
-    //     });
+        function expectReturnedDtosNotToBeUnrelatedExpenses(
+            dtos: Array<GroupExpenseDTO>,
+        ): void {
+            const returnedDtosAreNotUnrelatedExpenses = dtos.every(
+                dtoIsNotIn(unrelatedExpenses),
+            );
 
-    //     describe('actor has only settled expenses', () => {
-    //         let dummyGroup: Group;
-    //         let dummyExpenses: Array<GroupExpense>;
+            expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
+        }
 
-    //         beforeEach(async () => {
-    //             dummyGroup = generateDefaultUserRandomGroup();
-    //             dummyExpenses = generateDefaultUserGroupExpenses({
-    //                 length: 10,
-    //                 group: dummyGroup,
-    //             });
+        function dtoIsIn(
+            expenses: Array<Expense>,
+        ): (dto: GroupExpenseDTO) => boolean {
+            return (dto: GroupExpenseDTO) =>
+                expenses.some((expense) => expense.getId() === dto.id);
+        }
 
-    //             await expenseRepo.empty();
-    //             await expenseRepo.insert(...dummyExpenses);
-
-    //             for (const expense of dummyExpenses)
-    //                 await paybackGroupExpense(expense);
-    //         });
-
-    //         it('should return no expense', async () => {
-    //             const response = await request(httpServer).get(
-    //                 `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
-    //             );
-
-    //             expect(response.body.length).toBe(0);
-    //         });
-    //     });
-    // });
+        function dtoIsNotIn(
+            expenses: Array<Expense>,
+        ): (dto: GroupExpenseDTO) => boolean {
+            return (dto: GroupExpenseDTO) =>
+                expenses.every((expense) => expense.getId() !== dto.id);
+        }
+    });
 });

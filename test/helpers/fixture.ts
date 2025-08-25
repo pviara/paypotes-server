@@ -5,6 +5,7 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     generateDefaultUserGroupExpense,
+    generateDefaultUserGroupExpenses,
     generateDefaultUserPairExpense,
     generateDefaultUserPairExpenses,
     generateRandomBalance,
@@ -26,6 +27,7 @@ import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { Expense } from '@app/expenses/domain/expense/expense';
 
 export class Fixture {
     private constructor(
@@ -107,7 +109,19 @@ export class Fixture {
         return expense;
     }
 
-    async setupDefaultUserContactPairExpenses(): Promise<{
+    async setupDefaultUserPairExpenses(): Promise<PairExpense[]> {
+        const expenses = generateDefaultUserPairExpenses({ length: 10 });
+        const users = expenses.flatMap((expense) =>
+            this.mapUsersOutOfStakeholdersFrom(expense),
+        );
+
+        await this.userRepo.insert(DEFAULT_USER, ...users);
+        await this.expenseRepo.insert(...expenses);
+
+        return expenses;
+    }
+
+    async setupDefaultUserUniqueContactPairExpenses(): Promise<{
         contact: Contact;
         expenses: Array<PairExpense>;
     }> {
@@ -122,19 +136,26 @@ export class Fixture {
         return { contact, expenses };
     }
 
-    async setupDefaultUserPairExpenses(): Promise<PairExpense[]> {
-        const expenses = generateDefaultUserPairExpenses({ length: 10 });
+    async setupDefaultUserUniqueGroupExpenses(): Promise<{
+        group: Group;
+        expenses: Array<GroupExpense>;
+    }> {
+        const group = await this.setupDefaultUserGroup();
+        const expenses = generateDefaultUserGroupExpenses({
+            length: 40,
+            group,
+        });
         const users = expenses.flatMap((expense) =>
             this.mapUsersOutOfStakeholdersFrom(expense),
         );
 
-        await this.userRepo.insert(DEFAULT_USER, ...users);
+        await this.userRepo.insert(...users);
         await this.expenseRepo.insert(...expenses);
 
-        return expenses;
+        return { group, expenses };
     }
 
-    private mapUsersOutOfStakeholdersFrom(expense: PairExpense): Array<User> {
+    private mapUsersOutOfStakeholdersFrom(expense: Expense): Array<User> {
         const stakeholders = expense.getStakeholders();
         return mapUsersFrom(stakeholders);
     }

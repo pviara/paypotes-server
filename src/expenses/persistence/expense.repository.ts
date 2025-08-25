@@ -1,3 +1,4 @@
+import { Group } from '@app/groups/domain/group';
 import { Expense } from '@expenses/domain/expense/expense';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
@@ -40,7 +41,7 @@ export interface ExpenseRepository {
     ): Promise<GroupExpense | null>;
     getActorGroupExpenses(
         actorId: string,
-        groupId: string,
+        group: Group,
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]>;
@@ -148,14 +149,14 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
 
     async getActorGroupExpenses(
         actorId: string,
-        groupId: string,
+        group: Group,
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]> {
         const start = pageIndex * MAX_EXPENSES_PER_PAGE;
         return this.expenses
             .filter(this.isGroupExpense())
-            .filter(this.isExpenseFrom(groupId))
+            .filter(this.isExpenseFrom(group.getId()))
             .filter(this.isGroupExpenseOf(actorId))
             .filter(this.hasActiveStakeholder(actorId))
             .filter(this.expenseLabelMatches(search))

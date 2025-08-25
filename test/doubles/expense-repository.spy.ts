@@ -7,6 +7,7 @@ import {
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { Spy } from '@test/helpers/spy';
+import { Group } from '@app/groups/domain/group';
 
 export class ExpenseRepositorySpy
     extends Spy<ExpenseRepository>
@@ -39,7 +40,7 @@ export class ExpenseRepositorySpy
         },
         getActorGroupExpenses: {
             count: 0,
-            history: [] as Array<[string, string, number, string]>,
+            history: [] as Array<[string, Group, number, string]>,
         },
         getAllActorContactExpenses: {
             count: 0,
@@ -144,13 +145,13 @@ export class ExpenseRepositorySpy
 
     async getActorGroupExpenses(
         actorId: string,
-        groupId: string,
+        group: Group,
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]> {
         this.saveCall('getActorGroupExpenses', [
             actorId,
-            groupId,
+            group,
             pageIndex,
             search,
         ]);

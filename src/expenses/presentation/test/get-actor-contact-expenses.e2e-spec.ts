@@ -64,7 +64,7 @@ describe('getActorContactExpenses', () => {
 
         beforeEach(async () => {
             const { contact, expenses } =
-                await fixture.setupDefaultUserContactPairExpenses();
+                await fixture.setupDefaultUserUniqueContactPairExpenses();
 
             dummyContact = contact;
             dummyExpenses = expenses;
