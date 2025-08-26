@@ -11,6 +11,7 @@ import {
     generateDefaultUserPairExpenses,
     generateRandomBalance,
     generateRandomMetadata,
+    generateRandomPairExpenses,
 } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from './group/utils';
 import {
@@ -157,6 +158,20 @@ export class Fixture {
         await this.expenseRepo.insert(...expenses);
 
         return { group, expenses };
+    }
+
+    async setupRandomPairExpenses(options?: Options): Promise<PairExpense[]> {
+        const expenses = generateRandomPairExpenses({
+            length: options?.length ?? 40,
+        });
+        const users = expenses.flatMap((expense) =>
+            this.mapUsersOutOfStakeholdersFrom(expense),
+        );
+
+        await this.userRepo.insert(...users);
+        await this.expenseRepo.insert(...expenses);
+
+        return expenses;
     }
 
     private mapUsersOutOfStakeholdersFrom(expense: Expense): Array<User> {

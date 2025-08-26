@@ -269,12 +269,12 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return null;
     }
 
-    getActorExpenses(
+    async getActorExpenses(
         actorId: string,
         pageIndex: number,
         search: string,
     ): Promise<Expense[]> {
-        throw new Error('Method not implemented.');
+        return [];
     }
 
     async getActorGroupExpenseById(
@@ -484,10 +484,13 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         };
     }
 
-    // todo: edit to enable group expense ; remove the nullable thing
-    private mapExpenseFrom(record: ExpenseDetailedRecord): Nullable<Expense> {
+    private mapExpenseFrom(
+        record: ExpenseDetailedRecord | GroupExpenseDetailedRecord,
+    ): Expense {
         const isPairExpense = this.isPairExpense(record);
-        return isPairExpense ? this.mapPairExpenseFrom(record) : null;
+        return isPairExpense
+            ? this.mapPairExpenseFrom(record)
+            : this.mapGroupExpenseFrom(record);
     }
 
     private mapGroupExpenseFrom(
@@ -598,7 +601,9 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
-    private isPairExpense(record: ExpenseDetailedRecord): boolean {
+    private isPairExpense(
+        record: ExpenseDetailedRecord | GroupExpenseDetailedRecord,
+    ): record is ExpenseDetailedRecord {
         return (
             record.group_id === this.configService.getOrThrow('DEFAULT_UUID')
         );

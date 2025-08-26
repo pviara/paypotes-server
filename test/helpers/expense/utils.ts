@@ -61,6 +61,16 @@ const generateRandomPairPaymentWithDefaultUser = (
     };
 };
 
+const generateRandomPairPaymentWithoutDefaultUser = (): PairPayment => {
+    const user_a = generateRandomUser();
+    const user_b = generateRandomUser();
+    return {
+        balance: generateRandomBalance(),
+        debtor: user_a,
+        creditor: user_b,
+    };
+};
+
 const generateRandomGroupPaymentWithDefaultUserIn = (
     group: Group,
     counterparty?: Member,
@@ -103,6 +113,16 @@ export const generateRandomStakeholders = ({
                 share: 0,
             }),
     );
+};
+
+export const generateRandomPairExpenses = ({
+    length,
+}: RandomPairExpenseArrayGenerationOptions): Array<PairExpense> => {
+    return Array.from({ length }).map((_, index) => {
+        const metadata = generateRandomMetadata();
+        const payment = generateRandomPairPaymentWithoutDefaultUser();
+        return PairExpense.create(metadata, payment);
+    });
 };
 
 export const generateDefaultUserPairExpense = (): PairExpense => {
