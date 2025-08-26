@@ -1,5 +1,6 @@
 import { App } from 'supertest/types';
 import { Contact } from '@contacts/domain/contact';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { empty, shutdown } from '@test/helpers/utils';
 import { Expense } from '@expenses/domain/expense/expense';
 import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
@@ -16,6 +17,8 @@ describe('getActorContactExpenses', () => {
 
     let fixture: Fixture;
     let httpServer: App;
+
+    const actorId = DEFAULT_USER.getId();
 
     beforeAll(async () => {
         await application.bootstrap();
@@ -151,19 +154,82 @@ describe('getActorContactExpenses', () => {
 
             expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
         }
+    });
 
-        function dtoIsIn(
-            expenses: Array<Expense>,
-        ): (dto: PairExpenseDTO) => boolean {
-            return (dto: PairExpenseDTO) =>
-                expenses.some((expense) => expense.getId() === dto.id);
+    describe('actor has some settled expenses with contact', () => {
+        let dummyContact: Contact;
+        let dummyExpenses: Array<PairExpense>;
+        let settledExpenses: Array<PairExpense>;
+        let unrelatedExpenses: Array<PairExpense>;
+
+        beforeEach(async () => {
+            const { contact, expenses } =
+                await fixture.setupDefaultUserUniqueContactPairExpenses({
+                    length: 10,
+                });
+
+            dummyContact = contact;
+            dummyExpenses = expenses;
+            unrelatedExpenses = await fixture.setupDefaultUserPairExpenses();
+
+            settledExpenses = [expenses[3], expenses[9], expenses[7]];
+            for (const expense of settledExpenses) {
+                await paybackPairExpense(expense);
+            }
+        });
+
+        it('should only return expenses that were not settled', async () => {
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/contact/${dummyContact.getId()}`,
+            );
+
+            const dtos = response.body;
+            expect(dtos.length).toBe(
+                dummyExpenses.length - settledExpenses.length,
+            );
+            expectReturnedDtosToBeOnlyUnsettledExpenses(dtos);
+            expectReturnedDtosNotToBeSettledExpenses(dtos);
+        });
+
+        async function paybackPairExpense(expense: PairExpense): Promise<void> {
+            const [counterparty] = expense.getCounterpartiesOf(actorId);
+            const contactId = counterparty.getId();
+
+            await request(httpServer).put(
+                `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expense.getId()}`,
+            );
         }
 
-        function dtoIsNotIn(
-            expenses: Array<Expense>,
-        ): (dto: PairExpenseDTO) => boolean {
-            return (dto: PairExpenseDTO) =>
-                expenses.every((expense) => expense.getId() !== dto.id);
+        function expectReturnedDtosToBeOnlyUnsettledExpenses(
+            dtos: Array<PairExpenseDTO>,
+        ): void {
+            const returnedDtosAreTheUnsettledExpenses = dtos.every((dto) =>
+                dtoIsIn(dummyExpenses),
+            );
+            expect(returnedDtosAreTheUnsettledExpenses).toBe(true);
+        }
+
+        function expectReturnedDtosNotToBeSettledExpenses(
+            dtos: Array<PairExpenseDTO>,
+        ): void {
+            const returnedDtosAreNotSettledExpenses = dtos.every((dto) =>
+                dtoIsNotIn(settledExpenses),
+            );
+            expect(returnedDtosAreNotSettledExpenses).toBe(true);
         }
     });
+
+    function dtoIsIn(
+        expenses: Array<Expense>,
+    ): (dto: PairExpenseDTO) => boolean {
+        return (dto: PairExpenseDTO) =>
+            expenses.some((expense) => expense.getId() === dto.id);
+    }
+
+    function dtoIsNotIn(
+        expenses: Array<Expense>,
+    ): (dto: PairExpenseDTO) => boolean {
+        return (dto: PairExpenseDTO) =>
+            expenses.every((expense) => expense.getId() !== dto.id);
+    }
 });

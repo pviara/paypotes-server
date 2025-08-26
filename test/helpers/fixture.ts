@@ -29,6 +29,8 @@ import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 
+type Options = { length: number };
+
 export class Fixture {
     private constructor(
         private contactRepo: ContactPostgresTestingRepository,
@@ -121,14 +123,16 @@ export class Fixture {
         return expenses;
     }
 
-    async setupDefaultUserUniqueContactPairExpenses(): Promise<{
+    async setupDefaultUserUniqueContactPairExpenses(
+        options?: Options,
+    ): Promise<{
         contact: Contact;
         expenses: Array<PairExpense>;
     }> {
         const contact = await this.setupDefaultUserContact();
         const expenses = generateDefaultUserPairExpenses({
             counterparty: mapUserFrom(contact),
-            length: 40,
+            length: options?.length ?? 40,
         });
 
         await this.expenseRepo.insert(...expenses);
