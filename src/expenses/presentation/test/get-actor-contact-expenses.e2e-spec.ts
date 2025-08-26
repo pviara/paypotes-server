@@ -172,7 +172,7 @@ describe('getActorContactExpenses', () => {
             dummyExpenses = expenses;
             unrelatedExpenses = await fixture.setupDefaultUserPairExpenses();
 
-            settledExpenses = [expenses[3], expenses[9], expenses[7]];
+            settledExpenses = [expenses[3], expenses[7], expenses[9]];
             for (const expense of settledExpenses) {
                 await paybackPairExpense(expense);
             }

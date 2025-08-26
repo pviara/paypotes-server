@@ -1,4 +1,5 @@
 import { App } from 'supertest/types';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { empty, shutdown } from '@test/helpers/utils';
 import { Expense } from '@expenses/domain/expense/expense';
 import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
@@ -16,6 +17,8 @@ describe('getActorGroupExpenses', () => {
 
     let fixture: Fixture;
     let httpServer: App;
+
+    const actorId = DEFAULT_USER.getId();
 
     beforeAll(async () => {
         await application.bootstrap();
@@ -154,19 +157,94 @@ describe('getActorGroupExpenses', () => {
 
             expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
         }
+    });
 
-        function dtoIsIn(
-            expenses: Array<Expense>,
-        ): (dto: GroupExpenseDTO) => boolean {
-            return (dto: GroupExpenseDTO) =>
-                expenses.some((expense) => expense.getId() === dto.id);
+    describe('actor has some settled expenses in group', () => {
+        let dummyGroup: Group;
+        let dummyExpenses: Array<GroupExpense>;
+        let settledExpenses: Array<GroupExpense>;
+
+        beforeEach(async () => {
+            const { group, expenses } =
+                await fixture.setupDefaultUserUniqueGroupExpenses({
+                    length: 10,
+                });
+
+            dummyGroup = group;
+            dummyExpenses = expenses;
+
+            settledExpenses = getTheFirstThreeCreditExpensesFrom(dummyExpenses);
+            for (const expense of settledExpenses) {
+                await paybackGroupExpenseEntirely(expense);
+            }
+        });
+
+        it('should only return expenses that were not settled', async () => {
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/group/${dummyGroup.getId()}`,
+            );
+
+            const dtos = response.body;
+            expect(dtos.length).toBe(
+                dummyExpenses.length - settledExpenses.length,
+            );
+            expectReturnedDtosToBeOnlyUnsettledExpenses(dtos);
+            expectReturnedDtosNotToBeSettledExpenses(dtos);
+        });
+
+        function getTheFirstThreeCreditExpensesFrom(
+            expenses: Array<GroupExpense>,
+        ): Array<GroupExpense> {
+            const creditExpenses = expenses.filter((expense) =>
+                expense.hasCreditor(actorId),
+            );
+            return creditExpenses.slice(0, 3);
         }
 
-        function dtoIsNotIn(
-            expenses: Array<Expense>,
-        ): (dto: GroupExpenseDTO) => boolean {
-            return (dto: GroupExpenseDTO) =>
-                expenses.every((expense) => expense.getId() !== dto.id);
+        function expectReturnedDtosToBeOnlyUnsettledExpenses(
+            dtos: Array<GroupExpenseDTO>,
+        ): void {
+            const returnedDtosAreTheUnsettledExpenses = dtos.every((dto) =>
+                dtoIsIn(dummyExpenses),
+            );
+            expect(returnedDtosAreTheUnsettledExpenses).toBe(true);
+        }
+
+        function expectReturnedDtosNotToBeSettledExpenses(
+            dtos: Array<GroupExpenseDTO>,
+        ): void {
+            const returnedDtosAreNotSettledExpenses = dtos.every((dto) =>
+                dtoIsNotIn(settledExpenses),
+            );
+            expect(returnedDtosAreNotSettledExpenses).toBe(true);
+        }
+
+        async function paybackGroupExpenseEntirely(
+            expense: GroupExpense,
+        ): Promise<void> {
+            const debtorIds = expense
+                .getCounterpartiesOf(actorId)
+                .map((counterparty) => counterparty.getId());
+
+            await request(httpServer)
+                .put(
+                    `/${EXPENSES_API_ROUTE}/group/${expense.getGroup().getId()}/${expense.getId()}`,
+                )
+                .send({ debtorIds });
         }
     });
+
+    function dtoIsIn(
+        expenses: Array<Expense>,
+    ): (dto: GroupExpenseDTO) => boolean {
+        return (dto: GroupExpenseDTO) =>
+            expenses.some((expense) => expense.getId() === dto.id);
+    }
+
+    function dtoIsNotIn(
+        expenses: Array<Expense>,
+    ): (dto: GroupExpenseDTO) => boolean {
+        return (dto: GroupExpenseDTO) =>
+            expenses.every((expense) => expense.getId() !== dto.id);
+    }
 });

@@ -140,13 +140,13 @@ export class Fixture {
         return { contact, expenses };
     }
 
-    async setupDefaultUserUniqueGroupExpenses(): Promise<{
+    async setupDefaultUserUniqueGroupExpenses(options?: Options): Promise<{
         group: Group;
         expenses: Array<GroupExpense>;
     }> {
         const group = await this.setupDefaultUserGroup();
         const expenses = generateDefaultUserGroupExpenses({
-            length: 40,
+            length: options?.length ?? 40,
             group,
         });
         const users = expenses.flatMap((expense) =>
