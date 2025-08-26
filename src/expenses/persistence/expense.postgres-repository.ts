@@ -5,6 +5,7 @@ import {
     ExpensesByContact,
     ExpensesByGroup,
 } from '@expenses/persistence/expense.repository';
+import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
     GroupPayment,
@@ -23,7 +24,6 @@ import {
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { Table } from '@infra/postgres/table';
 import { User } from '@users/domain/user';
-import { Group } from '@app/groups/domain/group';
 
 type StakeholderRecord = {
     id: string;

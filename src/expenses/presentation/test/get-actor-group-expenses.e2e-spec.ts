@@ -1,15 +1,15 @@
 import { App } from 'supertest/types';
 import { empty, shutdown } from '@test/helpers/utils';
+import { Expense } from '@expenses/domain/expense/expense';
 import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '../expense.controller';
 import { Fixture } from '@test/helpers/fixture';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import { GroupExpenseDTO } from '@expenses/presentation/dto/group-expense.dto';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import * as request from 'supertest';
-import { GroupExpenseDTO } from '../dto/group-expense.dto';
-import { Expense } from '@app/expenses/domain/expense/expense';
 
 describe('getActorGroupExpenses', () => {
     const application = initApplicationWith(modules);

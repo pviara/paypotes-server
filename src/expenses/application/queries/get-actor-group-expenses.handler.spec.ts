@@ -8,9 +8,9 @@ import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
+import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { Member } from '@groups/domain/member';
-import { GroupNotFoundError } from '@app/groups/application/get-actor-group-with-balance-by-id.handler';
 
 describe('GetActorGroupExpensesHandler', () => {
     let sut: GetActorGroupExpensesHandler;

@@ -2,6 +2,7 @@ import { Application } from '@test/helpers/application/application';
 import { Contact } from '@contacts/domain/contact';
 import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { Expense } from '@expenses/domain/expense/expense';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     generateDefaultUserGroupExpense,
@@ -27,7 +28,6 @@ import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
-import { Expense } from '@app/expenses/domain/expense/expense';
 
 export class Fixture {
     private constructor(

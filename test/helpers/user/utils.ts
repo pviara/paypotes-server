@@ -1,12 +1,11 @@
-import { Contact } from '@contacts/domain/contact';
 import { Modules } from '@test/helpers/application/model/module';
+import { Person } from '@expenses/domain/stakeholder/stakeholder';
 import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { User } from '@users/domain/user';
 import { UserModule } from '@users/user.module';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
-import { Person } from '@app/expenses/domain/stakeholder/stakeholder';
 
 export const userSpecModules: Modules = [UserModule];
 export const userSpecProviders: Providers = [

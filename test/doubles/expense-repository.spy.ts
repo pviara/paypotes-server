@@ -4,10 +4,10 @@ import {
     ExpensesByContact,
     ExpensesByGroup,
 } from '@expenses/persistence/expense.repository';
+import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { Spy } from '@test/helpers/spy';
-import { Group } from '@app/groups/domain/group';
 
 export class ExpenseRepositorySpy
     extends Spy<ExpenseRepository>

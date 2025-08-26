@@ -5,7 +5,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@app/users/persistence/user.repository-provider';
+import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type JwtAuthPayload = {
     email: string;

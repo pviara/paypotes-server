@@ -1,7 +1,7 @@
-import { GroupExpense } from '@app/expenses/domain/expense/group/group-expense';
-import { PairExpense } from '@app/expenses/domain/expense/pair/pair-expense';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpensePostgresRepository } from '@expenses/persistence/expense.postgres-repository';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { Table } from '@infra/postgres/table';
 
 export class ExpensePostgresTestingRepository extends ExpensePostgresRepository {
