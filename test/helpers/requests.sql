@@ -189,3 +189,12 @@ inner join actor_stakeholder ac
     on e.id = ac.expense_id
 where share > 0
 and group_id = '042f26d9-36a6-4594-8bd2-48270fe8d40b';
+
+----
+-- getActorExpenses
+select
+    expense_id,
+    count(expense_id) as found_stakeholders
+from stakeholders
+where id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0'
+group by expense_id;
