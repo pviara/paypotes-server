@@ -717,11 +717,67 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
-    getAllActorGroupsExpenses(
+    async getAllActorGroupsExpenses(
         actorId: string,
-        groupIds: Array<string>,
+        groups: Array<Group>,
     ): Promise<ExpensesByGroup> {
-        throw new Error('Method not implemented.');
+        const members = groups.flatMap((group) => group.getMembers());
+        const groupIds = groups.flatMap((group) => group.getId());
+        console.warn(groupIds);
+
+        const { rows: records } = await this.knex.raw(`
+            with verified_stakeholders as (
+                select expense_id
+                from stakeholders
+                where id in (${this.mapInStatementFromIdsInMembers(members)})
+                group by expense_id
+                having count(id) = ${members.length}
+            ), actor_stakeholder as (
+                select
+                    id,
+                    expense_id,
+                    share
+                from stakeholders
+                where id = '${actorId}'
+            )
+            select e.*
+            from expenses e
+            inner join verified_stakeholders vs
+                on e.id = vs.expense_id
+            inner join actor_stakeholder ac
+                on e.id = ac.expense_id
+            where share > 0
+            and group_id in '${this.mapInStatementFromIds(groupIds)}';
+        `);
+
+        const expenses: ExpensesByGroup = {};
+        for (const group of groups) {
+            const groupId = group.getId();
+            expenses[groupId] = await Promise.all(
+                records.map(async (expense: ExpenseRecord) => {
+                    const { rows: stakeholders } = await this.knex.raw(`
+                    select
+                        ${Table.Users}.id,
+                        ${Table.Users}.firstname,
+                        ${Table.Users}.lastname,
+                        ${Table.Users}.avatar_url,
+                        ${Table.Stakeholders}.creditor,
+                        ${Table.Stakeholders}.share
+                    from ${Table.Stakeholders}
+                    inner join ${Table.Users}
+                        on ${Table.Users}.id = ${Table.Stakeholders}.id
+                    where ${Table.Stakeholders}.expense_id = '${expense.id}'
+                `);
+
+                    return this.mapGroupExpenseFrom({
+                        ...expense,
+                        group,
+                        stakeholders,
+                    });
+                }),
+            );
+        }
+        return expenses;
     }
 
     saveGroupExpense(expense: GroupExpense): Promise<void> {

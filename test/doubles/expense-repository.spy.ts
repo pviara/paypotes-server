@@ -60,7 +60,7 @@ export class ExpenseRepositorySpy
         },
         getAllActorGroupsExpenses: {
             count: 0,
-            history: [] as Array<[string, string[]]>,
+            history: [] as Array<[string, Group[]]>,
         },
         saveGroupExpense: {
             count: 0,
@@ -189,9 +189,9 @@ export class ExpenseRepositorySpy
 
     async getAllActorGroupsExpenses(
         actorId: string,
-        groupIds: Array<string>,
+        groups: Array<Group>,
     ): Promise<ExpensesByGroup> {
-        this.saveCall('getAllActorGroupsExpenses', [actorId, groupIds]);
+        this.saveCall('getAllActorGroupsExpenses', [actorId, groups]);
         return this.getStubOrDefault('getAllActorGroupsExpenses', {});
     }
 

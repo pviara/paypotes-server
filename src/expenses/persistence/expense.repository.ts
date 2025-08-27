@@ -60,7 +60,7 @@ export interface ExpenseRepository {
     ): Promise<GroupExpense[]>;
     getAllActorGroupsExpenses(
         actorId: string,
-        groupIds: Array<string>,
+        groups: Array<Group>,
     ): Promise<ExpensesByGroup>;
     saveGroupExpense(expense: GroupExpense): Promise<void>;
     savePairExpense(expense: PairExpense): Promise<void>;
