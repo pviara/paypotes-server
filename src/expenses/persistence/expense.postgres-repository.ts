@@ -485,8 +485,62 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         throw new Error('Method not implemented.');
     }
 
-    getAllActorExpenses(actorId: string): Promise<Expense[]> {
-        throw new Error('Method not implemented.');
+    async getAllActorExpenses(actorId: string): Promise<Expense[]> {
+        const { rows: expenses } = await this.knex.raw(`
+            with actor_stakeholder as (
+                select 
+                    id,
+                    expense_id,
+                    share
+                from ${Table.Stakeholders}
+                where id = '${actorId}'
+            )
+            select ${Table.Expenses}.*
+            from ${Table.Expenses}
+            inner join actor_stakeholder ac
+                on ac.expense_id = ${Table.Expenses}.id
+            where share > 0;
+        `);
+
+        return Promise.all(
+            expenses.map(async (expense: ExpenseRecord) => {
+                const { rows: stakeholders } = await this.knex.raw(`
+                    select
+                        ${Table.Users}.id,
+                        ${Table.Users}.firstname,
+                        ${Table.Users}.lastname,
+                        ${Table.Users}.avatar_url,
+                        ${Table.Stakeholders}.creditor,
+                        ${Table.Stakeholders}.share
+                    from ${Table.Stakeholders}
+                    inner join ${Table.Users}
+                        on ${Table.Users}.id = ${Table.Stakeholders}.id
+                    where ${Table.Stakeholders}.expense_id = '${expense.id}'
+                `);
+
+                const detailedExpense: ExpenseDetailedRecord = {
+                    ...expense,
+                    stakeholders,
+                };
+
+                if (this.isPairExpense(detailedExpense)) {
+                    return this.mapPairExpenseFrom(detailedExpense);
+                }
+
+                const group = await this.groupRepository.getActorGroupById(
+                    actorId,
+                    expense.group_id,
+                );
+
+                const detailedGroupExpense: GroupExpenseDetailedRecord = {
+                    ...expense,
+                    stakeholders,
+                    group,
+                };
+
+                return this.mapGroupExpenseFrom(detailedGroupExpense);
+            }),
+        );
     }
 
     getAllActorGroupExpenses(
