@@ -412,7 +412,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             with verified_stakeholders as (
                 select expense_id
                 from stakeholders
-                where id in (${this.mapInStatementFromIdsIn(members)})
+                where id in (${this.mapInStatementFromIdsInMembers(members)})
                 group by expense_id
                 having count(id) = ${members.length}
             ), actor_stakeholder as (
@@ -462,7 +462,13 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
-    private mapInStatementFromIdsIn(members: Array<Member>): string {
+    private mapInStatementFromIds(ids: Array<string>): string {
+        return ids
+            .map((id, index) => `'${id}'${index < ids.length - 1 ? ',' : ''}`)
+            .join('');
+    }
+
+    private mapInStatementFromIdsInMembers(members: Array<Member>): string {
         return members
             .map(
                 (member, index) =>
@@ -471,18 +477,131 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             .join('');
     }
 
-    getAllActorContactExpenses(
+    async getAllActorContactExpenses(
         actorId: string,
         contactId: string,
     ): Promise<PairExpense[]> {
-        throw new Error('Method not implemented.');
+        const { rows: expenses } = await this.knex.raw(`
+            with verified_stakeholders as (
+                select
+                    expense_id,
+                    count(expense_id) as found_stakeholders
+                from ${Table.Stakeholders}
+                where id in (
+                    '${actorId}',
+                    '${contactId}'
+                )
+                group by expense_id
+                having count(id) = 2
+            ), actor_stakeholder as (
+                select
+                    id,
+                    expense_id,
+                    share
+                from ${Table.Stakeholders}
+                where id = '${actorId}'
+            )
+            select e.*
+            from ${Table.Expenses} e
+            inner join verified_stakeholders vs
+                on e.id = vs.expense_id
+            inner join actor_stakeholder ac
+                on e.id = ac.expense_id
+            where share > 0
+            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';
+        `);
+
+        return Promise.all(
+            expenses.map(async (expense: ExpenseRecord) => {
+                const { rows: stakeholders } = await this.knex.raw(`
+                    select
+                        ${Table.Users}.id,
+                        ${Table.Users}.firstname,
+                        ${Table.Users}.lastname,
+                        ${Table.Users}.avatar_url,
+                        ${Table.Stakeholders}.creditor,
+                        ${Table.Stakeholders}.share
+                    from ${Table.Stakeholders}
+                    inner join ${Table.Users}
+                        on ${Table.Users}.id = ${Table.Stakeholders}.id
+                    where ${Table.Stakeholders}.expense_id = '${expense.id}'
+                `);
+
+                return this.mapPairExpenseFrom({
+                    id: expense.id,
+                    label: expense.label,
+                    emoji: expense.emoji,
+                    created_at: expense.created_at,
+                    balance: expense.balance,
+                    group_id: expense.group_id,
+                    stakeholders,
+                });
+            }),
+        );
     }
 
-    getAllActorContactsExpenses(
+    async getAllActorContactsExpenses(
         actorId: string,
         contactIds: Array<string>,
     ): Promise<ExpensesByContact> {
-        throw new Error('Method not implemented.');
+        const { rows: records } = await this.knex.raw(`
+            with verified_stakeholders as (
+                select
+                    expense_id,
+                    count(expense_id) as found_stakeholders
+                from ${Table.Stakeholders}
+                where id in (${this.mapInStatementFromIds(contactIds)})
+                group by expense_id
+                having count(id) = 2
+            ), actor_stakeholder as (
+                select
+                    id,
+                    expense_id,
+                    share
+                from ${Table.Stakeholders}
+                where id = '${actorId}'
+            )
+            select e.*
+            from ${Table.Expenses} e
+            inner join verified_stakeholders vs
+                on e.id = vs.expense_id
+            inner join actor_stakeholder ac
+                on e.id = ac.expense_id
+            where share > 0
+            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';
+        `);
+
+        const expenses: ExpensesByContact = {};
+        for (const contactId of contactIds) {
+            expenses[contactId] = await Promise.all(
+                records.map(async (expense: ExpenseRecord) => {
+                    const { rows: stakeholders } = await this.knex.raw(`
+                    select
+                        ${Table.Users}.id,
+                        ${Table.Users}.firstname,
+                        ${Table.Users}.lastname,
+                        ${Table.Users}.avatar_url,
+                        ${Table.Stakeholders}.creditor,
+                        ${Table.Stakeholders}.share
+                    from ${Table.Stakeholders}
+                    inner join ${Table.Users}
+                        on ${Table.Users}.id = ${Table.Stakeholders}.id
+                    where ${Table.Stakeholders}.expense_id = '${expense.id}'
+                `);
+
+                    return this.mapPairExpenseFrom({
+                        id: expense.id,
+                        label: expense.label,
+                        emoji: expense.emoji,
+                        created_at: expense.created_at,
+                        balance: expense.balance,
+                        group_id: expense.group_id,
+                        stakeholders,
+                    });
+                }),
+            );
+        }
+        return expenses;
     }
 
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {
@@ -543,11 +662,59 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
-    getAllActorGroupExpenses(
+    async getAllActorGroupExpenses(
         actorId: string,
-        groupId: string,
+        group: Group,
     ): Promise<GroupExpense[]> {
-        throw new Error('Method not implemented.');
+        const members = group.getMembers();
+        const { rows: expenses } = await this.knex.raw(`
+            with verified_stakeholders as (
+                select expense_id
+                from stakeholders
+                where id in (${this.mapInStatementFromIdsInMembers(members)})
+                group by expense_id
+                having count(id) = ${members.length}
+            ), actor_stakeholder as (
+                select
+                    id,
+                    expense_id,
+                    share
+                from stakeholders
+                where id = '${actorId}'
+            )
+            select e.*
+            from expenses e
+            inner join verified_stakeholders vs
+                on e.id = vs.expense_id
+            inner join actor_stakeholder ac
+                on e.id = ac.expense_id
+            where share > 0
+            and group_id = '${group.getId()}';
+        `);
+
+        return Promise.all(
+            expenses.map(async (expense: ExpenseRecord) => {
+                const { rows: stakeholders } = await this.knex.raw(`
+                    select
+                        ${Table.Users}.id,
+                        ${Table.Users}.firstname,
+                        ${Table.Users}.lastname,
+                        ${Table.Users}.avatar_url,
+                        ${Table.Stakeholders}.creditor,
+                        ${Table.Stakeholders}.share
+                    from ${Table.Stakeholders}
+                    inner join ${Table.Users}
+                        on ${Table.Users}.id = ${Table.Stakeholders}.id
+                    where ${Table.Stakeholders}.expense_id = '${expense.id}'
+                `);
+
+                return this.mapGroupExpenseFrom({
+                    ...expense,
+                    group,
+                    stakeholders,
+                });
+            }),
+        );
     }
 
     getAllActorGroupsExpenses(

@@ -38,6 +38,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         name: 'name',
         emoji: '🚧',
         members: dummyGroupMembers,
+        createdAt: new Date('2005-09-08'),
     });
 
     beforeEach(() => {
@@ -60,7 +61,7 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
         expect(expenseRepo.calls.getAllActorGroupExpenses.count).toBe(1);
         expect(
             expenseRepo.calls.getAllActorGroupExpenses.history,
-        ).toContainEqual([dummyActorId, dummyGroupId]);
+        ).toContainEqual([dummyActorId, dummyGroup]);
     });
 
     it("should compute the actor's group balance correctly", async () => {

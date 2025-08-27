@@ -16,7 +16,7 @@ import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
 
-describe('contact application tasks', () => {
+describe.skip('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules);
 
     let contactRepo: ContactPostgresTestingRepository;

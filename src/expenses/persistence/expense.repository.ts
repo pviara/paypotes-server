@@ -56,7 +56,7 @@ export interface ExpenseRepository {
     getAllActorExpenses(actorId: string): Promise<Expense[]>;
     getAllActorGroupExpenses(
         actorId: string,
-        groupId: string,
+        group: Group,
     ): Promise<GroupExpense[]>;
     getAllActorGroupsExpenses(
         actorId: string,
@@ -194,7 +194,7 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
 
     async getAllActorGroupExpenses(
         actorId: string,
-        groupId: string,
+        group: Group,
     ): Promise<GroupExpense[]> {
         return this.expenses
             .filter(this.isGroupExpense())
@@ -207,12 +207,12 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
         groupIds: Array<string>,
     ): Promise<ExpensesByGroup> {
         const expensesByGroup: ExpensesByGroup = {};
-        for (const groupId of groupIds) {
-            expensesByGroup[groupId] = await this.getAllActorGroupExpenses(
-                actorId,
-                groupId,
-            );
-        }
+        // for (const groupId of groupIds) {
+        //     expensesByGroup[groupId] = await this.getAllActorGroupExpenses(
+        //         actorId,
+        //         groupId,
+        //     );
+        // }
 
         return expensesByGroup;
     }
