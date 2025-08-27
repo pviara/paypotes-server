@@ -8,6 +8,7 @@ import { initApplicationWith } from '@test/helpers/application/utils';
 import * as request from 'supertest';
 import { Expense } from '@app/expenses/domain/expense/expense';
 import { ExpenseDTO } from '../dto/expense.dto';
+import { empty, shutdown } from '@test/helpers/utils';
 
 describe('getActorExpenses', () => {
     const application = initApplicationWith(modules);
@@ -23,6 +24,12 @@ describe('getActorExpenses', () => {
         fixture = Fixture.create(application);
         httpServer = application.getHttpServer();
     });
+
+    afterAll(shutdown(application));
+
+    beforeEach(empty(application));
+
+    afterEach(empty(application));
 
     describe('actor has no expense', () => {
         it('should return an empty array', async () => {
@@ -40,15 +47,8 @@ describe('getActorExpenses', () => {
         let unrelatedExpenses: Array<Expense>;
 
         beforeEach(async () => {
-            const { expenses: groupExpenses } =
-                await fixture.setupDefaultUserUniqueGroupExpenses();
-
-            const pairExpenses = await fixture.setupDefaultUserPairExpenses();
-
-            dummyExpenses = [...groupExpenses, ...pairExpenses];
-            unrelatedExpenses = await fixture.setupRandomPairExpenses({
-                length: 10,
-            });
+            dummyExpenses = await setupDefaultUserExpenses();
+            unrelatedExpenses = await setupUnrelatedExpenses();
         });
 
         it('should return the first 20 expenses by default', async () => {
@@ -61,6 +61,63 @@ describe('getActorExpenses', () => {
             expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
             expectReturnedDtosNotToBeUnrelatedExpenses(dtos);
         });
+
+        describe('page index has been given', () => {
+            it('should return the second 20 expenses when given index is 1', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}?pageIndex=1`,
+                );
+
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
+            });
+
+            function expectReturnedDtosToBeTheSecondTwentyExpenses(
+                dtos: Array<ExpenseDTO>,
+            ): void {
+                const secondTwentyExpenses = sortByDateDescending(
+                    dummyExpenses,
+                ).slice(20, 40);
+                const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
+                    dtoIsIn(secondTwentyExpenses),
+                );
+
+                expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
+            }
+        });
+
+        describe('search has been given', () => {
+            it('should return the expenses that match the search', async () => {
+                const targetExpense = dummyExpenses[0];
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}?search=${targetExpense.getLabel()}`,
+                );
+
+                expect(response.body.length).toBe(1);
+                expect(response.body[0].id).toBe(targetExpense.getId());
+            });
+        });
+
+        async function setupDefaultUserExpenses(): Promise<Expense[]> {
+            const { expenses: groupExpenses } =
+                await fixture.setupDefaultUserUniqueGroupExpenses({
+                    length: 30,
+                });
+
+            const pairExpenses = await fixture.setupDefaultUserPairExpenses();
+
+            return [...groupExpenses, ...pairExpenses];
+        }
+
+        async function setupUnrelatedExpenses(): Promise<Expense[]> {
+            const unrelatedGroupExpenses =
+                await fixture.setupRandomGroupExpenses();
+            const unrelatedPairExpenses =
+                await fixture.setupRandomPairExpenses();
+
+            return [...unrelatedGroupExpenses, ...unrelatedPairExpenses];
+        }
 
         function expectReturnedDtosToBeTheFirstTwentyExpenses(
             dtos: Array<ExpenseDTO>,
@@ -109,4 +166,6 @@ describe('getActorExpenses', () => {
                 expenses.every((expense) => expense.getId() !== dto.id);
         }
     });
+
+    describe('actor has some settled expenses with contact', () => {});
 });

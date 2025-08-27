@@ -63,6 +63,15 @@ export const generateDefaultUserRandomGroup = (): Group =>
         members: [getDefaultUserAsMember(), ...generateRandomMembers()],
     });
 
+export const generateRandomGroup = (): Group =>
+    new Group({
+        id: crypto.randomUUID(),
+        name: 'Group',
+        emoji: '🪩',
+        createdAt: new Date(),
+        members: generateRandomMembers(),
+    });
+
 export const generateDefaultUserRandomGroups = (
     options: RandomArrayGenerationOptions,
 ): Array<Group> => {

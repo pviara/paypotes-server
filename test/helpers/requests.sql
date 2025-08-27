@@ -20,6 +20,10 @@ insert into expenses values ('42ea96e9-8e84-4966-8c62-be2084ad6691', 'McDo', '�
 insert into stakeholders values ('ecd0c12a-9f59-4703-9280-8bc1082986b0', '42ea96e9-8e84-4966-8c62-be2084ad6691', true, 700);
 insert into stakeholders values ('856b40a4-00d6-43be-864f-4c6a6d4bc069', '42ea96e9-8e84-4966-8c62-be2084ad6691', false, 700);
 
+insert into expenses values ('2b974660-67e9-4b3d-a26f-21396ffcdfd5', 'Billets d''avion', '✈️', date('2025-11-19 13:42:01'), 27600, '46cd3732-f36e-4886-a2f8-1efebcda1ad6');
+insert into stakeholders values ('62fb2fe0-ba63-412a-a0fc-b0ac3239efcd', '2b974660-67e9-4b3d-a26f-21396ffcdfd5', true, 13800);
+insert into stakeholders values ('856b40a4-00d6-43be-864f-4c6a6d4bc069', '2b974660-67e9-4b3d-a26f-21396ffcdfd5', false, 13800);
+
 -- group expense
 insert into expenses values ('e1089b37-e4ba-44c9-8ccd-a7dd6fac850e', 'Essence', '⛽', date('2025-11-19 13:42:01'), 7500, '042f26d9-36a6-4594-8bd2-48270fe8d40b');
 insert into stakeholders values ('ecd0c12a-9f59-4703-9280-8bc1082986b0', 'e1089b37-e4ba-44c9-8ccd-a7dd6fac850e', true, 2500);
@@ -190,11 +194,21 @@ inner join actor_stakeholder ac
 where share > 0
 and group_id = '042f26d9-36a6-4594-8bd2-48270fe8d40b';
 
-----
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
 -- getActorExpenses
-select
-    expense_id,
-    count(expense_id) as found_stakeholders
-from stakeholders
-where id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0'
-group by expense_id;
+with actor_stakeholder as (
+    select 
+        id,
+        expense_id,
+        share
+    from stakeholders
+    where id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0'
+)
+select expenses.*
+from expenses
+inner join actor_stakeholder ac
+    on ac.expense_id = expenses.id
+where share > 0;

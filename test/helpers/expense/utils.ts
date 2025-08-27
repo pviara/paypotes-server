@@ -26,6 +26,7 @@ import { User } from '@users/domain/user';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { ZERO } from '@app/shared/zero';
+import { generateRandomGroup, generateRandomMember } from '../group/utils';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 export const expenseSpecProviders: Providers = [
@@ -58,6 +59,13 @@ const generateRandomPairPaymentWithDefaultUser = (
         creditor: isCreditor
             ? DEFAULT_USER
             : counterparty || generateRandomUser(),
+    };
+};
+
+const generateRandomGroupPaymentWithoutDefaultUser = (): GroupPayment => {
+    return {
+        balance: generateRandomBalance(),
+        creditor: generateRandomMember(),
     };
 };
 
@@ -115,6 +123,17 @@ export const generateRandomStakeholders = ({
     );
 };
 
+export const generateRandomGroupExpenses = ({
+    length,
+}: RandomPairExpenseArrayGenerationOptions): Array<GroupExpense> => {
+    return Array.from({ length }).map((_, index) => {
+        const metadata = generateRandomMetadata();
+        const group = generateRandomGroup();
+        const payment = generateRandomGroupPaymentWithoutDefaultUser();
+        return GroupExpense.create(metadata, group, payment);
+    });
+};
+
 export const generateRandomPairExpenses = ({
     length,
 }: RandomPairExpenseArrayGenerationOptions): Array<PairExpense> => {
@@ -136,7 +155,9 @@ export const generateDefaultUserPairExpenses = ({
     counterparty,
 }: RandomPairExpenseArrayGenerationOptions): Array<PairExpense> => {
     return Array.from({ length }).map((_, index) => {
-        const metadata = generateRandomMetadata({ label: `label_${index}` });
+        const metadata = generateRandomMetadata({
+            label: `label_${index}_${crypto.randomUUID().slice(0, 3)}`,
+        });
         const payment = generateRandomPairPaymentWithDefaultUser(counterparty);
         return PairExpense.create(metadata, payment);
     });
@@ -162,7 +183,9 @@ export const generateDefaultUserGroupExpenses = ({
     group,
 }: RandomGroupExpenseArrayGenerationOptions): Array<GroupExpense> => {
     return Array.from({ length }).map((_, index) => {
-        const metadata = generateRandomMetadata({ label: `label_${index}` });
+        const metadata = generateRandomMetadata({
+            label: `label_${index}_${crypto.randomUUID().slice(0, 3)}`,
+        });
         const payment = generateRandomGroupPaymentWithDefaultUserIn(
             group,
             counterparty,

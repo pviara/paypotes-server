@@ -10,6 +10,7 @@ import {
     generateDefaultUserPairExpense,
     generateDefaultUserPairExpenses,
     generateRandomBalance,
+    generateRandomGroupExpenses,
     generateRandomMetadata,
     generateRandomPairExpenses,
 } from '@test/helpers/expense/utils';
@@ -158,6 +159,24 @@ export class Fixture {
         await this.expenseRepo.insert(...expenses);
 
         return { group, expenses };
+    }
+
+    async setupRandomGroupExpenses(options?: Options): Promise<GroupExpense[]> {
+        const expenses = generateRandomGroupExpenses({
+            length: options?.length ?? 40,
+        });
+
+        const users = expenses.flatMap((expense) =>
+            this.mapUsersOutOfStakeholdersFrom(expense),
+        );
+
+        const groups = expenses.flatMap((expense) => expense.getGroup());
+
+        await this.userRepo.insert(...users);
+        await this.groupRepo.insert(...groups);
+        await this.expenseRepo.insert(...expenses);
+
+        return expenses;
     }
 
     async setupRandomPairExpenses(options?: Options): Promise<PairExpense[]> {
