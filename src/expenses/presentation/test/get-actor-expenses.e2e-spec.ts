@@ -1,14 +1,16 @@
 import { App } from 'supertest/types';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { empty, shutdown } from '@test/helpers/utils';
+import { Expense } from '@expenses/domain/expense/expense';
+import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { Fixture } from '@test/helpers/fixture';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import * as request from 'supertest';
-import { Expense } from '@app/expenses/domain/expense/expense';
-import { ExpenseDTO } from '../dto/expense.dto';
-import { empty, shutdown } from '@test/helpers/utils';
 
 describe('getActorExpenses', () => {
     const application = initApplicationWith(modules);
@@ -99,26 +101,6 @@ describe('getActorExpenses', () => {
             });
         });
 
-        async function setupDefaultUserExpenses(): Promise<Expense[]> {
-            const { expenses: groupExpenses } =
-                await fixture.setupDefaultUserUniqueGroupExpenses({
-                    length: 30,
-                });
-
-            const pairExpenses = await fixture.setupDefaultUserPairExpenses();
-
-            return [...groupExpenses, ...pairExpenses];
-        }
-
-        async function setupUnrelatedExpenses(): Promise<Expense[]> {
-            const unrelatedGroupExpenses =
-                await fixture.setupRandomGroupExpenses();
-            const unrelatedPairExpenses =
-                await fixture.setupRandomPairExpenses();
-
-            return [...unrelatedGroupExpenses, ...unrelatedPairExpenses];
-        }
-
         function expectReturnedDtosToBeTheFirstTwentyExpenses(
             dtos: Array<ExpenseDTO>,
         ): void {
@@ -151,21 +133,119 @@ describe('getActorExpenses', () => {
 
             expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
         }
+    });
 
-        function dtoIsIn(
-            expenses: Array<Expense>,
-        ): (dto: ExpenseDTO) => boolean {
-            return (dto: ExpenseDTO) =>
-                expenses.some((expense) => expense.getId() === dto.id);
+    describe('actor has some settled expenses', () => {
+        let dummyExpenses: Array<Expense>;
+        let settledExpenses: Array<Expense>;
+        let unrelatedExpenses: Array<Expense>;
+
+        beforeEach(async () => {
+            dummyExpenses = await setupDefaultUserExpenses({ length: 10 });
+            unrelatedExpenses = await setupUnrelatedExpenses();
+
+            settledExpenses = [
+                dummyExpenses[1],
+                dummyExpenses[9],
+                dummyExpenses[13],
+            ];
+            for (const expense of settledExpenses) {
+                await paybackExpense(expense);
+            }
+        });
+
+        it('should only return expenses that were not settled', async () => {
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}`,
+            );
+
+            const dtos = response.body;
+            expect(dtos.length).toBe(
+                dummyExpenses.length - settledExpenses.length,
+            );
+            expectReturnedDtosToBeOnlyUnsettledExpenses(dtos);
+            expectReturnedDtosNotToBeSettledExpenses(dtos);
+        });
+
+        async function paybackExpense(expense: Expense): Promise<void> {
+            if (expense instanceof PairExpense) {
+                await paybackPairExpense(expense);
+            } else if (expense instanceof GroupExpense) {
+                await paybackGroupExpenseEntirely(expense);
+            }
         }
 
-        function dtoIsNotIn(
-            expenses: Array<Expense>,
-        ): (dto: ExpenseDTO) => boolean {
-            return (dto: ExpenseDTO) =>
-                expenses.every((expense) => expense.getId() !== dto.id);
+        async function paybackPairExpense(expense: PairExpense): Promise<void> {
+            const [counterparty] = expense.getCounterpartiesOf(actorId);
+            const contactId = counterparty.getId();
+
+            await request(httpServer).put(
+                `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expense.getId()}`,
+            );
+        }
+
+        async function paybackGroupExpenseEntirely(
+            expense: GroupExpense,
+        ): Promise<void> {
+            const debtorIds = expense
+                .getCounterpartiesOf(actorId)
+                .map((counterparty) => counterparty.getId());
+
+            await request(httpServer)
+                .put(
+                    `/${EXPENSES_API_ROUTE}/group/${expense.getGroup().getId()}/${expense.getId()}`,
+                )
+                .send({ debtorIds });
+        }
+
+        function expectReturnedDtosToBeOnlyUnsettledExpenses(
+            dtos: Array<ExpenseDTO>,
+        ): void {
+            const returnedDtosAreTheUnsettledExpenses = dtos.every((dto) =>
+                dtoIsIn(dummyExpenses),
+            );
+            expect(returnedDtosAreTheUnsettledExpenses).toBe(true);
+        }
+
+        function expectReturnedDtosNotToBeSettledExpenses(
+            dtos: Array<ExpenseDTO>,
+        ): void {
+            const returnedDtosAreNotSettledExpenses = dtos.every((dto) =>
+                dtoIsNotIn(settledExpenses),
+            );
+            expect(returnedDtosAreNotSettledExpenses).toBe(true);
         }
     });
 
-    describe('actor has some settled expenses with contact', () => {});
+    async function setupDefaultUserExpenses(options?: {
+        length: number;
+    }): Promise<Expense[]> {
+        const { expenses: groupExpenses } =
+            await fixture.setupDefaultUserUniqueGroupExpenses({
+                length: options?.length ?? 30,
+            });
+
+        const pairExpenses = await fixture.setupDefaultUserPairExpenses();
+
+        return [...groupExpenses, ...pairExpenses];
+    }
+
+    async function setupUnrelatedExpenses(): Promise<Expense[]> {
+        const unrelatedGroupExpenses = await fixture.setupRandomGroupExpenses();
+        const unrelatedPairExpenses = await fixture.setupRandomPairExpenses();
+
+        return [...unrelatedGroupExpenses, ...unrelatedPairExpenses];
+    }
+
+    function dtoIsIn(expenses: Array<Expense>): (dto: ExpenseDTO) => boolean {
+        return (dto: ExpenseDTO) =>
+            expenses.some((expense) => expense.getId() === dto.id);
+    }
+
+    function dtoIsNotIn(
+        expenses: Array<Expense>,
+    ): (dto: ExpenseDTO) => boolean {
+        return (dto: ExpenseDTO) =>
+            expenses.every((expense) => expense.getId() !== dto.id);
+    }
 });
