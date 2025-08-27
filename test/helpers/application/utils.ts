@@ -69,10 +69,32 @@ export const initFixtureWith = (
 
 export const initMessagingApplicationWith = (
     modules: Modules,
-    providers: Providers,
+    providers: Providers = [],
 ): Application => {
     return new Application({
         modules: [AuthFakeModule, InfrastructureModule, ...modules],
-        providers,
+        providers: [
+            ...providers,
+            {
+                provide: contactRepositoryToken,
+                useClass: ContactPostgresTestingRepository,
+            },
+            {
+                provide: expenseRepositoryToken,
+                useClass: ExpensePostgresTestingRepository,
+            },
+            {
+                provide: groupRepositoryToken,
+                useClass: GroupPostgresTestingRepository,
+            },
+            {
+                provide: userRepositoryToken,
+                useClass: UserPostgresTestingRepository,
+            },
+            {
+                provide: rabbitMQServiceToken,
+                useClass: RabbitMQServiceSpy,
+            },
+        ],
     });
 };

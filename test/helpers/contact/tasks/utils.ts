@@ -3,6 +3,8 @@ import { ContactModule } from '@contacts/contact.module';
 import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ExpenseModule } from '@expenses/expense.module';
+import { ExpensePostgresRepository } from '@expenses/persistence/expense.postgres-repository';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupModule } from '@groups/group.module';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
@@ -23,12 +25,16 @@ export const contactTasksSpecModules: Modules = [
 ];
 export const contactTasksSpecProviders: Providers = [
     {
+        provide: contactRepositoryToken,
+        useClass: ContactPostgresTestingRepository,
+    },
+    {
         provide: userRepositoryToken,
         useClass: UserPostgresTestingRepository,
     },
     {
-        provide: contactRepositoryToken,
-        useClass: ContactPostgresTestingRepository,
+        provide: expenseRepositoryToken,
+        useClass: ExpensePostgresRepository,
     },
     {
         provide: groupRepositoryToken,

@@ -1,3 +1,9 @@
+import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
+import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Modules } from '@test/helpers/application/model/module';
 import { Person } from '@expenses/domain/stakeholder/stakeholder';
 import { Providers } from '@test/helpers/application/application';
@@ -9,6 +15,18 @@ import { userRepositoryToken } from '@users/persistence/user.repository-provider
 
 export const userSpecModules: Modules = [UserModule];
 export const userSpecProviders: Providers = [
+    {
+        provide: contactRepositoryToken,
+        useClass: ContactPostgresTestingRepository,
+    },
+    {
+        provide: expenseRepositoryToken,
+        useClass: ExpensePostgresTestingRepository,
+    },
+    {
+        provide: groupRepositoryToken,
+        useClass: GroupPostgresTestingRepository,
+    },
     {
         provide: userRepositoryToken,
         useClass: UserPostgresTestingRepository,
