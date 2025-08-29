@@ -250,27 +250,20 @@ inner join counterparty c
     on c.expense_id = e.id
 where group_id = '46cd3732-f36e-4886-a2f8-1efebcda1ad6';
 
-
-with shared_expense_ids as (
+-- getAllActorGroupsExpenses
+with actor_expenses as (
   select
-    expense_id,
-    array_remove(array_agg(id), 'ecd0c12a-9f59-4703-9280-8bc1082986b0') AS counterparty_ids
+    expense_id
   from
     public.stakeholders
   where
-    id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0' 
-    or id = any (array['856b40a4-00d6-43be-864f-4c6a6d4bc069', '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd']::uuid[]) 
-  group by
-    expense_id
-  having
-    count(*) filter (where id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0' ) > 0
-    and count(*) filter (where id = any (array['856b40a4-00d6-43be-864f-4c6a6d4bc069', '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd']::uuid[])) > 0
+    id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0'
 )
 select
-  e.*,
-  s.counterparty_ids
+  e.*
 from
   public.expenses e
-inner join 
-  shared_expense_ids s on e.id = s.expense_id
-where group_id = '46cd3732-f36e-4886-a2f8-1efebcda1ad6';
+inner join
+  actor_expenses ae on e.id = ae.expense_id
+where
+  e.group_id = any (array['042f26d9-36a6-4594-8bd2-48270fe8d40b']::uuid[]);

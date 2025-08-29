@@ -53,7 +53,7 @@ describe('GroupController', () => {
 
     describe('GET /groups', () => {
         describe('actor has no groups', () => {
-            it.only('should return an empty array', async () => {
+            it('should return an empty array', async () => {
                 const response = await request(httpServer).get(
                     `/${GROUPS_API_ROUTE}`,
                 );

@@ -544,37 +544,36 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         actorId: string,
         contactIds: Array<string>,
     ): Promise<ExpensesByContact> {
-        try {
-            const { rows: records } = await this.knex.raw(`
-                with shared_expense_ids as (
-                    select
-                        expense_id,
-                        array_remove(array_agg(id), '${actorId}') AS counterparty_ids
-                    from
-                        public.stakeholders
-                    where
-                        id = '${actorId}'
-                        or id = any (array[${this.mapInStatementFromIds(contactIds)}]::uuid[]) 
-                    group by
-                        expense_id
-                    having
-                        count(*) filter (where id = '${actorId}' ) > 0
-                        and count(*) filter (where id = any (array[${this.mapInStatementFromIds(contactIds)}]::uuid[])) > 0
-                    )
-                    select
-                        e.*, s.counterparty_ids
-                    from
-                    public.expenses e
-                    inner join 
-                        shared_expense_ids s on e.id = s.expense_id
-                    where group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';
-            `);
+        const { rows: records } = await this.knex.raw(`
+            with shared_expense_ids as (
+                select
+                    expense_id,
+                    array_remove(array_agg(id), '${actorId}') AS counterparty_ids
+                from
+                    public.stakeholders
+                where
+                    id = '${actorId}'
+                    or id = any (array[${this.mapInStatementFromIds(contactIds)}]::uuid[]) 
+                group by
+                    expense_id
+                having
+                    count(*) filter (where id = '${actorId}' ) > 0
+                    and count(*) filter (where id = any (array[${this.mapInStatementFromIds(contactIds)}]::uuid[])) > 0
+                )
+                select
+                    e.*, s.counterparty_ids
+                from
+                public.expenses e
+                inner join 
+                    shared_expense_ids s on e.id = s.expense_id
+                where group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';
+        `);
 
-            const expenses: ExpensesByContact = {};
+        const expenses: ExpensesByContact = {};
 
-            for (const record of records) {
-                const [counterparty_id] = record.counterparty_ids;
-                const { rows: stakeholders } = await this.knex.raw(`
+        for (const record of records) {
+            const [counterparty_id] = record.counterparty_ids;
+            const { rows: stakeholders } = await this.knex.raw(`
                     select
                         ${Table.Users}.id,
                         ${Table.Users}.firstname,
@@ -588,22 +587,18 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     where ${Table.Stakeholders}.expense_id = '${record.id}'
                 `);
 
-                const pairExpense = this.mapPairExpenseFrom({
-                    ...record,
-                    stakeholders,
-                });
+            const pairExpense = this.mapPairExpenseFrom({
+                ...record,
+                stakeholders,
+            });
 
-                if (expenses[counterparty_id]) {
-                    expenses[counterparty_id].push(pairExpense);
-                } else {
-                    expenses[counterparty_id] = [pairExpense];
-                }
+            if (expenses[counterparty_id]) {
+                expenses[counterparty_id].push(pairExpense);
+            } else {
+                expenses[counterparty_id] = [pairExpense];
             }
-            return expenses;
-        } catch (error: unknown) {
-            console.error(error);
-            return {};
         }
+        return expenses;
     }
 
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {
@@ -723,40 +718,29 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         actorId: string,
         groups: Array<Group>,
     ): Promise<ExpensesByGroup> {
-        const members = groups.flatMap((group) => group.getMembers());
         const groupIds = groups.flatMap((group) => group.getId());
-
         const { rows: records } = await this.knex.raw(`
-            with verified_stakeholders as (
-                select expense_id
-                from stakeholders
-                where id in (${this.mapInStatementFromIdsInMembers(members)})
-                group by expense_id
-                having count(id) = ${members.length}
-            ), actor_stakeholder as (
+            with actor_expenses as (
                 select
-                    id,
-                    expense_id,
-                    share
-                from stakeholders
-                where id = '${actorId}'
-            )
-            select e.*
-            from expenses e
-            inner join verified_stakeholders vs
-                on e.id = vs.expense_id
-            inner join actor_stakeholder ac
-                on e.id = ac.expense_id
-            where share > 0
-            and group_id in '${this.mapInStatementFromIds(groupIds)}';
+                    expense_id
+                from
+                    public.stakeholders
+                where
+                    id = '${actorId}'
+                )
+                select
+                    e.*
+                from
+                    public.expenses e
+                inner join
+                    actor_expenses ae on e.id = ae.expense_id
+                where
+                    e.group_id = any (array[${this.mapInStatementFromIds(groupIds)}]::uuid[]); 
         `);
 
         const expenses: ExpensesByGroup = {};
-        for (const group of groups) {
-            const groupId = group.getId();
-            expenses[groupId] = await Promise.all(
-                records.map(async (expense: ExpenseRecord) => {
-                    const { rows: stakeholders } = await this.knex.raw(`
+        for (const record of records) {
+            const { rows: stakeholders } = await this.knex.raw(`
                     select
                         ${Table.Users}.id,
                         ${Table.Users}.firstname,
@@ -767,18 +751,86 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     from ${Table.Stakeholders}
                     inner join ${Table.Users}
                         on ${Table.Users}.id = ${Table.Stakeholders}.id
-                    where ${Table.Stakeholders}.expense_id = '${expense.id}'
+                    where ${Table.Stakeholders}.expense_id = '${record.id}'
                 `);
 
-                    return this.mapGroupExpenseFrom({
-                        ...expense,
-                        group,
-                        stakeholders,
-                    });
-                }),
+            const { group_id } = record;
+            const group = await this.groupRepository.getActorGroupById(
+                actorId,
+                group_id,
             );
+
+            const groupExpense = this.mapGroupExpenseFrom({
+                ...record,
+                group,
+                stakeholders,
+            });
+
+            if (expenses[group_id]) {
+                expenses[group_id].push(groupExpense);
+            } else {
+                expenses[group_id] = [groupExpense];
+            }
         }
+
         return expenses;
+
+        // const members = groups.flatMap((group) => group.getMembers());
+        // const groupIds = groups.flatMap((group) => group.getId());
+
+        // const { rows: records } = await this.knex.raw(`
+        //     with verified_stakeholders as (
+        //         select expense_id
+        //         from stakeholders
+        //         where id in (${this.mapInStatementFromIdsInMembers(members)})
+        //         group by expense_id
+        //         having count(id) = ${members.length}
+        //     ), actor_stakeholder as (
+        //         select
+        //             id,
+        //             expense_id,
+        //             share
+        //         from stakeholders
+        //         where id = '${actorId}'
+        //     )
+        //     select e.*
+        //     from expenses e
+        //     inner join verified_stakeholders vs
+        //         on e.id = vs.expense_id
+        //     inner join actor_stakeholder ac
+        //         on e.id = ac.expense_id
+        //     where share > 0
+        //     and group_id in '${this.mapInStatementFromIds(groupIds)}';
+        // `);
+
+        // const expenses: ExpensesByGroup = {};
+        // for (const group of groups) {
+        //     const groupId = group.getId();
+        //     expenses[groupId] = await Promise.all(
+        //         records.map(async (expense: ExpenseRecord) => {
+        //             const { rows: stakeholders } = await this.knex.raw(`
+        //             select
+        //                 ${Table.Users}.id,
+        //                 ${Table.Users}.firstname,
+        //                 ${Table.Users}.lastname,
+        //                 ${Table.Users}.avatar_url,
+        //                 ${Table.Stakeholders}.creditor,
+        //                 ${Table.Stakeholders}.share
+        //             from ${Table.Stakeholders}
+        //             inner join ${Table.Users}
+        //                 on ${Table.Users}.id = ${Table.Stakeholders}.id
+        //             where ${Table.Stakeholders}.expense_id = '${expense.id}'
+        //         `);
+
+        //             return this.mapGroupExpenseFrom({
+        //                 ...expense,
+        //                 group,
+        //                 stakeholders,
+        //             });
+        //         }),
+        //     );
+        // }
+        // return expenses;
     }
 
     saveGroupExpense(expense: GroupExpense): Promise<void> {
