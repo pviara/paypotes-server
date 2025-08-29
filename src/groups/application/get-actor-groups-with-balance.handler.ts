@@ -60,8 +60,6 @@ export class GetActorGroupsWithBalanceHandler
         );
         this.groups = groups;
 
-        console.warn(groups);
-
         return this.mapIdsFrom(groups);
     }
 

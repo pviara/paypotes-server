@@ -221,7 +221,7 @@ where share > 0;
 ----------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------
--- getAllActorContactExpenses
+-- getAllActorContactsExpenses
 with verified_stakeholders as (
     select expense_id
     from stakeholders
@@ -250,31 +250,27 @@ inner join counterparty c
     on c.expense_id = e.id
 where group_id = '46cd3732-f36e-4886-a2f8-1efebcda1ad6';
 
--- for david gomez
-with verified_stakeholders as (
-    select expense_id
-    from stakeholders
-    where id in (
-        '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd',
-        'ecd0c12a-9f59-4703-9280-8bc1082986b0',
-        '856b40a4-00d6-43be-864f-4c6a6d4bc069'
-    )
-    group by expense_id
-    having count(expense_id) = 2
-), counterparty as (
-    select
-        id as counterparty_id,
-        expense_id
-    from stakeholders
-    where id in (
-        'ecd0c12a-9f59-4703-9280-8bc1082986b0',
-        '856b40a4-00d6-43be-864f-4c6a6d4bc069'
-    )
+
+with shared_expense_ids as (
+  select
+    expense_id,
+    array_remove(array_agg(id), 'ecd0c12a-9f59-4703-9280-8bc1082986b0') AS counterparty_ids
+  from
+    public.stakeholders
+  where
+    id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0' 
+    or id = any (array['856b40a4-00d6-43be-864f-4c6a6d4bc069', '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd']::uuid[]) 
+  group by
+    expense_id
+  having
+    count(*) filter (where id = 'ecd0c12a-9f59-4703-9280-8bc1082986b0' ) > 0
+    and count(*) filter (where id = any (array['856b40a4-00d6-43be-864f-4c6a6d4bc069', '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd']::uuid[])) > 0
 )
-select e.*, c.counterparty_id
-from expenses e
-inner join verified_stakeholders vs
-    on vs.expense_id = e.id
-inner join counterparty c
-    on c.expense_id = e.id
+select
+  e.*,
+  s.counterparty_ids
+from
+  public.expenses e
+inner join 
+  shared_expense_ids s on e.id = s.expense_id
 where group_id = '46cd3732-f36e-4886-a2f8-1efebcda1ad6';
