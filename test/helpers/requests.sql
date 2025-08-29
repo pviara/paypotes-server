@@ -7,11 +7,11 @@ insert into members values ('ecd0c12a-9f59-4703-9280-8bc1082986b0', '042f26d9-36
 insert into members values ('62fb2fe0-ba63-412a-a0fc-b0ac3239efcd', '042f26d9-36a6-4594-8bd2-48270fe8d40b');
 insert into members values ('856b40a4-00d6-43be-864f-4c6a6d4bc069', '042f26d9-36a6-4594-8bd2-48270fe8d40b');
 
+-- pair expenses
 insert into expenses values ('7e114cf3-5ba3-493e-b56f-4ab701852bc0', 'Cinéma', '🎬', date('2025-12-28 12:03:29'), 2800, '46cd3732-f36e-4886-a2f8-1efebcda1ad6');
 insert into stakeholders values ('ecd0c12a-9f59-4703-9280-8bc1082986b0', '7e114cf3-5ba3-493e-b56f-4ab701852bc0', true, 1200);
 insert into stakeholders values ('62fb2fe0-ba63-412a-a0fc-b0ac3239efcd', '7e114cf3-5ba3-493e-b56f-4ab701852bc0', false, 1200);
 
--- pair expenses
 insert into expenses values ('7e114cf3-5ba3-493e-b56f-4ab701852bc0', 'Popcorn', '🍿', date('2025-12-28 12:03:29'), 600, '46cd3732-f36e-4886-a2f8-1efebcda1ad6');
 insert into stakeholders values ('ecd0c12a-9f59-4703-9280-8bc1082986b0', '7e114cf3-5ba3-493e-b56f-4ab701852bc0', true, 300);
 insert into stakeholders values ('62fb2fe0-ba63-412a-a0fc-b0ac3239efcd', '7e114cf3-5ba3-493e-b56f-4ab701852bc0', false, 300);
@@ -19,6 +19,10 @@ insert into stakeholders values ('62fb2fe0-ba63-412a-a0fc-b0ac3239efcd', '7e114c
 insert into expenses values ('42ea96e9-8e84-4966-8c62-be2084ad6691', 'McDo', '🍔', date('2025-11-19 13:42:01'), 1400, '46cd3732-f36e-4886-a2f8-1efebcda1ad6');
 insert into stakeholders values ('ecd0c12a-9f59-4703-9280-8bc1082986b0', '42ea96e9-8e84-4966-8c62-be2084ad6691', true, 700);
 insert into stakeholders values ('856b40a4-00d6-43be-864f-4c6a6d4bc069', '42ea96e9-8e84-4966-8c62-be2084ad6691', false, 700);
+
+insert into expenses values ('42ea96e9-8e84-4966-8c62-be2084ad6692', 'Binches', '🍻', date('2025-11-19 13:42:01'), 3200, '46cd3732-f36e-4886-a2f8-1efebcda1ad6');
+insert into stakeholders values ('ecd0c12a-9f59-4703-9280-8bc1082986b0', '42ea96e9-8e84-4966-8c62-be2084ad6692', true, 1600);
+insert into stakeholders values ('856b40a4-00d6-43be-864f-4c6a6d4bc069', '42ea96e9-8e84-4966-8c62-be2084ad6692', false, 1600);
 
 insert into expenses values ('2b974660-67e9-4b3d-a26f-21396ffcdfd5', 'Billets d''avion', '✈️', date('2025-11-19 13:42:01'), 27600, '46cd3732-f36e-4886-a2f8-1efebcda1ad6');
 insert into stakeholders values ('62fb2fe0-ba63-412a-a0fc-b0ac3239efcd', '2b974660-67e9-4b3d-a26f-21396ffcdfd5', true, 13800);
@@ -212,3 +216,65 @@ from expenses
 inner join actor_stakeholder ac
     on ac.expense_id = expenses.id
 where share > 0;
+
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+-- getAllActorContactExpenses
+with verified_stakeholders as (
+    select expense_id
+    from stakeholders
+    where id in (
+        'ecd0c12a-9f59-4703-9280-8bc1082986b0',
+        '856b40a4-00d6-43be-864f-4c6a6d4bc069',
+        '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd'
+    )
+    group by expense_id
+    having count(expense_id) = 2
+), counterparty as (
+    select
+        id as counterparty_id,
+        expense_id
+    from stakeholders
+    where id in (
+        '856b40a4-00d6-43be-864f-4c6a6d4bc069',
+        '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd'
+    )
+)
+select e.*, c.*
+from expenses e
+inner join verified_stakeholders vs
+    on vs.expense_id = e.id
+inner join counterparty c
+    on c.expense_id = e.id
+where group_id = '46cd3732-f36e-4886-a2f8-1efebcda1ad6';
+
+-- for david gomez
+with verified_stakeholders as (
+    select expense_id
+    from stakeholders
+    where id in (
+        '62fb2fe0-ba63-412a-a0fc-b0ac3239efcd',
+        'ecd0c12a-9f59-4703-9280-8bc1082986b0',
+        '856b40a4-00d6-43be-864f-4c6a6d4bc069'
+    )
+    group by expense_id
+    having count(expense_id) = 2
+), counterparty as (
+    select
+        id as counterparty_id,
+        expense_id
+    from stakeholders
+    where id in (
+        'ecd0c12a-9f59-4703-9280-8bc1082986b0',
+        '856b40a4-00d6-43be-864f-4c6a6d4bc069'
+    )
+)
+select e.*, c.counterparty_id
+from expenses e
+inner join verified_stakeholders vs
+    on vs.expense_id = e.id
+inner join counterparty c
+    on c.expense_id = e.id
+where group_id = '46cd3732-f36e-4886-a2f8-1efebcda1ad6';

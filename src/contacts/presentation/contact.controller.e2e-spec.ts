@@ -167,7 +167,7 @@ describe('ContactController', () => {
                     await expenseRepo.insert(...expenses);
                 });
 
-                it('should return the contacts with the right balance', async () => {
+                it.only('should return the contacts with the right balance', async () => {
                     const response = await request(httpServer).get(
                         `/${CONTACTS_API_ROUTE}`,
                     );

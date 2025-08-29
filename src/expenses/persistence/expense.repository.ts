@@ -5,11 +5,11 @@ import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { setTimeout } from 'timers/promises';
 
 export type ExpensesByContact = {
-    [contactId: string]: Array<Expense>;
+    [contactId: string]: Array<PairExpense>;
 };
 
 export type ExpensesByGroup = {
-    [groupId: string]: Array<Expense>;
+    [groupId: string]: Array<GroupExpense>;
 };
 
 export interface ExpenseRepository {
@@ -198,13 +198,13 @@ export class ExpenseInMemoryRepository implements ExpenseRepository {
     ): Promise<GroupExpense[]> {
         return this.expenses
             .filter(this.isGroupExpense())
-            .filter(this.isExpenseFrom(groupId))
+            .filter(this.isExpenseFrom(group.getId()))
             .filter(this.isGroupExpenseOf(actorId));
     }
 
     async getAllActorGroupsExpenses(
         actorId: string,
-        groupIds: Array<string>,
+        groups: Array<Group>,
     ): Promise<ExpensesByGroup> {
         const expensesByGroup: ExpensesByGroup = {};
         // for (const groupId of groupIds) {
