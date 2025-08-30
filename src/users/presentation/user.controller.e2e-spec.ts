@@ -12,7 +12,7 @@ import {
 import { USERS_API_ROUTE } from '@users/presentation/user.controller';
 import * as request from 'supertest';
 
-describe.skip('UserController', () => {
+describe('UserController', () => {
     const application = initApplicationWith(modules);
 
     let httpServer: App;
