@@ -91,10 +91,6 @@ export const initMessagingApplicationWith = (
                 provide: userRepositoryToken,
                 useClass: UserPostgresTestingRepository,
             },
-            {
-                provide: rabbitMQServiceToken,
-                useClass: RabbitMQServiceSpy,
-            },
         ],
     });
 };

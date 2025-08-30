@@ -1,14 +1,14 @@
 import { App } from 'supertest/types';
+import { Balance } from '@expenses/domain/balance/balance';
 import { convertCents, empty, shutdown } from '@test/helpers/utils';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { Expense } from '@expenses/domain/expense/expense';
 import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { Fixture } from '@test/helpers/fixture';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import * as request from 'supertest';
-import { Expense } from '@app/expenses/domain/expense/expense';
-import { Balance } from '@app/expenses/domain/balance/balance';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 
 describe('computeActorBalance', () => {
     const application = initApplicationWith(modules);
@@ -79,5 +79,7 @@ describe('computeActorBalance', () => {
         }
     });
 
-    describe('actor has expenses', () => {});
+    describe('actor has expenses', () => {
+        // todo
+    });
 });

@@ -462,21 +462,6 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
-    private mapInStatementFromIds(ids: Array<string>): string {
-        return ids
-            .map((id, index) => `'${id}'${index < ids.length - 1 ? ',' : ''}`)
-            .join('');
-    }
-
-    private mapInStatementFromIdsInMembers(members: Array<Member>): string {
-        return members
-            .map(
-                (member, index) =>
-                    `'${member.getId()}'${index < members.length - 1 ? ',' : ''}`,
-            )
-            .join('');
-    }
-
     async getAllActorContactExpenses(
         actorId: string,
         contactId: string,
@@ -774,71 +759,39 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         }
 
         return expenses;
-
-        // const members = groups.flatMap((group) => group.getMembers());
-        // const groupIds = groups.flatMap((group) => group.getId());
-
-        // const { rows: records } = await this.knex.raw(`
-        //     with verified_stakeholders as (
-        //         select expense_id
-        //         from stakeholders
-        //         where id in (${this.mapInStatementFromIdsInMembers(members)})
-        //         group by expense_id
-        //         having count(id) = ${members.length}
-        //     ), actor_stakeholder as (
-        //         select
-        //             id,
-        //             expense_id,
-        //             share
-        //         from stakeholders
-        //         where id = '${actorId}'
-        //     )
-        //     select e.*
-        //     from expenses e
-        //     inner join verified_stakeholders vs
-        //         on e.id = vs.expense_id
-        //     inner join actor_stakeholder ac
-        //         on e.id = ac.expense_id
-        //     where share > 0
-        //     and group_id in '${this.mapInStatementFromIds(groupIds)}';
-        // `);
-
-        // const expenses: ExpensesByGroup = {};
-        // for (const group of groups) {
-        //     const groupId = group.getId();
-        //     expenses[groupId] = await Promise.all(
-        //         records.map(async (expense: ExpenseRecord) => {
-        //             const { rows: stakeholders } = await this.knex.raw(`
-        //             select
-        //                 ${Table.Users}.id,
-        //                 ${Table.Users}.firstname,
-        //                 ${Table.Users}.lastname,
-        //                 ${Table.Users}.avatar_url,
-        //                 ${Table.Stakeholders}.creditor,
-        //                 ${Table.Stakeholders}.share
-        //             from ${Table.Stakeholders}
-        //             inner join ${Table.Users}
-        //                 on ${Table.Users}.id = ${Table.Stakeholders}.id
-        //             where ${Table.Stakeholders}.expense_id = '${expense.id}'
-        //         `);
-
-        //             return this.mapGroupExpenseFrom({
-        //                 ...expense,
-        //                 group,
-        //                 stakeholders,
-        //             });
-        //         }),
-        //     );
-        // }
-        // return expenses;
     }
 
     saveGroupExpense(expense: GroupExpense): Promise<void> {
         throw new Error('Method not implemented.');
     }
 
-    savePairExpense(expense: PairExpense): Promise<void> {
-        throw new Error('Method not implemented.');
+    async savePairExpense(expense: PairExpense): Promise<void> {
+        try {
+            await this.knex
+                .insert({
+                    id: expense.getId(),
+                    label: expense.getLabel(),
+                    emoji: expense.getEmoji(),
+                    balance: expense.getRawBalance(),
+                    created_at: expense.getCreatedAt(),
+                })
+                .into(Table.Expenses)
+                .onConflict('id')
+                .ignore();
+
+            for (const stakeholder of expense.getStakeholders()) {
+                await this.knex
+                    .insert({
+                        id: stakeholder.getId(),
+                        expense_id: expense.getId(),
+                    })
+                    .into(Table.Stakeholders)
+                    .onConflict(['id', 'expense_id'])
+                    .ignore();
+            }
+        } catch (error: unknown) {
+            console.error(error);
+        }
     }
 
     async updateGroupExpense(expense: GroupExpense): Promise<void> {
@@ -869,6 +822,21 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             creditor: expense.hasCreditor(stakeholder.getId()),
             share: stakeholder.getShare(),
         };
+    }
+
+    private mapInStatementFromIds(ids: Array<string>): string {
+        return ids
+            .map((id, index) => `'${id}'${index < ids.length - 1 ? ',' : ''}`)
+            .join('');
+    }
+
+    private mapInStatementFromIdsInMembers(members: Array<Member>): string {
+        return members
+            .map(
+                (member, index) =>
+                    `'${member.getId()}'${index < members.length - 1 ? ',' : ''}`,
+            )
+            .join('');
     }
 
     private mapExpenseFrom(

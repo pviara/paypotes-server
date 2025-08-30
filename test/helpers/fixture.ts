@@ -193,6 +193,12 @@ export class Fixture {
         return expenses;
     }
 
+    async setupRandomUser(): Promise<User> {
+        const user = generateRandomUser();
+        await this.userRepo.insert(user);
+        return user;
+    }
+
     private mapUsersOutOfStakeholdersFrom(expense: Expense): Array<User> {
         const stakeholders = expense.getStakeholders();
         return mapUsersFrom(stakeholders);
