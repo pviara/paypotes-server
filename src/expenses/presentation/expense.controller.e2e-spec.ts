@@ -1,31 +1,19 @@
 import { App } from 'supertest/types';
-import { Balance } from '@expenses/domain/balance/balance';
-import { BalanceDTO } from '@app/shared/dto/balance.dto';
-import { convertCents, raw, shutdown } from '@test/helpers/utils';
+import { shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     expenseSpecModules as modules,
-    expenseSpecProviders as providers,
-    generateDefaultUserPairExpenses,
     generateDefaultUserPairExpense,
-    generateDefaultUserGroupExpenses,
-    generateDefaultUserGroupExpense,
     generateRandomMetadata,
     generateRandomBalance,
 } from '@test/helpers/expense/utils';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
     generateDefaultUserRandomGroup,
-    generateDefaultUserRandomGroups,
     generateRandomMember,
 } from '@test/helpers/group/utils';
-import {
-    generateRandomUser,
-    generateRandomUsers,
-    mapUsersFrom,
-} from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
@@ -35,11 +23,6 @@ import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgr
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
-import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
-import { PairExpenseDTO } from '@expenses/presentation/dto/pair-expense.dto';
-import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
-import { StakeholderDTO } from '@expenses/presentation/dto/stakeholder.dto';
-import { User } from '@users/domain/user';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
 

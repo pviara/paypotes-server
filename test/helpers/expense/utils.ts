@@ -1,17 +1,11 @@
-import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { ExpenseModule } from '@expenses/expense.module';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { generateRandomUser } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
-import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Member } from '@groups/domain/member';
 import { Expense, Metadata } from '@expenses/domain/expense/expense';
 import { Modules } from '@test/helpers/application/model/module';
@@ -23,30 +17,10 @@ import {
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { User } from '@users/domain/user';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { ZERO } from '@app/shared/zero';
 import { generateRandomGroup, generateRandomMember } from '../group/utils';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
-export const expenseSpecProviders: Providers = [
-    {
-        provide: contactRepositoryToken,
-        useClass: ContactPostgresTestingRepository,
-    },
-    {
-        provide: expenseRepositoryToken,
-        useClass: ExpensePostgresTestingRepository,
-    },
-    {
-        provide: groupRepositoryToken,
-        useClass: GroupPostgresTestingRepository,
-    },
-    {
-        provide: userRepositoryToken,
-        useClass: UserPostgresTestingRepository,
-    },
-];
 
 const generateRandomPairPaymentWithDefaultUser = (
     counterparty?: User,

@@ -34,7 +34,6 @@ export const initApplicationWith = (
     return new Application({
         modules: [AuthFakeModule, InfrastructureModule, ...modules],
         providers: [
-            ...providers,
             {
                 provide: contactRepositoryToken,
                 useClass: ContactPostgresTestingRepository,
@@ -55,6 +54,7 @@ export const initApplicationWith = (
                 provide: rabbitMQServiceToken,
                 useClass: RabbitMQServiceSpy,
             },
+            ...providers,
         ],
     });
 };

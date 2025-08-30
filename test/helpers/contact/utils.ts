@@ -1,33 +1,12 @@
 import { Contact } from '@contacts/domain/contact';
 import { ContactModule } from '@contacts/contact.module';
-import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseModule } from '@expenses/expense.module';
-import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Modules } from '@test/helpers/application/model/module';
-import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Relationship } from '@contacts/persistence/relationship';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const contactSpecModules: Modules = [ContactModule, ExpenseModule];
-export const contactSpecProviders: Providers = [
-    {
-        provide: contactRepositoryToken,
-        useClass: ContactPostgresTestingRepository,
-    },
-    {
-        provide: expenseRepositoryToken,
-        useClass: ExpensePostgresTestingRepository,
-    },
-    {
-        provide: userRepositoryToken,
-        useClass: UserPostgresTestingRepository,
-    },
-];
 
 const getDefaultUserAsContact = (): Contact => {
     return new Contact({

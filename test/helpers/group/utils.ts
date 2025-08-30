@@ -1,32 +1,11 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupModule } from '@groups/group.module';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
-import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { Member } from '@groups/domain/member';
 import { Modules } from '@test/helpers/application/model/module';
-import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const groupSpecModules: Modules = [GroupModule];
-export const groupSpecProviders: Providers = [
-    {
-        provide: userRepositoryToken,
-        useClass: UserPostgresTestingRepository,
-    },
-    {
-        provide: groupRepositoryToken,
-        useClass: GroupPostgresTestingRepository,
-    },
-    {
-        provide: expenseRepositoryToken,
-        useClass: ExpensePostgresTestingRepository,
-    },
-];
 
 const getDefaultUserAsMember = (): Member => {
     return Member.fromUser(DEFAULT_USER);
