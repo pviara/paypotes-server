@@ -53,7 +53,7 @@ export class ExpenseController {
     @Post('group')
     addGroupExpense(
         @ActorId() actorId: string,
-        @Body() expense: AddGroupExpenseDTO,
+        @Body(TransformBalancePipe) expense: AddGroupExpenseDTO,
     ): Promise<void> {
         const command = new AddGroupExpenseCommand({
             actorId,

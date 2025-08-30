@@ -1,5 +1,4 @@
 import { App } from 'supertest/types';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { empty, shutdown } from '@test/helpers/utils';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
@@ -15,8 +14,6 @@ describe('addPairExpense', () => {
     let fixture: Fixture;
     let httpServer: App;
     let expenseRepo: ExpensePostgresTestingRepository;
-
-    const actorId = DEFAULT_USER.getId();
 
     beforeAll(async () => {
         await application.bootstrap();

@@ -761,8 +761,30 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return expenses;
     }
 
-    saveGroupExpense(expense: GroupExpense): Promise<void> {
-        throw new Error('Method not implemented.');
+    async saveGroupExpense(expense: GroupExpense): Promise<void> {
+        await this.knex
+            .insert({
+                id: expense.getId(),
+                label: expense.getLabel(),
+                emoji: expense.getEmoji(),
+                balance: expense.getRawBalance(),
+                created_at: expense.getCreatedAt(),
+                group_id: expense.getGroup().getId(),
+            })
+            .into(Table.Expenses)
+            .onConflict('id')
+            .ignore();
+
+        for (const stakeholder of expense.getStakeholders()) {
+            await this.knex
+                .insert({
+                    id: stakeholder.getId(),
+                    expense_id: expense.getId(),
+                })
+                .into(Table.Stakeholders)
+                .onConflict(['id', 'expense_id'])
+                .ignore();
+        }
     }
 
     async savePairExpense(expense: PairExpense): Promise<void> {
