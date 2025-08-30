@@ -52,7 +52,8 @@ async function createSampleUsersInLocalMode(
         ];
         const userRepo = app.get<UserRepository>(userRepositoryToken);
         const exist = await userRepo.get(...users.map((user) => user.getId()));
-        if (!exist) for (const user of users) await userRepo?.create(user);
+        if (exist.length === 0)
+            for (const user of users) await userRepo?.create(user);
     }
 }
 

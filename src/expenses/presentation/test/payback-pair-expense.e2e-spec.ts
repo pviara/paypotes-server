@@ -9,7 +9,7 @@ import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import * as request from 'supertest';
 
-describe('computeActorBalance', () => {
+describe('paybackPairExpense', () => {
     const application = initApplicationWith(modules);
 
     let fixture: Fixture;
@@ -94,7 +94,10 @@ describe('computeActorBalance', () => {
                 `/${EXPENSES_API_ROUTE}/pair/${dummyContact.getId()}/${dummyExpense.getId()}`,
             );
 
-            const updatedExpense = await expenseRepo.get(dummyExpense.getId());
+            const updatedExpense = await expenseRepo.get(
+                dummyExpense.getId(),
+                actorId,
+            );
             expect(updatedExpense?.getShareOf(actorId)).toBe(0);
             expect(updatedExpense?.getShareOf(dummyContact.getId())).toBe(0);
         });

@@ -28,7 +28,11 @@ export class AddRelationshipsBetweenUsersHandler
     async execute(command: AddRelationshipsBetweenUsersCommand): Promise<void> {
         const { payload } = command;
 
+        console.warn('creating group');
+
         const users = await this.userRepo.get(...payload.userIds);
+
+        console.warn('users found', users);
         if (users.length < payload.userIds.length) {
             throw new RelationshipUserNotFoundError();
         }

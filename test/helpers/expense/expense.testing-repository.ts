@@ -37,7 +37,7 @@ export class ExpensePostgresTestingRepository extends ExpensePostgresRepository 
         }
     }
 
-    async get(id: string): Promise<Expense | null> {
+    async get(id: string, actorId?: string): Promise<Expense | null> {
         const {
             rows: [expense],
         } = await this.knex.raw(`
@@ -57,6 +57,11 @@ export class ExpensePostgresTestingRepository extends ExpensePostgresRepository 
         `);
 
         if (expense) {
+            const group = await this.groupRepository.getActorGroupById(
+                actorId ?? '',
+                expense.group_id,
+            );
+
             const { rows: stakeholders } = await this.knex.raw(`
                 select
                     ${Table.Users}.id,
@@ -79,6 +84,7 @@ export class ExpensePostgresTestingRepository extends ExpensePostgresRepository 
                 balance: expense.balance,
                 group_id: expense.group_id,
                 stakeholders,
+                group,
             });
         }
         return null;

@@ -65,7 +65,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         private configService: ConfigService,
 
         @Inject(groupRepositoryToken)
-        private groupRepository: GroupRepository,
+        protected groupRepository: GroupRepository,
 
         @InjectKnex()
         protected knex: Knex,
@@ -241,6 +241,11 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         `);
 
         if (expense) {
+            const group = await this.groupRepository.getActorGroupById(
+                actorId,
+                expense.group_id,
+            );
+
             const { rows: stakeholders } = await this.knex.raw(`
                 select
                     ${Table.Users}.id,
@@ -263,6 +268,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 balance: expense.balance,
                 group_id: expense.group_id,
                 stakeholders,
+                group,
             });
         }
         return null;
@@ -555,7 +561,9 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         `);
 
         const expenses: ExpensesByContact = {};
+        for (const contactId of contactIds) expenses[contactId] = []; // todo -> add an e2e test for this one: all contacts should be returned even if no expense for contact
 
+        console.log(records);
         for (const record of records) {
             const [counterparty_id] = record.counterparty_ids;
             const { rows: stakeholders } = await this.knex.raw(`
@@ -583,6 +591,9 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 expenses[counterparty_id] = [pairExpense];
             }
         }
+
+        console.warn('expenses', expenses);
+
         return expenses;
     }
 
@@ -780,6 +791,8 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 .insert({
                     id: stakeholder.getId(),
                     expense_id: expense.getId(),
+                    share: stakeholder.getShare(),
+                    creditor: expense.hasCreditor(stakeholder.getId()),
                 })
                 .into(Table.Stakeholders)
                 .onConflict(['id', 'expense_id'])
@@ -806,6 +819,8 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 .insert({
                     id: stakeholder.getId(),
                     expense_id: expense.getId(),
+                    share: stakeholder.getShare(),
+                    creditor: expense.hasCreditor(stakeholder.getId()),
                 })
                 .into(Table.Stakeholders)
                 .onConflict(['id', 'expense_id'])
