@@ -293,7 +293,7 @@ describe.skip('ExpenseController', () => {
                 const updatedExpense = await expenseRepo.get(expenseId);
                 const debtorId = getDummyExpenseDebtorId();
 
-                expect(updatedExpense.getShareOf(debtorId)).toBe(0);
+                expect(updatedExpense?.getShareOf(debtorId)).toBe(0);
             });
 
             function getDummyExpenseDebtorId(): string {

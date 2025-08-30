@@ -858,7 +858,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             .join('');
     }
 
-    private mapExpenseFrom(
+    protected mapExpenseFrom(
         record: ExpenseDetailedRecord | GroupExpenseDetailedRecord,
     ): Expense {
         const isPairExpense = this.isPairExpense(record);

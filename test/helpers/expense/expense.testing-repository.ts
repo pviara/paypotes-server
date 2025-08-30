@@ -37,12 +37,50 @@ export class ExpensePostgresTestingRepository extends ExpensePostgresRepository 
         }
     }
 
-    async get(id: string): Promise<Expense> {
-        const record = await this.knex
-            .select('*')
-            .from(Table.Expenses)
-            .where('id', id)
-            .first();
-        return record ?? null;
+    async get(id: string): Promise<Expense | null> {
+        const {
+            rows: [expense],
+        } = await this.knex.raw(`
+            with verified_expense as (
+                select *
+                from ${Table.Expenses}
+                where id = '${id}'
+            ), actor_stakeholder as (
+                select
+                    id,
+                    share
+                from ${Table.Stakeholders}
+                where expense_id = '${id}'
+            )
+            select ve.*
+            from verified_expense ve;
+        `);
+
+        if (expense) {
+            const { rows: stakeholders } = await this.knex.raw(`
+                select
+                    ${Table.Users}.id,
+                    ${Table.Users}.firstname,
+                    ${Table.Users}.lastname,
+                    ${Table.Users}.avatar_url,
+                    ${Table.Stakeholders}.creditor,
+                    ${Table.Stakeholders}.share
+                from ${Table.Stakeholders}
+                inner join ${Table.Users}
+                    on ${Table.Users}.id = ${Table.Stakeholders}.id
+                where ${Table.Stakeholders}.expense_id = '${expense.id}'
+            `);
+
+            return this.mapExpenseFrom({
+                id: expense.id,
+                label: expense.label,
+                emoji: expense.emoji,
+                created_at: expense.created_at,
+                balance: expense.balance,
+                group_id: expense.group_id,
+                stakeholders,
+            });
+        }
+        return null;
     }
 }
