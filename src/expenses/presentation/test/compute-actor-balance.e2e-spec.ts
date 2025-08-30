@@ -32,13 +32,25 @@ describe('computeActorBalance', () => {
     afterEach(empty(application));
 
     describe('actor has no expense', () => {
+        it('should return 0,00', async () => {
+            await fixture.setupDefaultUser();
+
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/balance`,
+            );
+
+            expect(response.text).toBe('0,00');
+        });
+    });
+
+    describe('actor has expenses', () => {
         let dummyExpenses: Array<Expense>;
-        let unrelatedExpenses: Array<Expense>;
         let balance: number;
 
         beforeEach(async () => {
             dummyExpenses = await setupDefaultUserExpenses();
-            unrelatedExpenses = await setupUnrelatedExpenses();
+            await setupUnrelatedExpenses();
+
             balance = Balance.calculate({
                 expenses: dummyExpenses,
                 stakeholderId: actorId,
@@ -77,9 +89,5 @@ describe('computeActorBalance', () => {
 
             return [...unrelatedGroupExpenses, ...unrelatedPairExpenses];
         }
-    });
-
-    describe('actor has expenses', () => {
-        // todo
     });
 });
