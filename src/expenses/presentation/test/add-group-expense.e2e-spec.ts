@@ -112,11 +112,8 @@ describe('addPairExpense', () => {
 
     describe('expense user exists', () => {
         it('should insert a pair expense in database', async () => {
-            await fixture.setupDefaultUser();
-            const counterparty = await fixture.setupRandomUser();
-
-            const dummyExpenseId = crypto.randomUUID();
-
+            const dummyExpense = await fixture.setupDefaultUserPairExpense();
+            const dummyExpenseId = dummyExpense.getId();
             const response = await request(httpServer)
                 .post(`/${EXPENSES_API_ROUTE}/pair`)
                 .send({
@@ -125,7 +122,7 @@ describe('addPairExpense', () => {
                     emoji: '📦',
                     balance: '14,75',
                     isCurrentPayer: true,
-                    userId: counterparty.getId(),
+                    userId: dummyExpense.getCounterpartyOf(actorId).getId(),
                 });
 
             expect(response.status).toBe(HttpStatus.CREATED);

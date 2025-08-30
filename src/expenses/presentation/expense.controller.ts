@@ -33,6 +33,7 @@ import { PaybackGroupExpenseCommand } from '@expenses/application/commands/payba
 import { PaybackGroupExpenseDTO } from '@expenses/presentation/dto/payback-group-expense.dto';
 import { PaybackPairExpenseCommand } from '@expenses/application/commands/payback-pair-expense.handler';
 import { Search } from '@app/shared/decorators/search.query-decorator';
+import { TransformBalancePipe } from '@expenses/presentation/pipes/transform-balance.pipe';
 import { User } from '@users/domain/user';
 
 export const EXPENSES_API_ROUTE = 'expenses';
@@ -69,7 +70,7 @@ export class ExpenseController {
     @Post('pair')
     addPairExpense(
         @Actor() actor: User,
-        @Body() expense: AddPairExpenseDTO,
+        @Body(TransformBalancePipe) expense: AddPairExpenseDTO,
     ): Promise<void> {
         const command = new AddPairExpenseCommand({
             actor,

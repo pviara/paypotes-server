@@ -50,8 +50,6 @@ export class AddPairExpenseHandler
     async execute(command: AddPairExpenseCommand): Promise<void> {
         const { actor, userId } = command.payload;
 
-        console.log(command.payload.balance);
-
         const [stakeholder] = await this.userRepository.get(userId);
         if (!stakeholder) throw new ExpenseUserNotFoundError(userId);
 

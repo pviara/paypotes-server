@@ -48,6 +48,10 @@ export class Fixture {
         return new Fixture(contactRepo, expenseRepo, groupRepo, userRepo);
     }
 
+    async setupDefaultUser(): Promise<void> {
+        await this.userRepo.insert(DEFAULT_USER);
+    }
+
     async setupDefaultUserContact(): Promise<Contact> {
         const user = generateRandomUser();
 

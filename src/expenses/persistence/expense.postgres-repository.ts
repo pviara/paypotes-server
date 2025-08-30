@@ -766,31 +766,28 @@ export class ExpensePostgresRepository implements ExpenseRepository {
     }
 
     async savePairExpense(expense: PairExpense): Promise<void> {
-        try {
+        await this.knex
+            .insert({
+                id: expense.getId(),
+                label: expense.getLabel(),
+                emoji: expense.getEmoji(),
+                balance: expense.getRawBalance(),
+                created_at: expense.getCreatedAt(),
+                group_id: this.configService.getOrThrow('DEFAULT_UUID'),
+            })
+            .into(Table.Expenses)
+            .onConflict('id')
+            .ignore();
+
+        for (const stakeholder of expense.getStakeholders()) {
             await this.knex
                 .insert({
-                    id: expense.getId(),
-                    label: expense.getLabel(),
-                    emoji: expense.getEmoji(),
-                    balance: expense.getRawBalance(),
-                    created_at: expense.getCreatedAt(),
+                    id: stakeholder.getId(),
+                    expense_id: expense.getId(),
                 })
-                .into(Table.Expenses)
-                .onConflict('id')
+                .into(Table.Stakeholders)
+                .onConflict(['id', 'expense_id'])
                 .ignore();
-
-            for (const stakeholder of expense.getStakeholders()) {
-                await this.knex
-                    .insert({
-                        id: stakeholder.getId(),
-                        expense_id: expense.getId(),
-                    })
-                    .into(Table.Stakeholders)
-                    .onConflict(['id', 'expense_id'])
-                    .ignore();
-            }
-        } catch (error: unknown) {
-            console.error(error);
         }
     }
 
