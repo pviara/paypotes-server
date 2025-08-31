@@ -563,7 +563,6 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         const expenses: ExpensesByContact = {};
         for (const contactId of contactIds) expenses[contactId] = []; // todo -> add an e2e test for this one: all contacts should be returned even if no expense for contact
 
-        console.log(records);
         for (const record of records) {
             const [counterparty_id] = record.counterparty_ids;
             const { rows: stakeholders } = await this.knex.raw(`
