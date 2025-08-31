@@ -66,14 +66,29 @@ describe('PaybackGroupExpenseHandler', () => {
 
     describe('expense exists', () => {
         describe('actor is debtor', () => {
-            it("should settle actor's share", async () => {
-                const dummyExpense = generateRandomDebitExpense();
+            const dummyExpense = generateRandomDebitExpense();
+            const { creditor } = dummyExpense.getPayment();
+            const initialActorShare = dummyExpense.getShareOf(
+                DEFAULT_USER.getId(),
+            );
+            const initialCreditorShare = dummyExpense.getShareOf(
+                creditor.getId(),
+            );
+
+            it("should settle actor's share and reduce creditor's", async () => {
                 expenseRepo.stub('getActorGroupExpenseById', dummyExpense);
 
                 await sut.execute(dummyCommand);
 
                 expect(dummyExpense.getShareOf(dummyActorId)).toBe(0);
                 expectOtherCounterpartiesShareNotToHaveBeenSettled();
+
+                const updatedCreditorShare = dummyExpense.getShareOf(
+                    creditor.getId(),
+                );
+                expect(updatedCreditorShare).toBe(
+                    initialCreditorShare - initialActorShare,
+                );
             });
 
             function generateRandomDebitExpense(): GroupExpense {
@@ -82,7 +97,7 @@ describe('PaybackGroupExpenseHandler', () => {
                     balance: 1000,
                     creditor: generateRandomMember(),
                 };
-                return new GroupExpense(metadata, dummyGroup, payment);
+                return GroupExpense.create(metadata, dummyGroup, payment);
             }
 
             function expectOtherCounterpartiesShareNotToHaveBeenSettled(): void {
@@ -95,22 +110,74 @@ describe('PaybackGroupExpenseHandler', () => {
         });
 
         describe('actor is creditor', () => {
-            it('should settle given debtors share', async () => {
-                const dummyExpense = generateRandomCreditExpense();
+            const dummyExpense = generateRandomCreditExpense();
+            const allDummyDebtorIds = dummyGroup
+                .getMembersExcluding(dummyActorId)
+                .map((member) => member.getId());
+
+            const initialCreditorShare = dummyExpense.getShareOf(dummyActorId);
+
+            beforeEach(() => {
                 expenseRepo.stub('getActorGroupExpenseById', dummyExpense);
+            });
 
-                const dummyDebtorIds = dummyGroup
-                    .getMembersExcluding(dummyActorId)
-                    .map((member) => member.getId());
+            describe('only some debtors have paid back', () => {
+                const dummyDebtorId = allDummyDebtorIds[0];
 
-                dummyCommand.payload.debtorIds = dummyDebtorIds;
+                it("should settle only given debtor's share and reduce creditor's", async () => {
+                    dummyCommand.payload.debtorIds = [dummyDebtorId];
 
-                await sut.execute(dummyCommand);
+                    const initialDebtorShare =
+                        dummyExpense.getShareOf(dummyDebtorId);
 
-                expect(dummyExpense.getShareOf(dummyActorId)).not.toBe(0);
-                expectOtherCounterpartiesToHaveTheirShareSettledIn(
-                    dummyExpense,
-                );
+                    await sut.execute(dummyCommand);
+
+                    expectOnlyDummyDebtorToHaveTheirShareSettledIn(
+                        dummyExpense,
+                    );
+
+                    const updatedCreditorShare =
+                        dummyExpense.getShareOf(dummyActorId);
+
+                    expect(updatedCreditorShare).toBe(
+                        initialCreditorShare - initialDebtorShare,
+                    );
+                });
+
+                function expectOnlyDummyDebtorToHaveTheirShareSettledIn(
+                    expense: GroupExpense,
+                ): void {
+                    expect(expense.getShareOf(dummyDebtorId)).toBe(0);
+                    expense
+                        .getStakeholders()
+                        .filter(
+                            (stakeholder) =>
+                                stakeholder.getId() !== dummyDebtorId,
+                        )
+                        .map((stakeholder) => stakeholder.getShare())
+                        .forEach((share) => expect(share).not.toBe(0));
+                }
+            });
+
+            describe('all debtors have paid back', () => {
+                it('should settle all expense stakeholders share', async () => {
+                    dummyCommand.payload.debtorIds = allDummyDebtorIds;
+
+                    await sut.execute(dummyCommand);
+
+                    expectAllStakeholdersToHaveTheirShareSettledIn(
+                        dummyExpense,
+                    );
+                });
+
+                function expectAllStakeholdersToHaveTheirShareSettledIn(
+                    expense: GroupExpense,
+                ): void {
+                    expense
+                        .getStakeholders()
+                        .map((stakeholder) => stakeholder.getShare())
+                        .forEach((share) => expect(share).toBe(0));
+                }
             });
 
             function generateRandomCreditExpense(): GroupExpense {
@@ -119,16 +186,17 @@ describe('PaybackGroupExpenseHandler', () => {
                     balance: 1000,
                     creditor: Member.fromUser(DEFAULT_USER),
                 };
-                return new GroupExpense(metadata, dummyGroup, payment);
+                return GroupExpense.create(metadata, dummyGroup, payment);
             }
+        });
 
-            function expectOtherCounterpartiesToHaveTheirShareSettledIn(
-                expense: GroupExpense,
-            ): void {
-                dummyCommand.payload.debtorIds.forEach((debtorId) =>
-                    expect(expense.getShareOf(debtorId)).toBe(0),
-                );
-            }
+        it('should update expense', async () => {
+            await sut.execute(dummyCommand);
+
+            expect(expenseRepo.calls.updateGroupExpense.count).toBe(1);
+            expect(expenseRepo.calls.updateGroupExpense.history).toContainEqual(
+                dummyExpense,
+            );
         });
     });
 

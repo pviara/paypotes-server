@@ -5,49 +5,51 @@ import {
     generateDefaultUserGroupExpenses,
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
-import { convertCents, mapIdsFrom, shutdown } from '@test/helpers/utils';
+import { convertCents, empty, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
+import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import {
     generateDefaultUserRandomGroup,
     generateDefaultUserRandomGroups,
     groupSpecModules as modules,
-    groupSpecProviders as providers,
 } from '@test/helpers/group/utils';
-import { generateRandomUsers } from '@test/helpers/user/utils';
+import { generateRandomUsers, mapUsersFrom } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import {
     GroupExpense,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
-import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
+import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
+import { User } from '@users/domain/user';
+import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
-    const application = initApplicationWith(modules, providers);
+    const application = initApplicationWith(modules);
 
-    let groupRepo: GroupInMemoryTestingRepository;
-    let expenseRepo: ExpenseInMemoryTestingRepository;
-    let userRepo: UserInMemoryTestingRepository;
     let httpServer: App;
+    let groupRepo: GroupPostgresTestingRepository;
+    let expenseRepo: ExpensePostgresTestingRepository;
+    let userRepo: UserPostgresTestingRepository;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         await application.bootstrap();
 
-        groupRepo = application.getRepository('group');
-        expenseRepo = application.getRepository('expense');
-        userRepo = application.getRepository('user');
         httpServer = application.getHttpServer();
+        ({ expenseRepo, groupRepo, userRepo } = application.getRepositories());
     });
 
-    afterEach(shutdown(application));
+    afterAll(shutdown(application));
+
+    beforeEach(empty(application));
+
+    afterEach(empty(application));
 
     describe('GET /groups', () => {
         describe('actor has no groups', () => {
@@ -64,13 +66,24 @@ describe('GroupController', () => {
         describe('actor has groups', () => {
             let dummyGroups: Array<Group>;
 
-            beforeEach(() => {
+            beforeEach(async () => {
+                await groupRepo.empty();
+                await userRepo.empty();
+
                 dummyGroups = generateDefaultUserRandomGroups({
                     length: 40,
                 });
 
-                groupRepo.empty();
-                groupRepo.insert(...dummyGroups);
+                const users = dummyGroups
+                    .flatMap((group) =>
+                        mapUsersFrom(group.getMembers()).filter(
+                            excludeDefaultUser(),
+                        ),
+                    )
+                    .concat(DEFAULT_USER);
+
+                await userRepo.insert(...users);
+                await groupRepo.insert(...dummyGroups);
             });
 
             it('should return the first 20 groups by default', async () => {
@@ -171,7 +184,7 @@ describe('GroupController', () => {
                         balance,
                         creditor: Member.fromUser(DEFAULT_USER),
                     };
-                    return new GroupExpense(metadata, group, payment);
+                    return GroupExpense.create(metadata, group, payment);
                 }
 
                 function createRandomDebitExpenseFor(
@@ -185,7 +198,7 @@ describe('GroupController', () => {
                             group.getMembersExcluding(DEFAULT_USER.getId()),
                         ),
                     };
-                    return new GroupExpense(metadata, group, payment);
+                    return GroupExpense.create(metadata, group, payment);
                 }
 
                 function getRandomMemberFrom(members: Array<Member>): Member {
@@ -241,6 +254,9 @@ describe('GroupController', () => {
 
         beforeEach(async () => {
             dummyGroup = generateDefaultUserRandomGroup();
+            const users = mapUsersFrom(dummyGroup.getMembers());
+
+            await userRepo.insert(...users);
             await groupRepo.insert(dummyGroup);
         });
 
@@ -296,9 +312,10 @@ describe('GroupController', () => {
             });
 
             function computeActorDummyGroupBalance(): number {
-                return new Balance(...dummyGroupExpenses).calculateFor(
-                    DEFAULT_USER.getId(),
-                );
+                return Balance.calculate({
+                    expenses: dummyGroupExpenses,
+                    stakeholderId: DEFAULT_USER.getId(),
+                });
             }
         });
 
@@ -309,6 +326,11 @@ describe('GroupController', () => {
 
             it("should return a group that exposes the right actor's balance", async () => {
                 await expenseRepo.empty();
+                await groupRepo.empty();
+                await userRepo.empty();
+
+                const users = mapUsersFrom(dummyGroup.getMembers());
+                await userRepo.insert(...users);
                 await groupRepo.insert(dummyGroup);
                 await expenseRepo.insert(dummyExpense);
 
@@ -334,7 +356,7 @@ describe('GroupController', () => {
                     creditor: Member.fromUser(DEFAULT_USER),
                 };
 
-                return new GroupExpense(
+                return GroupExpense.create(
                     dummyMetadata,
                     dummyGroup,
                     dummyPayment,
@@ -358,13 +380,24 @@ describe('GroupController', () => {
         describe('actor has groups', () => {
             let dummyGroups: Array<Group>;
 
-            beforeEach(() => {
+            beforeEach(async () => {
+                await groupRepo.empty();
+                await userRepo.empty();
+
                 dummyGroups = generateDefaultUserRandomGroups({
                     length: 40,
                 });
 
-                groupRepo.empty();
-                groupRepo.insert(...dummyGroups);
+                const users = dummyGroups
+                    .flatMap((group) =>
+                        mapUsersFrom(group.getMembers()).filter(
+                            excludeDefaultUser(),
+                        ),
+                    )
+                    .concat(DEFAULT_USER);
+
+                await userRepo.insert(...users);
+                await groupRepo.insert(...dummyGroups);
             });
 
             it('should return the first 20 groups by default', async () => {
@@ -474,7 +507,7 @@ describe('GroupController', () => {
                     });
 
                 expect(response.status).toBe(HttpStatus.CREATED);
-                expect(groupRepo.groupSaved(groupId)).toBe(true);
+                expect(await groupRepo.groupSaved(groupId)).toBe(true);
             });
         });
 
@@ -504,4 +537,8 @@ describe('GroupController', () => {
             });
         });
     });
+
+    function excludeDefaultUser(): (user: User) => unknown {
+        return (user) => user.getId() !== DEFAULT_USER.getId();
+    }
 });

@@ -44,7 +44,7 @@ export class GetActorGroupsWithBalanceHandler
         const expensesByGroup =
             await this.expenseRepository.getAllActorGroupsExpenses(
                 actorId,
-                groupIds,
+                this.groups,
             );
 
         return this.mapToGroupsWithBalance(expensesByGroup, actorId);

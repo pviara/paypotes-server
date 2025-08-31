@@ -10,13 +10,25 @@ export type PairPayment = {
 };
 
 export class PairExpense extends Expense {
-    protected stakeholders = this.mapStakeholdersFromUsers();
-
-    constructor(
+    private constructor(
         metadata: Metadata,
         protected payment: PairPayment,
+        stakeholders: Array<Stakeholder>,
     ) {
-        super(metadata, payment);
+        super(metadata, payment, stakeholders);
+    }
+
+    static create(metadata: Metadata, payment: PairPayment): PairExpense {
+        const stakeholders = this.mapStakeholdersFrom(payment);
+        return new PairExpense(metadata, payment, stakeholders);
+    }
+
+    static fromState(
+        metadata: Metadata,
+        payment: PairPayment,
+        stakeholders: Array<Stakeholder>,
+    ): PairExpense {
+        return new PairExpense(metadata, payment, stakeholders);
     }
 
     getCounterpartyOf(stakeholderId: string): Stakeholder {
@@ -24,17 +36,6 @@ export class PairExpense extends Expense {
         return creditor.getId() === stakeholderId
             ? this.getMatchingStakeholder(debtor)
             : this.getMatchingStakeholder(creditor);
-    }
-
-    settleCounterpartyShareOf(stakeholderId: string): void {
-        const [counterparty] = this.getCounterpartiesOf(stakeholderId);
-        return counterparty.settle();
-    }
-
-    private mapStakeholdersFromUsers(): Array<Stakeholder> {
-        const { balance, creditor, debtor } = this.payment;
-        const users = [creditor, debtor];
-        return new Stakeholders(users, balance).getValue();
     }
 
     private getMatchingStakeholder(debtor: User): Stakeholder {
@@ -46,5 +47,12 @@ export class PairExpense extends Expense {
         throw new Error(
             'No stakeholder could be found for debtor with id ${debtor.getId()}',
         );
+    }
+
+    private static mapStakeholdersFrom(
+        payment: PairPayment,
+    ): Array<Stakeholder> {
+        const { balance, creditor, debtor } = payment;
+        return Stakeholders.create({ balance, creditor, debtors: [debtor] });
     }
 }

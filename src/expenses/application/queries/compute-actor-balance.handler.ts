@@ -25,6 +25,6 @@ export class ComputeActorBalanceHandler
         const { actorId } = query.payload;
         const expenses = await this.repository.getAllActorExpenses(actorId);
 
-        return new Balance(...expenses).calculateFor(actorId);
+        return Balance.calculate({ expenses, stakeholderId: actorId });
     }
 }

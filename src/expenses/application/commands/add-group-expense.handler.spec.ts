@@ -29,6 +29,7 @@ describe('AddGroupExpenseHandler', () => {
     const dummyExpenseEmoji = '🏂';
     const dummyExpenseGroupId = crypto.randomUUID();
     const dummyExpenseMemberId = crypto.randomUUID();
+    const dummyDate = new Date('1999-12-04');
 
     const dummyCommand = new AddGroupExpenseCommand({
         actorId: dummyActorId,
@@ -51,10 +52,9 @@ describe('AddGroupExpenseHandler', () => {
         id: dummyExpenseGroupId,
         name: 'Over the mountain',
         emoji: '🏔️',
+        createdAt: dummyDate,
         members: [dummyMember, ...generateRandomMembers()],
     });
-
-    const dummyDate = new Date('1999-12-04');
 
     beforeEach(() => {
         initSut();
@@ -115,10 +115,12 @@ describe('AddGroupExpenseHandler', () => {
             balance: dummyCommand.payload.balance,
             creditor: dummyMember,
         };
-        const expense = new GroupExpense(metadata, dummyGroup, payment);
+        const expense = GroupExpense.create(metadata, dummyGroup, payment);
 
-        expect(expenseRepo.calls.save.count).toBe(1);
-        expect(expenseRepo.calls.save.history).toContainEqual(expense);
+        expect(expenseRepo.calls.saveGroupExpense.count).toBe(1);
+        expect(expenseRepo.calls.saveGroupExpense.history).toContainEqual(
+            expense,
+        );
     });
 
     function initSut(): void {

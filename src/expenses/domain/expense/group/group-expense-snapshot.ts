@@ -1,19 +1,26 @@
-import { Balance } from '@expenses/domain/balance/balance';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import { Position } from '@expenses/domain/balance/position';
+
+type CreateGroupExpenseSnapshot = {
+    expense: GroupExpense;
+    perspectiveId: string;
+};
 
 export class GroupExpenseSnapshot {
-    private perspectiveBalance = this.calculatePerspectiveBalance();
-
     private constructor(
         private expense: GroupExpense,
-        private perspectiveId: string,
+        private perspectiveBalance: number,
     ) {}
 
-    static from(
-        expense: GroupExpense,
-        perspectiveId: string,
-    ): GroupExpenseSnapshot {
-        return new GroupExpenseSnapshot(expense, perspectiveId);
+    static create({
+        expense,
+        perspectiveId,
+    }: CreateGroupExpenseSnapshot): GroupExpenseSnapshot {
+        const perspectiveBalance = Position.calculate({
+            expense,
+            stakeholderId: perspectiveId,
+        });
+        return new GroupExpenseSnapshot(expense, perspectiveBalance);
     }
 
     getExpense(): GroupExpense {
@@ -23,30 +30,26 @@ export class GroupExpenseSnapshot {
     getPerspectiveBalance(): number {
         return this.perspectiveBalance;
     }
-
-    private calculatePerspectiveBalance(): number {
-        return new Balance(this.expense).calculateFor(this.perspectiveId);
-    }
 }
 
+type CreateGroupExpenseSnapshots = {
+    expenses: Array<GroupExpense>;
+    perspectiveId: string;
+};
+
 export class GroupExpenseSnapshots {
-    private snapshots = this.mapGroupExpenseSnapshots();
+    private constructor(private value: Array<GroupExpenseSnapshot>) {}
 
-    private constructor(
-        private expenses: Array<GroupExpense>,
-        private perspectiveId: string,
-    ) {}
-
-    static from(
-        expenses: Array<GroupExpense>,
-        perspectiveId: string,
-    ): Array<GroupExpenseSnapshot> {
-        return new GroupExpenseSnapshots(expenses, perspectiveId).snapshots;
-    }
-
-    private mapGroupExpenseSnapshots(): Array<GroupExpenseSnapshot> {
-        return this.expenses.map((expense) =>
-            GroupExpenseSnapshot.from(expense, this.perspectiveId),
+    static create({
+        expenses,
+        perspectiveId,
+    }: CreateGroupExpenseSnapshots): Array<GroupExpenseSnapshot> {
+        const snapshots = expenses.map((expense) =>
+            GroupExpenseSnapshot.create({
+                expense,
+                perspectiveId,
+            }),
         );
+        return new GroupExpenseSnapshots(snapshots).value;
     }
 }

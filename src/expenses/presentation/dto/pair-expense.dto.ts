@@ -15,7 +15,7 @@ export class PairExpenseDTO {
     static from(snapshot: PairExpenseSnapshot): PairExpenseDTO {
         const expense = snapshot.getExpense();
         const balance = BalanceDTO.from(snapshot.getPerspectiveBalance());
-        const counterparty = snapshot.getCounterparty();
+        const counterparty = snapshot.getPerspectiveCounterparty();
 
         return new PairExpenseDTO(
             expense.getId(),

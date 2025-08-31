@@ -4,6 +4,7 @@ import {
     ExpensesByContact,
     ExpensesByGroup,
 } from '@expenses/persistence/expense.repository';
+import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { Spy } from '@test/helpers/spy';
@@ -39,7 +40,7 @@ export class ExpenseRepositorySpy
         },
         getActorGroupExpenses: {
             count: 0,
-            history: [] as Array<[string, string, number, string]>,
+            history: [] as Array<[string, Group, number, string]>,
         },
         getAllActorContactExpenses: {
             count: 0,
@@ -55,15 +56,27 @@ export class ExpenseRepositorySpy
         },
         getAllActorGroupExpenses: {
             count: 0,
-            history: [] as Array<[string, string]>,
+            history: [] as Array<[string, Group]>,
         },
         getAllActorGroupsExpenses: {
             count: 0,
-            history: [] as Array<[string, string[]]>,
+            history: [] as Array<[string, Group[]]>,
         },
-        save: {
+        saveGroupExpense: {
             count: 0,
-            history: [] as Array<Expense>,
+            history: [] as Array<GroupExpense>,
+        },
+        savePairExpense: {
+            count: 0,
+            history: [] as Array<PairExpense>,
+        },
+        updateGroupExpense: {
+            count: 0,
+            history: [] as Array<PairExpense>,
+        },
+        updatePairExpense: {
+            count: 0,
+            history: [] as Array<PairExpense>,
         },
     };
 
@@ -132,13 +145,13 @@ export class ExpenseRepositorySpy
 
     async getActorGroupExpenses(
         actorId: string,
-        groupId: string,
+        group: Group,
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]> {
         this.saveCall('getActorGroupExpenses', [
             actorId,
-            groupId,
+            group,
             pageIndex,
             search,
         ]);
@@ -168,22 +181,37 @@ export class ExpenseRepositorySpy
 
     async getAllActorGroupExpenses(
         actorId: string,
-        groupId: string,
+        group: Group,
     ): Promise<GroupExpense[]> {
-        this.saveCall('getAllActorGroupExpenses', [actorId, groupId]);
+        this.saveCall('getAllActorGroupExpenses', [actorId, group]);
         return this.getStubOrDefault('getAllActorGroupExpenses', []);
     }
 
     async getAllActorGroupsExpenses(
         actorId: string,
-        groupIds: Array<string>,
+        groups: Array<Group>,
     ): Promise<ExpensesByGroup> {
-        this.saveCall('getAllActorGroupsExpenses', [actorId, groupIds]);
+        this.saveCall('getAllActorGroupsExpenses', [actorId, groups]);
         return this.getStubOrDefault('getAllActorGroupsExpenses', {});
     }
 
-    async save(expense: Expense): Promise<void> {
-        this.saveCall('save', expense);
-        this.getStubOrDefault('save', undefined);
+    async saveGroupExpense(expense: GroupExpense): Promise<void> {
+        this.saveCall('saveGroupExpense', expense);
+        this.getStubOrDefault('saveGroupExpense', undefined);
+    }
+
+    async savePairExpense(expense: PairExpense): Promise<void> {
+        this.saveCall('savePairExpense', expense);
+        this.getStubOrDefault('savePairExpense', undefined);
+    }
+
+    async updateGroupExpense(expense: GroupExpense): Promise<void> {
+        this.saveCall('updateGroupExpense', expense);
+        this.getStubOrDefault('updateGroupExpense', undefined);
+    }
+
+    async updatePairExpense(expense: PairExpense): Promise<void> {
+        this.saveCall('updatePairExpense', expense);
+        this.getStubOrDefault('updatePairExpense', undefined);
     }
 }

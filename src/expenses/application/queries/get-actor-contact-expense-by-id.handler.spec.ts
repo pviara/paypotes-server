@@ -43,7 +43,10 @@ describe('GetActorContactExpenseByIdHandler', () => {
     it('should return the expense that was retrieved', async () => {
         const result = await sut.execute(dummyQuery);
         expect(result).toStrictEqual(
-            PairExpenseSnapshot.from(dummyExpense, dummyActorId),
+            PairExpenseSnapshot.create({
+                expense: dummyExpense,
+                perspectiveId: dummyActorId,
+            }),
         );
     });
 

@@ -109,7 +109,7 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
             creditor: DEFAULT_USER,
             debtor: dummyUser,
         };
-        return new PairExpense(metadata, payment);
+        return PairExpense.create(metadata, payment);
     }
 
     function createRandomDebitExpense(balance: number): PairExpense {
@@ -119,6 +119,6 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
             creditor: dummyUser,
             debtor: DEFAULT_USER,
         };
-        return new PairExpense(metadata, payment);
+        return PairExpense.create(metadata, payment);
     }
 });

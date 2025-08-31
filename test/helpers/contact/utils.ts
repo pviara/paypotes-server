@@ -1,27 +1,12 @@
 import { Contact } from '@contacts/domain/contact';
-import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import { ContactModule } from '@contacts/contact.module';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseModule } from '@expenses/expense.module';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Modules } from '@test/helpers/application/model/module';
-import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Relationship } from '@contacts/persistence/relationship';
 
 export const contactSpecModules: Modules = [ContactModule, ExpenseModule];
-export const contactSpecProviders: Providers = [
-    {
-        provide: contactRepositoryToken,
-        useClass: ContactInMemoryTestingRepository,
-    },
-    {
-        provide: expenseRepositoryToken,
-        useClass: ExpenseInMemoryTestingRepository,
-    },
-];
 
 const getDefaultUserAsContact = (): Contact => {
     return new Contact({

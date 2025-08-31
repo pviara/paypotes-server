@@ -29,6 +29,7 @@ export class AddRelationshipsBetweenUsersHandler
         const { payload } = command;
 
         const users = await this.userRepo.get(...payload.userIds);
+
         if (users.length < payload.userIds.length) {
             throw new RelationshipUserNotFoundError();
         }

@@ -30,11 +30,11 @@ describe('GetActorExpensesHandler', () => {
 
     const otherMembers = dummyGroup.getMembersExcluding(dummyActorId);
     const dummyExpenses = [
-        new GroupExpense(generateRandomMetadata(), dummyGroup, {
+        GroupExpense.create(generateRandomMetadata(), dummyGroup, {
             balance: 1000,
             creditor: getRandomMemberFrom(otherMembers),
         }),
-        new PairExpense(generateRandomMetadata(), {
+        PairExpense.create(generateRandomMetadata(), {
             balance: 2000,
             creditor: generateRandomUser(),
             debtor: DEFAULT_USER,
@@ -64,9 +64,15 @@ describe('GetActorExpensesHandler', () => {
         expect(result).toStrictEqual(
             dummyExpenses.map((expense) => {
                 if (expense instanceof PairExpense)
-                    return PairExpenseSnapshot.from(expense, dummyActorId);
+                    return PairExpenseSnapshot.create({
+                        expense,
+                        perspectiveId: dummyActorId,
+                    });
                 if (expense instanceof GroupExpense)
-                    return GroupExpenseSnapshot.from(expense, dummyActorId);
+                    return GroupExpenseSnapshot.create({
+                        expense,
+                        perspectiveId: dummyActorId,
+                    });
             }),
         );
     });

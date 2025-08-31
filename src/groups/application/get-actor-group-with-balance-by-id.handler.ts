@@ -36,7 +36,7 @@ export class GetActorGroupWithBalanceByIdHandler
         const { actorId } = query.payload;
         const expenses = await this.expenseRepository.getAllActorGroupExpenses(
             actorId,
-            group.getId(),
+            group,
         );
 
         return GroupWithBalance.from({

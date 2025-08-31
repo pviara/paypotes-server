@@ -33,7 +33,11 @@ export class GetActorContactExpenseByIdHandler
             expenseId,
         );
 
-        if (expense) return PairExpenseSnapshot.from(expense, actorId);
+        if (expense)
+            return PairExpenseSnapshot.create({
+                expense,
+                perspectiveId: actorId,
+            });
         throw new ContactExpenseNotFoundError(contactId, expenseId);
     }
 }

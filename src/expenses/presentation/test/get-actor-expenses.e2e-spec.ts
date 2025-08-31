@@ -1,0 +1,251 @@
+import { App } from 'supertest/types';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { empty, shutdown } from '@test/helpers/utils';
+import { Expense } from '@expenses/domain/expense/expense';
+import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
+import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
+import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
+import { Fixture } from '@test/helpers/fixture';
+import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import { HttpStatus } from '@nestjs/common';
+import { initApplicationWith } from '@test/helpers/application/utils';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
+import * as request from 'supertest';
+
+describe('getActorExpenses', () => {
+    const application = initApplicationWith(modules);
+
+    let fixture: Fixture;
+    let httpServer: App;
+
+    const actorId = DEFAULT_USER.getId();
+
+    beforeAll(async () => {
+        await application.bootstrap();
+
+        fixture = Fixture.create(application);
+        httpServer = application.getHttpServer();
+    });
+
+    afterAll(shutdown(application));
+
+    beforeEach(empty(application));
+
+    afterEach(empty(application));
+
+    describe('actor has no expense', () => {
+        it('should return an empty array', async () => {
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}`,
+            );
+
+            expect(response.status).toBe(HttpStatus.OK);
+            expect(response.body.length).toBe(0);
+        });
+    });
+
+    describe('actor has expenses', () => {
+        let dummyExpenses: Array<Expense>;
+        let unrelatedExpenses: Array<Expense>;
+
+        beforeEach(async () => {
+            dummyExpenses = await setupDefaultUserExpenses();
+            unrelatedExpenses = await setupUnrelatedExpenses();
+        });
+
+        it('should return the first 20 expenses by default', async () => {
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}`,
+            );
+
+            const dtos = response.body;
+            expect(dtos.length).toBe(20);
+            expectReturnedDtosToBeTheFirstTwentyExpenses(dtos);
+            expectReturnedDtosNotToBeUnrelatedExpenses(dtos);
+        });
+
+        describe('page index has been given', () => {
+            it('should return the second 20 expenses when given index is 1', async () => {
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}?pageIndex=1`,
+                );
+
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheSecondTwentyExpenses(dtos);
+            });
+
+            function expectReturnedDtosToBeTheSecondTwentyExpenses(
+                dtos: Array<ExpenseDTO>,
+            ): void {
+                const secondTwentyExpenses = sortByDateDescending(
+                    dummyExpenses,
+                ).slice(20, 40);
+                const returnedDtosAreTheSecondTwentyExpenses = dtos.every(
+                    dtoIsIn(secondTwentyExpenses),
+                );
+
+                expect(returnedDtosAreTheSecondTwentyExpenses).toBe(true);
+            }
+        });
+
+        describe('search has been given', () => {
+            it('should return the expenses that match the search', async () => {
+                const targetExpense = dummyExpenses[0];
+                const response = await request(httpServer).get(
+                    `/${EXPENSES_API_ROUTE}?search=${targetExpense.getLabel()}`,
+                );
+
+                expect(response.body.length).toBe(1);
+                expect(response.body[0].id).toBe(targetExpense.getId());
+            });
+        });
+
+        function expectReturnedDtosToBeTheFirstTwentyExpenses(
+            dtos: Array<ExpenseDTO>,
+        ): void {
+            const firstTwentyExpenses = sortByDateDescending(
+                dummyExpenses,
+            ).slice(0, 20);
+            const returnedDtosAreTheFirstTwentyExpenses = dtos.every(
+                dtoIsIn(firstTwentyExpenses),
+            );
+
+            expect(returnedDtosAreTheFirstTwentyExpenses).toBe(true);
+        }
+
+        function sortByDateDescending(
+            dummyExpenses: Array<Expense>,
+        ): Array<Expense> {
+            return dummyExpenses.sort(
+                (previous, current) =>
+                    new Date(current.getCreatedAt()).getTime() -
+                    new Date(previous.getCreatedAt()).getTime(),
+            );
+        }
+
+        function expectReturnedDtosNotToBeUnrelatedExpenses(
+            dtos: Array<ExpenseDTO>,
+        ): void {
+            const returnedDtosAreNotUnrelatedExpenses = dtos.every(
+                dtoIsNotIn(unrelatedExpenses),
+            );
+
+            expect(returnedDtosAreNotUnrelatedExpenses).toBe(true);
+        }
+    });
+
+    describe('actor has some settled expenses', () => {
+        let dummyExpenses: Array<Expense>;
+        let settledExpenses: Array<Expense>;
+        let unrelatedExpenses: Array<Expense>;
+
+        beforeEach(async () => {
+            dummyExpenses = await setupDefaultUserExpenses({ length: 10 });
+            unrelatedExpenses = await setupUnrelatedExpenses();
+
+            settledExpenses = [
+                dummyExpenses[1],
+                dummyExpenses[9],
+                dummyExpenses[13],
+            ];
+            for (const expense of settledExpenses) {
+                await paybackExpense(expense);
+            }
+        });
+
+        it('should only return expenses that were not settled', async () => {
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}`,
+            );
+
+            const dtos = response.body;
+            expect(dtos.length).toBe(
+                dummyExpenses.length - settledExpenses.length,
+            );
+            expectReturnedDtosToBeOnlyUnsettledExpenses(dtos);
+            expectReturnedDtosNotToBeSettledExpenses(dtos);
+        });
+
+        async function paybackExpense(expense: Expense): Promise<void> {
+            if (expense instanceof PairExpense) {
+                await paybackPairExpense(expense);
+            } else if (expense instanceof GroupExpense) {
+                await paybackGroupExpenseEntirely(expense);
+            }
+        }
+
+        async function paybackPairExpense(expense: PairExpense): Promise<void> {
+            const [counterparty] = expense.getCounterpartiesOf(actorId);
+            const contactId = counterparty.getId();
+
+            await request(httpServer).put(
+                `/${EXPENSES_API_ROUTE}/pair/${contactId}/${expense.getId()}`,
+            );
+        }
+
+        async function paybackGroupExpenseEntirely(
+            expense: GroupExpense,
+        ): Promise<void> {
+            const debtorIds = expense
+                .getCounterpartiesOf(actorId)
+                .map((counterparty) => counterparty.getId());
+
+            await request(httpServer)
+                .put(
+                    `/${EXPENSES_API_ROUTE}/group/${expense.getGroup().getId()}/${expense.getId()}`,
+                )
+                .send({ debtorIds });
+        }
+
+        function expectReturnedDtosToBeOnlyUnsettledExpenses(
+            dtos: Array<ExpenseDTO>,
+        ): void {
+            const returnedDtosAreTheUnsettledExpenses = dtos.every((dto) =>
+                dtoIsIn(dummyExpenses),
+            );
+            expect(returnedDtosAreTheUnsettledExpenses).toBe(true);
+        }
+
+        function expectReturnedDtosNotToBeSettledExpenses(
+            dtos: Array<ExpenseDTO>,
+        ): void {
+            const returnedDtosAreNotSettledExpenses = dtos.every((dto) =>
+                dtoIsNotIn(settledExpenses),
+            );
+            expect(returnedDtosAreNotSettledExpenses).toBe(true);
+        }
+    });
+
+    async function setupDefaultUserExpenses(options?: {
+        length: number;
+    }): Promise<Expense[]> {
+        const { expenses: groupExpenses } =
+            await fixture.setupDefaultUserUniqueGroupExpenses({
+                length: options?.length ?? 30,
+            });
+
+        const pairExpenses = await fixture.setupDefaultUserPairExpenses();
+
+        return [...groupExpenses, ...pairExpenses];
+    }
+
+    async function setupUnrelatedExpenses(): Promise<Expense[]> {
+        const unrelatedGroupExpenses = await fixture.setupRandomGroupExpenses();
+        const unrelatedPairExpenses = await fixture.setupRandomPairExpenses();
+
+        return [...unrelatedGroupExpenses, ...unrelatedPairExpenses];
+    }
+
+    function dtoIsIn(expenses: Array<Expense>): (dto: ExpenseDTO) => boolean {
+        return (dto: ExpenseDTO) =>
+            expenses.some((expense) => expense.getId() === dto.id);
+    }
+
+    function dtoIsNotIn(
+        expenses: Array<Expense>,
+    ): (dto: ExpenseDTO) => boolean {
+        return (dto: ExpenseDTO) =>
+            expenses.every((expense) => expense.getId() !== dto.id);
+    }
+});

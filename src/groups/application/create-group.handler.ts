@@ -1,6 +1,8 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.task-messenger.provider';
+import { DateService } from '@app/shared/date/date.service';
+import { dateServiceProviderToken } from '@app/shared/date/date.service.provider';
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
@@ -24,6 +26,9 @@ export class CreateGroupCommand implements ICommand {
 @CommandHandler(CreateGroupCommand)
 export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
     constructor(
+        @Inject(dateServiceProviderToken)
+        private dateService: DateService,
+
         @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
 
@@ -47,6 +52,7 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
                 id: payload.id,
                 name: payload.name,
                 emoji: payload.emoji,
+                createdAt: this.dateService.getCurrentDate(),
                 members: this.mapToMembers(users),
             }),
         );

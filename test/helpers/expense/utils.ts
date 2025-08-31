@@ -1,15 +1,11 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { ExpenseModule } from '@expenses/expense.module';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { generateRandomUser } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
-import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Member } from '@groups/domain/member';
 import { Expense, Metadata } from '@expenses/domain/expense/expense';
 import { Modules } from '@test/helpers/application/model/module';
@@ -21,24 +17,10 @@ import {
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { User } from '@users/domain/user';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { ZERO } from '@app/shared/zero';
+import { generateRandomGroup, generateRandomMember } from '../group/utils';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
-export const expenseSpecProviders: Providers = [
-    {
-        provide: expenseRepositoryToken,
-        useClass: ExpenseInMemoryTestingRepository,
-    },
-    {
-        provide: groupRepositoryToken,
-        useClass: GroupInMemoryTestingRepository,
-    },
-    {
-        provide: userRepositoryToken,
-        useClass: UserInMemoryTestingRepository,
-    },
-];
 
 const generateRandomPairPaymentWithDefaultUser = (
     counterparty?: User,
@@ -51,6 +33,23 @@ const generateRandomPairPaymentWithDefaultUser = (
         creditor: isCreditor
             ? DEFAULT_USER
             : counterparty || generateRandomUser(),
+    };
+};
+
+const generateRandomGroupPaymentWithoutDefaultUser = (): GroupPayment => {
+    return {
+        balance: generateRandomBalance(),
+        creditor: generateRandomMember(),
+    };
+};
+
+const generateRandomPairPaymentWithoutDefaultUser = (): PairPayment => {
+    const user_a = generateRandomUser();
+    const user_b = generateRandomUser();
+    return {
+        balance: generateRandomBalance(),
+        debtor: user_a,
+        creditor: user_b,
     };
 };
 
@@ -98,10 +97,31 @@ export const generateRandomStakeholders = ({
     );
 };
 
+export const generateRandomGroupExpenses = ({
+    length,
+}: RandomPairExpenseArrayGenerationOptions): Array<GroupExpense> => {
+    return Array.from({ length }).map((_, index) => {
+        const metadata = generateRandomMetadata();
+        const group = generateRandomGroup();
+        const payment = generateRandomGroupPaymentWithoutDefaultUser();
+        return GroupExpense.create(metadata, group, payment);
+    });
+};
+
+export const generateRandomPairExpenses = ({
+    length,
+}: RandomPairExpenseArrayGenerationOptions): Array<PairExpense> => {
+    return Array.from({ length }).map((_, index) => {
+        const metadata = generateRandomMetadata();
+        const payment = generateRandomPairPaymentWithoutDefaultUser();
+        return PairExpense.create(metadata, payment);
+    });
+};
+
 export const generateDefaultUserPairExpense = (): PairExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomPairPaymentWithDefaultUser();
-    return new PairExpense(metadata, payment);
+    return PairExpense.create(metadata, payment);
 };
 
 export const generateDefaultUserPairExpenses = ({
@@ -109,16 +129,26 @@ export const generateDefaultUserPairExpenses = ({
     counterparty,
 }: RandomPairExpenseArrayGenerationOptions): Array<PairExpense> => {
     return Array.from({ length }).map((_, index) => {
-        const metadata = generateRandomMetadata({ label: `label_${index}` });
+        const metadata = generateRandomMetadata({
+            label: `label_${index}_${crypto.randomUUID().slice(0, 3)}`,
+        });
         const payment = generateRandomPairPaymentWithDefaultUser(counterparty);
-        return new PairExpense(metadata, payment);
+        return PairExpense.create(metadata, payment);
     });
+};
+
+export const generateDefaultUserCreditGroupExpense = (
+    group: Group,
+): GroupExpense => {
+    const metadata = generateRandomMetadata();
+    const payment = generateRandomGroupPaymentWithDefaultUserIn(group);
+    return GroupExpense.create(metadata, group, payment);
 };
 
 export const generateDefaultUserGroupExpense = (group: Group): GroupExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomGroupPaymentWithDefaultUserIn(group);
-    return new GroupExpense(metadata, group, payment);
+    return GroupExpense.create(metadata, group, payment);
 };
 
 export const generateDefaultUserGroupExpenses = ({
@@ -127,12 +157,14 @@ export const generateDefaultUserGroupExpenses = ({
     group,
 }: RandomGroupExpenseArrayGenerationOptions): Array<GroupExpense> => {
     return Array.from({ length }).map((_, index) => {
-        const metadata = generateRandomMetadata({ label: `label_${index}` });
+        const metadata = generateRandomMetadata({
+            label: `label_${index}_${crypto.randomUUID().slice(0, 3)}`,
+        });
         const payment = generateRandomGroupPaymentWithDefaultUserIn(
             group,
             counterparty,
         );
-        return new GroupExpense(metadata, group, payment);
+        return GroupExpense.create(metadata, group, payment);
     });
 };
 
@@ -174,11 +206,11 @@ export function generateRandomBoolean(): boolean {
 export const calculateExpectedBalanceFor = (
     expenses: Array<Expense>,
 ): number => {
-    return expenses.reduce((prev, next) => {
-        const isDefaultUserCreditor = next.hasCreditor(DEFAULT_USER.getId());
-        const balance = calculateBalanceBasedOn(next, isDefaultUserCreditor);
+    return expenses.reduce((prev, current) => {
+        const isDefaultUserCreditor = current.hasCreditor(DEFAULT_USER.getId());
+        const balance = calculateBalanceBasedOn(current, isDefaultUserCreditor);
         return prev + (isDefaultUserCreditor ? balance : -balance);
-    }, 0);
+    }, ZERO);
 };
 
 const generateRandomPastDate = (): Date => {
@@ -202,7 +234,8 @@ const calculateBalanceBasedOn = (
             ? membersTotalOwedShares
             : defaultUserShare;
     }
-    return +expense.getBalance() / 2;
+    const share = +expense.getBalance() / 2;
+    return share;
 };
 
 type RandomMetadataGenerationOptions = { label?: string };

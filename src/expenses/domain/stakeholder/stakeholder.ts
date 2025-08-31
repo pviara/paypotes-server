@@ -2,7 +2,7 @@ import { Contact } from '@contacts/domain/contact';
 import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
 
-export type Person = Contact | Member | User;
+export type Person = Contact | Member | Stakeholder | User;
 
 export class Stakeholder {
     constructor(
@@ -15,7 +15,7 @@ export class Stakeholder {
         },
     ) {}
 
-    static from(person: Contact | Member | User, share = 0): Stakeholder {
+    static from(person: Person, share = 0): Stakeholder {
         return new Stakeholder({
             id: person.getId(),
             firstname: person.getFirstname(),
@@ -43,6 +43,10 @@ export class Stakeholder {
 
     getShare(): number {
         return this.data.share;
+    }
+
+    reduceShare(amount: number) {
+        this.data.share -= amount;
     }
 
     settle(): void {

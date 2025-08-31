@@ -1,32 +1,11 @@
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupModule } from '@groups/group.module';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
-import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { Member } from '@groups/domain/member';
 import { Modules } from '@test/helpers/application/model/module';
-import { Providers } from '@test/helpers/application/application';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export const groupSpecModules: Modules = [GroupModule];
-export const groupSpecProviders: Providers = [
-    {
-        provide: userRepositoryToken,
-        useClass: UserInMemoryTestingRepository,
-    },
-    {
-        provide: groupRepositoryToken,
-        useClass: GroupInMemoryTestingRepository,
-    },
-    {
-        provide: expenseRepositoryToken,
-        useClass: ExpenseInMemoryTestingRepository,
-    },
-];
 
 const getDefaultUserAsMember = (): Member => {
     return Member.fromUser(DEFAULT_USER);
@@ -59,7 +38,17 @@ export const generateDefaultUserRandomGroup = (): Group =>
         id: crypto.randomUUID(),
         name: 'Group',
         emoji: '📅',
+        createdAt: new Date(),
         members: [getDefaultUserAsMember(), ...generateRandomMembers()],
+    });
+
+export const generateRandomGroup = (): Group =>
+    new Group({
+        id: crypto.randomUUID(),
+        name: 'Group',
+        emoji: '🪩',
+        createdAt: new Date(),
+        members: generateRandomMembers(),
     });
 
 export const generateDefaultUserRandomGroups = (
@@ -71,10 +60,17 @@ export const generateDefaultUserRandomGroups = (
                 id: crypto.randomUUID(),
                 name: `name_${index}`,
                 emoji: '⛺️',
+                createdAt: new Date(
+                    `2025-08-08T12:12:${mapSecondsFrom(index)}`,
+                ),
                 members: [
                     getDefaultUserAsMember(),
                     ...generateRandomMembers({ length: 5 }),
                 ],
             }),
     );
+};
+
+const mapSecondsFrom = (index: number): string => {
+    return index < 10 ? `0${index}` : `${index}`;
 };

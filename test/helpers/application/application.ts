@@ -1,12 +1,9 @@
 import { App } from 'supertest/types';
 import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
 import { ConfigService } from '@nestjs/config';
-import { ContactInMemoryTestingRepository } from '@test/helpers/contact/contact.testing-repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ErrorFilter } from '@app/error-filter';
-import { ExpenseInMemoryTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { GroupInMemoryTestingRepository } from '@test/helpers/group/group.testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import {
     isClassProvider,
@@ -18,26 +15,13 @@ import { Modules } from '@test/helpers/application/model/module';
 import { Nullable } from '@app/shared/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
+import { Repositories, RepositoryType } from './model/repositories';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { UserInMemoryTestingRepository } from '@test/helpers/user/user.testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type ApplicationResources = {
     modules: Modules;
     providers?: Providers;
-};
-
-type RepositoryType = 'contact' | 'expense' | 'group' | 'user';
-type Repository = {
-    [key in RepositoryType]: key extends 'contact'
-        ? ContactInMemoryTestingRepository
-        : key extends 'expense'
-          ? ExpenseInMemoryTestingRepository
-          : key extends 'group'
-            ? GroupInMemoryTestingRepository
-            : key extends 'user'
-              ? UserInMemoryTestingRepository
-              : never;
 };
 
 export type Providers = Array<Provider>;
@@ -58,28 +42,32 @@ export class Application {
         return this.application;
     }
 
+    async emptyDatabase(): Promise<void> {
+        const { contactRepo, expenseRepo, groupRepo, userRepo } =
+            this.getRepositories();
+
+        await expenseRepo.empty();
+        await contactRepo.empty();
+        await groupRepo.empty();
+        await userRepo.empty();
+    }
+
     getApplication(): INestApplication {
         if (this.application) return this.application;
         throw new ApplicationNotBootstrappedError();
     }
 
-    getHttpServer(): App {
-        return this.getApplication().getHttpServer();
+    getRepositories(): Repositories {
+        return {
+            contactRepo: this.getRepository('contactRepo'),
+            expenseRepo: this.getRepository('expenseRepo'),
+            groupRepo: this.getRepository('groupRepo'),
+            userRepo: this.getRepository('userRepo'),
+        };
     }
 
-    getRepository<T extends RepositoryType>(type: T): Repository[T] {
-        switch (type) {
-            case 'contact':
-                return this.getApplication().get(contactRepositoryToken);
-            case 'expense':
-                return this.getApplication().get(expenseRepositoryToken);
-            case 'group':
-                return this.getApplication().get(groupRepositoryToken);
-            case 'user':
-                return this.getApplication().get(userRepositoryToken);
-            default:
-                throw new Error(`Unknown repository type "${type}"`);
-        }
+    getHttpServer(): App {
+        return this.getApplication().getHttpServer();
     }
 
     async shutdown(): Promise<void> {
@@ -133,6 +121,21 @@ export class Application {
     private useDefaultConfigurationFor(application: INestApplication): void {
         application.useGlobalFilters(new ErrorFilter());
         application.useGlobalPipes(new ValidationPipe());
+    }
+
+    private getRepository<T extends RepositoryType>(type: T): Repositories[T] {
+        switch (type) {
+            case 'contactRepo':
+                return this.getApplication().get(contactRepositoryToken);
+            case 'expenseRepo':
+                return this.getApplication().get(expenseRepositoryToken);
+            case 'groupRepo':
+                return this.getApplication().get(groupRepositoryToken);
+            case 'userRepo':
+                return this.getApplication().get(userRepositoryToken);
+            default:
+                throw new Error(`Unknown repository type "${type}"`);
+        }
     }
 
     private async tryDeletingRabbitMQSingleQueue(): Promise<void> {

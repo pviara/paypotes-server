@@ -7,6 +7,7 @@ import { NestFactory } from '@nestjs/core';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { setTimeout } from 'timers/promises';
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
@@ -17,11 +18,12 @@ async function bootstrap(): Promise<void> {
     app.enableShutdownHooks();
     app.enableCors();
 
-    await createSampleUsersInLocalMode(app);
-
     const configService = app.get(ConfigService);
     const port = configService.getOrThrow('APP_PORT');
     await app.listen(port, logListeningOn(port));
+
+    await setTimeout(1000);
+    await createSampleUsersInLocalMode(app);
 }
 bootstrap();
 
@@ -49,7 +51,9 @@ async function createSampleUsersInLocalMode(
             }),
         ];
         const userRepo = app.get<UserRepository>(userRepositoryToken);
-        for (const user of users) await userRepo?.create(user);
+        const exist = await userRepo.get(...users.map((user) => user.getId()));
+        if (exist.length === 0)
+            for (const user of users) await userRepo?.create(user);
     }
 }
 

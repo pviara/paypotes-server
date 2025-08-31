@@ -33,8 +33,8 @@ export class PaybackPairExpenseHandler
         );
         if (!expense) throw new ExpenseNotFoundError(expenseId);
 
-        return expense.hasCreditor(actorId)
-            ? expense.settleCounterpartyShareOf(actorId)
-            : expense.settleShareOf(actorId);
+        expense.settle();
+
+        return this.expenseRepository.updatePairExpense(expense);
     }
 }

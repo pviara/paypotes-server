@@ -10,6 +10,7 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMembers } from '@test/helpers/group/utils';
+import { generateRandomUser } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { Member } from '@groups/domain/member';
@@ -17,7 +18,6 @@ import {
     PairExpense,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
-import { generateRandomUser } from '@test/helpers/user/utils';
 
 describe('ComputeActorBalanceHandler', () => {
     let sut: ComputeActorBalanceHandler;
@@ -73,7 +73,7 @@ describe('ComputeActorBalanceHandler', () => {
         const metadata = generateRandomMetadata();
         const creditor = Member.fromUser(DEFAULT_USER);
 
-        return new GroupExpense(metadata, dummyGroup, {
+        return GroupExpense.create(metadata, dummyGroup, {
             balance,
             creditor,
         });
@@ -88,7 +88,7 @@ describe('ComputeActorBalanceHandler', () => {
             creditor,
             debtor: generateRandomUser(),
         };
-        return new PairExpense(metadata, payment);
+        return PairExpense.create(metadata, payment);
     }
 
     function createRandomDebitPairExpense(balance: number): Expense {
@@ -100,6 +100,6 @@ describe('ComputeActorBalanceHandler', () => {
             creditor,
             debtor: DEFAULT_USER,
         };
-        return new PairExpense(metadata, payment);
+        return PairExpense.create(metadata, payment);
     }
 });

@@ -45,9 +45,15 @@ export class GetActorExpensesHandler
     ): Array<GroupExpenseSnapshot | PairExpenseSnapshot> {
         return expenses.map((expense) => {
             if (expense instanceof PairExpense)
-                return PairExpenseSnapshot.from(expense, actorId);
+                return PairExpenseSnapshot.create({
+                    expense,
+                    perspectiveId: actorId,
+                });
             if (expense instanceof GroupExpense)
-                return GroupExpenseSnapshot.from(expense, actorId);
+                return GroupExpenseSnapshot.create({
+                    expense,
+                    perspectiveId: actorId,
+                });
 
             throw new Error('Expense is neither pair or group expense');
         });

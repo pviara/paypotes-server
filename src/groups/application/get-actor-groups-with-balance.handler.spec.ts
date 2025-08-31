@@ -57,10 +57,9 @@ describe('GetActorGroupsWithBalanceHandler', () => {
 
         expect(expenseRepo.calls.getAllActorGroupsExpenses.count).toBe(1);
 
-        const groupIds = mapIdsFrom(dummyGroups);
         expect(
             expenseRepo.calls.getAllActorGroupsExpenses.history,
-        ).toContainEqual([dummyActorId, groupIds]);
+        ).toContainEqual([dummyActorId, dummyGroups]);
     });
 
     it("should compute each of the actor's groups balance correctly", async () => {
@@ -104,7 +103,7 @@ describe('GetActorGroupsWithBalanceHandler', () => {
             balance,
             creditor: Member.fromUser(DEFAULT_USER),
         };
-        return new GroupExpense(metadata, group, payment);
+        return GroupExpense.create(metadata, group, payment);
     }
 
     function createRandomDebitExpenseFor(
@@ -118,7 +117,7 @@ describe('GetActorGroupsWithBalanceHandler', () => {
                 group.getMembersExcluding(DEFAULT_USER.getId()),
             ),
         };
-        return new GroupExpense(metadata, group, payment);
+        return GroupExpense.create(metadata, group, payment);
     }
 
     function getRandomMemberFrom(members: Array<Member>): Member {

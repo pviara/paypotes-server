@@ -4,6 +4,9 @@ import {
     GroupExpenseSnapshot,
     GroupExpenseSnapshots,
 } from '@expenses/domain/expense/group/group-expense-snapshot';
+import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
+import { GroupRepository } from '@groups/persistence/group.repository';
+import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
@@ -25,18 +28,33 @@ export class GetActorGroupExpensesHandler
     constructor(
         @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
+
+        @Inject(groupRepositoryToken)
+        private groupRepository: GroupRepository,
     ) {}
 
     async execute(
         query: GetActorGroupExpensesQuery,
     ): Promise<GroupExpenseSnapshot[]> {
         const { actorId, groupId, pageIndex, search } = query.payload;
-        const expenses = await this.expenseRepository.getActorGroupExpenses(
-            actorId,
-            groupId,
-            pageIndex,
-            search,
-        );
-        return GroupExpenseSnapshots.from(expenses, actorId);
+
+        const group = await this.newMethod(actorId, groupId);
+        if (group) {
+            const expenses = await this.expenseRepository.getActorGroupExpenses(
+                actorId,
+                group,
+                pageIndex,
+                search,
+            );
+            return GroupExpenseSnapshots.create({
+                expenses,
+                perspectiveId: actorId,
+            });
+        }
+        throw new GroupNotFoundError(groupId);
+    }
+
+    private async newMethod(actorId: string, groupId: string) {
+        return await this.groupRepository.getActorGroupById(actorId, groupId);
     }
 }

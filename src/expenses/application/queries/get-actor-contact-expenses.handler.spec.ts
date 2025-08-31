@@ -49,7 +49,10 @@ describe('GetActorContactExpensesHandler', () => {
         const result = await sut.execute(dummyQuery);
 
         expect(result).toStrictEqual(
-            PairExpenseSnapshots.from(dummyExpenses, dummyActorId),
+            PairExpenseSnapshots.create({
+                expenses: dummyExpenses,
+                perspectiveId: dummyActorId,
+            }),
         );
     });
 });

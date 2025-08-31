@@ -34,8 +34,31 @@ export class PaybackGroupExpenseHandler
         );
         if (!expense) throw new ExpenseNotFoundError(expenseId);
 
-        return expense.hasCreditor(actorId)
-            ? expense.settleSharesOf(...debtorIds)
-            : expense.settleShareOf(actorId);
+        if (expense.hasCreditor(actorId)) {
+            const debtors = expense
+                .getStakeholders()
+                .filter((stakeholder) =>
+                    debtorIds.includes(stakeholder.getId()),
+                );
+
+            const allDebtorsPaidBack =
+                debtors.length === expense.getStakeholders().length - 1;
+
+            if (allDebtorsPaidBack) expense.settle();
+            else {
+                const initialDebtorShares = debtors
+                    .map((stakeholder) => stakeholder.getShare())
+                    .reduce((previous, current) => previous + current, 0);
+
+                expense.settleSharesOf(...debtorIds);
+                expense.reduceCreditorShareOf(initialDebtorShares);
+            }
+        } else {
+            const initialActorShare = expense.getShareOf(actorId);
+            expense.settleShareOf(actorId);
+            expense.reduceCreditorShareOf(initialActorShare);
+        }
+
+        return this.expenseRepository.updateGroupExpense(expense);
     }
 }

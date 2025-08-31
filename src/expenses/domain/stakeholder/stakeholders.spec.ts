@@ -1,31 +1,23 @@
 import { generateRandomMembers } from '@test/helpers/group/utils';
+import { generateRandomUser } from '@test/helpers/user/utils';
+import { Member } from '@groups/domain/member';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { Stakeholders } from '@expenses/domain/stakeholder/stakeholders';
+import { User } from '@users/domain/user';
 
 describe('Stakeholders', () => {
-    it('should return 0 for each when given balance is 0', () => {
-        const dummyMembers = generateRandomMembers();
-        const sut = new Stakeholders(dummyMembers, 0);
+    const dummyCreditor = generateRandomUser();
 
-        const stakeholders = sut.getValue();
+    it('should return 0 for each stakeholder when given balance is 0', () => {
+        const dummyDebtors = generateRandomMembers();
+        const stakeholders = Stakeholders.create({
+            balance: 0,
+            creditor: dummyCreditor,
+            debtors: dummyDebtors,
+        });
+
         expectAllStakeholdersShareToBe(0, stakeholders);
     });
-
-    it.each([
-        [1, 3, 3],
-        [1, 4, 4],
-        [15, 75, 5],
-        [2500, 17500, 7],
-    ])(
-        'should return %d for each stakeholder when given balance is %d and there are %d group members',
-        (share, balance, length) => {
-            const dummyMembers = generateRandomMembers({ length });
-            const sut = new Stakeholders(dummyMembers, balance);
-
-            const stakeholders = sut.getValue();
-            expectAllStakeholdersShareToBe(share, stakeholders);
-        },
-    );
 
     it.each([
         [3, 3],
@@ -34,45 +26,71 @@ describe('Stakeholders', () => {
         [17500, 7],
         [10, 3],
         [11, 3],
-    ])('should return integer shares', (balance, length) => {
-        const dummyMembers = generateRandomMembers({ length });
-        const sut = new Stakeholders(dummyMembers, balance);
+    ])('should return only integer shares', (balance, length) => {
+        const dummyDebtors = generateRandomMembers({ length });
+        const stakeholders = Stakeholders.create({
+            balance,
+            creditor: dummyCreditor,
+            debtors: dummyDebtors,
+        });
 
-        const shares = sut
-            .getValue()
-            .map((stakeholder) => stakeholder.getShare());
+        const shares = stakeholders.map((stakeholder) =>
+            stakeholder.getShare(),
+        );
 
         expectAllSharesToBeIntegers(shares);
     });
 
-    it.each([
-        [3, 3],
-        [4, 4],
-        [75, 5],
-        [17500, 7],
-        [10, 3],
-        [16, 3],
-    ])(
-        'should return shares that when sumed up equal initial balance',
-        (balance, length) => {
-            const dummyMembers = generateRandomMembers({ length });
-            const sut = new Stakeholders(dummyMembers, balance);
+    it('should return the right share for the two only stakeholders', () => {
+        const dummyBalance = 1200;
+        const dummyDebtor = generateRandomUser();
+        const stakeholders = Stakeholders.create({
+            balance: dummyBalance,
+            creditor: dummyCreditor,
+            debtors: [dummyDebtor],
+        });
 
-            const stakeholders = sut.getValue();
-            const total = calcTotalSharesFrom(stakeholders);
+        const shares = stakeholders.map((stakeholder) =>
+            stakeholder.getShare(),
+        );
 
-            expect(total).toBe(balance);
-        },
-    );
+        const expectedShare = 600;
+        expect(shares).toStrictEqual([expectedShare, expectedShare]);
+    });
+
+    it('should return the right shares for both creditor and debtors', () => {
+        const dummyBalance = 120;
+        const dummyCreditor = generateRandomUser();
+        const dummyDebtors = generateRandomMembers({ length: 5 });
+        const stakeholders = Stakeholders.create({
+            balance: dummyBalance,
+            creditor: dummyCreditor,
+            debtors: dummyDebtors,
+        });
+
+        const expectedCreditorShare = 100;
+        const creditorStakeholder = getStakeholderProfileFrom(
+            stakeholders,
+            dummyCreditor,
+        );
+        expect(creditorStakeholder.getShare()).toBe(expectedCreditorShare);
+
+        const expectedDebtorShare = 20;
+        const debtorStakeholders = getStakeholderProfilesFrom(
+            stakeholders,
+            dummyDebtors,
+        );
+        expectAllStakeholdersShareToBe(expectedDebtorShare, debtorStakeholders);
+    });
 
     function expectAllStakeholdersShareToBe(
         share: number,
         stakeholders: Array<Stakeholder>,
     ): void {
-        const eachStakeholderShareEqualsZero = stakeholders.every(
+        const eachStakeholderShareEqualsShare = stakeholders.every(
             (stakeholder) => stakeholder.getShare() === share,
         );
-        expect(eachStakeholderShareEqualsZero).toBe(true);
+        expect(eachStakeholderShareEqualsShare).toBe(true);
     }
 
     function expectAllSharesToBeIntegers(shares: Array<number>): void {
@@ -82,11 +100,25 @@ describe('Stakeholders', () => {
         expect(areAllIntegers).toBe(true);
     }
 
-    function calcTotalSharesFrom(stakeholders: Array<Stakeholder>): number {
-        const shares = stakeholders.map((stakeholder) =>
-            stakeholder.getShare(),
+    function getStakeholderProfileFrom(
+        stakeholders: Array<Stakeholder>,
+        dummyCreditor: User,
+    ): Stakeholder {
+        const stakeholder = stakeholders.find(
+            (stakeholder) => stakeholder.getId() === dummyCreditor.getId(),
         );
+        if (stakeholder) return stakeholder;
+        throw new Error(
+            'Stakeholder profile cannot be found, thus tests cannot run.',
+        );
+    }
 
-        return shares.reduce((prev, next) => prev + next, 0);
+    function getStakeholderProfilesFrom(
+        stakeholders: Array<Stakeholder>,
+        dummyDebtors: Array<Member>,
+    ): Array<Stakeholder> {
+        return stakeholders.filter((stakeholder) =>
+            dummyDebtors.some((d) => d.getId() === stakeholder.getId()),
+        );
     }
 });

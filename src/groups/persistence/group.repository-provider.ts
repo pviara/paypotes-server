@@ -1,9 +1,9 @@
 import { Provider } from '@nestjs/common';
-import { GroupInMemoryRepository } from '@groups/persistence/group.repository';
+import { GroupPostgresRepository } from '@groups/persistence/group.postgres-repository';
 
 export const groupRepositoryToken = 'GroupRepositoryToken';
 
 export const groupRepositoryProvider: Provider = {
     provide: groupRepositoryToken,
-    useClass: GroupInMemoryRepository,
+    useClass: GroupPostgresRepository,
 };

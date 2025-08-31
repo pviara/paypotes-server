@@ -92,10 +92,12 @@ describe('AddPairExpenseHandler', () => {
                 creditor: getCommandCreditor(),
                 debtor: getCommandDebtor(),
             };
-            const expense = new PairExpense(metadata, dummyPayment);
+            const expense = PairExpense.create(metadata, dummyPayment);
 
-            expect(expenseRepo.calls.save.count).toBe(1);
-            expect(expenseRepo.calls.save.history).toContainEqual(expense);
+            expect(expenseRepo.calls.savePairExpense.count).toBe(1);
+            expect(expenseRepo.calls.savePairExpense.history).toContainEqual(
+                expense,
+            );
         });
 
         it('should send a message using contact task messenger', async () => {

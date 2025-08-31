@@ -50,6 +50,15 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5433:5432
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_PASSWORD: 'postgres'
+          POSTGRES_DB: 'paypot'
+    
       rabbitmq:
         image: rabbitmq:3
         ports:
@@ -83,6 +92,14 @@ jobs:
           RABBITMQ_DEFAULT_USER: 'test_paypot'
           RABBITMQ_DEFAULT_PASS: 'test_access'
           CONTACT_TASKS_QUEUE: 'test_contact_tasks'
+          POSTGRES_HOST: 'localhost'
+          POSTGRES_TEST_PORT: '5433'
+          POSTGRES_PORT: '5432'
+          POSTGRES_DB: 'paypot'
+          POSTGRES_USER: 'postgres'
+          POSTGRES_PASSWORD: 'postgres'
+          DEFAULT_UUID: '46cd3732-f36e-4886-a2f8-1efebcda1ad6'
+          POSTGRES_MIGRATIONS_PATH: '${{ github.workspace }}/dist/infrastructure/postgres/migrations'
 
       - name: 📝 Write test summary
         uses: test-summary/action@v2

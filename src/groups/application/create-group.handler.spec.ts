@@ -4,6 +4,7 @@ import {
     CreateGroupHandler,
     GroupUserNotFoundError,
 } from '@groups/application/create-group.handler';
+import { DateServiceSpy } from '@test/doubles/date-service.spy';
 import { Group } from '@groups/domain/group';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
 import { Member } from '@groups/domain/member';
@@ -13,10 +14,12 @@ import { UserRepositorySpy } from '@test/doubles/user-repository.spy';
 describe('CreateGroupHandler', () => {
     let sut: CreateGroupHandler;
 
+    let dateService: DateServiceSpy;
     let groupRepo: GroupRepositorySpy;
     let userRepo: UserRepositorySpy;
     let messenger: ContactTaskMessengerSpy;
 
+    const dummyDate = new Date('2003-28-12');
     const dummyGroupId = crypto.randomUUID();
     const dummyGroupName = 'Holidays';
     const dummyGroupEmoji = '🏖️';
@@ -40,6 +43,7 @@ describe('CreateGroupHandler', () => {
 
         dummyUsers = mapToUsers(dummyUserIds);
         userRepo.stub('get', dummyUsers);
+        dateService.stub('getCurrentDate', dummyDate);
     });
 
     it('should check that all group users exist', async () => {
@@ -70,6 +74,7 @@ describe('CreateGroupHandler', () => {
                 id: dummyGroupId,
                 name: dummyGroupName,
                 emoji: dummyGroupEmoji,
+                createdAt: dummyDate,
                 members: mapToMembers(dummyUsers),
             });
 
@@ -89,10 +94,16 @@ describe('CreateGroupHandler', () => {
 
     function initSut(): void {
         initDependencies();
-        sut = new CreateGroupHandler(groupRepo, userRepo, messenger);
+        sut = new CreateGroupHandler(
+            dateService,
+            groupRepo,
+            userRepo,
+            messenger,
+        );
     }
 
     function initDependencies(): void {
+        dateService = new DateServiceSpy();
         groupRepo = new GroupRepositorySpy();
         userRepo = new UserRepositorySpy();
         messenger = new ContactTaskMessengerSpy();

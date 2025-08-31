@@ -12,11 +12,10 @@ export type Metadata = {
 type Payment = GroupPayment | PairPayment;
 
 export abstract class Expense {
-    protected abstract stakeholders: Array<Stakeholder>;
-
-    constructor(
+    protected constructor(
         protected metadata: Metadata,
         protected payment: Payment,
+        protected stakeholders: Array<Stakeholder>,
     ) {}
 
     getBalance(): string {
@@ -37,6 +36,10 @@ export abstract class Expense {
 
     getLabel(): string {
         return this.metadata.label;
+    }
+
+    getRawBalance(): number {
+        return this.payment.balance;
     }
 
     getShareOf(stakeholderId: string): number {
@@ -66,12 +69,17 @@ export abstract class Expense {
         );
     }
 
-    settleShareOf(stakeholderId: string): void {
-        return this.getStakeholderUsing(stakeholderId).settle();
+    reduceCreditorShareOf(amount: number): void {
+        const { creditor } = this.payment;
+        this.getStakeholderUsing(creditor.getId()).reduceShare(amount);
     }
 
-    protected getRawBalance(): number {
-        return this.payment.balance;
+    settle(): void {
+        this.getStakeholders().forEach((stakeholder) => stakeholder.settle());
+    }
+
+    settleShareOf(stakeholderId: string): void {
+        return this.getStakeholderUsing(stakeholderId).settle();
     }
 
     protected getStakeholderUsing(stakeholderId: string): Stakeholder {
