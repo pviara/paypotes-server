@@ -592,8 +592,6 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             }
         }
 
-        console.warn('expenses', expenses);
-
         return expenses;
     }
 
@@ -735,6 +733,8 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         `);
 
         const expenses: ExpensesByGroup = {};
+        for (const groupId of groupIds) expenses[groupId] = []; // todo -> add an e2e test for this one: all contacts should be returned even if no expense for contact
+
         for (const record of records) {
             const { rows: stakeholders } = await this.knex.raw(`
                     select
