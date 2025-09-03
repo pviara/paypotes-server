@@ -48,7 +48,6 @@ export class GetActorGroupsWithBalanceHandler
             );
 
         const result = this.mapToGroupsWithBalance(expensesByGroup, actorId);
-        console.log('result', result);
         return result;
     }
 

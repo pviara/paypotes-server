@@ -15,6 +15,7 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import {
+    generateDefaultUserPairExpense,
     generateDefaultUserPairExpenses,
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
@@ -151,8 +152,44 @@ describe('ContactController', () => {
                 }
             });
 
-            describe('actor has a contact with expenses, and another one with none', () => {
-                // todo
+            describe('actor has a contact with expenses, and another one without', () => {
+                let dummyContact: Contact;
+                let dummyContactWithExpense: Contact;
+
+                beforeEach(async () => {
+                    [dummyContact, dummyContactWithExpense] = dummyContacts;
+
+                    const counterparty = mapUserFrom(dummyContactWithExpense);
+                    const dummyExpenses = generateDefaultUserPairExpenses({
+                        length: 3,
+                        counterparty,
+                    });
+
+                    await expenseRepo.insert(...dummyExpenses);
+                });
+
+                it('should return both contacts', async () => {
+                    const response = await request(httpServer).get(
+                        `/${CONTACTS_API_ROUTE}`,
+                    );
+
+                    const dtos = response.body;
+                    expect(dtos.length).toBe(20);
+                    expectBothContactsToHaveBeenReturnedIn(dtos);
+                });
+
+                function expectBothContactsToHaveBeenReturnedIn(
+                    dtos: Array<ContactWithBalanceDTO>,
+                ): void {
+                    const bothContacts = [
+                        dummyContact,
+                        dummyContactWithExpense,
+                    ];
+                    const bothContactsReturned = bothContacts.every((contact) =>
+                        dtos.some((dto) => contact.getId() === dto.id),
+                    );
+                    expect(bothContactsReturned).toBe(true);
+                }
             });
 
             describe('actor has contacts with expenses', () => {

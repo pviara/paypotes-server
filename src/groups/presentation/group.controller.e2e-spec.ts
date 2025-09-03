@@ -2,6 +2,7 @@ import { App } from 'supertest/types';
 import { Balance } from '@expenses/domain/balance/balance';
 import {
     calculateExpectedBalanceFor,
+    generateDefaultUserGroupExpense,
     generateDefaultUserGroupExpenses,
     generateRandomMetadata,
 } from '@test/helpers/expense/utils';
@@ -150,8 +151,40 @@ describe('GroupController', () => {
                 }
             });
 
-            describe('actor has a group with expenses, and another one with none', () => {
-                // todo
+            describe('actor has a group with expenses, and another one without', () => {
+                let dummyGroup: Group;
+                let dummyGroupWithExpense: Group;
+
+                beforeEach(async () => {
+                    [dummyGroup, dummyGroupWithExpense] = dummyGroups;
+
+                    const dummyExpenses = generateDefaultUserGroupExpenses({
+                        length: 3,
+                        group: dummyGroupWithExpense,
+                    });
+
+                    await expenseRepo.insert(...dummyExpenses);
+                });
+
+                it('should return both groups', async () => {
+                    const response = await request(httpServer).get(
+                        `/${GROUPS_API_ROUTE}`,
+                    );
+
+                    const dtos = response.body;
+                    expect(dtos.length).toBe(20);
+                    expectBothGroupsToHaveBeenReturnedIn(dtos);
+                });
+
+                function expectBothGroupsToHaveBeenReturnedIn(
+                    dtos: Array<GroupWithBalanceDTO>,
+                ): void {
+                    const bothContacts = [dummyGroupWithExpense, dummyGroup];
+                    const bothGroupsreturned = bothContacts.every((contact) =>
+                        dtos.some((dto) => contact.getId() === dto.id),
+                    );
+                    expect(bothGroupsreturned).toBe(true);
+                }
             });
 
             describe('actor has groups with expenses', () => {
