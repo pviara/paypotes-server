@@ -47,7 +47,12 @@ export class GetActorContactsWithBalanceHandler
                 contactIds,
             );
 
-        return this.mapToContactsWithBalance(expensesByContact, actorId);
+        const result = this.mapToContactsWithBalance(
+            expensesByContact,
+            actorId,
+        );
+
+        return result;
     }
 
     private async getContactIdsUsing(query: GetActorContactsWithBalanceQuery) {
