@@ -150,6 +150,10 @@ describe('GroupController', () => {
                 }
             });
 
+            describe('actor has a group with expenses, and another one with none', () => {
+                // todo
+            });
+
             describe('actor has groups with expenses', () => {
                 let expenses: Array<GroupExpense>;
 

@@ -151,6 +151,10 @@ describe('ContactController', () => {
                 }
             });
 
+            describe('actor has a contact with expenses, and another one with none', () => {
+                // todo
+            });
+
             describe('actor has contacts with expenses', () => {
                 beforeEach(async () => {
                     const expenses = dummyContacts.flatMap((contact) => {

@@ -38,19 +38,21 @@ export class GetActorGroupsWithBalanceHandler
     async execute(
         query: GetActorGroupsWithBalanceQuery,
     ): Promise<GroupWithBalance[]> {
-        const groupIds = await this.getGroupIdsUsing(query);
+        const groups = await this.getGroupsUsing(query);
 
         const { actorId } = query.payload;
         const expensesByGroup =
             await this.expenseRepository.getAllActorGroupsExpenses(
                 actorId,
-                this.groups,
+                groups,
             );
 
-        return this.mapToGroupsWithBalance(expensesByGroup, actorId);
+        const result = this.mapToGroupsWithBalance(expensesByGroup, actorId);
+        console.log('result', result);
+        return result;
     }
 
-    private async getGroupIdsUsing(query: GetActorGroupsWithBalanceQuery) {
+    private async getGroupsUsing(query: GetActorGroupsWithBalanceQuery) {
         const { actorId, pageIndex, search } = query.payload;
 
         const groups = await this.groupRepository.getActorGroups(
@@ -59,12 +61,7 @@ export class GetActorGroupsWithBalanceHandler
             search,
         );
         this.groups = groups;
-
-        return this.mapIdsFrom(groups);
-    }
-
-    private mapIdsFrom(groups: Array<Group>): Array<string> {
-        return groups.map((group) => group.getId());
+        return groups;
     }
 
     private mapToGroupsWithBalance(
