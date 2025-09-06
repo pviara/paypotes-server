@@ -43,8 +43,8 @@ export class UserPostgresRepository implements UserRepository {
             .select()
             .from(Table.Users)
             .whereRaw(this.buildTextSearchQueryFor(name))
-            .orWhereILike('firstname', name)
-            .orWhereILike('lastname', name);
+            .orWhereILike('firstname', `%${name}%`)
+            .orWhereILike('lastname', `%${name}%`);
 
         return this.mapUsersFrom(records);
     }

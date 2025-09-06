@@ -6,7 +6,7 @@ export async function up(knex: Knex): Promise<void> {
         await knex.schema.createTable('expenses', (table) => {
             table.uuid('id', { primaryKey: true }).notNullable();
             table.string('label', 30).notNullable().defaultTo('');
-            table.string('emoji', 3).notNullable().defaultTo('');
+            table.string('emoji', 5).notNullable().defaultTo('');
             table
                 .timestamp('created_at')
                 .notNullable()
