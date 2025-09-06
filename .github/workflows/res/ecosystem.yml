@@ -1,5 +1,5 @@
 apps:
   - name : 'paypot-api'
-    script: 'dist/src/main.js'
+    script: 'dist/main.js'
     instances: 'max'
     namespace: 'paypot'
