@@ -33,4 +33,4 @@ jobs:
             yarn install
             yarn build
             pm2 delete paypot-api
-            pm2 start ./dist/main.js --namespace paypot --name paypot-api # temporary deactivate cluster when using in memory database
+            bash ~/dev/repos/paypot/paypot-server/.github/workflows/scripts/reload-cluster.sh
