@@ -1,8 +1,9 @@
 import {
+    ArgumentsHost,
     Catch,
     ExceptionFilter,
-    InternalServerErrorException,
-    NotFoundException,
+    HttpException,
+    HttpStatus,
 } from '@nestjs/common';
 import { ContactExpenseNotFoundError } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
 import { ContactNotFoundError } from '@contacts/application/get-actor-contact-with-balance-by-id.handler';
@@ -13,37 +14,54 @@ import { GroupExpenseNotFoundError } from '@expenses/application/queries/get-act
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupUserNotFoundError } from '@groups/application/create-group.handler';
 import { MemberNotInGroupError } from '@groups/domain/group';
+import { Response } from 'express';
 
 @Catch(Error)
 export class ErrorFilter implements ExceptionFilter {
-    catch(exception: Error): void {
-        if (exception instanceof GroupUserNotFoundError) {
-            throw new NotFoundException(exception.message);
+    catch(exception: Error, host: ArgumentsHost): void {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse<Response>();
+
+        if (exception instanceof HttpException) {
+            response
+                .status(exception.getStatus())
+                .send({ error: exception.message });
+        } else if (exception instanceof GroupUserNotFoundError) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json({ error: exception.message });
+        } else if (exception instanceof GroupNotFoundError) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json({ error: exception.message });
+        } else if (exception instanceof ContactNotFoundError) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json({ error: exception.message });
+        } else if (exception instanceof ContactNotFoundInSavedList) {
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                error: exception.message,
+            });
+        } else if (exception instanceof ExpenseNotFoundError) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json({ error: exception.message });
+        } else if (exception instanceof ExpenseUserNotFoundError) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json({ error: exception.message });
+        } else if (exception instanceof ContactExpenseNotFoundError) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json({ error: exception.message });
+        } else if (exception instanceof GroupExpenseNotFoundError) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json({ error: exception.message });
+        } else if (exception instanceof MemberNotInGroupError) {
+            response
+                .status(HttpStatus.NOT_FOUND)
+                .json({ error: exception.message });
         }
-        if (exception instanceof GroupNotFoundError) {
-            throw new NotFoundException(exception.message);
-        }
-        if (exception instanceof ContactNotFoundError) {
-            throw new NotFoundException(exception.message);
-        }
-        if (exception instanceof ContactNotFoundInSavedList) {
-            throw new InternalServerErrorException(exception.message);
-        }
-        if (exception instanceof ExpenseNotFoundError) {
-            throw new NotFoundException(exception.message);
-        }
-        if (exception instanceof ExpenseUserNotFoundError) {
-            throw new NotFoundException(exception.message);
-        }
-        if (exception instanceof ContactExpenseNotFoundError) {
-            throw new NotFoundException(exception.message);
-        }
-        if (exception instanceof GroupExpenseNotFoundError) {
-            throw new NotFoundException(exception.message);
-        }
-        if (exception instanceof MemberNotInGroupError) {
-            throw new NotFoundException(exception.message);
-        }
-        throw exception;
     }
 }

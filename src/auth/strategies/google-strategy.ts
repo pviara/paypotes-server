@@ -64,7 +64,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         return user;
     }
 
-    extractUserProfileFrom(profile: GoogleProfile): UserProfile {
+    private extractUserProfileFrom(profile: GoogleProfile): UserProfile {
         const { givenName: firstname, familyName: lastname } = profile.name;
         return {
             firstname,

@@ -1,5 +1,6 @@
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
+import { Log } from '@infra/logger/log.decorator';
 import { Table } from '@infra/postgres/table';
 import { User, Users } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
@@ -38,6 +39,7 @@ export class UserPostgresRepository implements UserRepository {
         return user ? this.mapUserFrom(user) : null;
     }
 
+    @Log('debug')
     async getByName(name: string): Promise<Users> {
         const records = await this.knex
             .select()

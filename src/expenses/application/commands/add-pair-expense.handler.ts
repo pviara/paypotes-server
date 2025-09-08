@@ -6,6 +6,7 @@ import { dateServiceProviderToken } from '@app/shared/date/date.service.provider
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
+import { Log } from '@infra/logger/log.decorator';
 import { Metadata } from '@expenses/domain/expense/expense';
 import {
     PairExpense,
@@ -47,6 +48,7 @@ export class AddPairExpenseHandler
         private messenger: ContactTaskMessenger,
     ) {}
 
+    @Log('debug')
     async execute(command: AddPairExpenseCommand): Promise<void> {
         const { actor, userId } = command.payload;
 

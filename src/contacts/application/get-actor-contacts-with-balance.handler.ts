@@ -10,6 +10,7 @@ import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 import { Expense } from '@expenses/domain/expense/expense';
 import { Inject, Scope } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Log } from '@infra/logger/log.decorator';
 
 export class GetActorContactsWithBalanceQuery implements IQuery {
     constructor(
@@ -35,6 +36,7 @@ export class GetActorContactsWithBalanceHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
+    @Log('debug')
     async execute(
         query: GetActorContactsWithBalanceQuery,
     ): Promise<ContactWithBalance[]> {

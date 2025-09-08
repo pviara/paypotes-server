@@ -5,6 +5,7 @@ import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Log } from '@infra/logger/log.decorator';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 
@@ -27,6 +28,7 @@ export class GetActorExpensesHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
+    @Log('debug')
     async execute(
         query: GetActorExpensesQuery,
     ): Promise<(GroupExpenseSnapshot | PairExpenseSnapshot)[]> {

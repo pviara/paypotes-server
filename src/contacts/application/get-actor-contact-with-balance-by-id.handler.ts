@@ -6,6 +6,7 @@ import { expenseRepositoryToken } from '@expenses/persistence/expense.repository
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Log } from '@infra/logger/log.decorator';
 
 export class GetActorContactWithBalanceByIdQuery implements IQuery {
     constructor(
@@ -28,6 +29,7 @@ export class GetActorContactWithBalanceByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
+    @Log('debug')
     async execute(
         query: GetActorContactWithBalanceByIdQuery,
     ): Promise<ContactWithBalance> {

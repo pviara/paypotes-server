@@ -3,6 +3,7 @@ import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Log } from '@infra/logger/log.decorator';
 
 export class GetActorContactsQuery implements IQuery {
     constructor(
@@ -23,6 +24,7 @@ export class GetActorContactsHandler
         private contactRepository: ContactRepository,
     ) {}
 
+    @Log('debug')
     async execute(query: GetActorContactsQuery): Promise<Contact[]> {
         const { actorId, pageIndex, search } = query.payload;
         return this.contactRepository.getActorContacts(

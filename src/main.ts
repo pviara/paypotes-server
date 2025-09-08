@@ -11,7 +11,7 @@ import { setTimeout } from 'timers/promises';
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
-        logger: new ConsoleLogger({ colors: false }),
+        logger: new ConsoleLogger(),
     });
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalFilters(new ErrorFilter());
