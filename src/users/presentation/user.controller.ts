@@ -2,6 +2,7 @@ import { ActorId } from '@auth/presentation/model/actor.decorator';
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import { Controller, Get, Query } from '@nestjs/common';
 import { GetUserByNameQuery } from '@users/application/get-user-by-name.handler';
+import { Log } from '@infra/logger/log.decorator';
 import { ParseNamePipe } from '@users/presentation/pipes/parse-name.pipe';
 import { QueryBus } from '@nestjs/cqrs';
 import { User } from '@users/domain/user';
@@ -17,6 +18,7 @@ export class UserController {
     constructor(private queryBus: QueryBus) {}
 
     @Get()
+    @Log('debug')
     async getByName(
         @ActorId() actorId: string,
         @Name() name: string,
