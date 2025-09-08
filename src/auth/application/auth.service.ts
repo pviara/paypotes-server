@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Log } from '@infra/logger/log.decorator';
 import { Nullable } from '@app/shared/nullable';
 import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import { SignedInUser } from '@auth/domain/signed-in-user';
@@ -36,6 +37,7 @@ export class AuthService {
         private userRepository: UserRepository,
     ) {}
 
+    @Log('debug')
     async signInGoogle(idToken: string): Promise<SignedInUser> {
         const response = await this.googleClient.verifyIdToken({
             idToken,
@@ -50,6 +52,7 @@ export class AuthService {
         return this.signInStandard(user);
     }
 
+    @Log('debug')
     signInStandard(user: User): SignedInUser {
         return {
             token: this.jwtService.sign({

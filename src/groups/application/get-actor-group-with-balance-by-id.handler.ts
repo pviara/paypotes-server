@@ -6,6 +6,7 @@ import { groupRepositoryToken } from '@groups/persistence/group.repository-provi
 import { GroupWithBalance } from '@groups/domain/group-with-balance';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Log } from '@infra/logger/log.decorator';
 
 export class GetActorGroupWithBalanceByIdQuery implements IQuery {
     constructor(
@@ -28,6 +29,7 @@ export class GetActorGroupWithBalanceByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
+    @Log('log')
     async execute(
         query: GetActorGroupWithBalanceByIdQuery,
     ): Promise<GroupWithBalance> {

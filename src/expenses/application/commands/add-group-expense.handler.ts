@@ -12,6 +12,7 @@ import { GroupNotFoundError } from '@groups/application/get-actor-group-with-bal
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
+import { Log } from '@infra/logger/log.decorator';
 import { Metadata } from '@expenses/domain/expense/expense';
 
 export class AddGroupExpenseCommand implements ICommand {
@@ -43,6 +44,7 @@ export class AddGroupExpenseHandler
         private dateService: DateService,
     ) {}
 
+    @Log('log')
     async execute(command: AddGroupExpenseCommand): Promise<void> {
         const { actorId, groupId } = command.payload;
 

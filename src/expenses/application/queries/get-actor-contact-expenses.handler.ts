@@ -2,6 +2,7 @@ import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Log } from '@infra/logger/log.decorator';
 import {
     PairExpenseSnapshot,
     PairExpenseSnapshots,
@@ -27,6 +28,7 @@ export class GetActorContactExpensesHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
+    @Log('log')
     async execute(
         query: GetActorContactExpensesQuery,
     ): Promise<PairExpenseSnapshot[]> {

@@ -7,6 +7,7 @@ import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
+import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
@@ -39,6 +40,7 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
         private messenger: ContactTaskMessenger,
     ) {}
 
+    @Log('log')
     async execute(command: CreateGroupCommand): Promise<void> {
         const { payload } = command;
 

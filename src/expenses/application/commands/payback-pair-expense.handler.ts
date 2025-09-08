@@ -3,6 +3,7 @@ import { ExpenseNotFoundError } from '@expenses/application/queries/get-actor-ex
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
+import { Log } from '@infra/logger/log.decorator';
 
 export class PaybackPairExpenseCommand implements ICommand {
     constructor(
@@ -23,6 +24,7 @@ export class PaybackPairExpenseHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
+    @Log('log')
     async execute(command: PaybackPairExpenseCommand): Promise<void> {
         const { actorId, contactId, expenseId } = command.payload;
 

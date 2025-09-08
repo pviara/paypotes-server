@@ -3,6 +3,7 @@ import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Log } from '@infra/logger/log.decorator';
 
 export class GetActorGroupsQuery implements IQuery {
     constructor(
@@ -23,6 +24,7 @@ export class GetActorGroupsHandler
         private groupRepository: GroupRepository,
     ) {}
 
+    @Log('log')
     async execute(query: GetActorGroupsQuery): Promise<Group[]> {
         const { actorId, pageIndex, search } = query.payload;
         return this.groupRepository.getActorGroups(actorId, pageIndex, search);

@@ -9,6 +9,7 @@ import { GroupRepository } from '@groups/persistence/group.repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Log } from '@infra/logger/log.decorator';
 
 export class GetActorGroupExpensesQuery implements IQuery {
     constructor(
@@ -33,6 +34,7 @@ export class GetActorGroupExpensesHandler
         private groupRepository: GroupRepository,
     ) {}
 
+    @Log('log')
     async execute(
         query: GetActorGroupExpensesQuery,
     ): Promise<GroupExpenseSnapshot[]> {

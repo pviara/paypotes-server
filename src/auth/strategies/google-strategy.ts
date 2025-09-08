@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Inject, Injectable } from '@nestjs/common';
+import { Log } from '@infra/logger/log.decorator';
 import { Nullable } from '@app/shared/nullable';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
@@ -36,6 +37,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         });
     }
 
+    @Log('debug')
     async validate(
         accessToken: string,
         refreshToken: string,
@@ -64,7 +66,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         return user;
     }
 
-    extractUserProfileFrom(profile: GoogleProfile): UserProfile {
+    private extractUserProfileFrom(profile: GoogleProfile): UserProfile {
         const { givenName: firstname, familyName: lastname } = profile.name;
         return {
             firstname,
