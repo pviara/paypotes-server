@@ -21,8 +21,8 @@
         "test:all": "yarn test; yarn test:e2e",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "yarn build; APP_ENVIRONMENT=test CONTACT_TASKS_QUEUE=test_contact_tasks jest --config ./test/jest-e2e.json --runInBand",
-        "test:e2e:ci": "yarn build; APP_ENVIRONMENT=test CONTACT_TASKS_QUEUE=test_contact_tasks jest --config ./test/jest-e2e.json --runInBand",
+        "test:e2e": "yarn build; jest --config ./test/jest-e2e.json --runInBand",
+        "test:e2e:ci": "yarn build; jest --config ./test/jest-e2e.json --runInBand",
         "test:e2e:watch": "yarn test:e2e --watchAll"
     },
     "dependencies": {
@@ -101,6 +101,9 @@
                 "ts-jest"
             ]
         },
+        "setupFilesAfterEnv": [
+            "<rootDir>/test/jest-global-setup.ts"
+        ],
         "collectCoverage": false,
         "testEnvironment": "node",
         "reporters": [

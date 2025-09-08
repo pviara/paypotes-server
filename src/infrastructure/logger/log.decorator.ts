@@ -11,6 +11,9 @@ export const Log = (level: LogLevel) => {
         descriptor.value = async function (
             ...args: Array<unknown>
         ): Promise<unknown> {
+            if (process.env.APP_ENVIRONMENT === 'test')
+                return await decoratedMethod.apply(this, args);
+
             const context = target.constructor.name;
             this.logger.setContext(context);
 
