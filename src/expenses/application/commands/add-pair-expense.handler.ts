@@ -48,7 +48,7 @@ export class AddPairExpenseHandler
         private messenger: ContactTaskMessenger,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(command: AddPairExpenseCommand): Promise<void> {
         const { actor, userId } = command.payload;
 

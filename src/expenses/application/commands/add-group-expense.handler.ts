@@ -44,7 +44,7 @@ export class AddGroupExpenseHandler
         private dateService: DateService,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(command: AddGroupExpenseCommand): Promise<void> {
         const { actorId, groupId } = command.payload;
 

@@ -24,7 +24,7 @@ export class GetActorGroupsHandler
         private groupRepository: GroupRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(query: GetActorGroupsQuery): Promise<Group[]> {
         const { actorId, pageIndex, search } = query.payload;
         return this.groupRepository.getActorGroups(actorId, pageIndex, search);

@@ -36,7 +36,7 @@ export class GetActorContactsWithBalanceHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(
         query: GetActorContactsWithBalanceQuery,
     ): Promise<ContactWithBalance[]> {

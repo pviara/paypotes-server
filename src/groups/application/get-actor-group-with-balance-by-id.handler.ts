@@ -29,7 +29,7 @@ export class GetActorGroupWithBalanceByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(
         query: GetActorGroupWithBalanceByIdQuery,
     ): Promise<GroupWithBalance> {

@@ -24,7 +24,7 @@ export class GetActorContactExpenseByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(
         query: GetActorContactExpenseByIdQuery,
     ): Promise<PairExpenseSnapshot> {

@@ -29,7 +29,7 @@ export class GetActorContactWithBalanceByIdHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(
         query: GetActorContactWithBalanceByIdQuery,
     ): Promise<ContactWithBalance> {

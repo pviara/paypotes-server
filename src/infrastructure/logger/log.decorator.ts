@@ -14,9 +14,10 @@ export const Log = (level: LogLevel) => {
             if (process.env.APP_ENVIRONMENT === 'test')
                 return decoratedMethod.apply(this, args);
 
+            const context = target.constructor.name;
+            this.logger.setContext(context);
+
             try {
-                const context = target.constructor.name;
-                this.logger.setContext(context);
                 this.logger[level](`Called method "${propertyKey}"`);
                 this.logger.resetContext();
 
@@ -24,6 +25,8 @@ export const Log = (level: LogLevel) => {
             } catch (error: any) {
                 this.logger.error(error['message']);
                 throw error;
+            } finally {
+                this.logger.resetContext();
             }
         };
     };

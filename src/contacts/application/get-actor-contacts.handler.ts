@@ -24,7 +24,7 @@ export class GetActorContactsHandler
         private contactRepository: ContactRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(query: GetActorContactsQuery): Promise<Contact[]> {
         const { actorId, pageIndex, search } = query.payload;
         return this.contactRepository.getActorContacts(

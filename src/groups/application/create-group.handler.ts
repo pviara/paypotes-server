@@ -40,7 +40,7 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
         private messenger: ContactTaskMessenger,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(command: CreateGroupCommand): Promise<void> {
         const { payload } = command;
 

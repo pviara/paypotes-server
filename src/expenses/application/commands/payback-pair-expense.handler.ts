@@ -24,7 +24,7 @@ export class PaybackPairExpenseHandler
         private expenseRepository: ExpenseRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(command: PaybackPairExpenseCommand): Promise<void> {
         const { actorId, contactId, expenseId } = command.payload;
 

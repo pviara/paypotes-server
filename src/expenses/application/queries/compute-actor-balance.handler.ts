@@ -22,7 +22,7 @@ export class ComputeActorBalanceHandler
         private repository: ExpenseRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(query: ComputeActorBalanceQuery): Promise<number> {
         const { actorId } = query.payload;
         const expenses = await this.repository.getAllActorExpenses(actorId);

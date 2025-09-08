@@ -39,7 +39,7 @@ export class UserPostgresRepository implements UserRepository {
         return user ? this.mapUserFrom(user) : null;
     }
 
-    @Log('log')
+    @Log('debug')
     async getByName(name: string): Promise<Users> {
         const records = await this.knex
             .select()

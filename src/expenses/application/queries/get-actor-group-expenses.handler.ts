@@ -34,7 +34,7 @@ export class GetActorGroupExpensesHandler
         private groupRepository: GroupRepository,
     ) {}
 
-    @Log('log')
+    @Log('debug')
     async execute(
         query: GetActorGroupExpensesQuery,
     ): Promise<GroupExpenseSnapshot[]> {
