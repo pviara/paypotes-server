@@ -1,22 +1,24 @@
-type ConsoleLevel = 'log' | 'error' | 'debug' | 'warn';
+import { DefaultLoggerService } from '@infra/logger/logger.service';
+import { Inject, LogLevel } from '@nestjs/common';
 
-export const Log = (level: ConsoleLevel) => {
-    return (
-        target: any,
-        propertyKey: string,
-        descriptor: PropertyDescriptor,
-    ) => {
+export const Log = (level: LogLevel) => {
+    const injectLogger = Inject(DefaultLoggerService);
+
+    return (target: any, propertyKey: string, descriptor: any) => {
+        injectLogger(target, 'logger');
+
         const decoratedMethod = descriptor.value;
         descriptor.value = async function (
             ...args: Array<unknown>
         ): Promise<unknown> {
             const context = target.constructor.name;
-            console[level](`[${context}] Called method ${propertyKey}`);
+            this.logger.setContext(context);
 
             try {
+                this.logger[level](`Called method "${propertyKey}"`);
                 return await decoratedMethod.apply(this, args);
             } catch (error: any) {
-                console.error(`[${context}] Error thrown: ${error['message']}`);
+                this.logger.error(`Error thrown: ${error['message']}`);
                 throw error;
             }
         };
