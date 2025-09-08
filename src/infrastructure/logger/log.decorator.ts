@@ -18,7 +18,7 @@ export const Log = (level: LogLevel) => {
                 this.logger[level](`Called method "${propertyKey}"`);
                 return await decoratedMethod.apply(this, args);
             } catch (error: any) {
-                this.logger.error(`Error thrown: ${error['message']}`);
+                this.logger.error(error['message']);
                 throw error;
             }
         };

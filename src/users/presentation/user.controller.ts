@@ -18,7 +18,7 @@ export class UserController {
     constructor(private queryBus: QueryBus) {}
 
     @Get()
-    @Log('debug')
+    @Log('log')
     async getByName(
         @ActorId() actorId: string,
         @Name() name: string,

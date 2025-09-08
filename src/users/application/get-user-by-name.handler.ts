@@ -21,7 +21,7 @@ export class GetUserByNameHandler implements IQueryHandler<GetUserByNameQuery> {
         private userRepository: UserRepository,
     ) {}
 
-    @Log('debug')
+    @Log('log')
     async execute(query: GetUserByNameQuery): Promise<Users> {
         const { actorId, name } = query.payload;
         const users = await this.userRepository.getByName(name);
