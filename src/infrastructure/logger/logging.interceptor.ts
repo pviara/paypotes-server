@@ -21,9 +21,7 @@ export class LoggingInterceptor implements NestInterceptor {
         const method = request.method;
         const url = request.originalUrl;
 
-        this.logger.setContext(LoggingInterceptor.name);
-        this.logger.log(`${now} ${method} ${url}`);
-        this.logger.resetContext();
+        this.logger.log(`${method} ${url}`, LoggingInterceptor.name);
         return next.handle();
     }
 }

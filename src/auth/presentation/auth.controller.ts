@@ -14,8 +14,8 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleAuthGuard } from '@auth/presentation/guards/google.auth-guard';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { SignedInRequest } from '@auth/presentation/model/signed-in-request';
+import { SignedInUser } from '@auth/domain/signed-in-user';
 import { User } from '@users/domain/user';
-import { SignedInUser } from '../domain/signed-in-user';
 
 const AUTH_API_ROUTE = 'auth';
 

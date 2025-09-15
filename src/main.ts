@@ -1,6 +1,6 @@
 import { AppModule } from '@app/app.module';
 import { ConfigService } from '@nestjs/config';
-import { ConsoleLogger } from '@nestjs/common';
+import { DefaultLoggerService } from './infrastructure/logger/logger.service';
 import { ErrorFilter } from '@app/error-filter';
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -11,7 +11,7 @@ import { setTimeout } from 'timers/promises';
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
-        logger: new ConsoleLogger(),
+        logger: new DefaultLoggerService({ colors: false }),
     });
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalFilters(new ErrorFilter());
