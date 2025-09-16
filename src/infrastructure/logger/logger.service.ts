@@ -1,6 +1,10 @@
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+
+type Type = 'DEBUG' | 'LOG' | 'ERROR';
 
 type Log = {
+    type: string;
+    correlationId: string;
     date: string;
     message: string;
     context: string;
@@ -8,50 +12,70 @@ type Log = {
 };
 
 @Injectable()
-export class DefaultLoggerService extends ConsoleLogger {
-    constructor(options: { colors: boolean }) {
-        super(options);
-    }
-
-    override debug(
+export class LoggerService {
+    debug(
         message: string,
         context: string,
+        correlationId: string,
         ...args: Array<unknown>
     ): void {
-        const log: Log = this.createLogFrom(message, context, args);
+        const log: Log = this.createLogFrom(
+            'DEBUG',
+            message,
+            context,
+            correlationId,
+            args,
+        );
         console.debug(JSON.stringify(log));
     }
 
-    override error(
+    error(
         message: string,
         context: string,
+        correlationId: string,
         ...args: Array<unknown>
     ): void {
-        const log: Log = this.createLogFrom(message, context, args);
+        const log: Log = this.createLogFrom(
+            'ERROR',
+            message,
+            context,
+            correlationId,
+            args,
+        );
         console.error(JSON.stringify(log));
     }
 
-    override log(
+    log(
         message: string,
         context: string,
+        correlationId: string,
         ...args: Array<unknown>
     ): void {
-        const log: Log = this.createLogFrom(message, context, args);
+        const log: Log = this.createLogFrom(
+            'LOG',
+            message,
+            context,
+            correlationId,
+            args,
+        );
         console.log(JSON.stringify(log));
     }
 
     private createLogFrom(
+        type: Type,
         message: string,
         context: string,
+        correlationId: string,
         args: Array<unknown>,
     ): Log {
         const now = new Date().toISOString();
-        const log: Log = {
+        return {
+            type,
+            correlationId,
             date: now,
             message,
             context,
             args,
         };
-        return log;
     }
 }

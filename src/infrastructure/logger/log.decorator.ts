@@ -1,11 +1,14 @@
-import { DefaultLoggerService } from '@infra/logger/logger.service';
+import { AsyncLocalStorage } from 'async_hooks';
 import { Inject, LogLevel } from '@nestjs/common';
+import { LoggerService } from '@infra/logger/logger.service';
 
 export const Log = (level: LogLevel) => {
-    const injectLogger = Inject(DefaultLoggerService);
+    const injectLogger = Inject(LoggerService);
+    const injectAls = Inject(AsyncLocalStorage);
 
     return (target: any, propertyKey: string, descriptor: any) => {
         injectLogger(target, 'logger');
+        injectAls(target, 'als');
 
         const decoratedMethod = descriptor.value;
         descriptor.value = async function (
@@ -16,9 +19,12 @@ export const Log = (level: LogLevel) => {
 
             try {
                 const context = target.constructor.name;
+                const correlationId = this.als.getStore()?.['x-correlation-id'];
+
                 this.logger[level](
                     `Called method ${propertyKey}`,
                     context,
+                    correlationId,
                     args,
                 );
 

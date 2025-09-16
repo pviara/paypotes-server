@@ -1,5 +1,4 @@
 import { Contact } from '@contacts/domain/contact';
-import { Relationship } from '@contacts/persistence/relationship';
 import { User } from '@users/domain/user';
 
 export interface ContactRepository {
