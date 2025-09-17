@@ -3,7 +3,7 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { empty, shutdown } from '@test/helpers/utils';
 import { Expense } from '@expenses/domain/expense/expense';
 import { expenseSpecModules as modules } from '@test/helpers/expense/utils';
-import { EXPENSES_API_ROUTE } from '../expense.controller';
+import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { Fixture } from '@test/helpers/fixture';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';

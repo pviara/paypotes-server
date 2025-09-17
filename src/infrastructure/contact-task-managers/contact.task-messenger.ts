@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
 import { MessageType } from '@infra/contact-task-managers/message-content';
@@ -18,6 +19,7 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
     readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
 
     constructor(
+        private als: AsyncLocalStorage<any>,
         private configService: ConfigService,
 
         @Inject(rabbitMQProducerToken)
@@ -28,10 +30,12 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
         userIdA: string,
         userIdB: string,
     ): Promise<void> {
+        const correlationId = this.extractCorrelationIdFromStore();
         return this.producer.send({
             queue: this.queue,
             message: {
                 type: MessageType.PairExpenseCreated,
+                correlationId,
                 userIds: [userIdA, userIdB],
             },
         });
@@ -40,12 +44,18 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
     sendRelationshipsMustBeCreatedBetween(
         userIds: Array<string>,
     ): Promise<void> {
+        const correlationId = this.extractCorrelationIdFromStore();
         return this.producer.send({
             queue: this.queue,
             message: {
                 type: MessageType.GroupCreated,
+                correlationId,
                 userIds,
             },
         });
+    }
+
+    private extractCorrelationIdFromStore(): string {
+        return this.als.getStore()?.['x-correlation-id'] ?? '';
     }
 }

@@ -2,6 +2,7 @@ import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { Inject } from '@nestjs/common';
+import { Log } from '@infra/logger/log.decorator';
 import { UserRepository } from '@users/persistence/user.repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
@@ -25,6 +26,7 @@ export class AddRelationshipsBetweenUsersHandler
         private userRepo: UserRepository,
     ) {}
 
+    @Log('debug')
     async execute(command: AddRelationshipsBetweenUsersCommand): Promise<void> {
         const { payload } = command;
 

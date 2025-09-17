@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'async_hooks';
 import { Channel, ConsumeMessage } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
 import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
@@ -14,6 +15,7 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
     readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
 
     constructor(
+        private als: AsyncLocalStorage<any>,
         private configService: ConfigService,
 
         @Inject(rabbitMQServiceToken)
@@ -43,7 +45,9 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
             const messageContent = this.parse(message);
             if (!this.isMessageContent(messageContent)) return;
 
-            await this.handler.on(messageContent);
+            const store = { 'x-correlation-id': messageContent.correlationId };
+            await this.als.run(store, () => this.handler.on(messageContent));
+
             consumer.ack(message);
         } catch (error: unknown) {
             this.logger.error(

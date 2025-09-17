@@ -1,5 +1,5 @@
 import { ContactPostgresRepository } from '@contacts/persistence/contact.postgres-repository';
-import { Relationship } from '@contacts/persistence/relationship';
+import { Relationship } from '@test/helpers/contact/relationship';
 import { Table } from '@infra/postgres/table';
 
 export class ContactPostgresTestingRepository extends ContactPostgresRepository {

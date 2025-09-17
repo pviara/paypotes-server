@@ -1,8 +1,12 @@
 import { AppModule } from '@app/app.module';
 import { ConfigService } from '@nestjs/config';
-import { ConsoleLogger } from '@nestjs/common';
 import { ErrorFilter } from '@app/error-filter';
-import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+import {
+    ConsoleLogger,
+    INestApplication,
+    Logger,
+    ValidationPipe,
+} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
@@ -11,8 +15,9 @@ import { setTimeout } from 'timers/promises';
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
-        logger: new ConsoleLogger(),
+        logger: new ConsoleLogger({ colors: false }),
     });
+
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalFilters(new ErrorFilter());
     app.enableShutdownHooks();
@@ -35,6 +40,13 @@ async function createSampleUsersInLocalMode(
 
     if (environment === 'local') {
         const users = [
+            new User({
+                id: 'b714106e-7691-49f9-94c9-86eaea845642',
+                firstname: 'Pierre',
+                lastname: 'Viara',
+                email: 'pierre.viara@outlook.com',
+                avatarUrl: 'https://ui-avatars.com/api/?name=Pierre+Viara',
+            }),
             new User({
                 id: '58e99357-c339-41b0-960f-2f2c75d22e29',
                 firstname: 'Nadia',
@@ -80,9 +92,14 @@ async function createSampleUsersInLocalMode(
         ];
 
         const userRepo = app.get<UserRepository>(userRepositoryToken);
-        const exist = await userRepo.get(...users.map((user) => user.getId()));
-        if (exist.length === 0)
-            for (const user of users) await userRepo?.create(user);
+        for (const user of users) {
+            const existingUsers = await userRepo.get(user.getId());
+            if (existingUsers.length > 0) {
+                continue;
+            }
+
+            await userRepo?.create(user);
+        }
     }
 }
 

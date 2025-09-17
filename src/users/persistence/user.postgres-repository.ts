@@ -20,6 +20,7 @@ export class UserPostgresRepository implements UserRepository {
         return this.knex.insert(this.mapRecordFrom(user)).into(Table.Users);
     }
 
+    @Log('debug')
     async get(...userIds: Array<string>): Promise<Users> {
         const records = await this.knex
             .select()
@@ -29,6 +30,7 @@ export class UserPostgresRepository implements UserRepository {
         return this.mapUsersFrom(records);
     }
 
+    @Log('debug')
     async getByEmail(email: string): Promise<User | null> {
         const user = await this.knex
             .select()

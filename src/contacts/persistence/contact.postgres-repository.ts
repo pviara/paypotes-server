@@ -2,6 +2,7 @@ import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { Contact } from '@contacts/domain/contact';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
+import { Log } from '@infra/logger/log.decorator';
 import { Table } from '@infra/postgres/table';
 import { User } from '@users/domain/user';
 
@@ -15,6 +16,7 @@ type ContactRecord = {
 export class ContactPostgresRepository implements ContactRepository {
     constructor(@InjectKnex() protected knex: Knex) {}
 
+    @Log('debug')
     async addRelationshipsBetween(users: Array<User>): Promise<void> {
         for (const user of users) {
             const otherUsers = this.getOtherUsersThan(user, users);
@@ -32,6 +34,7 @@ export class ContactPostgresRepository implements ContactRepository {
         }
     }
 
+    @Log('debug')
     async getActorContactById(
         actorId: string,
         contactId: string,
@@ -80,6 +83,7 @@ export class ContactPostgresRepository implements ContactRepository {
         return this.mapContactFrom(contact);
     }
 
+    @Log('debug')
     async getActorContacts(
         actorId: string,
         pageIndex: number,

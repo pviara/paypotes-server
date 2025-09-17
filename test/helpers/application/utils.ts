@@ -5,6 +5,7 @@ import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.
 import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { Fixture } from '@test/helpers/fixture';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { InfrastructureModule } from '@infra/infrastructure.module';
@@ -13,7 +14,6 @@ import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { userRepositoryToken } from '@users/persistence/user.repository-provider';
-import { Fixture } from '../fixture';
 
 export const isClassProvider = (
     provider: Provider,

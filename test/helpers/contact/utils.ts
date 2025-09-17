@@ -4,7 +4,7 @@ import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseModule } from '@expenses/expense.module';
 import { Modules } from '@test/helpers/application/model/module';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
-import { Relationship } from '@contacts/persistence/relationship';
+import { Relationship } from '@test/helpers/contact/relationship';
 
 export const contactSpecModules: Modules = [ContactModule, ExpenseModule];
 

@@ -2,6 +2,7 @@ import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
+import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
 import { Table } from '@infra/postgres/table';
 
@@ -31,6 +32,7 @@ export type GroupDetailedRecord = GroupRecord & {
 export class GroupPostgresRepository implements GroupRepository {
     constructor(@InjectKnex() protected knex: Knex) {}
 
+    @Log('debug')
     async getActorGroupById(
         actorId: string,
         groupId: string,
@@ -69,6 +71,7 @@ export class GroupPostgresRepository implements GroupRepository {
         return null;
     }
 
+    @Log('debug')
     async getActorGroups(
         actorId: string,
         pageIndex: number,
@@ -109,6 +112,7 @@ export class GroupPostgresRepository implements GroupRepository {
         );
     }
 
+    @Log('debug')
     async save(group: Group): Promise<void> {
         const groupRecord: GroupRecord = {
             id: group.getId(),

@@ -15,6 +15,7 @@ import { groupRepositoryToken } from '@groups/persistence/group.repository-provi
 import { Inject } from '@nestjs/common';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
+import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
 import {
     PairExpense,
@@ -71,10 +72,12 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         protected knex: Knex,
     ) {}
 
+    @Log('debug')
     async delete(expenseId: string): Promise<void> {
         await this.knex.delete().from(Table.Expenses).where('id', expenseId);
     }
 
+    @Log('debug')
     async getActorContactExpenseById(
         actorId: string,
         contactId: string,
@@ -146,6 +149,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return null;
     }
 
+    @Log('debug')
     async getActorContactExpenses(
         actorId: string,
         contactId: string,
@@ -215,6 +219,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
+    @Log('debug')
     async getActorExpenseById(
         actorId: string,
         expenseId: string,
@@ -274,6 +279,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return null;
     }
 
+    @Log('debug')
     async getActorExpenses(
         actorId: string,
         pageIndex: number,
@@ -340,6 +346,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
+    @Log('debug')
     async getActorGroupExpenseById(
         actorId: string,
         groupId: string,
@@ -407,6 +414,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return null;
     }
 
+    @Log('debug')
     async getActorGroupExpenses(
         actorId: string,
         group: Group,
@@ -468,6 +476,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
+    @Log('debug')
     async getAllActorContactExpenses(
         actorId: string,
         contactId: string,
@@ -531,6 +540,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
+    @Log('debug')
     async getAllActorContactsExpenses(
         actorId: string,
         contactIds: Array<string>,
@@ -594,6 +604,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return expenses;
     }
 
+    @Log('debug')
     async getAllActorExpenses(actorId: string): Promise<Expense[]> {
         const { rows: expenses } = await this.knex.raw(`
             with actor_stakeholder as (
@@ -652,6 +663,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
+    @Log('debug')
     async getAllActorGroupExpenses(
         actorId: string,
         group: Group,
@@ -707,6 +719,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         );
     }
 
+    @Log('debug')
     async getAllActorGroupsExpenses(
         actorId: string,
         groups: Array<Group>,
@@ -771,6 +784,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         return expenses;
     }
 
+    @Log('debug')
     async saveGroupExpense(expense: GroupExpense): Promise<void> {
         await this.knex
             .insert({
@@ -799,6 +813,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         }
     }
 
+    @Log('debug')
     async savePairExpense(expense: PairExpense): Promise<void> {
         await this.knex
             .insert({
@@ -827,6 +842,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         }
     }
 
+    @Log('debug')
     async updateGroupExpense(expense: GroupExpense): Promise<void> {
         for (const stakeholder of expense.getStakeholders()) {
             await this.knex(Table.Stakeholders)
@@ -836,6 +852,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         }
     }
 
+    @Log('debug')
     async updatePairExpense(expense: PairExpense): Promise<void> {
         for (const stakeholder of expense.getStakeholders()) {
             await this.knex(Table.Stakeholders)

@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'async_hooks';
 import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
 import { contactTaskHandlerToken } from '@infra/contact-task-handlers/contact.task-handler.provider';
 import { ConfigService } from '@nestjs/config';
@@ -8,14 +9,21 @@ import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider'
 
 export const contactTaskRecipientToken = 'ContactTaskRecipient';
 export const contactTaskRecipientProvider: Provider = {
-    inject: [ConfigService, rabbitMQServiceToken, contactTaskHandlerToken],
+    inject: [
+        AsyncLocalStorage,
+        ConfigService,
+        rabbitMQServiceToken,
+        contactTaskHandlerToken,
+    ],
     provide: contactTaskRecipientToken,
     useFactory: (
+        als: AsyncLocalStorage<any>,
         configService: ConfigService,
         rabbitMQService: RabbitMQService,
         contactTaskHandler: ContactTaskHandler,
     ) =>
         new RabbitMQContactTaskRecipient(
+            als,
             configService,
             rabbitMQService,
             contactTaskHandler,

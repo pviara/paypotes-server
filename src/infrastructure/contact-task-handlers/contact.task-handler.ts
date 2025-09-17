@@ -1,6 +1,7 @@
 import { AddRelationshipsBetweenUsersCommand } from '@contacts/application/tasks/add-relationships-between-users.handler';
 import { CommandBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
+import { Log } from '@infra/logger/log.decorator';
 import {
     MessageContent,
     MessageType,
@@ -14,6 +15,7 @@ export interface ContactTaskHandler {
 export class DefaultContactTaskHandler implements ContactTaskHandler {
     constructor(private commandBus: CommandBus) {}
 
+    @Log('debug')
     async on(message: MessageContent): Promise<void> {
         switch (message.type) {
             case MessageType.GroupCreated:

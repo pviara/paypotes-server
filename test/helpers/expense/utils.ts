@@ -8,8 +8,11 @@ import {
 } from '@expenses/domain/expense/group/group-expense';
 import { Member } from '@groups/domain/member';
 import { Expense, Metadata } from '@expenses/domain/expense/expense';
+import {
+    generateRandomGroup,
+    generateRandomMember,
+} from '@test/helpers/group/utils';
 import { Modules } from '@test/helpers/application/model/module';
-import { Providers } from '@test/helpers/application/application';
 import {
     PairExpense,
     PairPayment,
@@ -18,7 +21,6 @@ import { RandomArrayGenerationOptions } from '@test/helpers/types';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { User } from '@users/domain/user';
 import { ZERO } from '@app/shared/zero';
-import { generateRandomGroup, generateRandomMember } from '../group/utils';
 
 export const expenseSpecModules: Modules = [ExpenseModule];
 
