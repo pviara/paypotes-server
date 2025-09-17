@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common';
 type Type = 'DEBUG' | 'LOG' | 'ERROR';
 
 type Log = {
+    date: string;
     type: string;
     correlationId: string;
-    date: string;
     message: string;
     context: string;
     args: Array<unknown>;
@@ -70,9 +70,9 @@ export class LoggerService {
     ): Log {
         const now = new Date().toISOString();
         return {
+            date: now,
             type,
             correlationId,
-            date: now,
             message,
             context,
             args,
