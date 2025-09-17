@@ -1,5 +1,5 @@
+import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
-import { generateRandomUser } from '@test/helpers/user/utils';
 import { MessageType } from '@infra/contact-task-managers/message-content';
 import { RabbitMQContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
@@ -7,13 +7,17 @@ import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
 describe('RabbitMQContactTaskMessenger', () => {
     let sut: RabbitMQContactTaskMessenger;
 
+    let asyncLocalStorage: AsyncLocalStorage<unknown>;
     let rabbitMQProducer: RabbitMQProducerSpy;
     let configService: ConfigService;
 
+    const dummyCorrelationId = crypto.randomUUID();
+
     beforeEach(() => {
-        rabbitMQProducer = new RabbitMQProducerSpy();
-        configService = new ConfigService();
-        sut = new RabbitMQContactTaskMessenger(configService, rabbitMQProducer);
+        initSut();
+        asyncLocalStorage.getStore = () => ({
+            'x-correlation-id': dummyCorrelationId,
+        });
     });
 
     describe('sendRelationshipMustBeCreatedBetween', () => {
@@ -33,6 +37,7 @@ describe('RabbitMQContactTaskMessenger', () => {
                 queue: sut.queue,
                 message: {
                     type: MessageType.PairExpenseCreated,
+                    correlationId: dummyCorrelationId,
                     userIds: [dummyUserIdA, dummyUserIdB],
                 },
             });
@@ -52,9 +57,25 @@ describe('RabbitMQContactTaskMessenger', () => {
                 queue: sut.queue,
                 message: {
                     type: MessageType.GroupCreated,
+                    correlationId: dummyCorrelationId,
                     userIds,
                 },
             });
         });
     });
+
+    function initSut(): void {
+        initDependencies();
+        sut = new RabbitMQContactTaskMessenger(
+            asyncLocalStorage,
+            configService,
+            rabbitMQProducer,
+        );
+    }
+
+    function initDependencies(): void {
+        asyncLocalStorage = new AsyncLocalStorage();
+        rabbitMQProducer = new RabbitMQProducerSpy();
+        configService = new ConfigService();
+    }
 });

@@ -1,11 +1,9 @@
-import { User } from '@users/domain/user';
-
 export enum MessageType {
     GroupCreated = 'groupCreated',
     PairExpenseCreated = 'pairExpenseCreated',
 }
 
-type BaseMessageContent = { type: MessageType };
+type BaseMessageContent = { type: MessageType; correlationId: string };
 
 type AddRelationshipBetweenUsersMessageContent = BaseMessageContent & {
     userIds: [string, string];
