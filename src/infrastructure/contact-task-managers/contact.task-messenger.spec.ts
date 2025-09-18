@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
-import { MessageType } from '@infra/contact-task-managers/message-content';
+import { Message } from '@infra/contact-task-managers/message-content';
 import { RabbitMQContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
 
@@ -36,7 +36,7 @@ describe('RabbitMQContactTaskMessenger', () => {
             expect(rabbitMQProducer.calls.send.history).toContainEqual({
                 queue: sut.queue,
                 message: {
-                    type: MessageType.PairExpenseCreated,
+                    type: Message.PairExpenseCreated,
                     correlationId: dummyCorrelationId,
                     userIds: [dummyUserIdA, dummyUserIdB],
                 },
@@ -56,7 +56,7 @@ describe('RabbitMQContactTaskMessenger', () => {
             expect(rabbitMQProducer.calls.send.history).toContainEqual({
                 queue: sut.queue,
                 message: {
-                    type: MessageType.GroupCreated,
+                    type: Message.GroupCreated,
                     correlationId: dummyCorrelationId,
                     userIds,
                 },
