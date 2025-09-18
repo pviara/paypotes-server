@@ -60,7 +60,7 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
         );
 
         const userIds = this.mapIdsFrom(users);
-        return this.messenger.sendRelationshipsMustBeCreatedBetween(userIds);
+        this.messenger.sendRelationshipsMustBeCreatedBetween(userIds);
     }
 
     private mapToMembers(users: Array<User>): Array<Member> {

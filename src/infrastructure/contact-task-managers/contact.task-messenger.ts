@@ -4,6 +4,7 @@ import { Inject } from '@nestjs/common';
 import { MessageType } from '@infra/contact-task-managers/message-content';
 import { Producer } from '@infra/rabbitmq/rabbitmq.producer';
 import { rabbitMQProducerToken } from '@infra/rabbitmq/rabbitmq.producer.provider';
+import { Log } from '../logger/log.decorator';
 
 export interface ContactTaskMessenger {
     sendRelationshipMustBeCreatedBetween(
@@ -26,6 +27,7 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
         private producer: Producer,
     ) {}
 
+    @Log('debug')
     sendRelationshipMustBeCreatedBetween(
         userIdA: string,
         userIdB: string,
@@ -41,6 +43,7 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
         });
     }
 
+    @Log('debug')
     sendRelationshipsMustBeCreatedBetween(
         userIds: Array<string>,
     ): Promise<void> {

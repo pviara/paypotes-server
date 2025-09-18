@@ -17,10 +17,10 @@ export const Log = (level: LogLevel) => {
             if (process.env.APP_ENVIRONMENT === 'test')
                 return decoratedMethod.apply(this, args);
 
-            try {
-                const context = target.constructor.name;
-                const correlationId = this.als.getStore()?.['x-correlation-id'];
+            const context = target.constructor.name;
+            const correlationId = this.als.getStore()?.['x-correlation-id'];
 
+            try {
                 this.logger[level](
                     `Called method ${propertyKey}`,
                     context,
@@ -30,7 +30,12 @@ export const Log = (level: LogLevel) => {
 
                 return await decoratedMethod.apply(this, args);
             } catch (error: any) {
-                this.logger.error(error['message']);
+                this.logger.error(
+                    error['message'],
+                    `${context}.${propertyKey}`,
+                    correlationId,
+                    args,
+                );
                 throw error;
             }
         };

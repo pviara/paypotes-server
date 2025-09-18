@@ -3,15 +3,14 @@ import { Channel, ConsumeMessage } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
 import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
 import { contactTaskHandlerToken } from '@infra/contact-task-handlers/contact.task-handler.provider';
-import { Inject, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, OnApplicationBootstrap } from '@nestjs/common';
+import { Log } from '@infra/logger/log.decorator';
 import { MessageContent } from '@infra/contact-task-managers/message-content';
 import { Nullable } from '@app/shared/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 
 export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
-    private logger = new Logger(RabbitMQContactTaskRecipient.name);
-
     readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
 
     constructor(
@@ -31,8 +30,6 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
         consumer.consume(this.queue, (message) =>
             this.attemptHandling(message, consumer),
         );
-
-        this.logger.log(`Consuming queue ${this.queue}`);
     }
 
     private async attemptHandling(
@@ -49,12 +46,7 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
             await this.als.run(store, () => this.handler.on(messageContent));
 
             consumer.ack(message);
-        } catch (error: unknown) {
-            this.logger.error(
-                `Error handling message ${message?.fields.consumerTag}`,
-                error,
-            );
-        }
+        } catch (error: unknown) {}
     }
 
     private parse(message: Nullable<ConsumeMessage>): unknown {
@@ -62,6 +54,11 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
     }
 
     private isMessageContent(content: unknown): content is MessageContent {
-        return !!content && typeof content === 'object' && 'type' in content;
+        return (
+            !!content &&
+            typeof content === 'object' &&
+            'type' in content &&
+            'correlationId' in content
+        );
     }
 }
