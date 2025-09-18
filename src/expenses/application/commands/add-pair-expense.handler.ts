@@ -60,7 +60,7 @@ export class AddPairExpenseHandler
         const expense = PairExpense.create(metadata, payment);
 
         await this.expenseRepository.savePairExpense(expense);
-        return this.messenger.sendRelationshipMustBeCreatedBetween(
+        this.messenger.sendRelationshipMustBeCreatedBetween(
             actor.getId(),
             stakeholder.getId(),
         );

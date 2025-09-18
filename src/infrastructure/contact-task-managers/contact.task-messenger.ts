@@ -1,9 +1,10 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
-import { MessageType } from '@infra/contact-task-managers/message-content';
+import { Message } from '@infra/contact-task-managers/message-content';
 import { Producer } from '@infra/rabbitmq/rabbitmq.producer';
 import { rabbitMQProducerToken } from '@infra/rabbitmq/rabbitmq.producer.provider';
+import { Log } from '../logger/log.decorator';
 
 export interface ContactTaskMessenger {
     sendRelationshipMustBeCreatedBetween(
@@ -26,6 +27,7 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
         private producer: Producer,
     ) {}
 
+    @Log('debug')
     sendRelationshipMustBeCreatedBetween(
         userIdA: string,
         userIdB: string,
@@ -34,13 +36,14 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
         return this.producer.send({
             queue: this.queue,
             message: {
-                type: MessageType.PairExpenseCreated,
+                type: Message.PairExpenseCreated,
                 correlationId,
                 userIds: [userIdA, userIdB],
             },
         });
     }
 
+    @Log('debug')
     sendRelationshipsMustBeCreatedBetween(
         userIds: Array<string>,
     ): Promise<void> {
@@ -48,7 +51,7 @@ export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
         return this.producer.send({
             queue: this.queue,
             message: {
-                type: MessageType.GroupCreated,
+                type: Message.GroupCreated,
                 correlationId,
                 userIds,
             },

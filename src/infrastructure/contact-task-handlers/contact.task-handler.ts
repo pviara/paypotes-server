@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import {
     MessageContent,
-    MessageType,
+    Message,
 } from '@infra/contact-task-managers/message-content';
 
 export interface ContactTaskHandler {
@@ -18,8 +18,8 @@ export class DefaultContactTaskHandler implements ContactTaskHandler {
     @Log('debug')
     async on(message: MessageContent): Promise<void> {
         switch (message.type) {
-            case MessageType.GroupCreated:
-            case MessageType.PairExpenseCreated: {
+            case Message.GroupCreated:
+            case Message.PairExpenseCreated: {
                 const command = new AddRelationshipsBetweenUsersCommand({
                     userIds: message.userIds,
                 });
