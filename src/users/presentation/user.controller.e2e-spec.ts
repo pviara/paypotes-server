@@ -11,6 +11,7 @@ import {
 } from '@test/helpers/user/utils';
 import { USERS_API_ROUTE } from '@users/presentation/user.controller';
 import * as request from 'supertest';
+import { User } from '../domain/user';
 
 describe('UserController', () => {
     const application = initApplicationWith(modules);
@@ -46,6 +47,24 @@ describe('UserController', () => {
 
         it('should return the right user for given name', async () => {
             const dummyUser = generateRandomUser();
+            await userRepo.insert(dummyUser);
+
+            const response = await request(httpServer).get(
+                `/${USERS_API_ROUTE}?name=${dummyUser.getFirstname()}`,
+            );
+
+            expect(response.status).toBe(HttpStatus.OK);
+            expect(response.body).toContainEqual(raw(UserDTO.from(dummyUser)));
+        });
+
+        it('should return the right user for given name with accent', async () => {
+            const dummyUser = new User({
+                id: crypto.randomUUID(),
+                firstname: 'Théo',
+                lastname: 'Lucas',
+                email: 't.lucas@test.com',
+                avatarUrl: '',
+            });
             await userRepo.insert(dummyUser);
 
             const response = await request(httpServer).get(
