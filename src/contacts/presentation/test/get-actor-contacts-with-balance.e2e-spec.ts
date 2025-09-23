@@ -1,16 +1,19 @@
 import { App } from 'supertest/types';
-import { Balance } from '@expenses/domain/balance/balance';
 import { Contact } from '@contacts/domain/contact';
-import { contactSpecModules as modules } from '@test/helpers/contact/utils';
+import { ContactWithBalanceDTO } from '../dto/contact-with-balance.dto';
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
 import { convertCents, empty, shutdown } from '@test/helpers/utils';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
 import { Fixture } from '@test/helpers/fixture';
+import { contactSpecModules as modules } from '@test/helpers/contact/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
-import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import * as request from 'supertest';
+import { PairExpense } from '@app/expenses/domain/expense/pair/pair-expense';
+import { Balance } from '@app/expenses/domain/balance/balance';
+import { PairExpenseSnapshot } from '@app/expenses/domain/expense/pair/pair-expense-snapshot';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { BalanceDTO } from '@app/shared/dto/balance.dto';
+import { setTimeout } from 'node:timers/promises';
 
 describe('getActorContacts', () => {
     const application = initApplicationWith(modules);
@@ -31,85 +34,180 @@ describe('getActorContacts', () => {
 
     afterEach(empty(application));
 
-    let dummyContact: Contact;
-
-    beforeEach(async () => {
-        dummyContact = await fixture.setupDefaultUserContact();
-    });
-
-    const invalidIds = ['id', null, 59391, NaN, undefined];
-    it.each(invalidIds)(
-        'should return 400 BAD_REQUEST when given param "%s" is not a valid uuid',
-        async (id: unknown) => {
+    describe('actor has no contact', () => {
+        it('should return an empty array', async () => {
             const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}/${id}`,
+                `/${CONTACTS_API_ROUTE}`,
             );
 
-            expect(response.status).toBe(HttpStatus.BAD_REQUEST);
-        },
-    );
-
-    describe('actor has no expense with contact', () => {
-        it('should return default balance "0,00"', async () => {
-            const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}`,
-            );
-
-            expect(response.body.id).toBe(dummyContact.getId());
-            expect(response.body.firstname).toBe(dummyContact.getFirstname());
-            expect(response.body.lastname).toBe(dummyContact.getLastname());
-            expect(response.body.avatarUrl).toBe(dummyContact.getAvatarUrl());
-            expect(response.body.balance).toBe('0,00');
+            expect(response.status).toBe(HttpStatus.OK);
+            expect(response.body.length).toBe(0);
         });
     });
 
-    describe('actor has expenses with contact', () => {
-        let dummyContactExpenses: Array<PairExpense>;
+    describe('actor has contacts', () => {
+        let dummyContacts: Array<Contact>;
 
         beforeEach(async () => {
-            ({ contact: dummyContact, expenses: dummyContactExpenses } =
-                await fixture.setupDefaultUserUniqueContactPairExpenses());
+            dummyContacts = await fixture.setupDefaultUserContacts();
         });
 
-        it('should return the right balance', async () => {
+        it('should return the first 20 contacts by default', async () => {
             const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}`,
+                `/${CONTACTS_API_ROUTE}`,
             );
 
-            const balance = computeActorDummyContactBalance();
-            const expected = `${convertCents(balance).toFixed(2)}`.replace(
-                '.',
-                ',',
-            );
-
-            expect(response.body.balance).toBe(expected);
+            const dtos = response.body;
+            expect(dtos.length).toBe(20);
+            expectReturnedDtosToBeTheFirstTwentyContacts(dtos);
         });
 
-        describe('actor expenses have all been settled', () => {
-            beforeEach(async () => {
-                await paybackAllExpenses();
-            });
-
-            it('should return nil balance', async () => {
+        describe('page index has been given', () => {
+            it('should return the second 20 contacts when given index is 1', async () => {
                 const response = await request(httpServer).get(
-                    `/${CONTACTS_API_ROUTE}/${dummyContact.getId()}`,
+                    `/${CONTACTS_API_ROUTE}?pageIndex=1`,
                 );
-                expect(response.body.balance).toBe('0,00');
+
+                const dtos = response.body;
+                expect(dtos.length).toBe(20);
+                expectReturnedDtosToBeTheSecondTwentyContacts(dtos);
             });
 
-            async function paybackAllExpenses(): Promise<void> {
-                for (const expense of dummyContactExpenses) {
-                    const res = await request(httpServer).put(
-                        `/${EXPENSES_API_ROUTE}/pair/${dummyContact.getId()}/${expense.getId()}`,
-                    );
-                }
+            function expectReturnedDtosToBeTheSecondTwentyContacts(
+                dtos: Array<ContactWithBalanceDTO>,
+            ): void {
+                const secondTwentyContacts = dummyContacts.slice(20, 40);
+                const returnedDtosAreTheSecondTwentyContacts = dtos.every(
+                    dtoIsIn(secondTwentyContacts),
+                );
+
+                expect(returnedDtosAreTheSecondTwentyContacts).toBe(true);
             }
         });
 
-        function computeActorDummyContactBalance(): number {
-            return Balance.calculate({
-                expenses: dummyContactExpenses,
-                stakeholderId: DEFAULT_USER.getId(),
+        describe('search has been given', () => {
+            it('should return the contacts that match the search', async () => {
+                const targetContact = dummyContacts[0];
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}?search=${targetContact.getFirstname()}`,
+                );
+
+                expect(response.body.length).toBe(1);
+                expect(response.body[0].id).toBe(targetContact.getId());
+            });
+        });
+
+        function expectReturnedDtosToBeTheFirstTwentyContacts(
+            dtos: Array<ContactWithBalanceDTO>,
+        ): void {
+            const firstTwentyContacts = dummyContacts.slice(0, 20);
+            const returnedDtosAreTheFirstTwentyContacts = dtos.every(
+                dtoIsIn(firstTwentyContacts),
+            );
+
+            expect(returnedDtosAreTheFirstTwentyContacts).toBe(true);
+        }
+
+        function dtoIsIn(
+            contacts: Array<Contact>,
+        ): (dto: ContactWithBalanceDTO) => boolean {
+            return (dto: ContactWithBalanceDTO) =>
+                contacts.some((contact) => contact.getId() === dto.id);
+        }
+    });
+
+    describe('actor has only contacts with no expense', () => {
+        it('should return the contacts with default zero balance', async () => {
+            const response = await request(httpServer).get(
+                `/${CONTACTS_API_ROUTE}`,
+            );
+
+            const dtos = response.body;
+            expectAllReturnedDtosToHaveDefaultZeroBalance(dtos);
+        });
+
+        function expectAllReturnedDtosToHaveDefaultZeroBalance(
+            dtos: Array<ContactWithBalanceDTO>,
+        ): void {
+            dtos.forEach((dto) => expect(dto.balance).toBe('0,00'));
+        }
+    });
+
+    describe('actor has a contact with expenses, and another one without', () => {
+        let dummyContact: Contact;
+        let dummyContactWithExpense: Contact;
+
+        beforeEach(async () => {
+            dummyContact = await fixture.setupDefaultUserContact();
+            ({ contact: dummyContactWithExpense } =
+                await fixture.setupDefaultUserUniqueContactPairExpenses({
+                    length: 10,
+                }));
+        });
+
+        it('should return both contacts', async () => {
+            const response = await request(httpServer).get(
+                `/${CONTACTS_API_ROUTE}`,
+            );
+
+            const dtos = response.body;
+            expect(dtos.length).toBe(2);
+            expectBothContactsToHaveBeenReturnedIn(dtos);
+        });
+
+        function expectBothContactsToHaveBeenReturnedIn(
+            dtos: Array<ContactWithBalanceDTO>,
+        ): void {
+            const bothContacts = [dummyContact, dummyContactWithExpense];
+            const bothContactsReturned = bothContacts.every((contact) =>
+                dtos.some((dto) => contact.getId() === dto.id),
+            );
+            expect(bothContactsReturned).toBe(true);
+        }
+    });
+
+    describe('actor has contacts with expenses', () => {
+        type ExpenseBalanceRecord = { expenseId: string; balance: string };
+        let expenseBalances: Array<ExpenseBalanceRecord>;
+
+        beforeEach(async () => {
+            const expenses = await fixture.setupDefaultUserPairExpenses();
+            expenseBalances = expenses.map(mapToExpenseBalanceRecord());
+        });
+
+        it('should return the contacts with the right balance', async () => {
+            const response = await request(httpServer).get(
+                `/${CONTACTS_API_ROUTE}`,
+            );
+
+            const dtos = response.body;
+            expectAllReturnedDtosToHaveRightBalance(dtos);
+        });
+
+        function mapToExpenseBalanceRecord(): (
+            value: PairExpense,
+        ) => ExpenseBalanceRecord {
+            return (expense) => {
+                const snapshot = PairExpenseSnapshot.create({
+                    expense,
+                    perspectiveId: DEFAULT_USER.getId(),
+                });
+                const balance = snapshot.getPerspectiveBalance();
+                return {
+                    expenseId: expense.getId(),
+                    balance: BalanceDTO.from(balance).getValue(),
+                };
+            };
+        }
+
+        function expectAllReturnedDtosToHaveRightBalance(
+            dtos: Array<ContactWithBalanceDTO>,
+        ): void {
+            dtos.forEach((dto) => {
+                const expenseBalance = expenseBalances.find(
+                    ({ expenseId }) => expenseId === dto.id,
+                );
+                expect(dto.balance).toBe(expenseBalance?.balance);
             });
         }
     });
