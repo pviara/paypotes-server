@@ -16,6 +16,10 @@ import {
 } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from './group/utils';
 import {
+    generateDefaultUserRelationships,
+    generateRandomContacts,
+} from '@test/helpers/contact/utils';
+import {
     generateRandomUser,
     mapUserFrom,
     mapUsersFrom,
@@ -59,6 +63,20 @@ export class Fixture {
         await this.contactRepo.addRelationshipsBetween([DEFAULT_USER, user]);
 
         return Contact.fromUser(user);
+    }
+
+    async setupDefaultUserContacts(options?: Options): Promise<Contact[]> {
+        const contacts = generateRandomContacts({
+            length: options?.length ?? 40,
+        });
+        const users = mapUsersFrom(contacts);
+
+        await this.userRepo.insert(DEFAULT_USER, ...users);
+
+        const relationships = generateDefaultUserRelationships({ contacts });
+        await this.contactRepo.insert(...relationships);
+
+        return contacts;
     }
 
     async setupDefaultUserGroup(): Promise<Group> {
