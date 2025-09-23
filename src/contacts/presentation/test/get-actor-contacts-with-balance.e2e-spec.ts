@@ -1,19 +1,17 @@
 import { App } from 'supertest/types';
+import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { Contact } from '@contacts/domain/contact';
 import { ContactWithBalanceDTO } from '../dto/contact-with-balance.dto';
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
-import { convertCents, empty, shutdown } from '@test/helpers/utils';
+import { DEFAULT_USER } from '@test/doubles/auth/default-user';
+import { empty, shutdown } from '@test/helpers/utils';
 import { Fixture } from '@test/helpers/fixture';
 import { contactSpecModules as modules } from '@test/helpers/contact/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
+import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
+import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 import * as request from 'supertest';
-import { PairExpense } from '@app/expenses/domain/expense/pair/pair-expense';
-import { Balance } from '@app/expenses/domain/balance/balance';
-import { PairExpenseSnapshot } from '@app/expenses/domain/expense/pair/pair-expense-snapshot';
-import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { BalanceDTO } from '@app/shared/dto/balance.dto';
-import { setTimeout } from 'node:timers/promises';
 
 describe('getActorContacts', () => {
     const application = initApplicationWith(modules);
