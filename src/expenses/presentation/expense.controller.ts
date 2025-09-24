@@ -122,9 +122,13 @@ export class ExpenseController {
             search,
         });
         const expenses = await this.queryBus.execute(query);
-        return expenses.map((expense: PairExpenseSnapshot) =>
-            PairExpenseDTO.from(expense),
-        );
+        return expenses.map((expense: Expense) => {
+            if (expense instanceof PairExpenseSnapshot) {
+                return PairExpenseDTO.from(expense);
+            } else if (expense instanceof GroupExpenseSnapshot) {
+                return GroupExpenseDTO.from(expense);
+            }
+        });
     }
 
     @Get(':expenseId')

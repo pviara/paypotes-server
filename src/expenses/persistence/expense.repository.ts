@@ -24,7 +24,7 @@ export interface ExpenseRepository {
         contactId: string,
         pageIndex: number,
         search: string,
-    ): Promise<PairExpense[]>;
+    ): Promise<Expense[]>;
     getActorExpenseById(
         actorId: string,
         expenseId: string,

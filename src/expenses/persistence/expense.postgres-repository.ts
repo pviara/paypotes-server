@@ -156,7 +156,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         contactId: string,
         pageIndex: number,
         search: string,
-    ): Promise<PairExpense[]> {
+    ): Promise<Expense[]> {
         const { rows: expenses } = await this.knex.raw(`
             with verified_stakeholders as (
                 select
@@ -168,7 +168,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     '${contactId}'
                 )
                 group by expense_id
-                having count(id) = 2
+                having count(id) > 1
             ), actor_stakeholder as (
                 select
                     id,
@@ -185,7 +185,6 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 on e.id = ac.expense_id
             where share > 0
             and (${`'${search}'` || null} is null or e.label ilike '%${search}%')
-            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}'
             order by e.created_at desc
             limit ${MAX_EXPENSES_LIMIT}
             offset ${pageIndex * MAX_EXPENSES_LIMIT};
@@ -207,13 +206,24 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     where ${Table.Stakeholders}.expense_id = '${expense.id}'
                 `);
 
-                return this.mapPairExpenseFrom({
+                let group: Nullable<Group> = null;
+                if (
+                    expense.group_id !== this.configService.get('DEFAULT_UUID')
+                ) {
+                    group = await this.groupRepository.getActorGroupById(
+                        actorId,
+                        expense.group_id,
+                    );
+                }
+
+                return this.mapExpenseFrom({
                     id: expense.id,
                     label: expense.label,
                     emoji: expense.emoji,
                     created_at: expense.created_at,
                     balance: expense.balance,
                     group_id: expense.group_id,
+                    group: group ?? undefined,
                     stakeholders,
                 });
             }),
