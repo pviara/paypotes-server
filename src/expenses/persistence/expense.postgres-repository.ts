@@ -17,6 +17,7 @@ import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
+import { Nullable } from '@app/shared/nullable';
 import {
     PairExpense,
     PairPayment,
@@ -484,15 +485,13 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         const { rows: expenses } = await this.knex.raw(`
             with verified_stakeholders as (
                 select
-                    expense_id,
-                    count(expense_id) as found_stakeholders
+                    expense_id
                 from ${Table.Stakeholders}
                 where id in (
                     '${actorId}',
                     '${contactId}'
                 )
                 group by expense_id
-                having count(id) = 2
             ), actor_stakeholder as (
                 select
                     id,
@@ -507,8 +506,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 on e.id = vs.expense_id
             inner join actor_stakeholder ac
                 on e.id = ac.expense_id
-            where share > 0
-            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';
+            where share > 0;
         `);
 
         return Promise.all(
@@ -527,13 +525,24 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     where ${Table.Stakeholders}.expense_id = '${expense.id}'
                 `);
 
-                return this.mapPairExpenseFrom({
+                let group: Nullable<Group> = null;
+                if (
+                    expense.group_id !== this.configService.get('DEFAULT_UUID')
+                ) {
+                    group = await this.groupRepository.getActorGroupById(
+                        actorId,
+                        expense.group_id,
+                    );
+                }
+
+                return this.mapExpenseFrom({
                     id: expense.id,
                     label: expense.label,
                     emoji: expense.emoji,
                     created_at: expense.created_at,
                     balance: expense.balance,
                     group_id: expense.group_id,
+                    group: group ?? undefined,
                     stakeholders,
                 });
             }),
