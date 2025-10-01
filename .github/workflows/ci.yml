@@ -81,10 +81,10 @@ jobs:
         run: yarn install
 
       - name: 🧑‍🔬 Run unit tests
-        run: yarn test:ci
+        run: yarn test
 
       - name: 🧑‍🔬 Run e2e tests
-        run: yarn test:e2e:ci
+        run: yarn test:e2e
         env:
           APP_ENVIRONMENT: 'test'
           RABBITMQ_HOST: 'localhost'
@@ -99,7 +99,7 @@ jobs:
           POSTGRES_USER: 'postgres'
           POSTGRES_PASSWORD: 'postgres'
           DEFAULT_UUID: '46cd3732-f36e-4886-a2f8-1efebcda1ad6'
-          POSTGRES_MIGRATIONS_PATH: '${{ github.workspace }}/dist/infrastructure/postgres/migrations'
+          POSTGRES_MIGRATIONS_PATH: '${{ github.workspace }}/dist/src/infrastructure/postgres/migrations'
 
       - name: 📝 Write test summary
         uses: test-summary/action@v2

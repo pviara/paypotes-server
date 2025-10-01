@@ -497,13 +497,15 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         const { rows: expenses } = await this.knex.raw(`
             with verified_stakeholders as (
                 select
-                    expense_id
+                    expense_id,
+                    count(expense_id) as found_stakeholders
                 from ${Table.Stakeholders}
                 where id in (
                     '${actorId}',
                     '${contactId}'
                 )
                 group by expense_id
+                having count(id) > 1
             ), actor_stakeholder as (
                 select
                     id,
