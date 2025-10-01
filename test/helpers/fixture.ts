@@ -27,6 +27,7 @@ import {
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
@@ -237,7 +238,11 @@ export class Fixture {
             balance: generateRandomBalance(),
             creditor: Member.fromUser(DEFAULT_USER),
         };
-        return GroupExpense.create(metadata, group, payment);
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
     }
 
     private generateRandomDebitExpenseFor(group: Group): GroupExpense {
@@ -246,6 +251,10 @@ export class Fixture {
             balance: generateRandomBalance(),
             creditor: group.getMembersExcluding(DEFAULT_USER.getId())[0],
         };
-        return GroupExpense.create(metadata, group, payment);
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
     }
 }

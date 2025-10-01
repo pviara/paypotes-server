@@ -61,14 +61,6 @@ export abstract class Expense {
         return creditor.getId() === actorId;
     }
 
-    involves(...stakeholderIds: Array<string>): boolean {
-        return stakeholderIds.every((stakeholderId) =>
-            this.getStakeholders().some(
-                (stakeholder) => stakeholder.getId() === stakeholderId,
-            ),
-        );
-    }
-
     reduceCreditorShareOf(amount: number): void {
         const { creditor } = this.payment;
         this.getStakeholderUsing(creditor.getId()).reduceShare(amount);

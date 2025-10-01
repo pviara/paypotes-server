@@ -9,6 +9,7 @@ import { generateRandomMembers } from '@test/helpers/group/utils';
 import { Group, MemberNotInGroupError } from '@groups/domain/group';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
@@ -115,7 +116,11 @@ describe('AddGroupExpenseHandler', () => {
             balance: dummyCommand.payload.balance,
             creditor: dummyMember,
         };
-        const expense = GroupExpense.create(metadata, dummyGroup, payment);
+        const expense = new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(dummyGroup)
+            .withPayment(payment)
+            .build();
 
         expect(expenseRepo.calls.saveGroupExpense.count).toBe(1);
         expect(expenseRepo.calls.saveGroupExpense.history).toContainEqual(

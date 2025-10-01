@@ -1,6 +1,7 @@
 import { Expense, Metadata } from '@expenses/domain/expense/expense';
 import { Group } from '@groups/domain/group';
 import { Member } from '@groups/domain/member';
+import { Nullable } from '@app/shared/nullable';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { Stakeholders } from '@expenses/domain/stakeholder/stakeholders';
 
@@ -19,28 +20,6 @@ export class GroupExpense extends Expense {
         super(metadata, payment, stakeholders);
     }
 
-    static create(
-        metadata: Metadata,
-        group: Group,
-        payment: GroupPayment,
-    ): GroupExpense {
-        const stakeholders = this.mapStakeholdersFrom(group, payment);
-        return new GroupExpense(metadata, group, payment, stakeholders);
-    }
-
-    static fromState(
-        metadata: Metadata,
-        group: Group,
-        payment: GroupPayment,
-        stakeholders: Array<Stakeholder>,
-    ): GroupExpense {
-        return new GroupExpense(metadata, group, payment, stakeholders);
-    }
-
-    belongsTo(groupId: string): boolean {
-        return this.group.getId() === groupId;
-    }
-
     getGroup(): Group {
         return this.group;
     }
@@ -54,8 +33,59 @@ export class GroupExpense extends Expense {
             this.settleShareOf(stakeholderId),
         );
     }
+}
 
-    private static mapStakeholdersFrom(
+export class GroupExpenseBuilder {
+    private metadata: Nullable<Metadata> = null;
+    private group: Nullable<Group> = null;
+    private payment: Nullable<GroupPayment> = null;
+    private stakeholders: Array<Stakeholder> = [];
+
+    build(): GroupExpense {
+        if (!this.metadata || !this.group || !this.payment) {
+            throw new Error('Invalid group expense to be built');
+        }
+
+        if (this.noStakeholders()) {
+            this.stakeholders = this.mapStakeholdersFrom(
+                this.group,
+                this.payment,
+            );
+        }
+
+        return new GroupExpense(
+            this.metadata,
+            this.group,
+            this.payment,
+            this.stakeholders,
+        );
+    }
+
+    withMetadata(metadata: Metadata): this {
+        this.metadata = metadata;
+        return this;
+    }
+
+    withGroup(group: Group): this {
+        this.group = group;
+        return this;
+    }
+
+    withPayment(payment: GroupPayment): this {
+        this.payment = payment;
+        return this;
+    }
+
+    withStakeholders(stakeholders: Array<Stakeholder>): this {
+        this.stakeholders = stakeholders;
+        return this;
+    }
+
+    private noStakeholders(): boolean {
+        return this.stakeholders.length === 0;
+    }
+
+    private mapStakeholdersFrom(
         group: Group,
         payment: GroupPayment,
     ): Array<Stakeholder> {

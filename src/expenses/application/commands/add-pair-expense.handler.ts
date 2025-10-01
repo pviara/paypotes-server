@@ -10,6 +10,7 @@ import { Log } from '@infra/logger/log.decorator';
 import { Metadata } from '@expenses/domain/expense/expense';
 import {
     PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
@@ -57,7 +58,10 @@ export class AddPairExpenseHandler
 
         const metadata = this.extractMetadataFrom(command);
         const payment = this.extractPaymentFrom(command, stakeholder);
-        const expense = PairExpense.create(metadata, payment);
+        const expense = new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
 
         await this.expenseRepository.savePairExpense(expense);
         this.messenger.sendRelationshipMustBeCreatedBetween(

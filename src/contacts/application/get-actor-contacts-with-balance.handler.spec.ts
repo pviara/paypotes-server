@@ -12,6 +12,7 @@ import { mapIdsFrom } from '@test/helpers/utils';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import {
     PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
@@ -104,7 +105,10 @@ describe('GetActorContactsHandler', () => {
             creditor: DEFAULT_USER,
             debtor: user,
         };
-        return PairExpense.create(metadata, payment);
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
     }
 
     function createRandomDebitExpenseFor(
@@ -117,6 +121,9 @@ describe('GetActorContactsHandler', () => {
             creditor: stakeholder,
             debtor: DEFAULT_USER,
         };
-        return PairExpense.create(metadata, payment);
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
     }
 });

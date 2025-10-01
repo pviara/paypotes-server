@@ -7,10 +7,13 @@ import {
     GetActorExpensesQuery,
 } from '@expenses/application/queries/get-actor-expenses.handler';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
-import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import {
+    GroupExpense,
+    GroupExpenseBuilder,
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
 import { Member } from '@groups/domain/member';
-import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
+import { PairExpense, PairExpenseBuilder } from '@expenses/domain/expense/pair/pair-expense';
 import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 
 describe('GetActorExpensesHandler', () => {
@@ -30,15 +33,22 @@ describe('GetActorExpensesHandler', () => {
 
     const otherMembers = dummyGroup.getMembersExcluding(dummyActorId);
     const dummyExpenses = [
-        GroupExpense.create(generateRandomMetadata(), dummyGroup, {
-            balance: 1000,
-            creditor: getRandomMemberFrom(otherMembers),
-        }),
-        PairExpense.create(generateRandomMetadata(), {
+        new GroupExpenseBuilder()
+            .withMetadata(generateRandomMetadata())
+            .withGroup(dummyGroup)
+            .withPayment({
+                balance: 1000,
+                creditor: getRandomMemberFrom(otherMembers),
+            })
+            .build(),
+        new PairExpenseBuilder()
+        .withMetadata(generateRandomMetadata())
+        .withPayment({
             balance: 2000,
             creditor: generateRandomUser(),
             debtor: DEFAULT_USER,
-        }),
+        })
+        .build()
     ];
 
     beforeEach(() => {

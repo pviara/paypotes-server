@@ -19,6 +19,7 @@ import { Group } from '@groups/domain/group';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
@@ -221,7 +222,12 @@ describe('GroupController', () => {
                         balance,
                         creditor: Member.fromUser(DEFAULT_USER),
                     };
-                    return GroupExpense.create(metadata, group, payment);
+
+                    return new GroupExpenseBuilder()
+                        .withMetadata(metadata)
+                        .withGroup(group)
+                        .withPayment(payment)
+                        .build();
                 }
 
                 function createRandomDebitExpenseFor(
@@ -235,7 +241,12 @@ describe('GroupController', () => {
                             group.getMembersExcluding(DEFAULT_USER.getId()),
                         ),
                     };
-                    return GroupExpense.create(metadata, group, payment);
+
+                    return new GroupExpenseBuilder()
+                        .withMetadata(metadata)
+                        .withGroup(group)
+                        .withPayment(payment)
+                        .build();
                 }
 
                 function getRandomMemberFrom(members: Array<Member>): Member {
@@ -393,11 +404,11 @@ describe('GroupController', () => {
                     creditor: Member.fromUser(DEFAULT_USER),
                 };
 
-                return GroupExpense.create(
-                    dummyMetadata,
-                    dummyGroup,
-                    dummyPayment,
-                );
+                return new GroupExpenseBuilder()
+                    .withMetadata(dummyMetadata)
+                    .withGroup(dummyGroup)
+                    .withPayment(dummyPayment)
+                    .build();
             }
         });
     });

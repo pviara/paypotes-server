@@ -8,6 +8,7 @@ import {
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupRepository } from '@groups/persistence/group.repository';
@@ -20,6 +21,7 @@ import { Member } from '@groups/domain/member';
 import { Nullable } from '@app/shared/nullable';
 import {
     PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
@@ -928,19 +930,23 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         const metadata = this.extractMetadataFrom(record);
         const payment = this.extractGroupPaymentFrom(record);
         const stakeholders = this.mapStakeholdersFrom(record);
-        return GroupExpense.fromState(
-            metadata,
-            record.group,
-            payment,
-            stakeholders,
-        );
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(record.group)
+            .withPayment(payment)
+            .withStakeholders(stakeholders)
+            .build();
     }
 
     private mapPairExpenseFrom(record: ExpenseDetailedRecord): PairExpense {
         const metadata = this.extractMetadataFrom(record);
         const payment = this.extractPairPaymentFrom(record);
         const stakeholders = this.mapStakeholdersFrom(record);
-        return PairExpense.fromState(metadata, payment, stakeholders);
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .withStakeholders(stakeholders)
+            .build();
     }
 
     private extractGroupPaymentFrom(
