@@ -118,7 +118,7 @@ describe('getActorContactWithBalanceById', () => {
 
                 async function paybackAllExpenses(): Promise<void> {
                     for (const expense of dummyContactExpenses) {
-                        const res = await request(httpServer).put(
+                        await request(httpServer).put(
                             `/${EXPENSES_API_ROUTE}/pair/${dummyContact.getId()}/${expense.getId()}`,
                         );
                     }

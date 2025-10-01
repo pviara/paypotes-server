@@ -151,6 +151,7 @@ describe('getActorContacts', () => {
             const dtos = response.body;
             expect(dtos.length).toBe(2);
             expectBothContactsToHaveBeenReturnedIn(dtos);
+            expectBothContactsToHaveTheRightBalanceIn(dtos);
         });
 
         function expectBothContactsToHaveBeenReturnedIn(
@@ -161,6 +162,14 @@ describe('getActorContacts', () => {
                 dtos.some((dto) => contact.getId() === dto.id),
             );
             expect(bothContactsReturned).toBe(true);
+        }
+
+        function expectBothContactsToHaveTheRightBalanceIn(
+            dtos: Array<ContactWithBalanceDTO>,
+        ): void {
+            const [dummyContact, dummyContactWithExpense] = dtos;
+            expect(dummyContact.balance).toBe('0,00');
+            expect(dummyContactWithExpense.balance).not.toBe('0,00');
         }
     });
 
