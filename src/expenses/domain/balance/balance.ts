@@ -2,7 +2,7 @@ import { Expense } from '@expenses/domain/expense/expense';
 import { Position } from '@expenses/domain/balance/position';
 import { ZERO } from '@app/shared/zero';
 
-type CalculateBalance = {
+type Terms = {
     expenses: Array<Expense>;
     stakeholderId: string;
 };
@@ -13,7 +13,7 @@ type CalculateBalance = {
 export class Balance {
     private constructor(private value: number) {}
 
-    static calculate({ expenses, stakeholderId }: CalculateBalance): number {
+    static calculate({ expenses, stakeholderId }: Terms): number {
         const balance = expenses.reduce(
             this.calculateExpenseBalanceFor(stakeholderId),
             ZERO,

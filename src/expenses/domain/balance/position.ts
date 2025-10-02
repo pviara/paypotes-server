@@ -1,6 +1,6 @@
 import { Expense } from '@expenses/domain/expense/expense';
 
-type CalculatePosition = {
+type Terms = {
     expense: Expense;
     stakeholderId: string;
 };
@@ -11,7 +11,7 @@ type CalculatePosition = {
 export class Position {
     private constructor(private value: number) {}
 
-    static calculate({ expense, stakeholderId }: CalculatePosition): number {
+    static calculate({ expense, stakeholderId }: Terms): number {
         const share = expense.getShareOf(stakeholderId);
         const position = expense.hasCreditor(stakeholderId) ? share : -share;
         return new Position(position).value;

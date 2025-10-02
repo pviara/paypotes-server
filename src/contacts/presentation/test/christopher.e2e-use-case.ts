@@ -28,7 +28,7 @@ describe("Christopher's use case", () => {
     let httpServer: App;
 
     const users = {
-        Actor: DEFAULT_USER,
+        Christopher: DEFAULT_USER,
         Holy: new User({
             id: crypto.randomUUID(),
             firstname: 'Holy',

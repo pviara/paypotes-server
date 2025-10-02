@@ -29,7 +29,7 @@ describe("Caleb's use case", () => {
     let httpServer: App;
 
     const users = {
-        Actor: {
+        Caleb: {
             profile: DEFAULT_USER,
         },
         Michael: {
@@ -60,52 +60,193 @@ describe("Caleb's use case", () => {
     const groupId = crypto.randomUUID();
     const groupExpenseId = crypto.randomUUID();
 
-    beforeAll(async () => {
-        await application.bootstrap();
-        await application.emptyDatabase();
-
-        httpServer = application.getHttpServer();
-
-        await setupUsers();
-        await makeActorAddDebitPairExpenseWithMichael();
-        await makeActorAddDebitPairExpenseWithSerena();
-
-        await makeActorCreateGroup();
-        await makeActorAddDebitGroupExpenseForSerena();
-
-        await waitForAllContactsToBeAdded();
-
-        const fixture = Fixture.create(application);
-        await fixture.setupRandomGroupExpenses();
-        await fixture.setupRandomPairExpenses();
-    });
-
-    afterAll(shutdown(application));
-
     describe('Caleb checks on his contact list', () => {
-        it('should display both Michael and Serena', async () => {
-            const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}`,
-            );
-            expect(response.body.length).toBe(2);
+        describe('Caleb is mainly debtor', () => {
+            beforeEach(async () => {
+                await application.bootstrap();
+                await application.emptyDatabase();
+
+                httpServer = application.getHttpServer();
+
+                await setupUsers();
+                await makeActorAddDebitPairExpenseWithMichael();
+                await makeActorAddDebitPairExpenseWithSerena();
+
+                await makeActorCreateGroup();
+                await makeActorAddDebitGroupExpenseForSerena();
+
+                await waitForAllContactsToBeAdded();
+
+                const fixture = Fixture.create(application);
+                await fixture.setupRandomGroupExpenses();
+                await fixture.setupRandomPairExpenses();
+            });
+
+            afterEach(shutdown(application));
+
+            it('should display both Michael and Serena', async () => {
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}`,
+                );
+                expect(response.body.length).toBe(2);
+            });
+
+            it('should display the right balances for both contacts', async () => {
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}`,
+                );
+
+                const dtos = response.body;
+                expectBothContactsToHaveTheRightBalanceIn(dtos);
+            });
+
+            async function makeActorAddDebitPairExpenseWithMichael(): Promise<void> {
+                await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/pair`)
+                    .send({
+                        id: users.Michael.pairExpenseId,
+                        label: 'Burgers',
+                        emoji: '🍔',
+                        balance: users.Michael.balanceForPairExpense
+                            .toFixed(2)
+                            .replace('.', ','),
+                        isCurrentPayer: false,
+                        userId: users.Michael.profile.getId(),
+                    });
+            }
+
+            async function makeActorAddDebitPairExpenseWithSerena(): Promise<void> {
+                await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/pair`)
+                    .send({
+                        id: users.Serena.pairExpenseId,
+                        label: 'Brunch',
+                        emoji: '🥐',
+                        balance: users.Serena.balanceForPairExpense
+                            .toFixed(2)
+                            .replace('.', ','),
+                        isCurrentPayer: false,
+                        userId: users.Serena.profile.getId(),
+                    });
+            }
+
+            async function makeActorAddDebitGroupExpenseForSerena(): Promise<void> {
+                await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/group`)
+                    .send({
+                        id: groupExpenseId,
+                        label: 'Pop-corn',
+                        emoji: '🍿',
+                        balance: users.Serena.balanceForGroupExpense
+                            .toFixed(2)
+                            .replace('.', ','),
+                        groupId: groupId,
+                        memberId: users.Serena.profile.getId(),
+                    });
+            }
+
+            function expectBothContactsToHaveTheRightBalanceIn(
+                dtos: Array<ContactWithBalanceDTO>,
+            ): void {
+                const [michael, serena] = dtos;
+                expect(michael.balance).toBe('-14,00');
+                expect(serena.balance).toBe('-52,00');
+            }
         });
 
-        it('should display the right balances for both contacts', async () => {
-            const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}`,
-            );
+        describe('Caleb is mainly creditor', () => {
+            beforeEach(async () => {
+                await application.bootstrap();
+                await application.emptyDatabase();
 
-            const dtos = response.body;
-            expectBothContactsToHaveTheRightBalanceIn(dtos);
+                httpServer = application.getHttpServer();
+
+                await setupUsers();
+                await makeActorAddCreditPairExpenseWithMichael();
+                await makeActorAddCreditPairExpenseWithSerena();
+
+                await makeActorCreateGroup();
+                await makeActorAddCreditGroupExpenseForSerena();
+
+                await waitForAllContactsToBeAdded();
+
+                const fixture = Fixture.create(application);
+                await fixture.setupRandomGroupExpenses();
+                await fixture.setupRandomPairExpenses();
+            });
+
+            afterEach(shutdown(application));
+
+            it('should display both Michael and Serena', async () => {
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}`,
+                );
+                expect(response.body.length).toBe(2);
+            });
+
+            it('should display the right balances for both contacts', async () => {
+                const response = await request(httpServer).get(
+                    `/${CONTACTS_API_ROUTE}`,
+                );
+
+                const dtos = response.body;
+                expectBothContactsToHaveTheRightBalanceIn(dtos);
+            });
+
+            async function makeActorAddCreditPairExpenseWithMichael(): Promise<void> {
+                await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/pair`)
+                    .send({
+                        id: users.Michael.pairExpenseId,
+                        label: 'Burgers',
+                        emoji: '🍔',
+                        balance: users.Michael.balanceForPairExpense
+                            .toFixed(2)
+                            .replace('.', ','),
+                        isCurrentPayer: true,
+                        userId: users.Michael.profile.getId(),
+                    });
+            }
+
+            async function makeActorAddCreditPairExpenseWithSerena(): Promise<void> {
+                await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/pair`)
+                    .send({
+                        id: users.Serena.pairExpenseId,
+                        label: 'Brunch',
+                        emoji: '🥐',
+                        balance: users.Serena.balanceForPairExpense
+                            .toFixed(2)
+                            .replace('.', ','),
+                        isCurrentPayer: true,
+                        userId: users.Serena.profile.getId(),
+                    });
+            }
+
+            async function makeActorAddCreditGroupExpenseForSerena(): Promise<void> {
+                await request(httpServer)
+                    .post(`/${EXPENSES_API_ROUTE}/group`)
+                    .send({
+                        id: groupExpenseId,
+                        label: 'Pop-corn',
+                        emoji: '🍿',
+                        balance: users.Serena.balanceForGroupExpense
+                            .toFixed(2)
+                            .replace('.', ','),
+                        groupId: groupId,
+                        memberId: users.Caleb.profile.getId(),
+                    });
+            }
+
+            function expectBothContactsToHaveTheRightBalanceIn(
+                dtos: Array<ContactWithBalanceDTO>,
+            ): void {
+                const [michael, serena] = dtos;
+                console.warn(dtos);
+                expect(michael.balance).toBe('48,00');
+                expect(serena.balance).toBe('52,00');
+            }
         });
-
-        function expectBothContactsToHaveTheRightBalanceIn(
-            dtos: Array<ContactWithBalanceDTO>,
-        ): void {
-            const [michael, serena] = dtos;
-            expect(michael.balance).toBe('-14,00');
-            expect(serena.balance).toBe('-52,00');
-        }
     });
 
     async function setupUsers(): Promise<void> {
@@ -113,36 +254,6 @@ describe("Caleb's use case", () => {
         await userRepo.insert(
             ...Object.values(users).map((user) => user.profile),
         );
-    }
-
-    async function makeActorAddDebitPairExpenseWithMichael(): Promise<void> {
-        await request(httpServer)
-            .post(`/${EXPENSES_API_ROUTE}/pair`)
-            .send({
-                id: users.Michael.pairExpenseId,
-                label: 'Burgers',
-                emoji: '🍔',
-                balance: users.Michael.balanceForPairExpense
-                    .toFixed(2)
-                    .replace('.', ','),
-                isCurrentPayer: false,
-                userId: users.Michael.profile.getId(),
-            });
-    }
-
-    async function makeActorAddDebitPairExpenseWithSerena(): Promise<void> {
-        await request(httpServer)
-            .post(`/${EXPENSES_API_ROUTE}/pair`)
-            .send({
-                id: users.Serena.pairExpenseId,
-                label: 'Brunch',
-                emoji: '🥐',
-                balance: users.Serena.balanceForPairExpense
-                    .toFixed(2)
-                    .replace('.', ','),
-                isCurrentPayer: false,
-                userId: users.Serena.profile.getId(),
-            });
     }
 
     async function makeActorCreateGroup(): Promise<void> {
@@ -153,21 +264,6 @@ describe("Caleb's use case", () => {
             userIds: Object.values(users).map((user) => user.profile.getId()),
         };
         await request(httpServer).post(`/${GROUPS_API_ROUTE}`).send(payload);
-    }
-
-    async function makeActorAddDebitGroupExpenseForSerena(): Promise<void> {
-        await request(httpServer)
-            .post(`/${EXPENSES_API_ROUTE}/group`)
-            .send({
-                id: groupExpenseId,
-                label: 'Pop-corn',
-                emoji: '🍿',
-                balance: users.Serena.balanceForGroupExpense
-                    .toFixed(2)
-                    .replace('.', ','),
-                groupId: groupId,
-                memberId: users.Serena.profile.getId(),
-            });
     }
 
     async function waitForAllContactsToBeAdded(): Promise<void> {
