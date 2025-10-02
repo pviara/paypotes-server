@@ -28,7 +28,7 @@ describe("Christopher's use case", () => {
     let httpServer: App;
 
     const users = {
-        Actor: DEFAULT_USER,
+        Christopher: DEFAULT_USER,
         Holy: new User({
             id: crypto.randomUUID(),
             firstname: 'Holy',
@@ -58,7 +58,7 @@ describe("Christopher's use case", () => {
         await makeActorAddDebitGroupExpenseForHoly();
         await makeActorAddCreditPairExpenseForUnknown();
 
-        await waitForAnyContactToBeAdded();
+        await waitForAllContactsToBeAdded();
     });
 
     afterAll(shutdown(application));
@@ -138,13 +138,12 @@ describe("Christopher's use case", () => {
                 label: 'Pop-corn',
                 emoji: '🍿',
                 balance: balances.forGroupExpense.toFixed(2).replace('.', ','),
-                isCurrentPayer: false,
                 groupId: groupId,
                 memberId: users.Holy.getId(),
             });
     }
 
-    async function waitForAnyContactToBeAdded(): Promise<void> {
+    async function waitForAllContactsToBeAdded(): Promise<void> {
         const startTime = Date.now();
         const POLLING_TIMEOUT_MS = 4000;
         const POLLING_INTERVAL_MS = 500;

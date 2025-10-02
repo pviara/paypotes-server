@@ -1,5 +1,5 @@
-import { Balance } from '@expenses/domain/balance/balance';
 import { Contact } from '@contacts/domain/contact';
+import { ContactBalance } from '@expenses/domain/balance/contact-balance';
 import { Expense } from '@expenses/domain/expense/expense';
 
 export class ContactWithBalance extends Contact {
@@ -45,7 +45,11 @@ export class ContactWithBalance extends Contact {
 
     private calcBalanceFor(stakeholderId: string): number {
         const expenses = this.getExpenses();
-        return Balance.calculate({ expenses, stakeholderId });
+        return ContactBalance.calculate({
+            contactId: this.getId(),
+            expenses,
+            stakeholderId,
+        });
     }
 
     private getExpenses(): Array<Expense> {
