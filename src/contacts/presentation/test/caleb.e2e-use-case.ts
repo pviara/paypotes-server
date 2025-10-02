@@ -4,10 +4,8 @@ import { ContactModule } from '@contacts/contact.module';
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
-import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { ExpenseModule } from '@expenses/expense.module';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
-import { generateRandomUser } from '@test/helpers/user/utils';
 import { GroupModule } from '@groups/group.module';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { initMessagingApplicationWith } from '@test/helpers/application/utils';
@@ -16,8 +14,9 @@ import { shutdown } from '@test/helpers/utils';
 import { User } from '@users/domain/user';
 import { UserModule } from '@users/user.module';
 import * as request from 'supertest';
+import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 
-describe("Christopher's use case", () => {
+describe("Caleb's use case", () => {
     const application = initMessagingApplicationWith([
         ContactModule,
         ExpenseModule,
@@ -28,22 +27,36 @@ describe("Christopher's use case", () => {
     let httpServer: App;
 
     const users = {
-        Actor: DEFAULT_USER,
-        Holy: new User({
-            id: crypto.randomUUID(),
-            firstname: 'Holy',
-            lastname: 'Reed',
-            avatarUrl: '',
-            email: 'holy.reed@usecase.com',
-        }),
-        Unknown: generateRandomUser(),
+        Actor: {
+            profile: DEFAULT_USER,
+        },
+        Michael: {
+            profile: new User({
+                id: crypto.randomUUID(),
+                firstname: 'Michael',
+                lastname: 'Chains',
+                avatarUrl: '',
+                email: 'michael.chains@usecase.com',
+            }),
+            pairExpenseId: crypto.randomUUID(),
+            balanceForPairExpense: 28,
+        },
+        Serena: {
+            profile: new User({
+                id: crypto.randomUUID(),
+                firstname: 'Serena',
+                lastname: 'Philips',
+                avatarUrl: '',
+                email: 'serena.philips@usecase.com',
+            }),
+            pairExpenseId: crypto.randomUUID(),
+            balanceForPairExpense: 36,
+            balanceForGroupExpense: 102,
+        },
     };
 
     const groupId = crypto.randomUUID();
-    const pairExpenseId = crypto.randomUUID();
     const groupExpenseId = crypto.randomUUID();
-
-    const balances = { forPairExpense: 32, forGroupExpense: 66 };
 
     beforeAll(async () => {
         await application.bootstrap();
@@ -52,72 +65,78 @@ describe("Christopher's use case", () => {
         httpServer = application.getHttpServer();
 
         await setupUsers();
-        await makeActorAddCreditPairExpenseWithHoly();
+        await makeActorAddDebitPairExpenseWithMichael();
+        await makeActorAddDebitPairExpenseWithSerena();
 
         await makeActorCreateGroup();
-        await makeActorAddDebitGroupExpenseForHoly();
-        await makeActorAddCreditPairExpenseForUnknown();
+        await makeActorAddDebitGroupExpenseForSerena();
 
         await waitForAllContactsToBeAdded();
     });
 
     afterAll(shutdown(application));
 
-    describe("Christopher checks on Holy's contact detail", () => {
-        it('should display a balance of "-6,00"', async () => {
+    describe('Caleb checks on his contact list', () => {
+        it('should display both Michael and Serena', async () => {
             const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}/${users.Holy.getId()}`,
+                `/${CONTACTS_API_ROUTE}`,
             );
-            expect(response.body.balance).toBe('-6,00');
+            expect(response.body.length).toBe(2);
         });
 
-        it('shoud display both expenses', async () => {
+        it('should display the right balances for both contacts', async () => {
             const response = await request(httpServer).get(
-                `/${EXPENSES_API_ROUTE}/contact/${users.Holy.getId()}`,
+                `/${CONTACTS_API_ROUTE}`,
             );
 
             const dtos = response.body;
-            expect(dtos.length).toBe(2);
-            expectBothExpensesToHaveBeenReturnedIn(dtos);
+            expectBothContactsToHaveTheRightBalanceIn(dtos);
         });
 
-        function expectBothExpensesToHaveBeenReturnedIn(
-            dtos: Array<ExpenseDTO>,
+        function expectBothContactsToHaveTheRightBalanceIn(
+            dtos: Array<ContactWithBalanceDTO>,
         ): void {
-            const bothExpensesHaveBeenReturned = dtos.every(
-                (dto) => dto.id === pairExpenseId || dto.id === groupExpenseId,
-            );
-            expect(bothExpensesHaveBeenReturned).toBe(true);
+            const [michael, serena] = dtos;
+            expect(michael.balance).toBe('-14,00');
+            expect(serena.balance).toBe('-52,00');
         }
     });
 
     async function setupUsers(): Promise<void> {
         const { userRepo } = application.getRepositories();
-        await userRepo.insert(...Object.values(users));
+        await userRepo.insert(
+            ...Object.values(users).map((user) => user.profile),
+        );
     }
 
-    async function makeActorAddCreditPairExpenseWithHoly(): Promise<void> {
+    async function makeActorAddDebitPairExpenseWithMichael(): Promise<void> {
         await request(httpServer)
             .post(`/${EXPENSES_API_ROUTE}/pair`)
             .send({
-                id: pairExpenseId,
+                id: users.Michael.pairExpenseId,
                 label: 'Concert ticket',
                 emoji: '🎫',
-                balance: balances.forPairExpense.toFixed(2).replace('.', ','),
-                isCurrentPayer: true,
-                userId: users.Holy.getId(),
+                balance: users.Michael.balanceForPairExpense
+                    .toFixed(2)
+                    .replace('.', ','),
+                isCurrentPayer: false,
+                userId: users.Michael.profile.getId(),
             });
     }
 
-    async function makeActorAddCreditPairExpenseForUnknown(): Promise<void> {
-        await request(httpServer).post(`/${EXPENSES_API_ROUTE}/pair`).send({
-            id: crypto.randomUUID(),
-            label: 'Plane',
-            emoji: '✈️',
-            balance: '225,00',
-            isCurrentPayer: true,
-            userId: users.Unknown.getId(),
-        });
+    async function makeActorAddDebitPairExpenseWithSerena(): Promise<void> {
+        await request(httpServer)
+            .post(`/${EXPENSES_API_ROUTE}/pair`)
+            .send({
+                id: users.Serena.pairExpenseId,
+                label: 'Concert ticket',
+                emoji: '🎫',
+                balance: users.Serena.balanceForPairExpense
+                    .toFixed(2)
+                    .replace('.', ','),
+                isCurrentPayer: false,
+                userId: users.Serena.profile.getId(),
+            });
     }
 
     async function makeActorCreateGroup(): Promise<void> {
@@ -125,22 +144,24 @@ describe("Christopher's use case", () => {
             id: groupId,
             name: 'Cinema',
             emoji: '🎞️',
-            userIds: Object.values(users).map((user) => user.getId()),
+            userIds: Object.values(users).map((user) => user.profile.getId()),
         };
         await request(httpServer).post(`/${GROUPS_API_ROUTE}`).send(payload);
     }
 
-    async function makeActorAddDebitGroupExpenseForHoly(): Promise<void> {
+    async function makeActorAddDebitGroupExpenseForSerena(): Promise<void> {
         await request(httpServer)
             .post(`/${EXPENSES_API_ROUTE}/group`)
             .send({
                 id: groupExpenseId,
                 label: 'Pop-corn',
                 emoji: '🍿',
-                balance: balances.forGroupExpense.toFixed(2).replace('.', ','),
+                balance: users.Serena.balanceForGroupExpense
+                    .toFixed(2)
+                    .replace('.', ','),
                 isCurrentPayer: false,
                 groupId: groupId,
-                memberId: users.Holy.getId(),
+                memberId: users.Serena.profile.getId(),
             });
     }
 
