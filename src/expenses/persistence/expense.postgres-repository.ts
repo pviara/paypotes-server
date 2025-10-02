@@ -568,6 +568,8 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         actorId: string,
         contactIds: Array<string>,
     ): Promise<ExpensesByContact> {
+        if (contactIds.length === 0) return {};
+
         const { rows: records } = await this.knex.raw(`
             with verified_stakeholders as (
                 select
@@ -774,6 +776,8 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         actorId: string,
         groups: Array<Group>,
     ): Promise<ExpensesByGroup> {
+        if (groups.length === 0) return {};
+
         const groupIds = groups.flatMap((group) => group.getId());
         const { rows: records } = await this.knex.raw(`
             with actor_expenses as (
