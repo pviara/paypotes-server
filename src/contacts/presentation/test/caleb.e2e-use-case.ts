@@ -242,7 +242,6 @@ describe("Caleb's use case", () => {
                 dtos: Array<ContactWithBalanceDTO>,
             ): void {
                 const [michael, serena] = dtos;
-                console.warn(dtos);
                 expect(michael.balance).toBe('48,00');
                 expect(serena.balance).toBe('52,00');
             }
