@@ -603,13 +603,10 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 end;
         `);
 
-        console.warn(records);
-
         const expenses: ExpensesByContact = {};
         for (const contactId of contactIds) expenses[contactId] = [];
 
         for (const record of records) {
-            const [counterparty_id] = record.counterparty_ids;
             const { rows: stakeholders } = await this.knex.raw(`
                     select
                         ${Table.Users}.id,
@@ -624,18 +621,36 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     where ${Table.Stakeholders}.expense_id = '${record.id}'
                 `);
 
-            const pairExpense = this.mapPairExpenseFrom({
+            const detailedExpense: ExpenseDetailedRecord = {
                 ...record,
                 stakeholders,
-            });
+            };
 
-            if (expenses[counterparty_id]) {
-                expenses[counterparty_id].push(pairExpense);
+            let expense: Expense;
+            if (this.isPairExpense(detailedExpense)) {
+                expense = this.mapPairExpenseFrom({
+                    ...record,
+                    stakeholders,
+                });
             } else {
-                expenses[counterparty_id] = [pairExpense];
+                const group = await this.groupRepository.getActorGroupById(
+                    actorId,
+                    record.group_id,
+                );
+                expense = this.mapGroupExpenseFrom({
+                    ...record,
+                    stakeholders,
+                    group,
+                });
+            }
+
+            const { stakeholder_id } = record;
+            if (expenses[stakeholder_id]) {
+                expenses[stakeholder_id].push(expense);
+            } else {
+                expenses[stakeholder_id] = [expense];
             }
         }
-
         return expenses;
     }
 

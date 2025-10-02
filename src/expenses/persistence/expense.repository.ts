@@ -2,10 +2,9 @@ import { Expense } from '@expenses/domain/expense/expense';
 import { Group } from '@groups/domain/group';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
-import { setTimeout } from 'timers/promises';
 
 export type ExpensesByContact = {
-    [contactId: string]: Array<PairExpense>;
+    [contactId: string]: Array<Expense>;
 };
 
 export type ExpensesByGroup = {
