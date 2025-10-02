@@ -569,29 +569,41 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         contactIds: Array<string>,
     ): Promise<ExpensesByContact> {
         const { rows: records } = await this.knex.raw(`
-            with shared_expense_ids as (
+            with verified_stakeholders as (
                 select
-                    expense_id,
-                    array_remove(array_agg(id), '${actorId}') AS counterparty_ids
-                from
-                    public.stakeholders
-                where
-                    id = '${actorId}'
-                    or id = any (array[${this.mapInStatementFromIds(contactIds)}]::uuid[]) 
-                group by
+                    id as stakeholder_id,
+                    creditor as stakeholder_creditor,
                     expense_id
-                having
-                    count(*) filter (where id = '${actorId}' ) > 0
-                    and count(*) filter (where id = any (array[${this.mapInStatementFromIds(contactIds)}]::uuid[])) > 0
-                )
+                from stakeholders
+                where id in (${this.mapInStatementFromIds(contactIds)})
+            ),
+            verified_actor as (
                 select
-                    e.*, s.counterparty_ids
-                from
-                public.expenses e
-                inner join 
-                    shared_expense_ids s on e.id = s.expense_id
-                where group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';
+                    id as actor_id,
+                    creditor as actor_creditor,
+                    expense_id
+                from stakeholders
+                where id = '${actorId}'
+            )
+            select
+                ex.*,
+                va.actor_creditor,
+                vs.stakeholder_id,
+                vs.stakeholder_creditor
+            from expenses ex
+            inner join verified_stakeholders vs
+                on vs.expense_id = ex.id
+            inner join verified_actor va
+                on va.expense_id = ex.id
+            where
+                vs.stakeholder_id != '${actorId}'
+                and case when ex.group_id != '${this.configService.get('DEFAULT_UUID')}'
+                    then vs.stakeholder_creditor = true or va.actor_creditor = true
+                    else true
+                end;
         `);
+
+        console.warn(records);
 
         const expenses: ExpensesByContact = {};
         for (const contactId of contactIds) expenses[contactId] = [];

@@ -1,6 +1,7 @@
 import { App } from 'supertest/types';
 import { Contact } from '@contacts/domain/contact';
 import { ContactModule } from '@contacts/contact.module';
+import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { CONTACTS_API_ROUTE } from '@contacts/presentation/contact.controller';
 import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
@@ -14,7 +15,8 @@ import { shutdown } from '@test/helpers/utils';
 import { User } from '@users/domain/user';
 import { UserModule } from '@users/user.module';
 import * as request from 'supertest';
-import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
+
+import { Fixture } from '@test/helpers/fixture';
 
 describe("Caleb's use case", () => {
     const application = initMessagingApplicationWith([
@@ -72,6 +74,10 @@ describe("Caleb's use case", () => {
         await makeActorAddDebitGroupExpenseForSerena();
 
         await waitForAllContactsToBeAdded();
+
+        const fixture = Fixture.create(application);
+        await fixture.setupRandomGroupExpenses();
+        await fixture.setupRandomPairExpenses();
     });
 
     afterAll(shutdown(application));
@@ -114,8 +120,8 @@ describe("Caleb's use case", () => {
             .post(`/${EXPENSES_API_ROUTE}/pair`)
             .send({
                 id: users.Michael.pairExpenseId,
-                label: 'Concert ticket',
-                emoji: '🎫',
+                label: 'Burgers',
+                emoji: '🍔',
                 balance: users.Michael.balanceForPairExpense
                     .toFixed(2)
                     .replace('.', ','),
@@ -129,8 +135,8 @@ describe("Caleb's use case", () => {
             .post(`/${EXPENSES_API_ROUTE}/pair`)
             .send({
                 id: users.Serena.pairExpenseId,
-                label: 'Concert ticket',
-                emoji: '🎫',
+                label: 'Brunch',
+                emoji: '🥐',
                 balance: users.Serena.balanceForPairExpense
                     .toFixed(2)
                     .replace('.', ','),
@@ -159,7 +165,6 @@ describe("Caleb's use case", () => {
                 balance: users.Serena.balanceForGroupExpense
                     .toFixed(2)
                     .replace('.', ','),
-                isCurrentPayer: false,
                 groupId: groupId,
                 memberId: users.Serena.profile.getId(),
             });

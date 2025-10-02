@@ -138,7 +138,6 @@ describe("Christopher's use case", () => {
                 label: 'Pop-corn',
                 emoji: '🍿',
                 balance: balances.forGroupExpense.toFixed(2).replace('.', ','),
-                isCurrentPayer: false,
                 groupId: groupId,
                 memberId: users.Holy.getId(),
             });
