@@ -9,6 +9,7 @@ import {
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
@@ -110,7 +111,12 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
             balance,
             creditor: Member.fromUser(DEFAULT_USER),
         };
-        return GroupExpense.create(metadata, dummyGroup, payment);
+
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(dummyGroup)
+            .withPayment(payment)
+            .build();
     }
 
     function createRandomDebitExpense(balance: number): GroupExpense {
@@ -121,7 +127,12 @@ describe('GetActorGroupWithBalanceByIdHandler', () => {
                 dummyGroup.getMembersExcluding(DEFAULT_USER.getId()),
             ),
         };
-        return GroupExpense.create(metadata, dummyGroup, payment);
+
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(dummyGroup)
+            .withPayment(payment)
+            .build();
     }
 
     function getRandomMemberFrom(members: Array<Member>): Member {

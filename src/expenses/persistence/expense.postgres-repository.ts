@@ -8,6 +8,7 @@ import {
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupRepository } from '@groups/persistence/group.repository';
@@ -17,8 +18,10 @@ import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
+import { Nullable } from '@app/shared/nullable';
 import {
     PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
@@ -155,7 +158,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         contactId: string,
         pageIndex: number,
         search: string,
-    ): Promise<PairExpense[]> {
+    ): Promise<Expense[]> {
         const { rows: expenses } = await this.knex.raw(`
             with verified_stakeholders as (
                 select
@@ -167,7 +170,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     '${contactId}'
                 )
                 group by expense_id
-                having count(id) = 2
+                having count(id) > 1
             ), actor_stakeholder as (
                 select
                     id,
@@ -184,7 +187,6 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 on e.id = ac.expense_id
             where share > 0
             and (${`'${search}'` || null} is null or e.label ilike '%${search}%')
-            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}'
             order by e.created_at desc
             limit ${MAX_EXPENSES_LIMIT}
             offset ${pageIndex * MAX_EXPENSES_LIMIT};
@@ -206,13 +208,24 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     where ${Table.Stakeholders}.expense_id = '${expense.id}'
                 `);
 
-                return this.mapPairExpenseFrom({
+                let group: Nullable<Group> = null;
+                if (
+                    expense.group_id !== this.configService.get('DEFAULT_UUID')
+                ) {
+                    group = await this.groupRepository.getActorGroupById(
+                        actorId,
+                        expense.group_id,
+                    );
+                }
+
+                return this.mapExpenseFrom({
                     id: expense.id,
                     label: expense.label,
                     emoji: expense.emoji,
                     created_at: expense.created_at,
                     balance: expense.balance,
                     group_id: expense.group_id,
+                    group: group ?? undefined,
                     stakeholders,
                 });
             }),
@@ -492,7 +505,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     '${contactId}'
                 )
                 group by expense_id
-                having count(id) = 2
+                having count(id) > 1
             ), actor_stakeholder as (
                 select
                     id,
@@ -507,8 +520,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 on e.id = vs.expense_id
             inner join actor_stakeholder ac
                 on e.id = ac.expense_id
-            where share > 0
-            and group_id = '${this.configService.getOrThrow('DEFAULT_UUID')}';
+            where share > 0;
         `);
 
         return Promise.all(
@@ -527,13 +539,24 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     where ${Table.Stakeholders}.expense_id = '${expense.id}'
                 `);
 
-                return this.mapPairExpenseFrom({
+                let group: Nullable<Group> = null;
+                if (
+                    expense.group_id !== this.configService.get('DEFAULT_UUID')
+                ) {
+                    group = await this.groupRepository.getActorGroupById(
+                        actorId,
+                        expense.group_id,
+                    );
+                }
+
+                return this.mapExpenseFrom({
                     id: expense.id,
                     label: expense.label,
                     emoji: expense.emoji,
                     created_at: expense.created_at,
                     balance: expense.balance,
                     group_id: expense.group_id,
+                    group: group ?? undefined,
                     stakeholders,
                 });
             }),
@@ -909,19 +932,23 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         const metadata = this.extractMetadataFrom(record);
         const payment = this.extractGroupPaymentFrom(record);
         const stakeholders = this.mapStakeholdersFrom(record);
-        return GroupExpense.fromState(
-            metadata,
-            record.group,
-            payment,
-            stakeholders,
-        );
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(record.group)
+            .withPayment(payment)
+            .withStakeholders(stakeholders)
+            .build();
     }
 
     private mapPairExpenseFrom(record: ExpenseDetailedRecord): PairExpense {
         const metadata = this.extractMetadataFrom(record);
         const payment = this.extractPairPaymentFrom(record);
         const stakeholders = this.mapStakeholdersFrom(record);
-        return PairExpense.fromState(metadata, payment, stakeholders);
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .withStakeholders(stakeholders)
+            .build();
     }
 
     private extractGroupPaymentFrom(

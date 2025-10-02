@@ -6,7 +6,10 @@ import {
 } from '@expenses/application/queries/get-actor-group-expenses.handler';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from '@test/helpers/group/utils';
-import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import {
+    GroupExpense,
+    GroupExpenseBuilder,
+} from '@expenses/domain/expense/group/group-expense';
 import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
@@ -33,14 +36,22 @@ describe('GetActorGroupExpensesHandler', () => {
 
     const otherMembers = dummyGroup.getMembersExcluding(dummyActorId);
     const dummyExpenses = [
-        GroupExpense.create(generateRandomMetadata(), dummyGroup, {
-            balance: 1000,
-            creditor: getRandomMemberFrom(otherMembers),
-        }),
-        GroupExpense.create(generateRandomMetadata(), dummyGroup, {
-            balance: 3000,
-            creditor: Member.fromUser(DEFAULT_USER),
-        }),
+        new GroupExpenseBuilder()
+            .withMetadata(generateRandomMetadata())
+            .withGroup(dummyGroup)
+            .withPayment({
+                balance: 1000,
+                creditor: getRandomMemberFrom(otherMembers),
+            })
+            .build(),
+        new GroupExpenseBuilder()
+            .withMetadata(generateRandomMetadata())
+            .withGroup(dummyGroup)
+            .withPayment({
+                balance: 3000,
+                creditor: Member.fromUser(DEFAULT_USER),
+            })
+            .build(),
     ];
 
     beforeEach(() => {

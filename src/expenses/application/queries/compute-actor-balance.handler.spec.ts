@@ -12,10 +12,14 @@ import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMembers } from '@test/helpers/group/utils';
 import { generateRandomUser } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
-import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
+import {
+    GroupExpense,
+    GroupExpenseBuilder,
+} from '@expenses/domain/expense/group/group-expense';
 import { Member } from '@groups/domain/member';
 import {
     PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 
@@ -35,6 +39,7 @@ describe('ComputeActorBalanceHandler', () => {
         name: 'name',
         emoji: '🚧',
         members: dummyGroupMembers,
+        createdAt: new Date(),
     });
 
     const dummyQuery = new ComputeActorBalanceQuery({
@@ -73,10 +78,14 @@ describe('ComputeActorBalanceHandler', () => {
         const metadata = generateRandomMetadata();
         const creditor = Member.fromUser(DEFAULT_USER);
 
-        return GroupExpense.create(metadata, dummyGroup, {
-            balance,
-            creditor,
-        });
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(dummyGroup)
+            .withPayment({
+                balance,
+                creditor,
+            })
+            .build();
     }
 
     function createRandomCreditPairExpense(balance: number): Expense {
@@ -88,7 +97,7 @@ describe('ComputeActorBalanceHandler', () => {
             creditor,
             debtor: generateRandomUser(),
         };
-        return PairExpense.create(metadata, payment);
+        return new PairExpenseBuilder().withMetadata(metadata).withPayment(payment).build()
     }
 
     function createRandomDebitPairExpense(balance: number): Expense {
@@ -100,6 +109,6 @@ describe('ComputeActorBalanceHandler', () => {
             creditor,
             debtor: DEFAULT_USER,
         };
-        return PairExpense.create(metadata, payment);
+        return new PairExpenseBuilder().withMetadata(metadata).withPayment(payment).build()
     }
 });

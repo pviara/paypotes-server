@@ -5,7 +5,7 @@ import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import {
-    GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
@@ -56,7 +56,11 @@ export class AddGroupExpenseHandler
 
         const metadata = this.extractMetadataFrom(command);
         const payment = this.extractPaymentFrom(command, group);
-        const expense = GroupExpense.create(metadata, group, payment);
+        const expense = new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
 
         return this.expenseRepository.saveGroupExpense(expense);
     }

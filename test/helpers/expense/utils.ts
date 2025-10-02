@@ -4,6 +4,7 @@ import { generateRandomUser } from '@test/helpers/user/utils';
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { Member } from '@groups/domain/member';
@@ -15,6 +16,7 @@ import {
 import { Modules } from '@test/helpers/application/model/module';
 import {
     PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { RandomArrayGenerationOptions } from '@test/helpers/types';
@@ -102,28 +104,38 @@ export const generateRandomStakeholders = ({
 export const generateRandomGroupExpenses = ({
     length,
 }: RandomPairExpenseArrayGenerationOptions): Array<GroupExpense> => {
-    return Array.from({ length }).map((_, index) => {
+    return Array.from({ length }).map((_) => {
         const metadata = generateRandomMetadata();
         const group = generateRandomGroup();
         const payment = generateRandomGroupPaymentWithoutDefaultUser();
-        return GroupExpense.create(metadata, group, payment);
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
     });
 };
 
 export const generateRandomPairExpenses = ({
     length,
 }: RandomPairExpenseArrayGenerationOptions): Array<PairExpense> => {
-    return Array.from({ length }).map((_, index) => {
+    return Array.from({ length }).map((_) => {
         const metadata = generateRandomMetadata();
         const payment = generateRandomPairPaymentWithoutDefaultUser();
-        return PairExpense.create(metadata, payment);
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
     });
 };
 
 export const generateDefaultUserPairExpense = (): PairExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomPairPaymentWithDefaultUser();
-    return PairExpense.create(metadata, payment);
+    return new PairExpenseBuilder()
+        .withMetadata(metadata)
+        .withPayment(payment)
+        .build();
 };
 
 export const generateDefaultUserPairExpenses = ({
@@ -135,7 +147,10 @@ export const generateDefaultUserPairExpenses = ({
             label: `label_${index}_${crypto.randomUUID().slice(0, 3)}`,
         });
         const payment = generateRandomPairPaymentWithDefaultUser(counterparty);
-        return PairExpense.create(metadata, payment);
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
     });
 };
 
@@ -144,13 +159,21 @@ export const generateDefaultUserCreditGroupExpense = (
 ): GroupExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomGroupPaymentWithDefaultUserIn(group);
-    return GroupExpense.create(metadata, group, payment);
+    return new GroupExpenseBuilder()
+        .withMetadata(metadata)
+        .withGroup(group)
+        .withPayment(payment)
+        .build();
 };
 
 export const generateDefaultUserGroupExpense = (group: Group): GroupExpense => {
     const metadata = generateRandomMetadata();
     const payment = generateRandomGroupPaymentWithDefaultUserIn(group);
-    return GroupExpense.create(metadata, group, payment);
+    return new GroupExpenseBuilder()
+        .withMetadata(metadata)
+        .withGroup(group)
+        .withPayment(payment)
+        .build();
 };
 
 export const generateDefaultUserGroupExpenses = ({
@@ -166,7 +189,11 @@ export const generateDefaultUserGroupExpenses = ({
             group,
             counterparty,
         );
-        return GroupExpense.create(metadata, group, payment);
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
     });
 };
 

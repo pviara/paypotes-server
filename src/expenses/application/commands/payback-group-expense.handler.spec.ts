@@ -11,6 +11,7 @@ import {
 } from '@test/helpers/group/utils';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { Member } from '@groups/domain/member';
@@ -97,7 +98,11 @@ describe('PaybackGroupExpenseHandler', () => {
                     balance: 1000,
                     creditor: generateRandomMember(),
                 };
-                return GroupExpense.create(metadata, dummyGroup, payment);
+                return new GroupExpenseBuilder()
+                    .withMetadata(metadata)
+                    .withGroup(dummyGroup)
+                    .withPayment(payment)
+                    .build();
             }
 
             function expectOtherCounterpartiesShareNotToHaveBeenSettled(): void {
@@ -186,7 +191,11 @@ describe('PaybackGroupExpenseHandler', () => {
                     balance: 1000,
                     creditor: Member.fromUser(DEFAULT_USER),
                 };
-                return GroupExpense.create(metadata, dummyGroup, payment);
+                return new GroupExpenseBuilder()
+                    .withMetadata(metadata)
+                    .withGroup(dummyGroup)
+                    .withPayment(payment)
+                    .build();
             }
         });
 

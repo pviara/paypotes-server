@@ -9,7 +9,7 @@ import {
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import {
-    PairExpense,
+    PairExpense, PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
@@ -109,7 +109,10 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
             creditor: DEFAULT_USER,
             debtor: dummyUser,
         };
-        return PairExpense.create(metadata, payment);
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
     }
 
     function createRandomDebitExpense(balance: number): PairExpense {
@@ -119,6 +122,9 @@ describe('GetActorContactWithBalanceByIdHandler', () => {
             creditor: dummyUser,
             debtor: DEFAULT_USER,
         };
-        return PairExpense.create(metadata, payment);
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
     }
 });

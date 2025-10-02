@@ -16,6 +16,10 @@ import {
 } from '@test/helpers/expense/utils';
 import { generateDefaultUserRandomGroup } from './group/utils';
 import {
+    generateDefaultUserRelationships,
+    generateRandomContacts,
+} from '@test/helpers/contact/utils';
+import {
     generateRandomUser,
     mapUserFrom,
     mapUsersFrom,
@@ -23,6 +27,7 @@ import {
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
@@ -59,6 +64,20 @@ export class Fixture {
         await this.contactRepo.addRelationshipsBetween([DEFAULT_USER, user]);
 
         return Contact.fromUser(user);
+    }
+
+    async setupDefaultUserContacts(options?: Options): Promise<Contact[]> {
+        const contacts = generateRandomContacts({
+            length: options?.length ?? 40,
+        });
+        const users = mapUsersFrom(contacts);
+
+        await this.userRepo.insert(DEFAULT_USER, ...users);
+
+        const relationships = generateDefaultUserRelationships({ contacts });
+        await this.contactRepo.insert(...relationships);
+
+        return contacts;
     }
 
     async setupDefaultUserGroup(): Promise<Group> {
@@ -219,7 +238,11 @@ export class Fixture {
             balance: generateRandomBalance(),
             creditor: Member.fromUser(DEFAULT_USER),
         };
-        return GroupExpense.create(metadata, group, payment);
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
     }
 
     private generateRandomDebitExpenseFor(group: Group): GroupExpense {
@@ -228,6 +251,10 @@ export class Fixture {
             balance: generateRandomBalance(),
             creditor: group.getMembersExcluding(DEFAULT_USER.getId())[0],
         };
-        return GroupExpense.create(metadata, group, payment);
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
     }
 }

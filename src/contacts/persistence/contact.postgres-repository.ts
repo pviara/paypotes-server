@@ -80,7 +80,7 @@ export class ContactPostgresRepository implements ContactRepository {
             .andWhereNot(`${Table.Users}.id`, actorId)
             .first();
 
-        return this.mapContactFrom(contact);
+        return contact ? this.mapContactFrom(contact) : null;
     }
 
     @Log('debug')

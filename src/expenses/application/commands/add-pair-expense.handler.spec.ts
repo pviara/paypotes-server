@@ -14,6 +14,7 @@ import {
 import { Metadata } from '@expenses/domain/expense/expense';
 import {
     PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
@@ -92,7 +93,10 @@ describe('AddPairExpenseHandler', () => {
                 creditor: getCommandCreditor(),
                 debtor: getCommandDebtor(),
             };
-            const expense = PairExpense.create(metadata, dummyPayment);
+            const expense = new PairExpenseBuilder()
+                .withMetadata(metadata)
+                .withPayment(dummyPayment)
+                .build();
 
             expect(expenseRepo.calls.savePairExpense.count).toBe(1);
             expect(expenseRepo.calls.savePairExpense.history).toContainEqual(

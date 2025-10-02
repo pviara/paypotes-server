@@ -7,7 +7,10 @@ export const empty = (application: Application): AsyncCallback<void> => {
 };
 
 export const shutdown = (application: Application): AsyncCallback<void> => {
-    return async (): Promise<void> => await application.shutdown();
+    return async (): Promise<void> => {
+        await application.emptyDatabase();
+        await application.shutdown();
+    };
 };
 
 export const mapIdsFrom = (persons: Array<Person>): Array<string> => {

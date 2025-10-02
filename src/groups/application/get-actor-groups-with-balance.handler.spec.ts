@@ -13,6 +13,7 @@ import {
 import { Group } from '@groups/domain/group';
 import {
     GroupExpense,
+    GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupRepositorySpy } from '@test/doubles/group-repository.spy';
@@ -103,7 +104,12 @@ describe('GetActorGroupsWithBalanceHandler', () => {
             balance,
             creditor: Member.fromUser(DEFAULT_USER),
         };
-        return GroupExpense.create(metadata, group, payment);
+
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
     }
 
     function createRandomDebitExpenseFor(
@@ -117,7 +123,12 @@ describe('GetActorGroupsWithBalanceHandler', () => {
                 group.getMembersExcluding(DEFAULT_USER.getId()),
             ),
         };
-        return GroupExpense.create(metadata, group, payment);
+
+        return new GroupExpenseBuilder()
+            .withMetadata(metadata)
+            .withGroup(group)
+            .withPayment(payment)
+            .build();
     }
 
     function getRandomMemberFrom(members: Array<Member>): Member {

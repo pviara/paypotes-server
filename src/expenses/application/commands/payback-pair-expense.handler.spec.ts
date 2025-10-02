@@ -9,6 +9,7 @@ import {
 import { generateRandomUser } from '@test/helpers/user/utils';
 import {
     PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import {
@@ -84,7 +85,10 @@ describe('PaybackPairExpenseHandler', () => {
                 creditor: DEFAULT_USER,
                 debtor: generateRandomUser(),
             };
-            return PairExpense.create(metadata, payment);
+            return new PairExpenseBuilder()
+                .withMetadata(metadata)
+                .withPayment(payment)
+                .build();
         }
 
         function expectAllStakeholdersShareToBeSettled(

@@ -62,6 +62,10 @@ export class ErrorFilter implements ExceptionFilter {
             response
                 .status(HttpStatus.NOT_FOUND)
                 .json({ error: exception.message });
+        } else {
+            response
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .json({ error: 'Unknown error' });
         }
     }
 }
