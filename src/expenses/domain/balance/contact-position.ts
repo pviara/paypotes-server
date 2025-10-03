@@ -10,9 +10,13 @@ export class ContactPosition {
     private constructor(private value: number) {}
 
     static calculate({ contactId, expense, stakeholderId }: Terms): number {
+        const shareOwedByContact = expense.getShareOf(contactId);
+        const sharedStakeholderShouldPay = -expense.getShareOf(stakeholderId);
+
         const position = expense.hasCreditor(stakeholderId)
-            ? expense.getShareOf(contactId)
-            : -expense.getShareOf(stakeholderId);
+            ? shareOwedByContact
+            : sharedStakeholderShouldPay;
+
         return new ContactPosition(position).value;
     }
 }
