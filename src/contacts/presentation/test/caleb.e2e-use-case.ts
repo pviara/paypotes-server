@@ -7,6 +7,7 @@ import { CreateGroupDTO } from '@groups/presentation/dto/create-group.dto';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseModule } from '@expenses/expense.module';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
+import { Fixture } from '@test/helpers/fixture';
 import { GroupModule } from '@groups/group.module';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { initMessagingApplicationWith } from '@test/helpers/application/utils';
@@ -16,8 +17,7 @@ import { User } from '@users/domain/user';
 import { UserModule } from '@users/user.module';
 import * as request from 'supertest';
 
-import { Fixture } from '@test/helpers/fixture';
-
+// [DOC] https://github.com/pviara/paypot-server/issues/105
 describe("Caleb's use case", () => {
     const application = initMessagingApplicationWith([
         ContactModule,
