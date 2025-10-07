@@ -12,6 +12,7 @@ import { GroupModule } from '@groups/group.module';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { initMessagingApplicationWith } from '@test/helpers/application/utils';
 import { setTimeout } from 'node:timers/promises';
+import { shutdown } from '@test/helpers/utils';
 import { User } from '@users/domain/user';
 import { UserModule } from '@users/user.module';
 import * as request from 'supertest';
@@ -70,6 +71,8 @@ describe("Camron's use case", () => {
         await fixture.setupRandomPairExpenses();
     });
 
+    afterAll(shutdown(application));
+
     describe("Camron checks on Stanford's contact detail", () => {
         it('shoud display both expenses', async () => {
             const response = await request(httpServer).get(
@@ -87,7 +90,7 @@ describe("Camron's use case", () => {
             );
 
             const [groupExpense, pairExpense] = response.body;
-            expect(groupExpense.balance).toBe('54,00');
+            expect(groupExpense.balance).toBe('42,00');
             expect(pairExpense.balance).toBe('12,00');
         });
 

@@ -34,7 +34,7 @@ export class AppModule implements NestModule {
                 const url = req.originalUrl;
 
                 this.logger.log(
-                    `${method} ${url} ${res.statusCode}`,
+                    `${method} ${url}`,
                     AppModule.name,
                     correlationId,
                 );
