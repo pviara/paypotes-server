@@ -1,4 +1,5 @@
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
+import { ContactGroupExpenseSnapshot } from '@expenses/domain/expense/group/contact-group-expense-snapshot';
 import { GroupDTO } from '@groups/presentation/dto/group.dto';
 import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
 import { GroupPaymentDTO } from '@expenses/presentation/dto/group-payment.dto';
@@ -19,7 +20,9 @@ export class GroupExpenseDTO {
         readonly stakeholders: StakeholderDTOs,
     ) {}
 
-    static from(snapshot: GroupExpenseSnapshot): GroupExpenseDTO {
+    static from(
+        snapshot: ContactGroupExpenseSnapshot | GroupExpenseSnapshot,
+    ): GroupExpenseDTO {
         const expense = snapshot.getExpense();
 
         const balance = BalanceDTO.from(snapshot.getPerspectiveBalance());

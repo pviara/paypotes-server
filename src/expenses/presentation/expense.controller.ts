@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ComputeActorBalanceQuery } from '@expenses/application/queries/compute-actor-balance.handler';
+import { ContactGroupExpenseSnapshot } from '@expenses/domain/expense/group/contact-group-expense-snapshot';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpenseDTO } from '@expenses/presentation/dto/expense.dto';
 import { GetActorContactExpenseByIdQuery } from '@expenses/application/queries/get-actor-contact-expense-by-id.handler';
@@ -125,7 +126,7 @@ export class ExpenseController {
         return expenses.map((expense: Expense) => {
             if (expense instanceof PairExpenseSnapshot) {
                 return PairExpenseDTO.from(expense);
-            } else if (expense instanceof GroupExpenseSnapshot) {
+            } else if (expense instanceof ContactGroupExpenseSnapshot) {
                 return GroupExpenseDTO.from(expense);
             }
         });
