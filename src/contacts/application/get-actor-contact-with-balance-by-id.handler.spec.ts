@@ -9,7 +9,8 @@ import {
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
 import { generateRandomMetadata } from '@test/helpers/expense/utils';
 import {
-    PairExpense, PairExpenseBuilder,
+    PairExpense,
+    PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';

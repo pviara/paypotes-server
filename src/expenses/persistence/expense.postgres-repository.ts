@@ -163,31 +163,37 @@ export class ExpensePostgresRepository implements ExpenseRepository {
             with verified_stakeholders as (
                 select
                     expense_id,
-                    count(expense_id) as found_stakeholders
+                    id as stakeholder_id,
+                    creditor as stakeholder_creditor,
+                    share
                 from ${Table.Stakeholders}
                 where id in (
                     '${actorId}',
                     '${contactId}'
                 )
-                group by expense_id
-                having count(id) > 1
-            ), actor_stakeholder as (
+            ), verified_actor as (
                 select
                     id,
                     expense_id,
+                    creditor as actor_creditor,
                     share
                 from ${Table.Stakeholders}
                 where id = '${actorId}'
             )
-            select e.*
-            from ${Table.Expenses} e
+            select ex.*
+            from ${Table.Expenses} ex
             inner join verified_stakeholders vs
-                on e.id = vs.expense_id
-            inner join actor_stakeholder ac
-                on e.id = ac.expense_id
-            where share > 0
-            and (${`'${search}'` || null} is null or e.label ilike '%${search}%')
-            order by e.created_at desc
+                on ex.id = vs.expense_id
+            inner join verified_actor va
+                on ex.id = va.expense_id
+            where vs.stakeholder_id != '${actorId}'
+            and vs.share > 0
+            and case when ex.group_id != '${this.configService.get('DEFAULT_UUID')}'
+                then vs.stakeholder_creditor = true or va.actor_creditor = true
+                else true
+            end
+            and (${`'${search}'` || null} is null or ex.label ilike '%${search}%')
+            order by ex.created_at desc
             limit ${MAX_EXPENSES_LIMIT}
             offset ${pageIndex * MAX_EXPENSES_LIMIT};
         `);
@@ -495,33 +501,39 @@ export class ExpensePostgresRepository implements ExpenseRepository {
         contactId: string,
     ): Promise<PairExpense[]> {
         const { rows: expenses } = await this.knex.raw(`
-            with verified_stakeholders as (
-                select
-                    expense_id,
-                    count(expense_id) as found_stakeholders
-                from ${Table.Stakeholders}
-                where id in (
-                    '${actorId}',
-                    '${contactId}'
+                with verified_stakeholders as (
+                    select
+                        expense_id,
+                        id as stakeholder_id,
+                        creditor as stakeholder_creditor,
+                        share
+                    from ${Table.Stakeholders}
+                    where id in (
+                        '${actorId}',
+                        '${contactId}'
+                    )
+                ), verified_actor as (
+                    select
+                        id,
+                        expense_id,
+                        creditor as actor_creditor,
+                        share
+                    from ${Table.Stakeholders}
+                    where id = '${actorId}'
                 )
-                group by expense_id
-                having count(id) > 1
-            ), actor_stakeholder as (
-                select
-                    id,
-                    expense_id,
-                    share
-                from ${Table.Stakeholders}
-                where id = '${actorId}'
-            )
-            select e.*
-            from ${Table.Expenses} e
-            inner join verified_stakeholders vs
-                on e.id = vs.expense_id
-            inner join actor_stakeholder ac
-                on e.id = ac.expense_id
-            where share > 0;
-        `);
+                select ex.*
+                from ${Table.Expenses} ex
+                inner join verified_stakeholders vs
+                    on ex.id = vs.expense_id
+                inner join verified_actor va
+                    on ex.id = va.expense_id
+                where vs.stakeholder_id != '${actorId}'
+                and vs.share > 0
+                and case when ex.group_id != '${this.configService.get('DEFAULT_UUID')}'
+                    then vs.stakeholder_creditor = true or va.actor_creditor = true
+                    else true
+                end;
+            `);
 
         return Promise.all(
             expenses.map(async (expense: ExpenseRecord) => {
@@ -575,7 +587,8 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 select
                     id as stakeholder_id,
                     creditor as stakeholder_creditor,
-                    expense_id
+                    expense_id,
+                    share
                 from stakeholders
                 where id in (${this.mapInStatementFromIds(contactIds)})
             ),
@@ -599,6 +612,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 on va.expense_id = ex.id
             where
                 vs.stakeholder_id != '${actorId}'
+                and vs.share > 0
                 and case when ex.group_id != '${this.configService.get('DEFAULT_UUID')}'
                     then vs.stakeholder_creditor = true or va.actor_creditor = true
                     else true
