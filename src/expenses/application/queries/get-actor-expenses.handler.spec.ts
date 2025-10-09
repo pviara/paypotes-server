@@ -13,7 +13,10 @@ import {
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
 import { Member } from '@groups/domain/member';
-import { PairExpense, PairExpenseBuilder } from '@expenses/domain/expense/pair/pair-expense';
+import {
+    PairExpense,
+    PairExpenseBuilder,
+} from '@expenses/domain/expense/pair/pair-expense';
 import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 
 describe('GetActorExpensesHandler', () => {
@@ -42,13 +45,13 @@ describe('GetActorExpensesHandler', () => {
             })
             .build(),
         new PairExpenseBuilder()
-        .withMetadata(generateRandomMetadata())
-        .withPayment({
-            balance: 2000,
-            creditor: generateRandomUser(),
-            debtor: DEFAULT_USER,
-        })
-        .build()
+            .withMetadata(generateRandomMetadata())
+            .withPayment({
+                balance: 2000,
+                creditor: generateRandomUser(),
+                debtor: DEFAULT_USER,
+            })
+            .build(),
     ];
 
     beforeEach(() => {

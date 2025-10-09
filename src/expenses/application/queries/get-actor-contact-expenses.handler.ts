@@ -48,22 +48,20 @@ export class GetActorContactExpensesHandler
         actorId: string,
         contactId: string,
     ): Array<ContactGroupExpenseSnapshot | PairExpenseSnapshot> {
-        return expenses
-            .map((expense) => {
-                if (expense instanceof PairExpense)
-                    return PairExpenseSnapshot.create({
-                        expense,
-                        perspectiveId: actorId,
-                    });
-                if (expense instanceof GroupExpense)
-                    return ContactGroupExpenseSnapshot.create({
-                        contactId,
-                        expense,
-                        perspectiveId: actorId,
-                    });
+        return expenses.map((expense) => {
+            if (expense instanceof PairExpense)
+                return PairExpenseSnapshot.create({
+                    expense,
+                    perspectiveId: actorId,
+                });
+            if (expense instanceof GroupExpense)
+                return ContactGroupExpenseSnapshot.create({
+                    contactId,
+                    expense,
+                    perspectiveId: actorId,
+                });
 
-                throw new Error('Expense is neither pair or group expense');
-            })
-            .filter((expense) => expense.getPerspectiveBalance() !== 0);
+            throw new Error('Expense is neither pair or group expense');
+        });
     }
 }

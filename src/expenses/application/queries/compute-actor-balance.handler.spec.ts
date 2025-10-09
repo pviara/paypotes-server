@@ -97,7 +97,10 @@ describe('ComputeActorBalanceHandler', () => {
             creditor,
             debtor: generateRandomUser(),
         };
-        return new PairExpenseBuilder().withMetadata(metadata).withPayment(payment).build()
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
     }
 
     function createRandomDebitPairExpense(balance: number): Expense {
@@ -109,6 +112,9 @@ describe('ComputeActorBalanceHandler', () => {
             creditor,
             debtor: DEFAULT_USER,
         };
-        return new PairExpenseBuilder().withMetadata(metadata).withPayment(payment).build()
+        return new PairExpenseBuilder()
+            .withMetadata(metadata)
+            .withPayment(payment)
+            .build();
     }
 });

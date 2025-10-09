@@ -17,7 +17,6 @@ import { User } from '@users/domain/user';
 import { UserModule } from '@users/user.module';
 import * as request from 'supertest';
 
-// [DOC] https://github.com/pviara/paypot-server/issues/108
 describe("Christopher's use case", () => {
     const application = initMessagingApplicationWith([
         ContactModule,
@@ -71,6 +70,7 @@ describe("Christopher's use case", () => {
 
     afterAll(shutdown(application));
 
+    // [DOC] https://github.com/pviara/paypot-server/issues/108
     describe("Christopher checks on Holy's contact detail", () => {
         it('should display a balance of "-6,00"', async () => {
             const response = await request(httpServer).get(
@@ -101,7 +101,8 @@ describe("Christopher's use case", () => {
         }
     });
 
-    describe("Christopher checks on Tony's contact detail", () => {
+    // [DOC] https://github.com/pviara/paypot-server/issues/114
+    describe.only("Christopher checks on Tony's contact detail", () => {
         it('should display a balance of "-6,00"', async () => {
             const response = await request(httpServer).get(
                 `/${CONTACTS_API_ROUTE}/${users.Tony.profile.getId()}`,
@@ -115,7 +116,6 @@ describe("Christopher's use case", () => {
             );
 
             const dtos = response.body;
-            console.warn(dtos);
             expect(dtos.length).toBe(1);
         });
     });
@@ -175,21 +175,6 @@ describe("Christopher's use case", () => {
                     .replace('.', ','),
                 groupId: groupId,
                 memberId: users.Holy.profile.getId(),
-            });
-    }
-
-    async function makeActorAddDebitGroupExpenseForUnknown(): Promise<void> {
-        await request(httpServer)
-            .post(`/${EXPENSES_API_ROUTE}/group`)
-            .send({
-                id: users.Holy.groupExpenseId,
-                label: 'Candies',
-                emoji: '🍭',
-                balance: users.Tony.balanceForGroupExpense
-                    .toFixed(2)
-                    .replace('.', ','),
-                groupId: groupId,
-                memberId: users.Tony.profile.getId(),
             });
     }
 
