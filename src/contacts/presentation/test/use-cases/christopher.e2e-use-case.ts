@@ -29,22 +29,29 @@ describe("Christopher's use case", () => {
     let httpServer: App;
 
     const users = {
-        Christopher: DEFAULT_USER,
-        Holy: new User({
-            id: crypto.randomUUID(),
-            firstname: 'Holy',
-            lastname: 'Reed',
-            avatarUrl: '',
-            email: 'holy.reed@usecase.com',
-        }),
-        Unknown: generateRandomUser(),
+        Christopher: {
+            profile: DEFAULT_USER,
+        },
+        Holy: {
+            profile: new User({
+                id: crypto.randomUUID(),
+                firstname: 'Holy',
+                lastname: 'Reed',
+                avatarUrl: '',
+                email: 'holy.reed@usecase.com',
+            }),
+            groupExpenseId: crypto.randomUUID(),
+            pairExpenseId: crypto.randomUUID(),
+            balanceForGroupExpense: 66,
+            balanceForPairExpense: 32,
+        },
+        Unknown: {
+            profile: generateRandomUser(),
+            balanceForGroupExpense: 30,
+        },
     };
 
     const groupId = crypto.randomUUID();
-    const pairExpenseId = crypto.randomUUID();
-    const groupExpenseId = crypto.randomUUID();
-
-    const balances = { forPairExpense: 32, forGroupExpense: 66 };
 
     beforeAll(async () => {
         await application.bootstrap();
@@ -67,14 +74,14 @@ describe("Christopher's use case", () => {
     describe("Christopher checks on Holy's contact detail", () => {
         it('should display a balance of "-6,00"', async () => {
             const response = await request(httpServer).get(
-                `/${CONTACTS_API_ROUTE}/${users.Holy.getId()}`,
+                `/${CONTACTS_API_ROUTE}/${users.Holy.profile.getId()}`,
             );
             expect(response.body.balance).toBe('-6,00');
         });
 
         it('shoud display both expenses', async () => {
             const response = await request(httpServer).get(
-                `/${EXPENSES_API_ROUTE}/contact/${users.Holy.getId()}`,
+                `/${EXPENSES_API_ROUTE}/contact/${users.Holy.profile.getId()}`,
             );
 
             const dtos = response.body;
@@ -86,7 +93,9 @@ describe("Christopher's use case", () => {
             dtos: Array<ExpenseDTO>,
         ): void {
             const bothExpensesHaveBeenReturned = dtos.every(
-                (dto) => dto.id === pairExpenseId || dto.id === groupExpenseId,
+                (dto) =>
+                    dto.id === users.Holy.pairExpenseId ||
+                    dto.id === users.Holy.groupExpenseId,
             );
             expect(bothExpensesHaveBeenReturned).toBe(true);
         }
@@ -94,19 +103,23 @@ describe("Christopher's use case", () => {
 
     async function setupUsers(): Promise<void> {
         const { userRepo } = application.getRepositories();
-        await userRepo.insert(...Object.values(users));
+        await userRepo.insert(
+            ...Object.values(users).map((user) => user.profile),
+        );
     }
 
     async function makeActorAddCreditPairExpenseWithHoly(): Promise<void> {
         await request(httpServer)
             .post(`/${EXPENSES_API_ROUTE}/pair`)
             .send({
-                id: pairExpenseId,
+                id: users.Holy.pairExpenseId,
                 label: 'Concert ticket',
                 emoji: '🎫',
-                balance: balances.forPairExpense.toFixed(2).replace('.', ','),
+                balance: users.Holy.balanceForPairExpense
+                    .toFixed(2)
+                    .replace('.', ','),
                 isCurrentPayer: true,
-                userId: users.Holy.getId(),
+                userId: users.Holy.profile.getId(),
             });
     }
 
@@ -117,7 +130,7 @@ describe("Christopher's use case", () => {
             emoji: '✈️',
             balance: '225,00',
             isCurrentPayer: true,
-            userId: users.Unknown.getId(),
+            userId: users.Unknown.profile.getId(),
         });
     }
 
@@ -126,7 +139,7 @@ describe("Christopher's use case", () => {
             id: groupId,
             name: 'Cinema',
             emoji: '🎞️',
-            userIds: Object.values(users).map((user) => user.getId()),
+            userIds: Object.values(users).map((user) => user.profile.getId()),
         };
         await request(httpServer).post(`/${GROUPS_API_ROUTE}`).send(payload);
     }
@@ -135,12 +148,29 @@ describe("Christopher's use case", () => {
         await request(httpServer)
             .post(`/${EXPENSES_API_ROUTE}/group`)
             .send({
-                id: groupExpenseId,
+                id: users.Holy.groupExpenseId,
                 label: 'Pop-corn',
                 emoji: '🍿',
-                balance: balances.forGroupExpense.toFixed(2).replace('.', ','),
+                balance: users.Holy.balanceForGroupExpense
+                    .toFixed(2)
+                    .replace('.', ','),
                 groupId: groupId,
-                memberId: users.Holy.getId(),
+                memberId: users.Holy.profile.getId(),
+            });
+    }
+
+    async function makeActorAddDebitGroupExpenseForUnknown(): Promise<void> {
+        await request(httpServer)
+            .post(`/${EXPENSES_API_ROUTE}/group`)
+            .send({
+                id: users.Holy.groupExpenseId,
+                label: 'Candies',
+                emoji: '🍭',
+                balance: users.Unknown.balanceForGroupExpense
+                    .toFixed(2)
+                    .replace('.', ','),
+                groupId: groupId,
+                memberId: users.Unknown.profile.getId(),
             });
     }
 
