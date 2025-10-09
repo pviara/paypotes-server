@@ -102,7 +102,7 @@ describe("Christopher's use case", () => {
     });
 
     // [DOC] https://github.com/pviara/paypot-server/issues/114
-    describe.only("Christopher checks on Tony's contact detail", () => {
+    describe("Christopher checks on Tony's contact detail", () => {
         it('should display a balance of "-6,00"', async () => {
             const response = await request(httpServer).get(
                 `/${CONTACTS_API_ROUTE}/${users.Tony.profile.getId()}`,
