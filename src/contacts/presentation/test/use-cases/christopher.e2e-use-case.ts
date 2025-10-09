@@ -45,7 +45,7 @@ describe("Christopher's use case", () => {
             balanceForGroupExpense: 66,
             balanceForPairExpense: 32,
         },
-        Unknown: {
+        Tony: {
             profile: generateRandomUser(),
             balanceForGroupExpense: 30,
         },
@@ -101,6 +101,25 @@ describe("Christopher's use case", () => {
         }
     });
 
+    describe("Christopher checks on Tony's contact detail", () => {
+        it('should display a balance of "-6,00"', async () => {
+            const response = await request(httpServer).get(
+                `/${CONTACTS_API_ROUTE}/${users.Tony.profile.getId()}`,
+            );
+            expect(response.body.balance).toBe('112,50');
+        });
+
+        it('shoud display only expense shared with Tony', async () => {
+            const response = await request(httpServer).get(
+                `/${EXPENSES_API_ROUTE}/contact/${users.Tony.profile.getId()}`,
+            );
+
+            const dtos = response.body;
+            console.warn(dtos);
+            expect(dtos.length).toBe(1);
+        });
+    });
+
     async function setupUsers(): Promise<void> {
         const { userRepo } = application.getRepositories();
         await userRepo.insert(
@@ -130,7 +149,7 @@ describe("Christopher's use case", () => {
             emoji: '✈️',
             balance: '225,00',
             isCurrentPayer: true,
-            userId: users.Unknown.profile.getId(),
+            userId: users.Tony.profile.getId(),
         });
     }
 
@@ -166,11 +185,11 @@ describe("Christopher's use case", () => {
                 id: users.Holy.groupExpenseId,
                 label: 'Candies',
                 emoji: '🍭',
-                balance: users.Unknown.balanceForGroupExpense
+                balance: users.Tony.balanceForGroupExpense
                     .toFixed(2)
                     .replace('.', ','),
                 groupId: groupId,
-                memberId: users.Unknown.profile.getId(),
+                memberId: users.Tony.profile.getId(),
             });
     }
 
