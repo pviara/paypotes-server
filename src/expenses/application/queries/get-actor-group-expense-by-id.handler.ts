@@ -1,7 +1,5 @@
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { GroupExpenseSnapshot } from '@expenses/domain/expense/group/group-expense-snapshot';
-import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
 
@@ -19,10 +17,7 @@ export class GetActorGroupExpenseByIdQuery implements IQuery {
 export class GetActorGroupExpenseByIdHandler
     implements IQueryHandler<GetActorGroupExpenseByIdQuery>
 {
-    constructor(
-        @Inject(expenseRepositoryToken)
-        private expenseRepository: ExpenseRepository,
-    ) {}
+    constructor(private expenseRepository: ExpenseRepository) {}
 
     @Log('debug')
     async execute(

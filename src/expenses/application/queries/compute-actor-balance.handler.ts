@@ -1,7 +1,5 @@
 import { Balance } from '@expenses/domain/balance/balance';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
 
@@ -17,10 +15,7 @@ export class ComputeActorBalanceQuery implements IQuery {
 export class ComputeActorBalanceHandler
     implements IQueryHandler<ComputeActorBalanceQuery>
 {
-    constructor(
-        @Inject(expenseRepositoryToken)
-        private repository: ExpenseRepository,
-    ) {}
+    constructor(private repository: ExpenseRepository) {}
 
     @Log('debug')
     async execute(query: ComputeActorBalanceQuery): Promise<number> {

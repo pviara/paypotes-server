@@ -1,6 +1,5 @@
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
 

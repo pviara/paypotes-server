@@ -1,6 +1,5 @@
 import { Contact } from '@contacts/domain/contact';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
-import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
 

@@ -1,5 +1,6 @@
 import { MessageContent } from '@infra/contact-task-managers/message-content';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
+import { Injectable } from '@nestjs/common';
 
 export type SendingOptions = { queue: string; message: MessageContent };
 
@@ -7,6 +8,7 @@ export abstract class Producer {
     abstract send(options: SendingOptions): Promise<void>;
 }
 
+@Injectable()
 export class RabbitMQProducer implements Producer {
     constructor(private service: RabbitMQService) {}
 

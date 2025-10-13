@@ -4,7 +4,7 @@ import { ClassProvider, Provider, ValueProvider } from '@nestjs/common';
 import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { Fixture } from '@test/helpers/fixture';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { GroupRepository } from '@groups/persistence/group.repository';
@@ -39,7 +39,7 @@ export const initApplicationWith = (
                 useClass: ContactPostgresTestingRepository,
             },
             {
-                provide: expenseRepositoryToken,
+                provide: ExpenseRepository,
                 useClass: ExpensePostgresTestingRepository,
             },
             {
@@ -80,7 +80,7 @@ export const initMessagingApplicationWith = (
                 useClass: ContactPostgresTestingRepository,
             },
             {
-                provide: expenseRepositoryToken,
+                provide: ExpenseRepository,
                 useClass: ExpensePostgresTestingRepository,
             },
             {

@@ -1,12 +1,10 @@
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import {
     GroupExpenseSnapshot,
     GroupExpenseSnapshots,
 } from '@expenses/domain/expense/group/group-expense-snapshot';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
 
@@ -26,9 +24,7 @@ export class GetActorGroupExpensesHandler
     implements IQueryHandler<GetActorGroupExpensesQuery>
 {
     constructor(
-        @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
-
         private groupRepository: GroupRepository,
     ) {}
 

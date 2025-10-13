@@ -11,58 +11,58 @@ export type ExpensesByGroup = {
     [groupId: string]: Array<GroupExpense>;
 };
 
-export interface ExpenseRepository {
-    delete(expenseId: string): Promise<void>;
-    getActorContactExpenseById(
+export abstract class ExpenseRepository {
+    abstract delete(expenseId: string): Promise<void>;
+    abstract getActorContactExpenseById(
         actorId: string,
         contactId: string,
         expenseId: string,
     ): Promise<PairExpense | null>;
-    getActorContactExpenses(
+    abstract getActorContactExpenses(
         actorId: string,
         contactId: string,
         pageIndex: number,
         search: string,
     ): Promise<Expense[]>;
-    getActorExpenseById(
+    abstract getActorExpenseById(
         actorId: string,
         expenseId: string,
     ): Promise<Expense | null>;
-    getActorExpenses(
+    abstract getActorExpenses(
         actorId: string,
         pageIndex: number,
         search: string,
     ): Promise<Expense[]>;
-    getActorGroupExpenseById(
+    abstract getActorGroupExpenseById(
         actorId: string,
         groupId: string,
         expenseId: string,
     ): Promise<GroupExpense | null>;
-    getActorGroupExpenses(
+    abstract getActorGroupExpenses(
         actorId: string,
         group: Group,
         pageIndex: number,
         search: string,
     ): Promise<GroupExpense[]>;
-    getAllActorContactExpenses(
+    abstract getAllActorContactExpenses(
         actorId: string,
         contactId: string,
     ): Promise<PairExpense[]>;
-    getAllActorContactsExpenses(
+    abstract getAllActorContactsExpenses(
         actorId: string,
         contactIds: Array<string>,
     ): Promise<ExpensesByContact>;
-    getAllActorExpenses(actorId: string): Promise<Expense[]>;
-    getAllActorGroupExpenses(
+    abstract getAllActorExpenses(actorId: string): Promise<Expense[]>;
+    abstract getAllActorGroupExpenses(
         actorId: string,
         group: Group,
     ): Promise<GroupExpense[]>;
-    getAllActorGroupsExpenses(
+    abstract getAllActorGroupsExpenses(
         actorId: string,
         groups: Array<Group>,
     ): Promise<ExpensesByGroup>;
-    saveGroupExpense(expense: GroupExpense): Promise<void>;
-    savePairExpense(expense: PairExpense): Promise<void>;
-    updatePairExpense(expense: PairExpense): Promise<void>;
-    updateGroupExpense(expense: GroupExpense): Promise<void>;
+    abstract saveGroupExpense(expense: GroupExpense): Promise<void>;
+    abstract savePairExpense(expense: PairExpense): Promise<void>;
+    abstract updatePairExpense(expense: PairExpense): Promise<void>;
+    abstract updateGroupExpense(expense: GroupExpense): Promise<void>;
 }

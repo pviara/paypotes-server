@@ -3,7 +3,7 @@ import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
 import { ConfigService } from '@nestjs/config';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ErrorFilter } from '@app/error-filter';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import {
     isClassProvider,
@@ -127,7 +127,7 @@ export class Application {
             case 'contactRepo':
                 return this.getApplication().get(ContactRepository);
             case 'expenseRepo':
-                return this.getApplication().get(expenseRepositoryToken);
+                return this.getApplication().get(ExpenseRepository);
             case 'groupRepo':
                 return this.getApplication().get(GroupRepository);
             case 'userRepo':

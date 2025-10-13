@@ -2,14 +2,13 @@ import {
     ExpenseRepository,
     ExpensesByContact,
 } from '@expenses/persistence/expense.repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Contact } from '@contacts/domain/contact';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 import { Expense } from '@expenses/domain/expense/expense';
-import { Inject, Scope } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
+import { Scope } from '@nestjs/common';
 
 export class GetActorContactsWithBalanceQuery implements IQuery {
     constructor(
@@ -29,8 +28,6 @@ export class GetActorContactsWithBalanceHandler
 
     constructor(
         private contactRepository: ContactRepository,
-
-        @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
     ) {}
 

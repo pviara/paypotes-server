@@ -12,7 +12,6 @@ import {
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { Inject } from '@nestjs/common';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Log } from '@infra/logger/log.decorator';
