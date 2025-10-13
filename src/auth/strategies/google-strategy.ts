@@ -1,12 +1,11 @@
 import { ConfigService } from '@nestjs/config';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { Nullable } from '@app/shared/nullable';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type GoogleProfile = {
     email: string;
@@ -25,8 +24,6 @@ type UserProfile = {
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     constructor(
         private configService: ConfigService,
-
-        @Inject(userRepositoryToken)
         private userRepository: UserRepository,
     ) {
         super({

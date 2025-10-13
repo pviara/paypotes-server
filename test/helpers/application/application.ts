@@ -17,7 +17,7 @@ import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Repositories, RepositoryType } from './model/repositories';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { UserRepository } from '@users/persistence/user.repository';
 
 type ApplicationResources = {
     modules: Modules;
@@ -132,7 +132,7 @@ export class Application {
             case 'groupRepo':
                 return this.getApplication().get(GroupRepository);
             case 'userRepo':
-                return this.getApplication().get(userRepositoryToken);
+                return this.getApplication().get(UserRepository);
             default:
                 throw new Error(`Unknown repository type "${type}"`);
         }

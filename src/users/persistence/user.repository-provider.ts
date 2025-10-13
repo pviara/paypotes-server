@@ -1,9 +1,8 @@
 import { Provider } from '@nestjs/common';
 import { UserPostgresRepository } from '@users/persistence/user.postgres-repository';
-
-export const userRepositoryToken = 'UserRepositoryToken';
+import { UserRepository } from '@users/persistence/user.repository';
 
 export const userRepositoryProvider: Provider = {
-    provide: userRepositoryToken,
+    provide: UserRepository,
     useClass: UserPostgresRepository,
 };

@@ -13,7 +13,6 @@ import {
 } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export class AddPairExpenseCommand implements ICommand {
     constructor(
@@ -37,9 +36,7 @@ export class AddPairExpenseHandler
         @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
 
-        @Inject(userRepositoryToken)
         private userRepository: UserRepository,
-
         private dateService: DateService,
 
         @Inject(contactTaskMessengerToken)

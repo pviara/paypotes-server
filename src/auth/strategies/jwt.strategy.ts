@@ -1,12 +1,11 @@
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type JwtAuthPayload = {
     email: string;
@@ -18,8 +17,6 @@ type JwtAuthPayload = {
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
         configService: ConfigService,
-
-        @Inject(userRepositoryToken)
         private userRepository: UserRepository,
     ) {
         super({

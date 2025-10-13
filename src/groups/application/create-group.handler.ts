@@ -9,7 +9,6 @@ import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export class CreateGroupCommand implements ICommand {
     constructor(
@@ -27,8 +26,6 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
     constructor(
         private dateService: DateService,
         private groupRepository: GroupRepository,
-
-        @Inject(userRepositoryToken)
         private userRepository: UserRepository,
 
         @Inject(contactTaskMessengerToken)

@@ -13,7 +13,7 @@ import { Modules } from '@test/helpers/application/model/module';
 import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
 import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { UserRepository } from '@users/persistence/user.repository';
 
 export const isClassProvider = (
     provider: Provider,
@@ -47,7 +47,7 @@ export const initApplicationWith = (
                 useClass: GroupPostgresTestingRepository,
             },
             {
-                provide: userRepositoryToken,
+                provide: UserRepository,
                 useClass: UserPostgresTestingRepository,
             },
             {
@@ -88,7 +88,7 @@ export const initMessagingApplicationWith = (
                 useClass: GroupPostgresTestingRepository,
             },
             {
-                provide: userRepositoryToken,
+                provide: UserRepository,
                 useClass: UserPostgresTestingRepository,
             },
         ],
