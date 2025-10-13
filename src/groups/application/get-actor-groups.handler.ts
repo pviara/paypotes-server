@@ -1,6 +1,5 @@
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
@@ -19,10 +18,7 @@ export class GetActorGroupsQuery implements IQuery {
 export class GetActorGroupsHandler
     implements IQueryHandler<GetActorGroupsQuery>
 {
-    constructor(
-        @Inject(groupRepositoryToken)
-        private groupRepository: GroupRepository,
-    ) {}
+    constructor(private groupRepository: GroupRepository) {}
 
     @Log('debug')
     async execute(query: GetActorGroupsQuery): Promise<Group[]> {

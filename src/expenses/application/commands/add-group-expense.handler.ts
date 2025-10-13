@@ -9,7 +9,6 @@ import {
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { Metadata } from '@expenses/domain/expense/expense';
@@ -36,9 +35,7 @@ export class AddGroupExpenseHandler
         @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
 
-        @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
-
         private dateService: DateService,
     ) {}
 

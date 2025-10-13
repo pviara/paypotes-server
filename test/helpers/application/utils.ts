@@ -7,7 +7,7 @@ import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Fixture } from '@test/helpers/fixture';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { GroupRepository } from '@groups/persistence/group.repository';
 import { InfrastructureModule } from '@infra/infrastructure.module';
 import { Modules } from '@test/helpers/application/model/module';
 import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
@@ -43,7 +43,7 @@ export const initApplicationWith = (
                 useClass: ExpensePostgresTestingRepository,
             },
             {
-                provide: groupRepositoryToken,
+                provide: GroupRepository,
                 useClass: GroupPostgresTestingRepository,
             },
             {
@@ -84,7 +84,7 @@ export const initMessagingApplicationWith = (
                 useClass: ExpensePostgresTestingRepository,
             },
             {
-                provide: groupRepositoryToken,
+                provide: GroupRepository,
                 useClass: GroupPostgresTestingRepository,
             },
             {

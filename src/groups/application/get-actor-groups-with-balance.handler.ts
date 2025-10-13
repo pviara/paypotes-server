@@ -6,7 +6,6 @@ import {
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { GroupWithBalance } from '@groups/domain/group-with-balance';
 import { Inject, Scope } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
@@ -29,7 +28,6 @@ export class GetActorGroupsWithBalanceHandler
     private groups: Array<Group> = [];
 
     constructor(
-        @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
 
         @Inject(expenseRepositoryToken)

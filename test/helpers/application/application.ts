@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ErrorFilter } from '@app/error-filter';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { GroupRepository } from '@groups/persistence/group.repository';
 import {
     isClassProvider,
     isValueProvider,
@@ -130,7 +130,7 @@ export class Application {
             case 'expenseRepo':
                 return this.getApplication().get(expenseRepositoryToken);
             case 'groupRepo':
-                return this.getApplication().get(groupRepositoryToken);
+                return this.getApplication().get(GroupRepository);
             case 'userRepo':
                 return this.getApplication().get(userRepositoryToken);
             default:

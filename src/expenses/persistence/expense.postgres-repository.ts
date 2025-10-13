@@ -12,7 +12,6 @@ import {
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
@@ -67,8 +66,6 @@ const MAX_EXPENSES_LIMIT = 20;
 export class ExpensePostgresRepository implements ExpenseRepository {
     constructor(
         private configService: ConfigService,
-
-        @Inject(groupRepositoryToken)
         protected groupRepository: GroupRepository,
 
         @InjectKnex()

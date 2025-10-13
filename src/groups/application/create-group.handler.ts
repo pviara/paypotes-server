@@ -4,7 +4,6 @@ import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.
 import { DateService } from '@app/shared/date/date.service';
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { Inject } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
@@ -27,8 +26,6 @@ export class CreateGroupCommand implements ICommand {
 export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
     constructor(
         private dateService: DateService,
-
-        @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
 
         @Inject(userRepositoryToken)
