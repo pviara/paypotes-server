@@ -2,7 +2,6 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { Channel, ConsumeMessage } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
 import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
-import { contactTaskHandlerToken } from '@infra/contact-task-handlers/contact.task-handler.provider';
 import { Inject, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageContent } from '@infra/contact-task-managers/message-content';
 import { Nullable } from '@app/shared/nullable';
@@ -20,7 +19,6 @@ export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
         @Inject(rabbitMQServiceToken)
         private service: RabbitMQService,
 
-        @Inject(contactTaskHandlerToken)
         private handler: ContactTaskHandler,
     ) {}
 

@@ -4,10 +4,8 @@ import { Knex } from 'knex';
 import { Logger, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
 import { MigrationSource } from '@infra/postgres/migration-source';
 
-export class DefaultPostgresService
-    implements OnApplicationShutdown, OnModuleInit
-{
-    private logger = new Logger(DefaultPostgresService.name);
+export class PostgresService implements OnApplicationShutdown, OnModuleInit {
+    private logger = new Logger(PostgresService.name);
 
     constructor(
         private configService: ConfigService,
@@ -18,9 +16,10 @@ export class DefaultPostgresService
         return this.knex.destroy(this.logDatabaseConnectionDestroyed());
     }
 
-    onModuleInit(): Promise<void> {
-        this.checkDatabaseConnected();
+    async onModuleInit(): Promise<void> {
+        await this.checkDatabaseConnected();
         this.logConnectedToDatabase();
+
         const path = this.configService.getOrThrow('POSTGRES_MIGRATIONS_PATH');
         return this.knex.migrate.latest({
             migrationSource: new MigrationSource(path),

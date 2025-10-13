@@ -1,6 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
-import { contactTaskHandlerToken } from '@infra/contact-task-handlers/contact.task-handler.provider';
 import { ConfigService } from '@nestjs/config';
 import { RabbitMQContactTaskRecipient } from '@infra/contact-task-managers/contact.task-recipient';
 import { Provider } from '@nestjs/common';
@@ -14,7 +13,7 @@ export const contactTaskRecipientProvider: Provider = {
         AsyncLocalStorage,
         ConfigService,
         rabbitMQServiceToken,
-        contactTaskHandlerToken,
+        ContactTaskHandler,
     ],
     provide: contactTaskRecipientToken,
     useFactory: (

@@ -7,8 +7,8 @@ import {
     Message,
 } from '@infra/contact-task-managers/message-content';
 
-export interface ContactTaskHandler {
-    on(message: MessageContent): Promise<void>;
+export abstract class ContactTaskHandler {
+    abstract on(message: MessageContent): Promise<void>;
 }
 
 @Injectable() // -> required for commandBus to be injected

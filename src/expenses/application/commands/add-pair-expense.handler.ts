@@ -2,14 +2,12 @@ import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { contactTaskMessengerToken } from '@infra/contact-task-managers/contact.task-messenger.provider';
 import { DateService } from '@app/shared/date/date.service';
-import { dateServiceProviderToken } from '@app/shared/date/date.service.provider';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Inject } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { Metadata } from '@expenses/domain/expense/expense';
 import {
-    PairExpense,
     PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
@@ -42,7 +40,6 @@ export class AddPairExpenseHandler
         @Inject(userRepositoryToken)
         private userRepository: UserRepository,
 
-        @Inject(dateServiceProviderToken)
         private dateService: DateService,
 
         @Inject(contactTaskMessengerToken)
