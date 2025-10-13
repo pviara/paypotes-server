@@ -1,5 +1,4 @@
 import { Contact } from '@contacts/domain/contact';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
@@ -22,7 +21,6 @@ export class GetActorContactWithBalanceByIdHandler
     implements IQueryHandler<GetActorContactWithBalanceByIdQuery>
 {
     constructor(
-        @Inject(contactRepositoryToken)
         private contactRepository: ContactRepository,
 
         @Inject(expenseRepositoryToken)

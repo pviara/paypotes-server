@@ -2,7 +2,7 @@ import { Application, Providers } from '@test/helpers/application/application';
 import { AuthFakeModule } from '@test/doubles/auth/auth.fake-module';
 import { ClassProvider, Provider, ValueProvider } from '@nestjs/common';
 import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
+import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Fixture } from '@test/helpers/fixture';
@@ -35,7 +35,7 @@ export const initApplicationWith = (
         modules: [AuthFakeModule, InfrastructureModule, ...modules],
         providers: [
             {
-                provide: contactRepositoryToken,
+                provide: ContactRepository,
                 useClass: ContactPostgresTestingRepository,
             },
             {
@@ -76,7 +76,7 @@ export const initMessagingApplicationWith = (
         providers: [
             ...providers,
             {
-                provide: contactRepositoryToken,
+                provide: ContactRepository,
                 useClass: ContactPostgresTestingRepository,
             },
             {

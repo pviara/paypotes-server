@@ -1,7 +1,7 @@
 import { App } from 'supertest/types';
 import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
 import { ConfigService } from '@nestjs/config';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
+import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ErrorFilter } from '@app/error-filter';
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
@@ -126,7 +126,7 @@ export class Application {
     private getRepository<T extends RepositoryType>(type: T): Repositories[T] {
         switch (type) {
             case 'contactRepo':
-                return this.getApplication().get(contactRepositoryToken);
+                return this.getApplication().get(ContactRepository);
             case 'expenseRepo':
                 return this.getApplication().get(expenseRepositoryToken);
             case 'groupRepo':

@@ -5,7 +5,6 @@ import {
 import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Contact } from '@contacts/domain/contact';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 import { Expense } from '@expenses/domain/expense/expense';
 import { Inject, Scope } from '@nestjs/common';
@@ -29,7 +28,6 @@ export class GetActorContactsWithBalanceHandler
     private contacts: Array<Contact> = [];
 
     constructor(
-        @Inject(contactRepositoryToken)
         private contactRepository: ContactRepository,
 
         @Inject(expenseRepositoryToken)
