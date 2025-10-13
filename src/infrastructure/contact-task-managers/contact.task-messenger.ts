@@ -1,30 +1,28 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
-import { Inject } from '@nestjs/common';
 import { Message } from '@infra/contact-task-managers/message-content';
+import { Injectable } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { Producer } from '@infra/rabbitmq/rabbitmq.producer';
-import { rabbitMQProducerToken } from '@infra/rabbitmq/rabbitmq.producer.provider';
 import { Store } from '@infra/async-local-storage/store';
 
-export interface ContactTaskMessenger {
-    sendRelationshipMustBeCreatedBetween(
+export abstract class ContactTaskMessenger {
+    abstract sendRelationshipMustBeCreatedBetween(
         userIdA: string,
         userIdB: string,
     ): Promise<void>;
-    sendRelationshipsMustBeCreatedBetween(
+    abstract sendRelationshipsMustBeCreatedBetween(
         userIds: Array<string>,
     ): Promise<void>;
 }
 
+@Injectable()
 export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
     readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
 
     constructor(
         private als: AsyncLocalStorage<Store>,
         private configService: ConfigService,
-
-        @Inject(rabbitMQProducerToken)
         private producer: Producer,
     ) {}
 
