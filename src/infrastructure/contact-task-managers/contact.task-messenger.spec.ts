@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { Message } from '@infra/contact-task-managers/message-content';
 import { RabbitMQContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
 import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
+import { Store } from '@infra/async-local-storage/store';
 
 describe('RabbitMQContactTaskMessenger', () => {
     let sut: RabbitMQContactTaskMessenger;
 
-    let asyncLocalStorage: AsyncLocalStorage<unknown>;
+    let asyncLocalStorage: AsyncLocalStorage<Store>;
     let rabbitMQProducer: RabbitMQProducerSpy;
     let configService: ConfigService;
 

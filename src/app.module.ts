@@ -7,6 +7,7 @@ import { InfrastructureModule } from '@infra/infrastructure.module';
 import { LoggerService } from '@infra/logger/logger.service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
+import { Store } from '@infra/async-local-storage/store';
 import { UserModule } from '@users/user.module';
 
 @Module({
@@ -21,7 +22,7 @@ import { UserModule } from '@users/user.module';
 })
 export class AppModule implements NestModule {
     constructor(
-        private als: AsyncLocalStorage<any>,
+        private als: AsyncLocalStorage<Store>,
         private logger: LoggerService,
     ) {}
 
