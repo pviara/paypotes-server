@@ -50,11 +50,13 @@ export class AddPairExpenseHandler
             .withPayment(payment)
             .build();
 
-        await this.expenseRepository.savePairExpense(expense);
-        this.messenger.sendRelationshipMustBeCreatedBetween(
-            actor.getId(),
-            stakeholder.getId(),
-        );
+        await Promise.all([
+            this.expenseRepository.savePairExpense(expense),
+            this.messenger.sendRelationshipMustBeCreatedBetween(
+                actor.getId(),
+                stakeholder.getId(),
+            ),
+        ]);
     }
 
     private extractMetadataFrom(command: AddPairExpenseCommand): Metadata {

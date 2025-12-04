@@ -37,18 +37,20 @@ export class CreateGroupHandler implements ICommandHandler<CreateGroupCommand> {
             throw new GroupUserNotFoundError();
         }
 
-        await this.groupRepository.save(
-            new Group({
-                id: payload.id,
-                name: payload.name,
-                emoji: payload.emoji,
-                createdAt: this.dateService.getCurrentDate(),
-                members: this.mapToMembers(users),
-            }),
-        );
+        const group = new Group({
+            id: payload.id,
+            name: payload.name,
+            emoji: payload.emoji,
+            createdAt: this.dateService.getCurrentDate(),
+            members: this.mapToMembers(users),
+        });
 
-        const userIds = this.mapIdsFrom(users);
-        this.messenger.sendRelationshipsMustBeCreatedBetween(userIds);
+        await Promise.all([
+            this.groupRepository.save(group),
+            this.messenger.sendRelationshipsMustBeCreatedBetween(
+                this.mapIdsFrom(users),
+            ),
+        ]);
     }
 
     private mapToMembers(users: Array<User>): Array<Member> {
