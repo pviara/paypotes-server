@@ -1,8 +1,6 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { DateService } from '@app/shared/date/date.service';
-import { dateServiceProviderToken } from '@app/shared/date/date.service.provider';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import {
     GroupExpenseBuilder,
@@ -10,8 +8,6 @@ import {
 } from '@expenses/domain/expense/group/group-expense';
 import { GroupNotFoundError } from '@groups/application/get-actor-group-with-balance-by-id.handler';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
-import { Inject } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { Metadata } from '@expenses/domain/expense/expense';
 
@@ -34,13 +30,8 @@ export class AddGroupExpenseHandler
     implements ICommandHandler<AddGroupExpenseCommand>
 {
     constructor(
-        @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
-
-        @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
-
-        @Inject(dateServiceProviderToken)
         private dateService: DateService,
     ) {}
 

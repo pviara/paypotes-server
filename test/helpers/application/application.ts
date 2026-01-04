@@ -1,10 +1,10 @@
 import { App } from 'supertest/types';
 import { AuthFakeGuard } from '@test/doubles/auth/auth.fake-guard';
 import { ConfigService } from '@nestjs/config';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
+import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ErrorFilter } from '@app/error-filter';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { ExpenseRepository } from '@expenses/persistence/expense.repository';
+import { GroupRepository } from '@groups/persistence/group.repository';
 import {
     isClassProvider,
     isValueProvider,
@@ -14,10 +14,9 @@ import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { Modules } from '@test/helpers/application/model/module';
 import { Nullable } from '@app/shared/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
-import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { Repositories, RepositoryType } from './model/repositories';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { UserRepository } from '@users/persistence/user.repository';
 
 type ApplicationResources = {
     modules: Modules;
@@ -126,13 +125,13 @@ export class Application {
     private getRepository<T extends RepositoryType>(type: T): Repositories[T] {
         switch (type) {
             case 'contactRepo':
-                return this.getApplication().get(contactRepositoryToken);
+                return this.getApplication().get(ContactRepository);
             case 'expenseRepo':
-                return this.getApplication().get(expenseRepositoryToken);
+                return this.getApplication().get(ExpenseRepository);
             case 'groupRepo':
-                return this.getApplication().get(groupRepositoryToken);
+                return this.getApplication().get(GroupRepository);
             case 'userRepo':
-                return this.getApplication().get(userRepositoryToken);
+                return this.getApplication().get(UserRepository);
             default:
                 throw new Error(`Unknown repository type "${type}"`);
         }
@@ -141,10 +140,7 @@ export class Application {
     private async tryDeletingRabbitMQSingleQueue(): Promise<void> {
         try {
             const configService = this.getApplication().get(ConfigService);
-            const rabbitmqService =
-                this.getApplication().get<RabbitMQService>(
-                    rabbitMQServiceToken,
-                );
+            const rabbitmqService = this.getApplication().get(RabbitMQService);
 
             const queue = configService.getOrThrow('CONTACT_TASKS_QUEUE');
             await rabbitmqService.getConsumer().deleteQueue(queue);

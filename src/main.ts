@@ -10,7 +10,6 @@ import {
 import { NestFactory } from '@nestjs/core';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 import { setTimeout } from 'timers/promises';
 
 async function bootstrap(): Promise<void> {
@@ -91,7 +90,7 @@ async function createSampleUsersInLocalMode(
             }),
         ];
 
-        const userRepo = app.get<UserRepository>(userRepositoryToken);
+        const userRepo = app.get(UserRepository);
         for (const user of users) {
             const existingUsers = await userRepo.get(user.getId());
             if (existingUsers.length > 0) {

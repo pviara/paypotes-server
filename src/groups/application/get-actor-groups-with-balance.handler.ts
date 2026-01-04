@@ -3,14 +3,12 @@ import {
     ExpenseRepository,
     ExpensesByGroup,
 } from '@expenses/persistence/expense.repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
 import { GroupWithBalance } from '@groups/domain/group-with-balance';
-import { Inject, Scope } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
+import { Scope } from '@nestjs/common';
 
 export class GetActorGroupsWithBalanceQuery implements IQuery {
     constructor(
@@ -29,10 +27,7 @@ export class GetActorGroupsWithBalanceHandler
     private groups: Array<Group> = [];
 
     constructor(
-        @Inject(groupRepositoryToken)
         private groupRepository: GroupRepository,
-
-        @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
     ) {}
 

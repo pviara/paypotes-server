@@ -1,11 +1,9 @@
-import {
-    groupRepositoryProvider,
-    groupRepositoryToken,
-} from '@groups/persistence/group.repository-provider';
+import { GroupRepository } from '@groups/persistence/group.repository';
+import { groupRepositoryProvider } from '@groups/persistence/group.repository-provider';
 import { Module } from '@nestjs/common';
 
 @Module({
-    exports: [groupRepositoryToken],
+    exports: [GroupRepository],
     providers: [groupRepositoryProvider],
 })
 export class GroupRepositoryModule {}

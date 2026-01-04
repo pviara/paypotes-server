@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Nullable } from '@app/shared/nullable';
@@ -6,7 +6,6 @@ import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import { SignedInUser } from '@auth/domain/signed-in-user';
 import { User } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 type GoogleProfile = {
     email: string;
@@ -31,8 +30,6 @@ export class AuthService {
     constructor(
         private configService: ConfigService,
         private jwtService: JwtService,
-
-        @Inject(userRepositoryToken)
         private userRepository: UserRepository,
     ) {}
 

@@ -1,11 +1,9 @@
-import {
-    dateServiceProvider,
-    dateServiceProviderToken,
-} from '@app/shared/date/date.service.provider';
+import { DateService } from '@app/shared/date/date.service';
+import { dateServiceProvider } from '@app/shared/date/date.service.provider';
 import { Module } from '@nestjs/common';
 
 @Module({
-    exports: [dateServiceProviderToken],
+    exports: [DateService],
     providers: [dateServiceProvider],
 })
 export class DateModule {}

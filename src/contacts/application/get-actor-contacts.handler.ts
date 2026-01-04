@@ -1,7 +1,5 @@
 import { Contact } from '@contacts/domain/contact';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
-import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
 
@@ -19,10 +17,7 @@ export class GetActorContactsQuery implements IQuery {
 export class GetActorContactsHandler
     implements IQueryHandler<GetActorContactsQuery>
 {
-    constructor(
-        @Inject(contactRepositoryToken)
-        private contactRepository: ContactRepository,
-    ) {}
+    constructor(private contactRepository: ContactRepository) {}
 
     @Log('debug')
     async execute(query: GetActorContactsQuery): Promise<Contact[]> {

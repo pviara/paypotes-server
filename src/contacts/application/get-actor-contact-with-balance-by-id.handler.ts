@@ -1,10 +1,7 @@
 import { Contact } from '@contacts/domain/contact';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
-import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
 
@@ -22,10 +19,7 @@ export class GetActorContactWithBalanceByIdHandler
     implements IQueryHandler<GetActorContactWithBalanceByIdQuery>
 {
     constructor(
-        @Inject(contactRepositoryToken)
         private contactRepository: ContactRepository,
-
-        @Inject(expenseRepositoryToken)
         private expenseRepository: ExpenseRepository,
     ) {}
 

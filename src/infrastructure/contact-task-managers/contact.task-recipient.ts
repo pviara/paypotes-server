@@ -2,25 +2,24 @@ import { AsyncLocalStorage } from 'async_hooks';
 import { Channel, ConsumeMessage } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
 import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
-import { contactTaskHandlerToken } from '@infra/contact-task-handlers/contact.task-handler.provider';
-import { Inject, OnApplicationBootstrap } from '@nestjs/common';
-import { Log } from '@infra/logger/log.decorator';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageContent } from '@infra/contact-task-managers/message-content';
 import { Nullable } from '@app/shared/nullable';
 import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
-import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
+import { Store } from '@infra/async-local-storage/store';
 
-export class RabbitMQContactTaskRecipient implements OnApplicationBootstrap {
+export abstract class ContactTaskRecipient {}
+
+@Injectable()
+export class RabbitMQContactTaskRecipient
+    implements ContactTaskRecipient, OnApplicationBootstrap
+{
     readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
 
     constructor(
-        private als: AsyncLocalStorage<any>,
+        private als: AsyncLocalStorage<Store>,
         private configService: ConfigService,
-
-        @Inject(rabbitMQServiceToken)
         private service: RabbitMQService,
-
-        @Inject(contactTaskHandlerToken)
         private handler: ContactTaskHandler,
     ) {}
 

@@ -7,12 +7,15 @@ export type CreateGroup = {
     memberIds: Array<string>;
 };
 
-export interface GroupRepository {
-    getActorGroupById(actorId: string, groupId: string): Promise<Group | null>;
-    getActorGroups(
+export abstract class GroupRepository {
+    abstract getActorGroupById(
+        actorId: string,
+        groupId: string,
+    ): Promise<Group | null>;
+    abstract getActorGroups(
         actorId: string,
         pageIndex: number,
         search: string,
     ): Promise<Group[]>;
-    save(group: Group): Promise<void>;
+    abstract save(group: Group): Promise<void>;
 }

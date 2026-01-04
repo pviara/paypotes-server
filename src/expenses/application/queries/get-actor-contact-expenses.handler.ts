@@ -1,8 +1,6 @@
 import { ContactGroupExpenseSnapshot } from '@expenses/domain/expense/group/contact-group-expense-snapshot';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
-import { Inject } from '@nestjs/common';
 import { IQuery, IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Log } from '@infra/logger/log.decorator';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
@@ -24,10 +22,7 @@ export class GetActorContactExpensesQuery implements IQuery {
 export class GetActorContactExpensesHandler
     implements IQueryHandler<GetActorContactExpensesQuery>
 {
-    constructor(
-        @Inject(expenseRepositoryToken)
-        private expenseRepository: ExpenseRepository,
-    ) {}
+    constructor(private expenseRepository: ExpenseRepository) {}
 
     @Log('debug')
     async execute(

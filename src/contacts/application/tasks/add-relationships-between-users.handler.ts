@@ -1,10 +1,7 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
-import { Inject } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { UserRepository } from '@users/persistence/user.repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
 
 export class AddRelationshipsBetweenUsersCommand implements ICommand {
     constructor(
@@ -19,10 +16,7 @@ export class AddRelationshipsBetweenUsersHandler
     implements ICommandHandler<AddRelationshipsBetweenUsersCommand>
 {
     constructor(
-        @Inject(contactRepositoryToken)
         private contactRepo: ContactRepository,
-
-        @Inject(userRepositoryToken)
         private userRepo: UserRepository,
     ) {}
 

@@ -1,13 +1,19 @@
 import { Channel, ChannelModel, connect } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
-import { Logger, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
+import {
+    Injectable,
+    Logger,
+    OnApplicationShutdown,
+    OnModuleInit,
+} from '@nestjs/common';
 import { Nullable } from '@app/shared/nullable';
 
-export interface RabbitMQService {
-    getConsumer(): Channel;
-    getProducer(): Channel;
+export abstract class RabbitMQService {
+    abstract getConsumer(): Channel;
+    abstract getProducer(): Channel;
 }
 
+@Injectable()
 export class DefaultRabbitMQService
     implements OnApplicationShutdown, OnModuleInit, RabbitMQService
 {

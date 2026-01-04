@@ -2,18 +2,18 @@ import { Application, Providers } from '@test/helpers/application/application';
 import { AuthFakeModule } from '@test/doubles/auth/auth.fake-module';
 import { ClassProvider, Provider, ValueProvider } from '@nestjs/common';
 import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
-import { contactRepositoryToken } from '@contacts/persistence/contact.repository-provider';
+import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
-import { expenseRepositoryToken } from '@expenses/persistence/expense.repository-provider';
+import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { Fixture } from '@test/helpers/fixture';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
-import { groupRepositoryToken } from '@groups/persistence/group.repository-provider';
+import { GroupRepository } from '@groups/persistence/group.repository';
 import { InfrastructureModule } from '@infra/infrastructure.module';
 import { Modules } from '@test/helpers/application/model/module';
+import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
 import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
-import { rabbitMQServiceToken } from '@infra/rabbitmq/rabbitmq.service.provider';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
-import { userRepositoryToken } from '@users/persistence/user.repository-provider';
+import { UserRepository } from '@users/persistence/user.repository';
 
 export const isClassProvider = (
     provider: Provider,
@@ -35,23 +35,23 @@ export const initApplicationWith = (
         modules: [AuthFakeModule, InfrastructureModule, ...modules],
         providers: [
             {
-                provide: contactRepositoryToken,
+                provide: ContactRepository,
                 useClass: ContactPostgresTestingRepository,
             },
             {
-                provide: expenseRepositoryToken,
+                provide: ExpenseRepository,
                 useClass: ExpensePostgresTestingRepository,
             },
             {
-                provide: groupRepositoryToken,
+                provide: GroupRepository,
                 useClass: GroupPostgresTestingRepository,
             },
             {
-                provide: userRepositoryToken,
+                provide: UserRepository,
                 useClass: UserPostgresTestingRepository,
             },
             {
-                provide: rabbitMQServiceToken,
+                provide: RabbitMQService,
                 useClass: RabbitMQServiceSpy,
             },
             ...providers,
@@ -76,19 +76,19 @@ export const initMessagingApplicationWith = (
         providers: [
             ...providers,
             {
-                provide: contactRepositoryToken,
+                provide: ContactRepository,
                 useClass: ContactPostgresTestingRepository,
             },
             {
-                provide: expenseRepositoryToken,
+                provide: ExpenseRepository,
                 useClass: ExpensePostgresTestingRepository,
             },
             {
-                provide: groupRepositoryToken,
+                provide: GroupRepository,
                 useClass: GroupPostgresTestingRepository,
             },
             {
-                provide: userRepositoryToken,
+                provide: UserRepository,
                 useClass: UserPostgresTestingRepository,
             },
         ],

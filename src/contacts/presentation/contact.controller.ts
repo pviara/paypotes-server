@@ -1,7 +1,7 @@
 import { ActorId } from '@auth/presentation/model/actor.decorator';
 import { AuthGuard } from '@auth/auth-guard.decorator';
 import { Contact } from '@contacts/domain/contact';
-import { ContactDTO } from '@contacts/presentation/dto/contact.dto';
+import { ContactWithoutBalanceDTO } from '@app/contacts/presentation/dto/list/contact-without-balance.dto';
 import { ContactWithBalance } from '@contacts/domain/contact-with-balance';
 import { ContactWithBalanceDTO } from '@contacts/presentation/dto/contact-with-balance.dto';
 import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
@@ -22,11 +22,11 @@ export class ContactController {
     constructor(private queryBus: QueryBus) {}
 
     @Get('without-balance')
-    async getActorContacts(
+    async getActorContactsWithoutBalance(
         @ActorId() actorId: string,
         @PageIndex() pageIndex: number,
         @Search() search: string,
-    ): Promise<ContactDTO[]> {
+    ): Promise<ContactWithoutBalanceDTO[]> {
         const query = new GetActorContactsQuery({
             actorId,
             pageIndex,
@@ -64,8 +64,12 @@ export class ContactController {
         return this.mapContactWithBalanceDTOsFrom(contacts);
     }
 
-    private mapContactDTOsFrom(contacts: Array<Contact>): Array<ContactDTO> {
-        return contacts.map((contact) => ContactDTO.from(contact));
+    private mapContactDTOsFrom(
+        contacts: Array<Contact>,
+    ): Array<ContactWithoutBalanceDTO> {
+        return contacts.map((contact) =>
+            ContactWithoutBalanceDTO.from(contact),
+        );
     }
 
     private mapContactWithBalanceDTOsFrom(
