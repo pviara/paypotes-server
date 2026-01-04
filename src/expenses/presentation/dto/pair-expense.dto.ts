@@ -1,4 +1,4 @@
-import { ContactDTO } from '@contacts/presentation/dto/contact.dto';
+import { ContactWithoutBalanceDTO } from '@app/contacts/presentation/dto/list/contact-without-balance.dto';
 import { BalanceDTO } from '@app/shared/dto/balance.dto';
 import { PairExpenseSnapshot } from '@expenses/domain/expense/pair/pair-expense-snapshot';
 
@@ -9,7 +9,7 @@ export class PairExpenseDTO {
         readonly emoji: string,
         readonly createdAt: string,
         readonly balance: string,
-        readonly counterparty: ContactDTO,
+        readonly counterparty: ContactWithoutBalanceDTO,
     ) {}
 
     static from(snapshot: PairExpenseSnapshot): PairExpenseDTO {
@@ -23,7 +23,7 @@ export class PairExpenseDTO {
             expense.getEmoji(),
             expense.getCreatedAt(),
             balance.getValue(),
-            ContactDTO.from(counterparty),
+            ContactWithoutBalanceDTO.from(counterparty),
         );
     }
 }

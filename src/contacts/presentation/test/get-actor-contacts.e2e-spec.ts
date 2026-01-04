@@ -9,7 +9,7 @@ import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import * as request from 'supertest';
 
-describe('getActorContacts', () => {
+describe('getActorContactsWithoutBalance', () => {
     const application = initApplicationWith(modules);
 
     let fixture: Fixture;
