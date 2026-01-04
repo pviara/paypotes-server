@@ -1,5 +1,6 @@
 check_cluster_running() {
     local app_name="$1"
+    pm2 save
     pm2 list | grep -w "$app_name" | grep -v grep > /dev/null
     return $?
 }
