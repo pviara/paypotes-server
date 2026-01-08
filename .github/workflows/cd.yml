@@ -26,11 +26,11 @@ jobs:
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             nvm install 22.14.0
-            cd ~/dev/repos/paypotes/paypotes-server
+            cd /home/pviara/dev/repos/paypotes/paypotes-server
             git checkout main
             git fetch --all
             git reset --hard origin/main
             yarn install
             yarn build
-            pm2 delete paypotes-api
-            bash ~/dev/repos/paypotes/paypotes-server/.github/workflows/scripts/reload-cluster.sh
+            pm2 delete paypotes-server
+            bash /home/pviara/dev/repos/paypotes/paypotes-server/.github/workflows/scripts/reload-cluster.sh
