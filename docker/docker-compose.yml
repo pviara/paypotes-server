@@ -1,8 +1,8 @@
-name: 'paypot-server'
+name: 'paypotes-server'
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:17
     container_name: postgres
     hostname: postgres
     ports:
@@ -15,7 +15,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
 
   rabbitmq:
-    image: rabbitmq:3
+    image: rabbitmq:4
     container_name: rabbitmq
     hostname: rabbitmq
     ports:

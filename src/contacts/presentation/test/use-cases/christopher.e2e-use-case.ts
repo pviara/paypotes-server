@@ -70,7 +70,7 @@ describe("Christopher's use case", () => {
 
     afterAll(shutdown(application));
 
-    // [DOC] https://github.com/pviara/paypot-server/issues/108
+    // [DOC] https://github.com/pviara/paypotes-server/issues/108
     describe("Christopher checks on Holy's contact detail", () => {
         it('should display a balance of "-6,00"', async () => {
             const response = await request(httpServer).get(
@@ -101,7 +101,7 @@ describe("Christopher's use case", () => {
         }
     });
 
-    // [DOC] https://github.com/pviara/paypot-server/issues/114
+    // [DOC] https://github.com/pviara/paypotes-server/issues/114
     describe("Christopher checks on Tony's contact detail", () => {
         it('should display a balance of "-6,00"', async () => {
             const response = await request(httpServer).get(

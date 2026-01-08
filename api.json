@@ -1,5 +1,5 @@
 {
-    "name": "💰 Paypot",
+    "name": "💰 Paypotes",
     "version": "1",
     "items": [
         {
@@ -694,7 +694,7 @@
             "variables": [
                 {
                     "name": "host",
-                    "value": "https://paypot-api.pviara.dev",
+                    "value": "https://paypotes-api.pviara.dev",
                     "enabled": true,
                     "secret": false,
                     "type": "text"
@@ -740,7 +740,7 @@
     ],
     "brunoConfig": {
         "version": "1",
-        "name": "💰 Paypot",
+        "name": "💰 Paypotes",
         "type": "collection",
         "ignore": ["node_modules", ".git"],
         "size": 0.004733085632324219,

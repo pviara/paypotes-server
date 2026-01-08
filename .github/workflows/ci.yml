@@ -16,10 +16,10 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: '22.14.0'
+          node-version: '24.12.0'
           cache: 'yarn'
 
       - name: 📦 Install dependencies
@@ -33,10 +33,10 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: '22.14.0'
+          node-version: '24.12.0'
           cache: 'yarn'
 
       - name: 📦 Use cached dependencies
@@ -51,30 +51,30 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17
         ports:
           - 5433:5432
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_PASSWORD: 'postgres'
-          POSTGRES_DB: 'paypot'
+          POSTGRES_DB: 'paypotes'
     
       rabbitmq:
-        image: rabbitmq:3
+        image: rabbitmq:4
         ports:
           - 5673:5672
         env:
-          RABBITMQ_DEFAULT_USER: 'test_paypot'
+          RABBITMQ_DEFAULT_USER: 'test_paypotes'
           RABBITMQ_DEFAULT_PASS: 'test_access'
 
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: '22.14.0'
+          node-version: '24.12.0'
           cache: 'yarn'
 
       - name: 📦 Use cached dependencies
@@ -89,13 +89,13 @@ jobs:
           APP_ENVIRONMENT: 'test'
           RABBITMQ_HOST: 'localhost'
           RABBITMQ_TEST_PORT: '5673'
-          RABBITMQ_DEFAULT_USER: 'test_paypot'
+          RABBITMQ_DEFAULT_USER: 'test_paypotes'
           RABBITMQ_DEFAULT_PASS: 'test_access'
           CONTACT_TASKS_QUEUE: 'test_contact_tasks'
           POSTGRES_HOST: 'localhost'
           POSTGRES_TEST_PORT: '5433'
           POSTGRES_PORT: '5432'
-          POSTGRES_DB: 'paypot'
+          POSTGRES_DB: 'paypotes'
           POSTGRES_USER: 'postgres'
           POSTGRES_PASSWORD: 'postgres'
           DEFAULT_UUID: '46cd3732-f36e-4886-a2f8-1efebcda1ad6'

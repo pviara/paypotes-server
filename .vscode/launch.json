@@ -3,7 +3,7 @@
     "configurations": [
         {
             "console": "integratedTerminal",
-            "name": "paypot-server",
+            "name": "paypotes-server",
             "request": "launch",
             "runtimeArgs": ["run", "start:debug"],
             "runtimeExecutable": "npm",
