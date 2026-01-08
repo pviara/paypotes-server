@@ -22,15 +22,15 @@ jobs:
           passphrase: ${{ secrets.SERVER_PASSPHRASE }}
           port: 22
           script: |
-            export PATH="$PATH:/home/reginald/.nvm/versions/node/v22.14.0/bin/"
+            export PATH="$PATH:/home/pviara/.nvm/versions/node/v24.12.0/bin/"
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             nvm install 22.14.0
-            cd ~/dev/repos/paypot/paypot-server
+            cd ~/dev/repos/paypotes/paypotes-server
             git checkout main
             git fetch --all
             git reset --hard origin/main
             yarn install
             yarn build
-            pm2 delete paypot-api
-            bash ~/dev/repos/paypot/paypot-server/.github/workflows/scripts/reload-cluster.sh
+            pm2 delete paypotes-api
+            bash ~/dev/repos/paypotes/paypotes-server/.github/workflows/scripts/reload-cluster.sh

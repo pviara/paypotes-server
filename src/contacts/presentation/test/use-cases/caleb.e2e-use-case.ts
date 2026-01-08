@@ -17,7 +17,7 @@ import { User } from '@users/domain/user';
 import { UserModule } from '@users/user.module';
 import * as request from 'supertest';
 
-// [DOC] https://github.com/pviara/paypot-server/issues/105
+// [DOC] https://github.com/pviara/paypotes-server/issues/105
 describe("Caleb's use case", () => {
     const application = initMessagingApplicationWith([
         ContactModule,
