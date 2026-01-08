@@ -1,5 +1,5 @@
 apps:
-  - name : 'paypotes-api'
+  - name : 'paypotes-server'
     script: 'dist/src/main.js'
     instances: '2'
     namespace: 'paypotes'

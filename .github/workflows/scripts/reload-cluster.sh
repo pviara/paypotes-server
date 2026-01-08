@@ -5,10 +5,10 @@ check_cluster_running() {
     return $?
 }
 
-if check_cluster_running "paypotes-api"; then
-        echo "Already running cluster paypotes-api"
-        pm2 reload paypotes-api
+if check_cluster_running "paypotes-server"; then
+        echo "Already running cluster paypotes-server"
+        pm2 reload paypotes-server
 else
-        echo "Cluster paypotes-api not running yet"
+        echo "Cluster paypotes-server not running yet"
         pm2 start ./.github/workflows/res/ecosystem.yml
 fi
