@@ -23,14 +23,13 @@ jobs:
           port: 22
           script: |
             export PATH="$PATH:/home/pviara/.nvm/versions/node/v24.12.0/bin/"
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
-            nvm install 22.14.0
+            export NVM_DIR=/home/pviara/.nvm
+            source /home/pviara/.nvm/nvm.sh
+            nvm install 24.12.0
             cd /home/pviara/dev/repos/paypotes/paypotes-server
             git checkout main
             git fetch --all
             git reset --hard origin/main
             yarn install
-            yarn build
-            pm2 delete paypotes-server
+            yarn build --configuration production
             bash /home/pviara/dev/repos/paypotes/paypotes-server/.github/workflows/scripts/reload-cluster.sh

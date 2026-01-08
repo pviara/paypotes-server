@@ -1,3 +1,7 @@
+#!/bin/bash
+
+export PM2_HOME=/home/pviara/.pm2
+
 check_cluster_running() {
     local app_name="$1"
     pm2 save
