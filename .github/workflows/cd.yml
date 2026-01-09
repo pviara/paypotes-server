@@ -31,5 +31,5 @@ jobs:
             git fetch --all
             git reset --hard origin/main
             yarn install
-            yarn build --configuration production
+            yarn build
             bash /home/pviara/dev/repos/paypotes/paypotes-server/.github/workflows/scripts/reload-cluster.sh
