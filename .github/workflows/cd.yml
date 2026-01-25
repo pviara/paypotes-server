@@ -22,12 +22,11 @@ jobs:
           passphrase: ${{ secrets.SERVER_PASSPHRASE }}
           port: 22
           script: |
-            export PATH="$PATH:/home/pviara/.nvm/versions/node/v24.12.0/bin/"
-            export NVM_DIR=/home/pviara/.nvm
-            source /home/pviara/.nvm/nvm.sh
-            nvm install 24.12.0
+            export NVM_DIR="/home/github/.nvm"
+            source "$NVM_DIR/nvm.sh"
+            nvm use 24.12.0
             cd /home/pviara/dev/repos/paypotes/paypotes-server
-            git checkout main
+            git switch main
             git fetch --all
             git reset --hard origin/main
             yarn install
