@@ -1,12 +1,12 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
-import { Message } from '@infra/contact-task-managers/message-content';
+import { Message } from '@infra/contact-task-management/message-content';
 import { Injectable } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { MessageProducer } from '@infra/rabbitmq/rabbitmq.producer';
 import { Store } from '@infra/async-local-storage/store';
 
-export abstract class ContactTaskMessenger {
+export abstract class ContactTaskProducer {
     abstract sendRelationshipMustBeCreatedBetween(
         userIdA: string,
         userIdB: string,
@@ -17,8 +17,10 @@ export abstract class ContactTaskMessenger {
 }
 
 @Injectable()
-export class RabbitMQContactTaskMessenger implements ContactTaskMessenger {
-    readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
+export class DefaultContactTaskProducer implements ContactTaskProducer {
+    readonly queue = this.configService.getOrThrow<string>(
+        'CONTACT_TASKS_QUEUE',
+    );
 
     constructor(
         private als: AsyncLocalStorage<Store>,

@@ -8,7 +8,7 @@ import { Channel } from 'amqplib';
 import { ConfigServiceStub } from '@test/doubles/config-service.stub';
 import { ClassProvider, Provider, Type, ValueProvider } from '@nestjs/common';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
-import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
+import { MessageBrokerSpy } from '@test/doubles/message-broker.spy';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 
 describe('Application', () => {
@@ -157,10 +157,10 @@ describe('Application', () => {
             configServiceStub = new ConfigServiceStub();
             get.mockReturnValueOnce(configServiceStub);
 
-            const rabbitMQServiceSpy = new RabbitMQServiceSpy();
-            rabbitMQServiceSpy.stub('getConsumer', consumerSpy);
+            const messageBrokerSpy = new MessageBrokerSpy();
+            messageBrokerSpy.stub('getConsumer', consumerSpy);
 
-            get.mockReturnValueOnce(rabbitMQServiceSpy);
+            get.mockReturnValueOnce(messageBrokerSpy);
         });
 
         it('should throw an error when no application has been bootstrapped', async () => {

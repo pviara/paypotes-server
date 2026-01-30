@@ -1,7 +1,7 @@
 import {
     RabbitMQMessageBroker,
     MessageBroker,
-} from '@app/infrastructure/rabbitmq/rabbitmq.message-broker';
+} from '@infra/rabbitmq/rabbitmq.message-broker';
 import { Provider } from '@nestjs/common';
 
 export const rabbitMQServiceProvider: Provider = {

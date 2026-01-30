@@ -3,7 +3,7 @@ import {
     AddPairExpenseHandler,
     ExpenseUserNotFoundError,
 } from '@expenses/application/commands/add-pair-expense.handler';
-import { ContactTaskMessengerSpy } from '@test/doubles/contact-task-messenger.spy';
+import { ContactTaskProducerSpy } from '@test/doubles/contact-task-producer.spy';
 import { DateServiceSpy } from '@test/doubles/date-service.spy';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { ExpenseRepositorySpy } from '@test/doubles/expense-repository.spy';
@@ -13,7 +13,6 @@ import {
 } from '@test/helpers/expense/utils';
 import { Metadata } from '@expenses/domain/expense/expense';
 import {
-    PairExpense,
     PairExpenseBuilder,
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
@@ -26,7 +25,7 @@ describe('AddPairExpenseHandler', () => {
     let expenseRepo: ExpenseRepositorySpy;
     let userRepo: UserRepositorySpy;
     let dateService: DateServiceSpy;
-    let messenger: ContactTaskMessengerSpy;
+    let producer: ContactTaskProducerSpy;
 
     const dummyActor = DEFAULT_USER;
     const dummyExpenseId = crypto.randomUUID();
@@ -107,10 +106,10 @@ describe('AddPairExpenseHandler', () => {
         it('should send a message using contact task messenger', async () => {
             await sut.execute(dummyCommand);
             expect(
-                messenger.calls.sendRelationshipMustBeCreatedBetween.count,
+                producer.calls.sendRelationshipMustBeCreatedBetween.count,
             ).toBe(1);
             expect(
-                messenger.calls.sendRelationshipMustBeCreatedBetween.history,
+                producer.calls.sendRelationshipMustBeCreatedBetween.history,
             ).toContainEqual([dummyActor.getId(), dummyUser.getId()]);
         });
 
@@ -129,7 +128,7 @@ describe('AddPairExpenseHandler', () => {
             expenseRepo,
             userRepo,
             dateService,
-            messenger,
+            producer,
         );
     }
 
@@ -137,6 +136,6 @@ describe('AddPairExpenseHandler', () => {
         expenseRepo = new ExpenseRepositorySpy();
         userRepo = new UserRepositorySpy();
         dateService = new DateServiceSpy();
-        messenger = new ContactTaskMessengerSpy();
+        producer = new ContactTaskProducerSpy();
     }
 });

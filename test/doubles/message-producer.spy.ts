@@ -4,7 +4,7 @@ import {
 } from '@infra/rabbitmq/rabbitmq.producer';
 import { Spy } from '@test/helpers/spy';
 
-export class RabbitMQProducerSpy
+export class MessageProducerSpy
     extends Spy<MessageProducer>
     implements MessageProducer
 {

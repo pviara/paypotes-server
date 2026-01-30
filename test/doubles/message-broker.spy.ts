@@ -1,8 +1,8 @@
 import { Channel } from 'amqplib';
-import { MessageBroker } from '@app/infrastructure/rabbitmq/rabbitmq.message-broker';
+import { MessageBroker } from '@infra/rabbitmq/rabbitmq.message-broker';
 import { Spy } from '@test/helpers/spy';
 
-export class RabbitMQServiceSpy
+export class MessageBrokerSpy
     extends Spy<MessageBroker>
     implements MessageBroker
 {

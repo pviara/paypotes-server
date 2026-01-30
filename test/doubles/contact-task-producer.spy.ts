@@ -1,9 +1,9 @@
-import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
+import { ContactTaskProducer } from '@infra/contact-task-management/contact.task-producer';
 import { Spy } from '@test/helpers/spy';
 
-export class ContactTaskMessengerSpy
-    extends Spy<ContactTaskMessenger>
-    implements ContactTaskMessenger
+export class ContactTaskProducerSpy
+    extends Spy<ContactTaskProducer>
+    implements ContactTaskProducer
 {
     readonly calls = {
         sendRelationshipMustBeCreatedBetween: {

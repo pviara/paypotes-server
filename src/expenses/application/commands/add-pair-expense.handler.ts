@@ -1,5 +1,5 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
-import { ContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
+import { ContactTaskProducer } from '@infra/contact-task-management/contact.task-producer';
 import { DateService } from '@app/shared/date/date.service';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { Log } from '@infra/logger/log.decorator';
@@ -26,14 +26,12 @@ export class AddPairExpenseCommand implements ICommand {
 }
 
 @CommandHandler(AddPairExpenseCommand)
-export class AddPairExpenseHandler
-    implements ICommandHandler<AddPairExpenseCommand>
-{
+export class AddPairExpenseHandler implements ICommandHandler<AddPairExpenseCommand> {
     constructor(
         private expenseRepository: ExpenseRepository,
         private userRepository: UserRepository,
         private dateService: DateService,
-        private messenger: ContactTaskMessenger,
+        private producer: ContactTaskProducer,
     ) {}
 
     @Log('debug')
@@ -52,7 +50,7 @@ export class AddPairExpenseHandler
 
         await Promise.all([
             this.expenseRepository.savePairExpense(expense),
-            this.messenger.sendRelationshipMustBeCreatedBetween(
+            this.producer.sendRelationshipMustBeCreatedBetween(
                 actor.getId(),
                 stakeholder.getId(),
             ),

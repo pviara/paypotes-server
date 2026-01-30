@@ -5,13 +5,13 @@ import { Log } from '@infra/logger/log.decorator';
 import {
     MessageContent,
     Message,
-} from '@infra/contact-task-managers/message-content';
+} from '@infra/contact-task-management/message-content';
 
 export abstract class ContactTaskHandler {
     abstract on(message: MessageContent): Promise<void>;
 }
 
-@Injectable() // -> required for commandBus to be injected
+@Injectable()
 export class DefaultContactTaskHandler implements ContactTaskHandler {
     constructor(private commandBus: CommandBus) {}
 
