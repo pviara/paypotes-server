@@ -18,17 +18,15 @@ export class ContactPostgresRepository implements ContactRepository {
 
     @Log('debug')
     async addRelationshipsBetween(users: Array<User>): Promise<void> {
-        const relationships: Array<{ user_a_id: string; user_b_id: string }> =
-            [];
-
-        for (let i = 0; i < users.length; i++) {
-            for (let j = i + 1; j < users.length; j++) {
-                relationships.push({
-                    user_a_id: users[i].getId(),
-                    user_b_id: users[j].getId(),
-                });
-            }
-        }
+        const relationships = users.flatMap<{
+            user_a_id: string;
+            user_b_id: string;
+        }>((user, index) =>
+            users.slice(index + 1).map((otherUser) => ({
+                user_a_id: user.getId(),
+                user_b_id: otherUser.getId(),
+            })),
+        );
 
         if (relationships.length === 0) {
             return;
