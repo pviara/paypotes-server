@@ -8,18 +8,18 @@ import {
 } from '@nestjs/common';
 import { Nullable } from '@app/shared/nullable';
 
-export abstract class RabbitMQService {
+export abstract class MessageBrokerService {
     abstract getConsumer(): Channel;
     abstract getProducer(): Channel;
 }
 
 @Injectable()
-export class DefaultRabbitMQService
-    implements OnApplicationShutdown, OnModuleInit, RabbitMQService
+export class RabbitMQService
+    implements OnApplicationShutdown, OnModuleInit, MessageBrokerService
 {
     private consumer: Nullable<Channel> = null;
     private connection: Nullable<ChannelModel> = null;
-    private logger = new Logger(DefaultRabbitMQService.name);
+    private logger = new Logger(RabbitMQService.name);
     private producer: Nullable<Channel> = null;
 
     constructor(private configService: ConfigService) {}

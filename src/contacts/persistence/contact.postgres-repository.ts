@@ -13,21 +13,17 @@ type ContactRecord = {
     avatar_url: string;
 };
 
+type RelationshipRecord = {
+    user_a_id: string;
+    user_b_id: string;
+};
+
 export class ContactPostgresRepository implements ContactRepository {
     constructor(@InjectKnex() protected knex: Knex) {}
 
     @Log('debug')
     async addRelationshipsBetween(users: Array<User>): Promise<void> {
-        const relationships = users.flatMap<{
-            user_a_id: string;
-            user_b_id: string;
-        }>((user, index) =>
-            users.slice(index + 1).map((otherUser) => ({
-                user_a_id: user.getId(),
-                user_b_id: otherUser.getId(),
-            })),
-        );
-
+        const relationships = this.mapRelationhipRecordsBetween(users);
         if (relationships.length === 0) {
             return;
         }
@@ -130,6 +126,17 @@ export class ContactPostgresRepository implements ContactRepository {
             .limit(20);
 
         return this.mapContactsFrom(contacts);
+    }
+
+    private mapRelationhipRecordsBetween(
+        users: Array<User>,
+    ): Array<RelationshipRecord> {
+        return users.flatMap((user, index) =>
+            users.slice(index + 1).map((otherUser) => ({
+                user_a_id: user.getId(),
+                user_b_id: otherUser.getId(),
+            })),
+        );
     }
 
     private mapContactsFrom(records: Array<ContactRecord>): Array<Contact> {

@@ -5,7 +5,7 @@ import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-ha
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageContent } from '@infra/contact-task-managers/message-content';
 import { Nullable } from '@app/shared/nullable';
-import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
+import { MessageBrokerService } from '@infra/rabbitmq/rabbitmq.service';
 import { Store } from '@infra/async-local-storage/store';
 
 export abstract class ContactTaskRecipient {}
@@ -19,7 +19,7 @@ export class RabbitMQContactTaskRecipient
     constructor(
         private als: AsyncLocalStorage<Store>,
         private configService: ConfigService,
-        private service: RabbitMQService,
+        private service: MessageBrokerService,
         private handler: ContactTaskHandler,
     ) {}
 
