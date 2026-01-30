@@ -1,6 +1,6 @@
 import { Group } from '@groups/domain/group';
 import { GroupPostgresRepository } from '@groups/persistence/group.postgres-repository';
-import { Table } from '@infra/postgres/table';
+import { Table } from '@infra/database/table';
 
 export class GroupPostgresTestingRepository extends GroupPostgresRepository {
     async empty(): Promise<void> {

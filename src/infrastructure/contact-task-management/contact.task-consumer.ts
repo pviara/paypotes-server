@@ -5,7 +5,7 @@ import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-ha
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageContent } from '@infra/contact-task-management/message-content';
 import { Nullable } from '@app/shared/nullable';
-import { MessageBroker } from '@infra/rabbitmq/rabbitmq.message-broker';
+import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
 import { Store } from '@infra/async-local-storage/store';
 
 export abstract class ContactTaskConsumer implements OnApplicationBootstrap {

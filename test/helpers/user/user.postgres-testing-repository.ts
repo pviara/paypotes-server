@@ -1,4 +1,4 @@
-import { Table } from '@infra/postgres/table';
+import { Table } from '@infra/database/table';
 import { User } from '@users/domain/user';
 import { UserPostgresRepository } from '@users/persistence/user.postgres-repository';
 

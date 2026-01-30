@@ -3,7 +3,7 @@ import { Contact } from '@contacts/domain/contact';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Log } from '@infra/logger/log.decorator';
-import { Table } from '@infra/postgres/table';
+import { Table } from '@infra/database/table';
 import { User } from '@users/domain/user';
 
 type ContactRecord = {

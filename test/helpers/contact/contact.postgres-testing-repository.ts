@@ -1,6 +1,6 @@
 import { ContactPostgresRepository } from '@contacts/persistence/contact.postgres-repository';
 import { Relationship } from '@test/helpers/contact/relationship';
-import { Table } from '@infra/postgres/table';
+import { Table } from '@infra/database/table';
 
 export class ContactPostgresTestingRepository extends ContactPostgresRepository {
     async empty(): Promise<void> {

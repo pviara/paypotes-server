@@ -4,7 +4,7 @@ import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
-import { Table } from '@infra/postgres/table';
+import { Table } from '@infra/database/table';
 
 type MemberRecord = {
     id: string;

@@ -1,5 +1,5 @@
 import { Channel } from 'amqplib';
-import { MessageBroker } from '@infra/rabbitmq/rabbitmq.message-broker';
+import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
 import { Spy } from '@test/helpers/spy';
 
 export class MessageBrokerSpy

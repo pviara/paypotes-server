@@ -4,7 +4,7 @@ import { contactTaskProducerProvider } from '@infra/contact-task-management/cont
 import { ContactTaskConsumer } from '@infra/contact-task-management/contact.task-consumer';
 import { contactTaskConsumerProvider } from '@infra/contact-task-management/contact.task-consumer.provider';
 import { Module } from '@nestjs/common';
-import { MessagingModule } from '@infra/rabbitmq/messaging.module';
+import { MessagingModule } from '@infra/messaging/messaging.module';
 
 @Module({
     exports: [ContactTaskProducer, ContactTaskConsumer],

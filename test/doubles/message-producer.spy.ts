@@ -1,7 +1,7 @@
 import {
     MessageProducer,
     SendingOptions,
-} from '@infra/rabbitmq/rabbitmq.producer';
+} from '@infra/messaging/rabbitmq.producer';
 import { Spy } from '@test/helpers/spy';
 
 export class MessageProducerSpy

@@ -1,4 +1,4 @@
-import { MessageBroker } from '@infra/rabbitmq/rabbitmq.message-broker';
+import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
 import { MessageContent } from '@infra/contact-task-management/message-content';
 import { Injectable } from '@nestjs/common';
 

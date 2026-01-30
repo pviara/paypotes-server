@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { KnexModule } from 'nestjs-knex';
 import { Module } from '@nestjs/common';
-import { PostgresService } from '@infra/postgres/postgres.service';
+import { PostgresService } from '@infra/database/postgres.service';
 
 const getBaseOptions = (configService: ConfigService) => ({
     host: configService.getOrThrow('POSTGRES_HOST'),
@@ -38,4 +38,4 @@ const getOptions = (configService: ConfigService) => {
     ],
     providers: [PostgresService],
 })
-export class PostgresModule {}
+export class DatabaseModule {}

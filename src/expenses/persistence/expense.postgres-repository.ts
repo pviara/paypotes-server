@@ -23,7 +23,7 @@ import {
     PairPayment,
 } from '@expenses/domain/expense/pair/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
-import { Table } from '@infra/postgres/table';
+import { Table } from '@infra/database/table';
 import { User } from '@users/domain/user';
 
 type StakeholderRecord = {

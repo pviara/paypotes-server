@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Message } from '@infra/contact-task-management/message-content';
 import { Injectable } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
-import { MessageProducer } from '@infra/rabbitmq/rabbitmq.producer';
+import { MessageProducer } from '@infra/messaging/rabbitmq.producer';
 import { Store } from '@infra/async-local-storage/store';
 
 export abstract class ContactTaskProducer {

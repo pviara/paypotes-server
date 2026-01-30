@@ -13,7 +13,7 @@ import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { Modules } from '@test/helpers/application/model/module';
 import { Nullable } from '@app/shared/nullable';
-import { MessageBroker } from '@infra/rabbitmq/rabbitmq.message-broker';
+import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
 import { Repositories, RepositoryType } from './model/repositories';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { UserRepository } from '@users/persistence/user.repository';
