@@ -1,11 +1,11 @@
+import { MessageBroker } from '@app/infrastructure/rabbitmq/rabbitmq.message-broker';
+import { MessageProducer } from '@infra/rabbitmq/rabbitmq.producer';
 import { Module } from '@nestjs/common';
-import { MessageBrokerService } from '@infra/rabbitmq/rabbitmq.service';
-import { Producer } from '@infra/rabbitmq/rabbitmq.producer';
 import { rabbitMQProducerProvider } from '@infra/rabbitmq/rabbitmq.producer.provider';
-import { rabbitMQServiceProvider } from '@infra/rabbitmq/rabbitmq.service.provider';
+import { rabbitMQServiceProvider } from '@app/infrastructure/rabbitmq/rabbitmq.message-broker.provider';
 
 @Module({
-    exports: [MessageBrokerService, Producer],
+    exports: [MessageBroker, MessageProducer],
     providers: [rabbitMQProducerProvider, rabbitMQServiceProvider],
 })
 export class RabbitMQModule {}

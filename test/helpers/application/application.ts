@@ -13,7 +13,7 @@ import { INestApplication, Provider, ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from '@auth/presentation/guards/jwt.auth-guard';
 import { Modules } from '@test/helpers/application/model/module';
 import { Nullable } from '@app/shared/nullable';
-import { MessageBrokerService } from '@infra/rabbitmq/rabbitmq.service';
+import { MessageBroker } from '@app/infrastructure/rabbitmq/rabbitmq.message-broker';
 import { Repositories, RepositoryType } from './model/repositories';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { UserRepository } from '@users/persistence/user.repository';
@@ -140,8 +140,7 @@ export class Application {
     private async tryDeletingRabbitMQSingleQueue(): Promise<void> {
         try {
             const configService = this.getApplication().get(ConfigService);
-            const rabbitmqService =
-                this.getApplication().get(MessageBrokerService);
+            const rabbitmqService = this.getApplication().get(MessageBroker);
 
             const queue = configService.getOrThrow('CONTACT_TASKS_QUEUE');
             await rabbitmqService.getConsumer().deleteQueue(queue);

@@ -1,10 +1,10 @@
 import { Channel } from 'amqplib';
-import { MessageBrokerService } from '@infra/rabbitmq/rabbitmq.service';
+import { MessageBroker } from '@app/infrastructure/rabbitmq/rabbitmq.message-broker';
 import { Spy } from '@test/helpers/spy';
 
 export class RabbitMQServiceSpy
-    extends Spy<MessageBrokerService>
-    implements MessageBrokerService
+    extends Spy<MessageBroker>
+    implements MessageBroker
 {
     private readonly DEFAULT_CHANNEL = {
         assertQueue: async () => {},

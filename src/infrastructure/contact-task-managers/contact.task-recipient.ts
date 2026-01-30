@@ -5,21 +5,17 @@ import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-ha
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageContent } from '@infra/contact-task-managers/message-content';
 import { Nullable } from '@app/shared/nullable';
-import { MessageBrokerService } from '@infra/rabbitmq/rabbitmq.service';
+import { MessageBroker } from '@app/infrastructure/rabbitmq/rabbitmq.message-broker';
 import { Store } from '@infra/async-local-storage/store';
 
-export abstract class ContactTaskRecipient {}
-
 @Injectable()
-export class RabbitMQContactTaskRecipient
-    implements ContactTaskRecipient, OnApplicationBootstrap
-{
+export class ContactTaskRecipient implements OnApplicationBootstrap {
     readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
 
     constructor(
         private als: AsyncLocalStorage<Store>,
         private configService: ConfigService,
-        private service: MessageBrokerService,
+        private service: MessageBroker,
         private handler: ContactTaskHandler,
     ) {}
 
