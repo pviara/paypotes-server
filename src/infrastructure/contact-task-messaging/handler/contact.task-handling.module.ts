@@ -1,6 +1,6 @@
 import { ContactApplicationTasksModule } from '@contacts/application/tasks/contact.application-tasks.module';
-import { ContactTaskHandler } from '@infra/contact-task-handling/contact.task-handler';
-import { contactTaskHandlerProvider } from '@infra/contact-task-handling/contact.task-handler.provider';
+import { ContactTaskHandler } from '@infra/contact-task-messaging/handler/contact.task-handler';
+import { contactTaskHandlerProvider } from '@infra/contact-task-messaging/handler/contact.task-handler.provider';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Module } from '@nestjs/common';
 
@@ -9,4 +9,4 @@ import { Module } from '@nestjs/common';
     imports: [ContactApplicationTasksModule, CqrsModule],
     providers: [contactTaskHandlerProvider],
 })
-export class ContactTaskHandlerModule {}
+export class ContactTaskHandlingModule {}

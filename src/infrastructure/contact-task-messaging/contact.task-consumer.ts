@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { Channel, ConsumeMessage } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
-import { ContactTaskHandler } from '@infra/contact-task-handling/contact.task-handler';
+import { ContactTaskHandler } from '@infra/contact-task-messaging/handler/contact.task-handler';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MessageContent } from '@infra/contact-task-messaging/message-content';
 import { Nullable } from '@app/shared/nullable';
