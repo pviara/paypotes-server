@@ -860,9 +860,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 created_at: expense.getCreatedAt(),
                 group_id: expense.getGroup().getId(),
             })
-            .into(Table.Expenses)
-            .onConflict('id')
-            .ignore();
+            .into(Table.Expenses);
 
         for (const stakeholder of expense.getStakeholders()) {
             await this.knex
@@ -872,9 +870,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     share: stakeholder.getShare(),
                     creditor: expense.hasCreditor(stakeholder.getId()),
                 })
-                .into(Table.Stakeholders)
-                .onConflict(['id', 'expense_id'])
-                .ignore();
+                .into(Table.Stakeholders);
         }
     }
 
@@ -890,9 +886,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                 created_at: expense.getCreatedAt(),
                 group_id: this.configService.getOrThrow('DEFAULT_UUID'),
             })
-            .into(Table.Expenses)
-            .onConflict('id')
-            .ignore();
+            .into(Table.Expenses);
 
         for (const stakeholder of expense.getStakeholders()) {
             await this.knex
@@ -902,9 +896,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
                     share: stakeholder.getShare(),
                     creditor: expense.hasCreditor(stakeholder.getId()),
                 })
-                .into(Table.Stakeholders)
-                .onConflict(['id', 'expense_id'])
-                .ignore();
+                .into(Table.Stakeholders);
         }
     }
 
