@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Logger, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
-import { MigrationSource } from '@infra/postgres/migration-source';
+import { MigrationSource } from '@infra/database/migration-source';
 
 export class PostgresService implements OnApplicationShutdown, OnModuleInit {
     private logger = new Logger(PostgresService.name);

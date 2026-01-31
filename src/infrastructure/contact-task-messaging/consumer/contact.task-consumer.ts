@@ -1,30 +1,34 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { Channel, ConsumeMessage } from 'amqplib';
 import { ConfigService } from '@nestjs/config';
-import { ContactTaskHandler } from '@infra/contact-task-handlers/contact.task-handler';
+import { ContactTaskHandler } from '@infra/contact-task-messaging/handler/contact.task-handler';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { MessageContent } from '@infra/contact-task-managers/message-content';
+import { MessageContent } from '@infra/contact-task-messaging/message-content';
 import { Nullable } from '@app/shared/nullable';
-import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
+import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
 import { Store } from '@infra/async-local-storage/store';
 
-export abstract class ContactTaskRecipient {}
+export abstract class ContactTaskConsumer implements OnApplicationBootstrap {
+    abstract onApplicationBootstrap(): Promise<void>;
+}
 
 @Injectable()
-export class RabbitMQContactTaskRecipient
-    implements ContactTaskRecipient, OnApplicationBootstrap
+export class DefaultContactTaskConsumer
+    implements OnApplicationBootstrap, ContactTaskConsumer
 {
-    readonly queue = this.configService.get<string>('CONTACT_TASKS_QUEUE', '');
+    readonly queue = this.configService.getOrThrow<string>(
+        'CONTACT_TASKS_QUEUE',
+    );
 
     constructor(
         private als: AsyncLocalStorage<Store>,
         private configService: ConfigService,
-        private service: RabbitMQService,
+        private broker: MessageBroker,
         private handler: ContactTaskHandler,
     ) {}
 
     async onApplicationBootstrap(): Promise<void> {
-        const consumer = this.service.getConsumer();
+        const consumer = this.broker.getConsumer();
         consumer.assertQueue(this.queue);
         consumer.consume(this.queue, (message) =>
             this.attemptHandling(message, consumer),

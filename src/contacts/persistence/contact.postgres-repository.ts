@@ -3,7 +3,7 @@ import { Contact } from '@contacts/domain/contact';
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Log } from '@infra/logger/log.decorator';
-import { Table } from '@infra/postgres/table';
+import { Table } from '@infra/database/table';
 import { User } from '@users/domain/user';
 
 type ContactRecord = {
@@ -13,25 +13,26 @@ type ContactRecord = {
     avatar_url: string;
 };
 
+type RelationshipRecord = {
+    user_a_id: string;
+    user_b_id: string;
+};
+
 export class ContactPostgresRepository implements ContactRepository {
     constructor(@InjectKnex() protected knex: Knex) {}
 
     @Log('debug')
     async addRelationshipsBetween(users: Array<User>): Promise<void> {
-        for (const user of users) {
-            const otherUsers = this.getOtherUsersThan(user, users);
-            for (const otherUser of otherUsers) {
-                const exists = await this.existsBetween(user, otherUser);
-                if (exists) continue;
-
-                await this.knex
-                    .insert({
-                        user_a_id: user.getId(),
-                        user_b_id: otherUser.getId(),
-                    })
-                    .into(Table.Relationships);
-            }
+        const relationships = this.mapRelationhipRecordsBetween(users);
+        if (relationships.length === 0) {
+            return;
         }
+
+        await this.knex
+            .insert(relationships)
+            .into(Table.Relationships)
+            .onConflict(['user_a_id', 'user_b_id'])
+            .ignore();
     }
 
     @Log('debug')
@@ -127,25 +128,15 @@ export class ContactPostgresRepository implements ContactRepository {
         return this.mapContactsFrom(contacts);
     }
 
-    private getOtherUsersThan(user: User, users: Array<User>): Array<User> {
-        return users.filter((otherUser) => user.getId() !== otherUser.getId());
-    }
-
-    private async existsBetween(userA: User, userB: User): Promise<boolean> {
-        const relationship = await this.knex
-            .select()
-            .from(Table.Relationships)
-            .where((subQueryBuilder) =>
-                subQueryBuilder
-                    .where('user_a_id', userA.getId())
-                    .andWhere('user_b_id', userB.getId()),
-            )
-            .orWhere((subQueryBuilder) =>
-                subQueryBuilder
-                    .where('user_a_id', userB.getId())
-                    .andWhere('user_b_id', userA.getId()),
-            );
-        return relationship.length > 0;
+    private mapRelationhipRecordsBetween(
+        users: Array<User>,
+    ): Array<RelationshipRecord> {
+        return users.flatMap((user, index) =>
+            users.slice(index + 1).map((otherUser) => ({
+                user_a_id: user.getId(),
+                user_b_id: otherUser.getId(),
+            })),
+        );
     }
 
     private mapContactsFrom(records: Array<ContactRecord>): Array<Contact> {

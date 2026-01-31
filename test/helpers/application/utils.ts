@@ -10,8 +10,8 @@ import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgr
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { InfrastructureModule } from '@infra/infrastructure.module';
 import { Modules } from '@test/helpers/application/model/module';
-import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
-import { RabbitMQServiceSpy } from '@test/doubles/rabbitmq-service.spy';
+import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
+import { MessageBrokerSpy } from '@test/doubles/message-broker.spy';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
 import { UserRepository } from '@users/persistence/user.repository';
 
@@ -51,8 +51,8 @@ export const initApplicationWith = (
                 useClass: UserPostgresTestingRepository,
             },
             {
-                provide: RabbitMQService,
-                useClass: RabbitMQServiceSpy,
+                provide: MessageBroker,
+                useClass: MessageBrokerSpy,
             },
             ...providers,
         ],

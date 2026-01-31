@@ -1,8 +1,8 @@
 import { AsyncLocalStorageModule } from '@infra/async-local-storage/async-local-storage.module';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@infra/database/database.module';
 import { LoggerModule } from '@infra/logger/logger.module';
 import { Module } from '@nestjs/common';
-import { PostgresModule } from '@infra/postgres/postgres.module';
 
 @Module({
     exports: [ConfigModule],
@@ -10,7 +10,7 @@ import { PostgresModule } from '@infra/postgres/postgres.module';
         AsyncLocalStorageModule,
         ConfigModule.forRoot({ isGlobal: true }),
         LoggerModule,
-        PostgresModule,
+        DatabaseModule,
     ],
 })
 export class InfrastructureModule {}

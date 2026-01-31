@@ -1,15 +1,15 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
-import { Message } from '@infra/contact-task-managers/message-content';
-import { RabbitMQContactTaskMessenger } from '@infra/contact-task-managers/contact.task-messenger';
-import { RabbitMQProducerSpy } from '@test/doubles/rabbitmq-producer.spy';
+import { Message } from '@infra/contact-task-messaging/message-content';
+import { DefaultContactTaskProducer } from '@app/infrastructure/contact-task-messaging/producer/contact.task-producer';
+import { MessageProducerSpy } from '@test/doubles/message-producer.spy';
 import { Store } from '@infra/async-local-storage/store';
 
-describe('RabbitMQContactTaskMessenger', () => {
-    let sut: RabbitMQContactTaskMessenger;
+describe('RabbitMQContactTaskProducer', () => {
+    let sut: DefaultContactTaskProducer;
 
     let asyncLocalStorage: AsyncLocalStorage<Store>;
-    let rabbitMQProducer: RabbitMQProducerSpy;
+    let messageProducer: MessageProducerSpy;
     let configService: ConfigService;
 
     const dummyCorrelationId = crypto.randomUUID();
@@ -33,8 +33,8 @@ describe('RabbitMQContactTaskMessenger', () => {
                 dummyUserIdB,
             );
 
-            expect(rabbitMQProducer.calls.send.count).toBe(1);
-            expect(rabbitMQProducer.calls.send.history).toContainEqual({
+            expect(messageProducer.calls.send.count).toBe(1);
+            expect(messageProducer.calls.send.history).toContainEqual({
                 queue: sut.queue,
                 message: {
                     type: Message.PairExpenseCreated,
@@ -53,8 +53,8 @@ describe('RabbitMQContactTaskMessenger', () => {
 
             await sut.sendRelationshipsMustBeCreatedBetween(userIds);
 
-            expect(rabbitMQProducer.calls.send.count).toBe(1);
-            expect(rabbitMQProducer.calls.send.history).toContainEqual({
+            expect(messageProducer.calls.send.count).toBe(1);
+            expect(messageProducer.calls.send.history).toContainEqual({
                 queue: sut.queue,
                 message: {
                     type: Message.GroupCreated,
@@ -67,16 +67,16 @@ describe('RabbitMQContactTaskMessenger', () => {
 
     function initSut(): void {
         initDependencies();
-        sut = new RabbitMQContactTaskMessenger(
+        sut = new DefaultContactTaskProducer(
             asyncLocalStorage,
             configService,
-            rabbitMQProducer,
+            messageProducer,
         );
     }
 
     function initDependencies(): void {
         asyncLocalStorage = new AsyncLocalStorage();
-        rabbitMQProducer = new RabbitMQProducerSpy();
+        messageProducer = new MessageProducerSpy();
         configService = new ConfigService();
     }
 });

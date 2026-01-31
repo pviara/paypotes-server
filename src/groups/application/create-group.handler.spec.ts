@@ -1,4 +1,4 @@
-import { ContactTaskMessengerSpy } from '@test/doubles/contact-task-messenger.spy';
+import { ContactTaskProducerSpy } from '@test/doubles/contact-task-producer.spy';
 import {
     CreateGroupCommand,
     CreateGroupHandler,
@@ -17,7 +17,7 @@ describe('CreateGroupHandler', () => {
     let dateService: DateServiceSpy;
     let groupRepo: GroupRepositorySpy;
     let userRepo: UserRepositorySpy;
-    let messenger: ContactTaskMessengerSpy;
+    let messenger: ContactTaskProducerSpy;
 
     const dummyDate = new Date('2003-28-12');
     const dummyGroupId = crypto.randomUUID();
@@ -106,7 +106,7 @@ describe('CreateGroupHandler', () => {
         dateService = new DateServiceSpy();
         groupRepo = new GroupRepositorySpy();
         userRepo = new UserRepositorySpy();
-        messenger = new ContactTaskMessengerSpy();
+        messenger = new ContactTaskProducerSpy();
     }
 
     function mapToUsers(memberIds: Array<string>): Array<User> {

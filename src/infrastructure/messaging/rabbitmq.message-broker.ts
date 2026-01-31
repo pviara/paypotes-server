@@ -8,18 +8,18 @@ import {
 } from '@nestjs/common';
 import { Nullable } from '@app/shared/nullable';
 
-export abstract class RabbitMQService {
+export abstract class MessageBroker {
     abstract getConsumer(): Channel;
     abstract getProducer(): Channel;
 }
 
 @Injectable()
-export class DefaultRabbitMQService
-    implements OnApplicationShutdown, OnModuleInit, RabbitMQService
+export class RabbitMQMessageBroker
+    implements OnApplicationShutdown, OnModuleInit, MessageBroker
 {
     private consumer: Nullable<Channel> = null;
     private connection: Nullable<ChannelModel> = null;
-    private logger = new Logger(DefaultRabbitMQService.name);
+    private logger = new Logger(RabbitMQMessageBroker.name);
     private producer: Nullable<Channel> = null;
 
     constructor(private configService: ConfigService) {}
@@ -107,19 +107,19 @@ export class DefaultRabbitMQService
     }
 
     private buildRabbitMQURL(): string {
-        const username = this.configService.get<string>(
+        const username = this.configService.getOrThrow<string>(
             'RABBITMQ_DEFAULT_USER',
         );
-        const password = this.configService.get<string>(
+        const password = this.configService.getOrThrow<string>(
             'RABBITMQ_DEFAULT_PASS',
         );
-        const host = this.configService.get<string>('RABBITMQ_HOST');
+        const host = this.configService.getOrThrow<string>('RABBITMQ_HOST');
 
-        const env = this.configService.get<string>('APP_ENVIRONMENT');
+        const env = this.configService.getOrThrow<string>('APP_ENVIRONMENT');
         const port =
             env !== 'test'
-                ? this.configService.get<string>('RABBITMQ_PORT')
-                : this.configService.get<string>('RABBITMQ_TEST_PORT');
+                ? this.configService.getOrThrow<string>('RABBITMQ_PORT')
+                : this.configService.getOrThrow<string>('RABBITMQ_TEST_PORT');
 
         return `amqp://${username}:${password}@${host}:${port}`;
     }

@@ -1,7 +1,7 @@
 import { InjectKnex } from 'nestjs-knex';
 import { Knex } from 'knex';
 import { Log } from '@infra/logger/log.decorator';
-import { Table } from '@infra/postgres/table';
+import { Table } from '@infra/database/table';
 import { User, Users } from '@users/domain/user';
 import { UserRepository } from '@users/persistence/user.repository';
 

@@ -99,7 +99,7 @@ jobs:
           POSTGRES_USER: 'postgres'
           POSTGRES_PASSWORD: 'postgres'
           DEFAULT_UUID: '46cd3732-f36e-4886-a2f8-1efebcda1ad6'
-          POSTGRES_MIGRATIONS_PATH: '${{ github.workspace }}/dist/src/infrastructure/postgres/migrations'
+          POSTGRES_MIGRATIONS_PATH: '${{ github.workspace }}/dist/src/infrastructure/database/migrations'
 
       - name: 📝 Write test summary
         uses: test-summary/action@v2

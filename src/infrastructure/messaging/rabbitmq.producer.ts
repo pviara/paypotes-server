@@ -1,16 +1,16 @@
-import { MessageContent } from '@infra/contact-task-managers/message-content';
-import { RabbitMQService } from '@infra/rabbitmq/rabbitmq.service';
+import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
+import { MessageContent } from '@infra/contact-task-messaging/message-content';
 import { Injectable } from '@nestjs/common';
 
 export type SendingOptions = { queue: string; message: MessageContent };
 
-export abstract class Producer {
+export abstract class MessageProducer {
     abstract send(options: SendingOptions): Promise<void>;
 }
 
 @Injectable()
-export class RabbitMQProducer implements Producer {
-    constructor(private service: RabbitMQService) {}
+export class RabbitMQProducer implements MessageProducer {
+    constructor(private service: MessageBroker) {}
 
     async send({ queue, message }: SendingOptions): Promise<void> {
         await this.service.getProducer().assertQueue(queue);

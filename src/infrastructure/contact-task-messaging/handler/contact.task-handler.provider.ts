@@ -1,7 +1,7 @@
 import {
     ContactTaskHandler,
     DefaultContactTaskHandler,
-} from '@infra/contact-task-handlers/contact.task-handler';
+} from '@infra/contact-task-messaging/handler/contact.task-handler';
 import { Provider } from '@nestjs/common';
 
 export const contactTaskHandlerProvider: Provider = {

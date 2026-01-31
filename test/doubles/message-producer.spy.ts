@@ -1,7 +1,13 @@
-import { Producer, SendingOptions } from '@infra/rabbitmq/rabbitmq.producer';
+import {
+    MessageProducer,
+    SendingOptions,
+} from '@infra/messaging/rabbitmq.producer';
 import { Spy } from '@test/helpers/spy';
 
-export class RabbitMQProducerSpy extends Spy<Producer> implements Producer {
+export class MessageProducerSpy
+    extends Spy<MessageProducer>
+    implements MessageProducer
+{
     readonly calls = {
         send: {
             count: 0,

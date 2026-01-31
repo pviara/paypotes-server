@@ -1,7 +1,10 @@
-import { Producer, RabbitMQProducer } from '@infra/rabbitmq/rabbitmq.producer';
+import {
+    MessageProducer,
+    RabbitMQProducer,
+} from '@infra/messaging/rabbitmq.producer';
 import { Provider } from '@nestjs/common';
 
 export const rabbitMQProducerProvider: Provider = {
-    provide: Producer,
+    provide: MessageProducer,
     useClass: RabbitMQProducer,
 };
