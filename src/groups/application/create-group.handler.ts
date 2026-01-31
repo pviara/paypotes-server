@@ -1,5 +1,5 @@
 import { CommandHandler, ICommand, ICommandHandler } from '@nestjs/cqrs';
-import { ContactTaskProducer } from '@infra/contact-task-management/contact.task-producer';
+import { ContactTaskProducer } from '@infra/contact-task-messaging/contact.task-producer';
 import { DateService } from '@app/shared/date/date.service';
 import { Group } from '@groups/domain/group';
 import { GroupRepository } from '@groups/persistence/group.repository';

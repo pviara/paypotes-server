@@ -5,7 +5,7 @@ import { Log } from '@infra/logger/log.decorator';
 import {
     MessageContent,
     Message,
-} from '@infra/contact-task-management/message-content';
+} from '@infra/contact-task-messaging/message-content';
 
 export abstract class ContactTaskHandler {
     abstract on(message: MessageContent): Promise<void>;

@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
-import { Message } from '@infra/contact-task-management/message-content';
-import { DefaultContactTaskProducer } from '@infra/contact-task-management/contact.task-producer';
+import { Message } from '@infra/contact-task-messaging/message-content';
+import { DefaultContactTaskProducer } from '@infra/contact-task-messaging/contact.task-producer';
 import { MessageProducerSpy } from '@test/doubles/message-producer.spy';
 import { Store } from '@infra/async-local-storage/store';
 

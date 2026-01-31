@@ -1,7 +1,7 @@
 import { AddGroupExpenseHandler } from '@expenses/application/commands/add-group-expense.handler';
 import { AddPairExpenseHandler } from '@expenses/application/commands/add-pair-expense.handler';
 import { ComputeActorBalanceHandler } from '@expenses/application/queries/compute-actor-balance.handler';
-import { ContactTaskManagementModule } from '@infra/contact-task-management/contact.task-management.module';
+import { ContactTaskManagementModule } from '@infra/contact-task-messaging/contact.task-management.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DateModule } from '@app/shared/date/date.module';
 import { ExpenseController } from '@expenses/presentation/expense.controller';

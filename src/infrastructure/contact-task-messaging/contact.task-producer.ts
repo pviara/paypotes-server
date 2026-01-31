@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { ConfigService } from '@nestjs/config';
-import { Message } from '@infra/contact-task-management/message-content';
+import { Message } from '@infra/contact-task-messaging/message-content';
 import { Injectable } from '@nestjs/common';
 import { Log } from '@infra/logger/log.decorator';
 import { MessageProducer } from '@infra/messaging/rabbitmq.producer';

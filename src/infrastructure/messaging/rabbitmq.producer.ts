@@ -1,5 +1,5 @@
 import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
-import { MessageContent } from '@infra/contact-task-management/message-content';
+import { MessageContent } from '@infra/contact-task-messaging/message-content';
 import { Injectable } from '@nestjs/common';
 
 export type SendingOptions = { queue: string; message: MessageContent };

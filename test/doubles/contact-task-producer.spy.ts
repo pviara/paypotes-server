@@ -1,4 +1,4 @@
-import { ContactTaskProducer } from '@infra/contact-task-management/contact.task-producer';
+import { ContactTaskProducer } from '@infra/contact-task-messaging/contact.task-producer';
 import { Spy } from '@test/helpers/spy';
 
 export class ContactTaskProducerSpy

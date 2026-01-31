@@ -1,4 +1,4 @@
-import { ContactTaskManagementModule } from '@infra/contact-task-management/contact.task-management.module';
+import { ContactTaskManagementModule } from '@infra/contact-task-messaging/contact.task-management.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateGroupHandler } from '@groups/application/create-group.handler';
 import { DateModule } from '@app/shared/date/date.module';
