@@ -850,6 +850,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     @Log('debug')
     async saveGroupExpense(expense: GroupExpense): Promise<void> {
+        // todo tech/#129 transaction required
         await this.knex
             .insert({
                 id: expense.getId(),
@@ -879,6 +880,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     @Log('debug')
     async savePairExpense(expense: PairExpense): Promise<void> {
+        // todo tech/#129 transaction required
         await this.knex
             .insert({
                 id: expense.getId(),
@@ -908,6 +910,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     @Log('debug')
     async updateGroupExpense(expense: GroupExpense): Promise<void> {
+        // todo tech/#129 transaction required
         for (const stakeholder of expense.getStakeholders()) {
             await this.knex(Table.Stakeholders)
                 .update({ share: stakeholder.getShare() })
@@ -918,6 +921,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     @Log('debug')
     async updatePairExpense(expense: PairExpense): Promise<void> {
+        // todo tech/#129 transaction required
         for (const stakeholder of expense.getStakeholders()) {
             await this.knex(Table.Stakeholders)
                 .update({ share: stakeholder.getShare() })

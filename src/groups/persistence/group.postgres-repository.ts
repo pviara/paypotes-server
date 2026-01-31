@@ -114,6 +114,7 @@ export class GroupPostgresRepository implements GroupRepository {
 
     @Log('debug')
     async save(group: Group): Promise<void> {
+        // todo tech/#129 transaction required
         const groupRecord: GroupRecord = {
             id: group.getId(),
             name: group.getName(),
