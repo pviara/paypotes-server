@@ -850,76 +850,84 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     @Log('debug')
     async saveGroupExpense(expense: GroupExpense): Promise<void> {
-        // todo tech/#129 transaction required
-        await this.knex
-            .insert({
-                id: expense.getId(),
-                label: expense.getLabel(),
-                emoji: expense.getEmoji(),
-                balance: expense.getRawBalance(),
-                created_at: expense.getCreatedAt(),
-                group_id: expense.getGroup().getId(),
-            })
-            .into(Table.Expenses);
-
-        for (const stakeholder of expense.getStakeholders()) {
-            await this.knex
+        await this.knex.transaction(async (transaction) => {
+            await transaction
                 .insert({
-                    id: stakeholder.getId(),
-                    expense_id: expense.getId(),
-                    share: stakeholder.getShare(),
-                    creditor: expense.hasCreditor(stakeholder.getId()),
+                    id: expense.getId(),
+                    label: expense.getLabel(),
+                    emoji: expense.getEmoji(),
+                    balance: expense.getRawBalance(),
+                    created_at: expense.getCreatedAt(),
+                    group_id: expense.getGroup().getId(),
                 })
-                .into(Table.Stakeholders);
-        }
+                .into(Table.Expenses);
+
+            for (const stakeholder of expense.getStakeholders()) {
+                await transaction
+                    .insert({
+                        id: stakeholder.getId(),
+                        expense_id: expense.getId(),
+                        share: stakeholder.getShare(),
+                        creditor: expense.hasCreditor(stakeholder.getId()),
+                    })
+                    .into(Table.Stakeholders);
+            }
+        });
     }
 
     @Log('debug')
     async savePairExpense(expense: PairExpense): Promise<void> {
-        // todo tech/#129 transaction required
-        await this.knex
-            .insert({
-                id: expense.getId(),
-                label: expense.getLabel(),
-                emoji: expense.getEmoji(),
-                balance: expense.getRawBalance(),
-                created_at: expense.getCreatedAt(),
-                group_id: this.configService.getOrThrow('DEFAULT_UUID'),
-            })
-            .into(Table.Expenses);
+        await this.knex.transaction(async (transaction) => {
+            try {
+                await transaction
+                    .insert({
+                        id: expense.getId(),
+                        label: expense.getLabel(),
+                        emoji: expense.getEmoji(),
+                        balance: expense.getRawBalance(),
+                        created_at: expense.getCreatedAt(),
+                        group_id: this.configService.getOrThrow('DEFAULT_UUID'),
+                    })
+                    .into(Table.Expenses);
 
-        for (const stakeholder of expense.getStakeholders()) {
-            await this.knex
-                .insert({
-                    id: stakeholder.getId(),
-                    expense_id: expense.getId(),
-                    share: stakeholder.getShare(),
-                    creditor: expense.hasCreditor(stakeholder.getId()),
-                })
-                .into(Table.Stakeholders);
-        }
+                for (const stakeholder of expense.getStakeholders()) {
+                    await transaction
+                        .insert({
+                            id: stakeholder.getId(),
+                            expense_id: expense.getId(),
+                            share: stakeholder.getShare(),
+                            creditor: expense.hasCreditor(stakeholder.getId()),
+                        })
+                        .into(Table.Stakeholders);
+                }
+            } catch (error: unknown) {
+                await transaction.rollback();
+            }
+        });
     }
 
     @Log('debug')
     async updateGroupExpense(expense: GroupExpense): Promise<void> {
-        // todo tech/#129 transaction required
-        for (const stakeholder of expense.getStakeholders()) {
-            await this.knex(Table.Stakeholders)
-                .update({ share: stakeholder.getShare() })
-                .where('expense_id', expense.getId())
-                .andWhere('id', stakeholder.getId());
-        }
+        await this.knex.transaction(async (transaction) => {
+            for (const stakeholder of expense.getStakeholders()) {
+                await transaction(Table.Stakeholders)
+                    .update({ share: stakeholder.getShare() })
+                    .where('expense_id', expense.getId())
+                    .andWhere('id', stakeholder.getId());
+            }
+        });
     }
 
     @Log('debug')
     async updatePairExpense(expense: PairExpense): Promise<void> {
-        // todo tech/#129 transaction required
-        for (const stakeholder of expense.getStakeholders()) {
-            await this.knex(Table.Stakeholders)
-                .update({ share: stakeholder.getShare() })
-                .where('expense_id', expense.getId())
-                .andWhere('id', stakeholder.getId());
-        }
+        await this.knex.transaction(async (transaction) => {
+            for (const stakeholder of expense.getStakeholders()) {
+                await transaction(Table.Stakeholders)
+                    .update({ share: stakeholder.getShare() })
+                    .where('expense_id', expense.getId())
+                    .andWhere('id', stakeholder.getId());
+            }
+        });
     }
 
     protected mapStakeholderRecordFrom(
