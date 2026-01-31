@@ -24,6 +24,7 @@ import {
 } from '@expenses/domain/expense/pair/pair-expense';
 import { Stakeholder } from '@expenses/domain/stakeholder/stakeholder';
 import { Table } from '@infra/database/table';
+import { TransactionService } from '@infra/database/transaction.service';
 import { User } from '@users/domain/user';
 
 type StakeholderRecord = {
@@ -66,9 +67,8 @@ export class ExpensePostgresRepository implements ExpenseRepository {
     constructor(
         private configService: ConfigService,
         protected groupRepository: GroupRepository,
-
-        @InjectKnex()
-        protected knex: Knex,
+        private transactionService: TransactionService,
+        @InjectKnex() protected knex: Knex,
     ) {}
 
     @Log('debug')
@@ -850,7 +850,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     @Log('debug')
     async saveGroupExpense(expense: GroupExpense): Promise<void> {
-        await this.knex.transaction(async (transaction) => {
+        await this.transactionService.execute(async (transaction) => {
             await transaction
                 .insert({
                     id: expense.getId(),
@@ -877,38 +877,34 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     @Log('debug')
     async savePairExpense(expense: PairExpense): Promise<void> {
-        await this.knex.transaction(async (transaction) => {
-            try {
+        await this.transactionService.execute(async (transaction) => {
+            await transaction
+                .insert({
+                    id: expense.getId(),
+                    label: expense.getLabel(),
+                    emoji: expense.getEmoji(),
+                    balance: expense.getRawBalance(),
+                    created_at: expense.getCreatedAt(),
+                    group_id: this.configService.getOrThrow('DEFAULT_UUID'),
+                })
+                .into(Table.Expenses);
+
+            for (const stakeholder of expense.getStakeholders()) {
                 await transaction
                     .insert({
-                        id: expense.getId(),
-                        label: expense.getLabel(),
-                        emoji: expense.getEmoji(),
-                        balance: expense.getRawBalance(),
-                        created_at: expense.getCreatedAt(),
-                        group_id: this.configService.getOrThrow('DEFAULT_UUID'),
+                        id: stakeholder.getId(),
+                        expense_id: expense.getId(),
+                        share: stakeholder.getShare(),
+                        creditor: expense.hasCreditor(stakeholder.getId()),
                     })
-                    .into(Table.Expenses);
-
-                for (const stakeholder of expense.getStakeholders()) {
-                    await transaction
-                        .insert({
-                            id: stakeholder.getId(),
-                            expense_id: expense.getId(),
-                            share: stakeholder.getShare(),
-                            creditor: expense.hasCreditor(stakeholder.getId()),
-                        })
-                        .into(Table.Stakeholders);
-                }
-            } catch (error: unknown) {
-                await transaction.rollback();
+                    .into(Table.Stakeholders);
             }
         });
     }
 
     @Log('debug')
     async updateGroupExpense(expense: GroupExpense): Promise<void> {
-        await this.knex.transaction(async (transaction) => {
+        await this.transactionService.execute(async (transaction) => {
             for (const stakeholder of expense.getStakeholders()) {
                 await transaction(Table.Stakeholders)
                     .update({ share: stakeholder.getShare() })
@@ -920,7 +916,7 @@ export class ExpensePostgresRepository implements ExpenseRepository {
 
     @Log('debug')
     async updatePairExpense(expense: PairExpense): Promise<void> {
-        await this.knex.transaction(async (transaction) => {
+        await this.transactionService.execute(async (transaction) => {
             for (const stakeholder of expense.getStakeholders()) {
                 await transaction(Table.Stakeholders)
                     .update({ share: stakeholder.getShare() })

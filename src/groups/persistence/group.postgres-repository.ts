@@ -5,6 +5,7 @@ import { Knex } from 'knex';
 import { Log } from '@infra/logger/log.decorator';
 import { Member } from '@groups/domain/member';
 import { Table } from '@infra/database/table';
+import { TransactionService } from '@infra/database/transaction.service';
 
 type MemberRecord = {
     id: string;
@@ -30,7 +31,10 @@ export type GroupDetailedRecord = GroupRecord & {
 };
 
 export class GroupPostgresRepository implements GroupRepository {
-    constructor(@InjectKnex() protected knex: Knex) {}
+    constructor(
+        private transactionService: TransactionService,
+        @InjectKnex() protected knex: Knex,
+    ) {}
 
     @Log('debug')
     async getActorGroupById(
@@ -114,23 +118,24 @@ export class GroupPostgresRepository implements GroupRepository {
 
     @Log('debug')
     async save(group: Group): Promise<void> {
-        // todo tech/#129 transaction required
-        const groupRecord: GroupRecord = {
-            id: group.getId(),
-            name: group.getName(),
-            emoji: group.getEmoji(),
-            created_at: group.getCreatedAt(),
-        };
+        await this.transactionService.execute(async (transaction) => {
+            const groupRecord: GroupRecord = {
+                id: group.getId(),
+                name: group.getName(),
+                emoji: group.getEmoji(),
+                created_at: group.getCreatedAt(),
+            };
 
-        const members: Array<MemberRecord> = group
-            .getMembers()
-            .map((member) => ({
-                id: member.getId(),
-                group_id: group.getId(),
-            }));
+            const members: Array<MemberRecord> = group
+                .getMembers()
+                .map((member) => ({
+                    id: member.getId(),
+                    group_id: group.getId(),
+                }));
 
-        await this.knex.insert(groupRecord).into(Table.Groups);
-        await this.knex.insert(members).into(Table.Members);
+            await transaction.insert(groupRecord).into(Table.Groups);
+            await transaction.insert(members).into(Table.Members);
+        });
     }
 
     private mapGroupFrom({ members, ...group }: GroupDetailedRecord): Group {

@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { KnexModule } from 'nestjs-knex';
 import { Module } from '@nestjs/common';
 import { PostgresService } from '@infra/database/postgres.service';
+import { TransactionService } from '@infra/database/transaction.service';
 
 const getBaseOptions = (configService: ConfigService) => ({
     host: configService.getOrThrow('POSTGRES_HOST'),
@@ -23,6 +24,7 @@ const getOptions = (configService: ConfigService) => {
 };
 
 @Module({
+    exports: [TransactionService],
     imports: [
         KnexModule.forRootAsync({
             inject: [ConfigService],
@@ -36,6 +38,6 @@ const getOptions = (configService: ConfigService) => {
             },
         }),
     ],
-    providers: [PostgresService],
+    providers: [PostgresService, TransactionService],
 })
 export class DatabaseModule {}
