@@ -1,7 +1,7 @@
 import {
     ContactTaskProducer,
     DefaultContactTaskProducer,
-} from '@infra/contact-task-messaging/contact.task-producer';
+} from '@app/infrastructure/contact-task-messaging/producer/contact.task-producer';
 import { Provider } from '@nestjs/common';
 
 export const contactTaskProducerProvider: Provider = {
