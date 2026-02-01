@@ -13,7 +13,7 @@ type UserRecord = {
     avatar_url: string;
 };
 
-export class UserPostgresRepository implements UserRepository {
+export class UserDatabaseRepository implements UserRepository {
     constructor(@InjectKnex() protected knex: Knex) {}
 
     create(user: User): Promise<void> {

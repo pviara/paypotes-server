@@ -18,7 +18,7 @@ type RelationshipRecord = {
     user_b_id: string;
 };
 
-export class ContactPostgresRepository implements ContactRepository {
+export class ContactDatabaseRepository implements ContactRepository {
     constructor(@InjectKnex() protected knex: Knex) {}
 
     @Log('debug')

@@ -30,7 +30,7 @@ export type GroupDetailedRecord = GroupRecord & {
     members: Array<MemberDetailedRecord>;
 };
 
-export class GroupPostgresRepository implements GroupRepository {
+export class GroupDatabaseRepository implements GroupRepository {
     constructor(
         private transactionService: TransactionService,
         @InjectKnex() protected knex: Knex,

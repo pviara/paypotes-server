@@ -1,6 +1,6 @@
 import { Application } from '@test/helpers/application/application';
 import { Contact } from '@contacts/domain/contact';
-import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { ContactDatabaseTestingRepository } from '@test/helpers/contact/contact.database-testing-repository';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -30,20 +30,20 @@ import {
     GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
-import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
+import { GroupDatabaseTestingRepository } from '@test/helpers/group/group.database-testing-repository';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { UserDatabaseTestingRepository } from '@test/helpers/user/user.database-testing-repository';
 
 type Options = { length: number };
 
 export class Fixture {
     private constructor(
-        private contactRepo: ContactPostgresTestingRepository,
+        private contactRepo: ContactDatabaseTestingRepository,
         private expenseRepo: ExpensePostgresTestingRepository,
-        private groupRepo: GroupPostgresTestingRepository,
-        private userRepo: UserPostgresTestingRepository,
+        private groupRepo: GroupDatabaseTestingRepository,
+        private userRepo: UserDatabaseTestingRepository,
     ) {}
 
     static create(application: Application): Fixture {

@@ -1,10 +1,10 @@
 import { Expense } from '@expenses/domain/expense/expense';
-import { ExpensePostgresRepository } from '@expenses/persistence/expense.postgres-repository';
+import { ExpenseDatabaseRepository } from '@app/expenses/persistence/expense.database-repository';
 import { GroupExpense } from '@expenses/domain/expense/group/group-expense';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { Table } from '@infra/database/table';
 
-export class ExpensePostgresTestingRepository extends ExpensePostgresRepository {
+export class ExpensePostgresTestingRepository extends ExpenseDatabaseRepository {
     async empty(): Promise<void> {
         await this.knex.delete().from(Table.Stakeholders);
         await this.knex.delete().from(Table.Expenses);

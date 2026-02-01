@@ -1,18 +1,18 @@
 import { Application, Providers } from '@test/helpers/application/application';
 import { AuthFakeModule } from '@test/doubles/auth/auth.fake-module';
 import { ClassProvider, Provider, ValueProvider } from '@nestjs/common';
-import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { ContactDatabaseTestingRepository } from '@test/helpers/contact/contact.database-testing-repository';
 import { ContactRepository } from '@contacts/persistence/contact.repository';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { ExpenseRepository } from '@expenses/persistence/expense.repository';
 import { Fixture } from '@test/helpers/fixture';
-import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
+import { GroupDatabaseTestingRepository } from '@test/helpers/group/group.database-testing-repository';
 import { GroupRepository } from '@groups/persistence/group.repository';
 import { InfrastructureModule } from '@infra/infrastructure.module';
 import { Modules } from '@test/helpers/application/model/module';
 import { MessageBroker } from '@infra/messaging/rabbitmq.message-broker';
 import { MessageBrokerSpy } from '@test/doubles/message-broker.spy';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { UserDatabaseTestingRepository } from '@test/helpers/user/user.database-testing-repository';
 import { UserRepository } from '@users/persistence/user.repository';
 
 export const isClassProvider = (
@@ -36,7 +36,7 @@ export const initApplicationWith = (
         providers: [
             {
                 provide: ContactRepository,
-                useClass: ContactPostgresTestingRepository,
+                useClass: ContactDatabaseTestingRepository,
             },
             {
                 provide: ExpenseRepository,
@@ -44,11 +44,11 @@ export const initApplicationWith = (
             },
             {
                 provide: GroupRepository,
-                useClass: GroupPostgresTestingRepository,
+                useClass: GroupDatabaseTestingRepository,
             },
             {
                 provide: UserRepository,
-                useClass: UserPostgresTestingRepository,
+                useClass: UserDatabaseTestingRepository,
             },
             {
                 provide: MessageBroker,
@@ -77,7 +77,7 @@ export const initMessagingApplicationWith = (
             ...providers,
             {
                 provide: ContactRepository,
-                useClass: ContactPostgresTestingRepository,
+                useClass: ContactDatabaseTestingRepository,
             },
             {
                 provide: ExpenseRepository,
@@ -85,11 +85,11 @@ export const initMessagingApplicationWith = (
             },
             {
                 provide: GroupRepository,
-                useClass: GroupPostgresTestingRepository,
+                useClass: GroupDatabaseTestingRepository,
             },
             {
                 provide: UserRepository,
-                useClass: UserPostgresTestingRepository,
+                useClass: UserDatabaseTestingRepository,
             },
         ],
     });

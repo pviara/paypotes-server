@@ -1,6 +1,6 @@
 import { App } from 'supertest/types';
 import { Contact } from '@contacts/domain/contact';
-import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { ContactDatabaseTestingRepository } from '@test/helpers/contact/contact.database-testing-repository';
 import { contactTasksSpecModules as modules } from '@test/helpers/contact/tasks/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
@@ -10,14 +10,14 @@ import { initMessagingApplicationWith } from '@test/helpers/application/utils';
 import { empty, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { setTimeout } from 'node:timers/promises';
 import { User } from '@users/domain/user';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { UserDatabaseTestingRepository } from '@test/helpers/user/user.database-testing-repository';
 import * as request from 'supertest';
 
 describe('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules);
 
-    let contactRepo: ContactPostgresTestingRepository;
-    let userRepo: UserPostgresTestingRepository;
+    let contactRepo: ContactDatabaseTestingRepository;
+    let userRepo: UserDatabaseTestingRepository;
     let httpServer: App;
 
     const NO_PAGE_INDEX = 0;

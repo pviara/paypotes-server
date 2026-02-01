@@ -1,8 +1,8 @@
 import { Group } from '@groups/domain/group';
-import { GroupPostgresRepository } from '@groups/persistence/group.postgres-repository';
+import { GroupDatabaseRepository } from '@app/groups/persistence/group.database-repository';
 import { Table } from '@infra/database/table';
 
-export class GroupPostgresTestingRepository extends GroupPostgresRepository {
+export class GroupDatabaseTestingRepository extends GroupDatabaseRepository {
     async empty(): Promise<void> {
         await this.knex
             .delete()
