@@ -1,7 +1,7 @@
 import { ContactDatabaseTestingRepository } from '@test/helpers/contact/contact.database-testing-repository';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
-import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { GroupDatabaseTestingRepository } from '@test/helpers/group/group.database-testing-repository';
+import { UserDatabaseTestingRepository } from '@test/helpers/user/user.database-testing-repository';
 
 export type RepositoryType =
     | 'contactRepo'
@@ -15,8 +15,8 @@ export type Repositories = {
         : key extends 'expenseRepo'
           ? ExpensePostgresTestingRepository
           : key extends 'groupRepo'
-            ? GroupPostgresTestingRepository
+            ? GroupDatabaseTestingRepository
             : key extends 'userRepo'
-              ? UserPostgresTestingRepository
+              ? UserDatabaseTestingRepository
               : never;
 };

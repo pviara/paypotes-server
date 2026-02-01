@@ -63,7 +63,7 @@ type GroupExpenseDetailedRecord = ExpenseDetailedRecord & {
 
 const MAX_EXPENSES_LIMIT = 20;
 
-export class ExpensePostgresRepository implements ExpenseRepository {
+export class ExpenseDatabaseRepository implements ExpenseRepository {
     constructor(
         private configService: ConfigService,
         protected groupRepository: GroupRepository,

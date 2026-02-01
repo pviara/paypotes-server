@@ -1,8 +1,8 @@
 import { Table } from '@infra/database/table';
 import { User } from '@users/domain/user';
-import { UserPostgresRepository } from '@users/persistence/user.postgres-repository';
+import { UserDatabaseRepository } from '@app/users/persistence/user.database-repository';
 
-export class UserPostgresTestingRepository extends UserPostgresRepository {
+export class UserDatabaseTestingRepository extends UserDatabaseRepository {
     async empty(): Promise<void> {
         await this.knex
             .delete()

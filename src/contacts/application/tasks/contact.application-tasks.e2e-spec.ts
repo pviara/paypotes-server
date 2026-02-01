@@ -10,14 +10,14 @@ import { initMessagingApplicationWith } from '@test/helpers/application/utils';
 import { empty, mapIdsFrom, shutdown } from '@test/helpers/utils';
 import { setTimeout } from 'node:timers/promises';
 import { User } from '@users/domain/user';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { UserDatabaseTestingRepository } from '@test/helpers/user/user.database-testing-repository';
 import * as request from 'supertest';
 
 describe('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules);
 
     let contactRepo: ContactDatabaseTestingRepository;
-    let userRepo: UserPostgresTestingRepository;
+    let userRepo: UserDatabaseTestingRepository;
     let httpServer: App;
 
     const NO_PAGE_INDEX = 0;

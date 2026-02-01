@@ -30,11 +30,11 @@ import {
     GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
-import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
+import { GroupDatabaseTestingRepository } from '@test/helpers/group/group.database-testing-repository';
 import { Member } from '@groups/domain/member';
 import { PairExpense } from '@expenses/domain/expense/pair/pair-expense';
 import { User } from '@users/domain/user';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { UserDatabaseTestingRepository } from '@test/helpers/user/user.database-testing-repository';
 
 type Options = { length: number };
 
@@ -42,8 +42,8 @@ export class Fixture {
     private constructor(
         private contactRepo: ContactDatabaseTestingRepository,
         private expenseRepo: ExpensePostgresTestingRepository,
-        private groupRepo: GroupPostgresTestingRepository,
-        private userRepo: UserPostgresTestingRepository,
+        private groupRepo: GroupDatabaseTestingRepository,
+        private userRepo: UserDatabaseTestingRepository,
     ) {}
 
     static create(application: Application): Fixture {

@@ -22,23 +22,23 @@ import {
     GroupExpenseBuilder,
     GroupPayment,
 } from '@expenses/domain/expense/group/group-expense';
-import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
+import { GroupDatabaseTestingRepository } from '@test/helpers/group/group.database-testing-repository';
 import { GroupWithBalanceDTO } from '@groups/presentation/dto/group-with-balance.dto';
 import { GROUPS_API_ROUTE } from '@groups/presentation/group.controller';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { Member } from '@groups/domain/member';
 import { User } from '@users/domain/user';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { UserDatabaseTestingRepository } from '@test/helpers/user/user.database-testing-repository';
 import * as request from 'supertest';
 
 describe('GroupController', () => {
     const application = initApplicationWith(modules);
 
     let httpServer: App;
-    let groupRepo: GroupPostgresTestingRepository;
+    let groupRepo: GroupDatabaseTestingRepository;
     let expenseRepo: ExpensePostgresTestingRepository;
-    let userRepo: UserPostgresTestingRepository;
+    let userRepo: UserDatabaseTestingRepository;
 
     beforeAll(async () => {
         await application.bootstrap();

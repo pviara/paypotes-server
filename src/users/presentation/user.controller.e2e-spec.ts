@@ -4,7 +4,7 @@ import { empty, raw, shutdown } from '@test/helpers/utils';
 import { HttpStatus } from '@nestjs/common';
 import { initApplicationWith } from '@test/helpers/application/utils';
 import { UserDTO } from '@users/presentation/dto/user.dto';
-import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
+import { UserDatabaseTestingRepository } from '@test/helpers/user/user.database-testing-repository';
 import {
     userSpecModules as modules,
     generateRandomUser,
@@ -17,7 +17,7 @@ describe('UserController', () => {
     const application = initApplicationWith(modules);
 
     let httpServer: App;
-    let userRepo: UserPostgresTestingRepository;
+    let userRepo: UserDatabaseTestingRepository;
 
     beforeAll(async () => {
         await application.bootstrap();
