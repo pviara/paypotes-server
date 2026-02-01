@@ -1,6 +1,6 @@
 import { App } from 'supertest/types';
 import { Contact } from '@contacts/domain/contact';
-import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { ContactDatabaseTestingRepository } from '@test/helpers/contact/contact.database-testing-repository';
 import { contactTasksSpecModules as modules } from '@test/helpers/contact/tasks/utils';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { EXPENSES_API_ROUTE } from '@expenses/presentation/expense.controller';
@@ -16,7 +16,7 @@ import * as request from 'supertest';
 describe('contact application tasks', () => {
     const application = initMessagingApplicationWith(modules);
 
-    let contactRepo: ContactPostgresTestingRepository;
+    let contactRepo: ContactDatabaseTestingRepository;
     let userRepo: UserPostgresTestingRepository;
     let httpServer: App;
 

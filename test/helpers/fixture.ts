@@ -1,6 +1,6 @@
 import { Application } from '@test/helpers/application/application';
 import { Contact } from '@contacts/domain/contact';
-import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { ContactDatabaseTestingRepository } from '@test/helpers/contact/contact.database-testing-repository';
 import { DEFAULT_USER } from '@test/doubles/auth/default-user';
 import { Expense } from '@expenses/domain/expense/expense';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
@@ -40,7 +40,7 @@ type Options = { length: number };
 
 export class Fixture {
     private constructor(
-        private contactRepo: ContactPostgresTestingRepository,
+        private contactRepo: ContactDatabaseTestingRepository,
         private expenseRepo: ExpensePostgresTestingRepository,
         private groupRepo: GroupPostgresTestingRepository,
         private userRepo: UserPostgresTestingRepository,

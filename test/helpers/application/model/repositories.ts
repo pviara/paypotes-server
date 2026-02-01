@@ -1,4 +1,4 @@
-import { ContactPostgresTestingRepository } from '@test/helpers/contact/contact.postgres-testing-repository';
+import { ContactDatabaseTestingRepository } from '@test/helpers/contact/contact.database-testing-repository';
 import { ExpensePostgresTestingRepository } from '@test/helpers/expense/expense.testing-repository';
 import { GroupPostgresTestingRepository } from '@test/helpers/group/group.postgres-testing-repository';
 import { UserPostgresTestingRepository } from '@test/helpers/user/user.postgres-testing-repository';
@@ -11,7 +11,7 @@ export type RepositoryType =
 
 export type Repositories = {
     [key in RepositoryType]: key extends 'contactRepo'
-        ? ContactPostgresTestingRepository
+        ? ContactDatabaseTestingRepository
         : key extends 'expenseRepo'
           ? ExpensePostgresTestingRepository
           : key extends 'groupRepo'

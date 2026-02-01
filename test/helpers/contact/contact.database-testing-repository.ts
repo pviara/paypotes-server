@@ -1,8 +1,8 @@
-import { ContactPostgresRepository } from '@contacts/persistence/contact.postgres-repository';
+import { ContactDatabaseRepository } from '@app/contacts/persistence/contact.database-repository';
 import { Relationship } from '@test/helpers/contact/relationship';
 import { Table } from '@infra/database/table';
 
-export class ContactPostgresTestingRepository extends ContactPostgresRepository {
+export class ContactDatabaseTestingRepository extends ContactDatabaseRepository {
     async empty(): Promise<void> {
         await this.knex.delete().from(Table.Relationships);
     }
