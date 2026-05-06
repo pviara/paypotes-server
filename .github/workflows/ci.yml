@@ -51,7 +51,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:17
+        image: postgres:17-alpine
         ports:
           - 5433:5432
         env:
@@ -60,7 +60,7 @@ jobs:
           POSTGRES_DB: 'paypotes'
     
       rabbitmq:
-        image: rabbitmq:4
+        image: rabbitmq:4-alpine
         ports:
           - 5673:5672
         env:

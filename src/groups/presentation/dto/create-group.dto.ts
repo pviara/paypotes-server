@@ -20,7 +20,7 @@ export class CreateGroupDTO {
     emoji!: string;
 
     @IsArray()
-    @ArrayMinSize(2)
+    @ArrayMinSize(1)
     @IsUUID('4', { each: true })
     userIds!: Array<string>;
 }
